@@ -19,11 +19,10 @@ namespace NuGetPackageVerifier
         {
             // TODO: Take a switch saying whether to use TeamCity logger
 
-            // TODO: Add a way to read ignores from file
+            // TODO: Get this from the command line
+            var ignoreAssistanceMode = IgnoreAssistanceMode.None;
 
-
-            // TODO: IgnoreMode: Normal, DumpAll, DumpDelta to help ignoring stuff
-            bool ignoreAlreadyIgnoredIssues = true;
+            ignoreAssistanceMode = IgnoreAssistanceMode.ShowNew;
 
             if (args.Length < 1 || args.Length > 2)
             {
@@ -33,7 +32,8 @@ namespace NuGetPackageVerifier
 
             var logger = new PackageVerifierLogger();
 
-            IDictionary<string, IDictionary<string, IDictionary<string, string>>> ignoresInFile = null;
+            IList<IssueIgnore> issuesToIgnore = null;
+
             if (args.Length >= 2)
             {
                 string ignoreJsonFilePath = args[1];
@@ -43,11 +43,7 @@ namespace NuGetPackageVerifier
                     return ReturnBadArgs;
                 }
 
-                string ignoreJsonFileContent = File.ReadAllText(ignoreJsonFilePath);
-
-                ignoresInFile = JsonConvert.DeserializeObject<IDictionary<string, IDictionary<string, IDictionary<string, string>>>>(ignoreJsonFileContent);
-
-                logger.LogInfo("Read JSON ignore file from {0} with {1} ignore(s)", ignoreJsonFilePath, ignoresInFile.Sum(package => package.Value.Sum(issue => issue.Value.Count())));
+                issuesToIgnore = GetIgnoresFromFile(ignoreJsonFilePath, logger);
             }
 
             var totalTimeStopWatch = Stopwatch.StartNew();
@@ -55,31 +51,6 @@ namespace NuGetPackageVerifier
 
             var nupkgsPath = args[0];
 
-            var issuesToIgnore = new List<IssueIgnore>();
-            if (ignoresInFile != null)
-            {
-                foreach (var packageIgnoreData in ignoresInFile)
-                {
-                    var packageId = packageIgnoreData.Key;
-                    foreach (var ruleIgnoreData in packageIgnoreData.Value)
-                    {
-                        var issueId = ruleIgnoreData.Key;
-                        foreach (var instanceIgnoreData in ruleIgnoreData.Value)
-                        {
-                            var instance = instanceIgnoreData.Key;
-                            var justification = instanceIgnoreData.Value;
-
-                            issuesToIgnore.Add(new IssueIgnore
-                            {
-                                PackageId = packageId,
-                                IssueId = issueId,
-                                Instance = instance,
-                                Justification = justification,
-                            });
-                        }
-                    }
-                }
-            }
 
             var issueProcessor = new IssueProcessor(issuesToIgnore);
 
@@ -102,7 +73,7 @@ namespace NuGetPackageVerifier
             bool anyErrorOrWarnings = false;
 
 
-            var packageIgnoreInfos = new Dictionary<string, IDictionary<string, IDictionary<string, string>>>(StringComparer.OrdinalIgnoreCase);
+            var ignoreAssistanceData = new Dictionary<string, IDictionary<string, IDictionary<string, string>>>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var package in localPackageRepo.GetPackages())
             {
@@ -137,13 +108,15 @@ namespace NuGetPackageVerifier
 
                     foreach (var issueToReport in issuesToReport)
                     {
-                        if (!ignoreAlreadyIgnoredIssues || issueToReport.IgnoreJustification == null)
+                        // If requested, track ignores to assist
+                        if (ignoreAssistanceMode == IgnoreAssistanceMode.ShowAll ||
+                            (ignoreAssistanceMode == IgnoreAssistanceMode.ShowNew && issueToReport.IgnoreJustification == null))
                         {
                             IDictionary<string, IDictionary<string, string>> packageIgnoreInfo;
-                            if (!packageIgnoreInfos.TryGetValue(package.Id, out packageIgnoreInfo))
+                            if (!ignoreAssistanceData.TryGetValue(package.Id, out packageIgnoreInfo))
                             {
                                 packageIgnoreInfo = new Dictionary<string, IDictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
-                                packageIgnoreInfos.Add(package.Id, packageIgnoreInfo);
+                                ignoreAssistanceData.Add(package.Id, packageIgnoreInfo);
                             }
                             IDictionary<string, string> packageRuleInfo;
                             if (!packageIgnoreInfo.TryGetValue(issueToReport.PackageIssue.IssueId, out packageRuleInfo))
@@ -167,13 +140,57 @@ namespace NuGetPackageVerifier
                 Console.WriteLine();
             }
 
-            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(packageIgnoreInfos, Newtonsoft.Json.Formatting.Indented));
+            if (ignoreAssistanceMode != IgnoreAssistanceMode.None)
+            {
+                Console.WriteLine("Showing JSON for ignore content:");
+                Console.WriteLine(JsonConvert.SerializeObject(ignoreAssistanceData, Formatting.Indented));
+                Console.WriteLine();
+            }
+
+            // TODO: Show total errors and warnings here
 
             totalTimeStopWatch.Stop();
             logger.LogInfo("Total took {0}ms", totalTimeStopWatch.ElapsedMilliseconds);
 
-
             return anyErrorOrWarnings ? ReturnErrorsOrWarnings : ReturnOk;
+        }
+
+        private static IList<IssueIgnore> GetIgnoresFromFile(string ignoreJsonFilePath, IPackageVerifierLogger logger)
+        {
+            string ignoreJsonFileContent = File.ReadAllText(ignoreJsonFilePath);
+
+            IDictionary<string, IDictionary<string, IDictionary<string, string>>> ignoresInFile = null;
+            ignoresInFile = JsonConvert.DeserializeObject<IDictionary<string, IDictionary<string, IDictionary<string, string>>>>(ignoreJsonFileContent);
+
+            var issuesToIgnore = new List<IssueIgnore>();
+            if (ignoresInFile != null)
+            {
+                foreach (var packageIgnoreData in ignoresInFile)
+                {
+                    var packageId = packageIgnoreData.Key;
+                    foreach (var ruleIgnoreData in packageIgnoreData.Value)
+                    {
+                        var issueId = ruleIgnoreData.Key;
+                        foreach (var instanceIgnoreData in ruleIgnoreData.Value)
+                        {
+                            var instance = instanceIgnoreData.Key;
+                            var justification = instanceIgnoreData.Value;
+
+                            issuesToIgnore.Add(new IssueIgnore
+                            {
+                                PackageId = packageId,
+                                IssueId = issueId,
+                                Instance = instance,
+                                Justification = justification,
+                            });
+                        }
+                    }
+                }
+            }
+
+            logger.LogInfo("Read JSON ignore file from {0} with {1} ignore(s)", ignoreJsonFilePath, ignoresInFile.Sum(package => package.Value.Sum(issue => issue.Value.Count())));
+
+            return issuesToIgnore;
         }
 
         private static void PrintPackageIssue(IPackageVerifierLogger logger, IssueReport issue)

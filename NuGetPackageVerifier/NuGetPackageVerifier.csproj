@@ -66,6 +66,7 @@
     <Compile Include="IssueIgnore.cs" />
     <Compile Include="IssueProcessor.cs" />
     <Compile Include="IssueReport.cs" />
+    <Compile Include="IgnoreAssistanceMode.cs" />
     <Compile Include="StrictSemanticVersionValidationRule.cs" />
     <Compile Include="PowerShellScriptIsSignedRule.cs" />
     <Compile Include="PackageVerifierIssue.cs" />

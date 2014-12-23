@@ -6,7 +6,7 @@ namespace NuGetPackageVerifier
 {
     public class SatellitePackageRule : IPackageVerifierRule
     {
-        public IEnumerable<MyPackageIssue> Validate(IPackageRepository packageRepo, IPackage package, IPackageVerifierLogger logger)
+        public IEnumerable<PackageVerifierIssue> Validate(IPackageRepository packageRepo, IPackage package, IPackageVerifierLogger logger)
         {
             if (package.IsSatellitePackage())
             {

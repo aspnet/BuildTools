@@ -4,91 +4,91 @@ namespace NuGetPackageVerifier
 {
     public static class PackageIssueFactory
     {
-        public static MyPackageIssue AssemblyNotStrongNameSigned(string assemblyPath, int hResult)
+        public static PackageVerifierIssue AssemblyNotStrongNameSigned(string assemblyPath, int hResult)
         {
             // TODO: Translate common HRESULTS http://blogs.msdn.com/b/yizhang/
-            return new MyPackageIssue("SIGN_STRONGNAME", assemblyPath, string.Format("The managed assembly '{0}' in this package is either not signed or is delay signed. HRESULT=0x{1:X}", assemblyPath, hResult), MyPackageIssueLevel.Error);
+            return new PackageVerifierIssue("SIGN_STRONGNAME", assemblyPath, string.Format("The managed assembly '{0}' in this package is either not signed or is delay signed. HRESULT=0x{1:X}", assemblyPath, hResult), MyPackageIssueLevel.Error);
         }
 
-        public static MyPackageIssue NotSemanticVersion(SemanticVersion version)
+        public static PackageVerifierIssue NotSemanticVersion(SemanticVersion version)
         {
-            return new MyPackageIssue("VERSION_NOTSEMANTIC",
+            return new PackageVerifierIssue("VERSION_NOTSEMANTIC",
                     string.Format("Version '{0}' does not follow semantic versioning guidelines.", version), MyPackageIssueLevel.Error);
         }
 
-        public static MyPackageIssue Satellite_PackageSummaryNotLocalized()
+        public static PackageVerifierIssue Satellite_PackageSummaryNotLocalized()
         {
-            return new MyPackageIssue("LOC_SUMMARY", "Package summary is not localized correctly", MyPackageIssueLevel.Error);
+            return new PackageVerifierIssue("LOC_SUMMARY", "Package summary is not localized correctly", MyPackageIssueLevel.Error);
         }
 
-        public static MyPackageIssue Satellite_PackageTitleNotLocalized()
+        public static PackageVerifierIssue Satellite_PackageTitleNotLocalized()
         {
-            return new MyPackageIssue("LOC_TITLE", "Package title is not localized correctly", MyPackageIssueLevel.Error);
+            return new PackageVerifierIssue("LOC_TITLE", "Package title is not localized correctly", MyPackageIssueLevel.Error);
         }
 
-        public static MyPackageIssue Satellite_PackageDescriptionNotLocalized()
+        public static PackageVerifierIssue Satellite_PackageDescriptionNotLocalized()
         {
-            return new MyPackageIssue("LOC_DESC", "Package description is not localized correctly", MyPackageIssueLevel.Error);
+            return new PackageVerifierIssue("LOC_DESC", "Package description is not localized correctly", MyPackageIssueLevel.Error);
         }
 
-        public static MyPackageIssue RequiredCopyright()
+        public static PackageVerifierIssue RequiredCopyright()
         {
             return RequiredCore("NUSPEC_COPYRIGHT", "Copyright", MyPackageIssueLevel.Error);
         }
 
-        public static MyPackageIssue RequiredLicenseUrl()
+        public static PackageVerifierIssue RequiredLicenseUrl()
         {
             return RequiredCore("NUSPEC_LICENSEURL", "License Url", MyPackageIssueLevel.Error);
         }
 
-        public static MyPackageIssue RequiredIconUrl()
+        public static PackageVerifierIssue RequiredIconUrl()
         {
             return RequiredCore("NUSPEC_ICONURL", "Icon Url", MyPackageIssueLevel.Warning);
         }
 
-        public static MyPackageIssue RequiredTags()
+        public static PackageVerifierIssue RequiredTags()
         {
             return RequiredCore("NUSPEC_TAGS", "Tags", MyPackageIssueLevel.Warning);
         }
 
-        public static MyPackageIssue RequiredTitle()
+        public static PackageVerifierIssue RequiredTitle()
         {
             return RequiredCore("NUSPEC_TITLE", "Title", MyPackageIssueLevel.Error);
         }
 
-        public static MyPackageIssue RequiredSummary()
+        public static PackageVerifierIssue RequiredSummary()
         {
             return RequiredCore("NUSPEC_SUMMARY", "Summary", MyPackageIssueLevel.Warning);
         }
 
-        public static MyPackageIssue RequiredProjectUrl()
+        public static PackageVerifierIssue RequiredProjectUrl()
         {
             return RequiredCore("NUSPEC_PROJECTURL", "Project Url", MyPackageIssueLevel.Warning);
         }
 
-        public static MyPackageIssue RequiredRequireLicenseAcceptanceTrue()
+        public static PackageVerifierIssue RequiredRequireLicenseAcceptanceTrue()
         {
-            return new MyPackageIssue("NUSPEC_ACCEPTLICENSE", string.Format("NuSpec Require License Acceptance is not set to true"), MyPackageIssueLevel.Error);
+            return new PackageVerifierIssue("NUSPEC_ACCEPTLICENSE", string.Format("NuSpec Require License Acceptance is not set to true"), MyPackageIssueLevel.Error);
         }
 
-        private static MyPackageIssue RequiredCore(string issueId, string attributeName, MyPackageIssueLevel issueLevel)
+        private static PackageVerifierIssue RequiredCore(string issueId, string attributeName, MyPackageIssueLevel issueLevel)
         {
-            return new MyPackageIssue(issueId, string.Format("NuSpec {0} attribute is missing", attributeName), issueLevel);
+            return new PackageVerifierIssue(issueId, string.Format("NuSpec {0} attribute is missing", attributeName), issueLevel);
         }
 
-        public static MyPackageIssue PowerShellScriptNotSigned(string scriptPath)
+        public static PackageVerifierIssue PowerShellScriptNotSigned(string scriptPath)
         {
-            return new MyPackageIssue("SIGN_POWERSHELL", scriptPath, string.Format("The PowerShell script '{0}' is not signed.", scriptPath), MyPackageIssueLevel.Error);
+            return new PackageVerifierIssue("SIGN_POWERSHELL", scriptPath, string.Format("The PowerShell script '{0}' is not signed.", scriptPath), MyPackageIssueLevel.Error);
         }
 
-        public static MyPackageIssue PEFileNotAuthenticodeSigned(string assemblyPath)
+        public static PackageVerifierIssue PEFileNotAuthenticodeSigned(string assemblyPath)
         {
-            return new MyPackageIssue("SIGN_AUTHENTICODE", assemblyPath, string.Format("The PE file '{0}' in this package is not authenticode signed.", assemblyPath), MyPackageIssueLevel.Error);
+            return new PackageVerifierIssue("SIGN_AUTHENTICODE", assemblyPath, string.Format("The PE file '{0}' in this package is not authenticode signed.", assemblyPath), MyPackageIssueLevel.Error);
         }
 
-        public static MyPackageIssue AssemblyHasNoDocFile(string assemblyPath)
+        public static PackageVerifierIssue AssemblyHasNoDocFile(string assemblyPath)
         {
-            return new MyPackageIssue("DOC_MISSING", assemblyPath, string.Format("The assembly '{0}' doesn't have a corresponding XML document file.", assemblyPath), MyPackageIssueLevel.Warning);
+            return new PackageVerifierIssue("DOC_MISSING", assemblyPath, string.Format("The assembly '{0}' doesn't have a corresponding XML document file.", assemblyPath), MyPackageIssueLevel.Warning);
         }
     }
 }

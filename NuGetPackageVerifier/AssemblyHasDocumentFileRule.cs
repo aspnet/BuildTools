@@ -9,7 +9,7 @@ namespace NuGetPackageVerifier
 {
     public class AssemblyHasDocumentFileRule : IPackageVerifierRule
     {
-        public IEnumerable<MyPackageIssue> Validate(IPackageRepository packageRepo, IPackage package, IPackageVerifierLogger logger)
+        public IEnumerable<PackageVerifierIssue> Validate(IPackageRepository packageRepo, IPackage package, IPackageVerifierLogger logger)
         {
             if (!package.IsSatellitePackage())
             {

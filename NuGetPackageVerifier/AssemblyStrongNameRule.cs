@@ -11,7 +11,7 @@ namespace NuGetPackageVerifier
 {
     public class AssemblyStrongNameRule : IPackageVerifierRule
     {
-        public IEnumerable<MyPackageIssue> Validate(IPackageRepository packageRepo, IPackage package, IPackageVerifierLogger logger)
+        public IEnumerable<PackageVerifierIssue> Validate(IPackageRepository packageRepo, IPackage package, IPackageVerifierLogger logger)
         {
             foreach (IPackageFile currentFile in package.GetFiles())
             {

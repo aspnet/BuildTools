@@ -9,7 +9,7 @@ namespace NuGetPackageVerifier
 {
     public class AuthenticodeSigningRule : IPackageVerifierRule
     {
-        public IEnumerable<MyPackageIssue> Validate(IPackageRepository packageRepo, IPackage package, IPackageVerifierLogger logger)
+        public IEnumerable<PackageVerifierIssue> Validate(IPackageRepository packageRepo, IPackage package, IPackageVerifierLogger logger)
         {
             string packagePath = packageRepo.Source + "\\" + package.Id + "." + package.Version.ToString() + ".nupkg";
             string nupkgWithoutExt = Path.Combine(Path.GetDirectoryName(packagePath), Path.GetFileNameWithoutExtension(packagePath));

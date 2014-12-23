@@ -36,6 +36,9 @@
     <Reference Include="Microsoft.Web.XmlTransform">
       <HintPath>..\packages\Microsoft.Web.Xdt.2.1.0\lib\net40\Microsoft.Web.XmlTransform.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.6\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="NuGet.Core, Version=2.8.50926.602, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\NuGet.Core.2.8.3\lib\net40-Client\NuGet.Core.dll</HintPath>
@@ -65,7 +68,7 @@
     <Compile Include="IssueReport.cs" />
     <Compile Include="StrictSemanticVersionValidationRule.cs" />
     <Compile Include="PowerShellScriptIsSignedRule.cs" />
-    <Compile Include="PackageIssue.cs" />
+    <Compile Include="PackageVerifierIssue.cs" />
     <Compile Include="PackageIssueLevel.cs" />
     <Compile Include="IPackageVerifierRule.cs" />
     <Compile Include="RequiredAttributesRule.cs" />
@@ -76,6 +79,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="ignores.json" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

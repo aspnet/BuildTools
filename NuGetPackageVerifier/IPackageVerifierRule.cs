@@ -6,7 +6,7 @@ namespace NuGetPackageVerifier
 {
     public interface IPackageVerifierRule
     {
-        IEnumerable<MyPackageIssue> Validate(IPackageRepository packageRepo, IPackage package, IPackageVerifierLogger logger);
+        IEnumerable<PackageVerifierIssue> Validate(IPackageRepository packageRepo, IPackage package, IPackageVerifierLogger logger);
     }
 }
 

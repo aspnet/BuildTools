@@ -1,0 +1,62 @@
+﻿{
+    "EntityFramework": {
+        "NUSPEC_TAGS": {
+            "*": "Enter justification"
+        },
+        "NUSPEC_SUMMARY": {
+            "*": "Enter justification"
+        }
+    },
+    "EntityFramework.Commands": {
+        "SIGN_STRONGNAME": {
+            "lib\\aspnet50\\EntityFramework.Commands.dll": "Bogus justification",
+            "lib\\aspnetcore50\\EntityFramework.Commands.dll": "Bogus justification",
+            "lib\\net451\\EntityFramework.Commands.dll": "Bogus justification"
+        },
+        "NUSPEC_TAGS": {
+            "*": "Bogus justification"
+        },
+        "NUSPEC_SUMMARY": {
+            "*": "Bogus justification"
+        }
+    },
+    "EntityFramework.Core": {
+        "SIGN_STRONGNAME": {
+            "lib\\aspnet50\\EntityFramework.Core.dll": "Bogus justification",
+            "lib\\aspnetcore50\\EntityFramework.Core.dll": "Bogus justification",
+            "lib\\net45\\EntityFramework.Core.dll": "Bogus justification"
+        },
+        "NUSPEC_TAGS": {
+            "*": "Bogus justification"
+        },
+        "NUSPEC_SUMMARY": {
+            "*": "Bogus justification"
+        }
+    },
+    "EntityFramework.InMemory": {
+        "SIGN_STRONGNAME": {
+            "lib\\aspnet50\\EntityFramework.InMemory.dll": "Bogus justification",
+            "lib\\aspnetcore50\\EntityFramework.InMemory.dll": "Bogus justification",
+            "lib\\net45\\EntityFramework.InMemory.dll": "Bogus justification"
+        },
+        "NUSPEC_TAGS": {
+            "*": "Bogus justification"
+        },
+        "NUSPEC_SUMMARY": {
+            "*": "Bogus justification"
+        }
+    },
+    "EntityFramework.Migrations": {
+        "SIGN_STRONGNAME": {
+            "lib\\aspnet50\\EntityFramework.Migrations.dll": "Bogus justification",
+            "lib\\aspnetcore50\\EntityFramework.Migrations.dll": "Bogus justification",
+            "lib\\net451\\EntityFramework.Migrations.dll": "Bogus justification"
+        },
+        "NUSPEC_TAGS": {
+            "*": "Bogus justification"
+        },
+        "NUSPEC_SUMMARY": {
+            "*": "Bogus justification"
+        }
+    }
+}

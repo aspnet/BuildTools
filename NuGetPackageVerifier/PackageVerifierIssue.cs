@@ -1,13 +1,13 @@
 ﻿namespace NuGetPackageVerifier
 {
-    public class MyPackageIssue
+    public class PackageVerifierIssue
     {
-        public MyPackageIssue(string issueId, string issue, MyPackageIssueLevel level)
+        public PackageVerifierIssue(string issueId, string issue, MyPackageIssueLevel level)
             : this(issueId, instance: null, issue: issue, level: level)
         {
         }
 
-        public MyPackageIssue(string issueId, string instance, string issue, MyPackageIssueLevel level)
+        public PackageVerifierIssue(string issueId, string instance, string issue, MyPackageIssueLevel level)
         {
             Instance = instance;
             IssueId = issueId;

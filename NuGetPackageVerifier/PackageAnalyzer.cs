@@ -17,9 +17,9 @@ namespace NuGetPackageVerifier
             }
         }
 
-        public IEnumerable<MyPackageIssue> AnalyzePackage(IPackageRepository packageRepo, IPackage package, IPackageVerifierLogger logger)
+        public IEnumerable<PackageVerifierIssue> AnalyzePackage(IPackageRepository packageRepo, IPackage package, IPackageVerifierLogger logger)
         {
-            IEnumerable<MyPackageIssue> packageIssues = new List<MyPackageIssue>();
+            IEnumerable<PackageVerifierIssue> packageIssues = new List<PackageVerifierIssue>();
             foreach (var rule in Rules)
             {
                 var issues = rule.Validate(packageRepo, package, logger).ToList();

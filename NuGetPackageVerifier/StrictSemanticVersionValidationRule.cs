@@ -6,7 +6,7 @@ namespace NuGetPackageVerifier
 {
     public class StrictSemanticVersionValidationRule : IPackageVerifierRule
     {
-        public IEnumerable<MyPackageIssue> Validate(IPackageRepository packageRepo, IPackage package, IPackageVerifierLogger logger)
+        public IEnumerable<PackageVerifierIssue> Validate(IPackageRepository packageRepo, IPackage package, IPackageVerifierLogger logger)
         {
             SemanticVersion semanticVersion;
             if (SemanticVersion.TryParseStrict(package.Version.ToString(), out semanticVersion))

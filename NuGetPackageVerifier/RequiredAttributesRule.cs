@@ -6,7 +6,7 @@ namespace NuGetPackageVerifier
 {
     public class RequiredAttributesRule : IPackageVerifierRule
     {
-        public IEnumerable<MyPackageIssue> Validate(IPackageRepository packageRepo, IPackage package, IPackageVerifierLogger logger)
+        public IEnumerable<PackageVerifierIssue> Validate(IPackageRepository packageRepo, IPackage package, IPackageVerifierLogger logger)
         {
             if (string.IsNullOrEmpty(package.Copyright))
             {

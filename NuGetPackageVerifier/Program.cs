@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 using NuGet;
 using NuGetPackageVerifier.Logging;
 
@@ -18,25 +21,66 @@ namespace NuGetPackageVerifier
 
             // TODO: Add a way to read ignores from file
 
-            if (args.Length != 1)
+
+            // TODO: IgnoreMode: Normal, DumpAll, DumpDelta to help ignoring stuff
+            bool ignoreAlreadyIgnoredIssues = true;
+
+            if (args.Length < 1 || args.Length > 2)
             {
-                Console.WriteLine(@"USAGE: NuGetSuperBVT.exe c:\path\to\packages");
+                Console.WriteLine(@"USAGE: NuGetSuperBVT.exe c:\path\to\packages [c:\path\to\ignore.json]");
                 return ReturnBadArgs;
+            }
+
+            var logger = new PackageVerifierLogger();
+
+            IDictionary<string, IDictionary<string, IDictionary<string, string>>> ignoresInFile = null;
+            if (args.Length >= 2)
+            {
+                string ignoreJsonFilePath = args[1];
+                if (!File.Exists(ignoreJsonFilePath))
+                {
+                    logger.LogError("Couldn't find JSON ignore file at {0}", ignoreJsonFilePath);
+                    return ReturnBadArgs;
+                }
+
+                string ignoreJsonFileContent = File.ReadAllText(ignoreJsonFilePath);
+
+                ignoresInFile = JsonConvert.DeserializeObject<IDictionary<string, IDictionary<string, IDictionary<string, string>>>>(ignoreJsonFileContent);
+
+                logger.LogInfo("Read JSON ignore file from {0} with {1} ignore(s)", ignoreJsonFilePath, ignoresInFile.Sum(package => package.Value.Sum(issue => issue.Value.Count())));
             }
 
             var totalTimeStopWatch = Stopwatch.StartNew();
 
+
             var nupkgsPath = args[0];
 
-            var issuesToIgnore = new[]
+            var issuesToIgnore = new List<IssueIgnore>();
+            if (ignoresInFile != null)
             {
-                new IssueIgnore { IssueId = "NUSPEC_TAGS", Instance = null, PackageId = "EntityFramework", Justification = "Because no tags" },
-                new IssueIgnore { IssueId = "NUSPEC_SUMMARY", Instance = null, PackageId = "EntityFramework", Justification = "Because no summary" },
-                new IssueIgnore { IssueId = "XYZ", Instance = "ZZZ", PackageId = "ABC", Justification = "Because" },
-                new IssueIgnore { IssueId = "XYZ", Instance = "ZZZ", PackageId = "ABC", Justification = "Because" },
-                new IssueIgnore { IssueId = "XYZ", Instance = "ZZZ", PackageId = "ABC", Justification = "Because" },
-                new IssueIgnore { IssueId = "XYZ", Instance = "ZZZ", PackageId = "ABC", Justification = "Because" },
-            };
+                foreach (var packageIgnoreData in ignoresInFile)
+                {
+                    var packageId = packageIgnoreData.Key;
+                    foreach (var ruleIgnoreData in packageIgnoreData.Value)
+                    {
+                        var issueId = ruleIgnoreData.Key;
+                        foreach (var instanceIgnoreData in ruleIgnoreData.Value)
+                        {
+                            var instance = instanceIgnoreData.Key;
+                            var justification = instanceIgnoreData.Value;
+
+                            issuesToIgnore.Add(new IssueIgnore
+                            {
+                                PackageId = packageId,
+                                IssueId = issueId,
+                                Instance = instance,
+                                Justification = justification,
+                            });
+                        }
+                    }
+                }
+            }
+
             var issueProcessor = new IssueProcessor(issuesToIgnore);
 
             var analyzer = new PackageAnalyzer();
@@ -48,7 +92,6 @@ namespace NuGetPackageVerifier
             analyzer.Rules.Add(new SatellitePackageRule());
             analyzer.Rules.Add(new StrictSemanticVersionValidationRule());
 
-            var logger = new PackageVerifierLogger();
 
             // TODO: Switch this to a custom IFileSystem that has only the packages we want (maybe?)
             var localPackageRepo = new LocalPackageRepository(nupkgsPath);
@@ -57,6 +100,9 @@ namespace NuGetPackageVerifier
             logger.LogInfo("Found {0} packages in {1}", numPackagesInRepo, nupkgsPath);
 
             bool anyErrorOrWarnings = false;
+
+
+            var packageIgnoreInfos = new Dictionary<string, IDictionary<string, IDictionary<string, string>>>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var package in localPackageRepo.GetPackages())
             {
@@ -89,9 +135,26 @@ namespace NuGetPackageVerifier
                         "{0} error(s), {1} warning(s), and {2} info(s) found with package {3} ({4})",
                         errors.Count, warnings.Count, infos.Count, package.Id, package.Version);
 
-                    foreach (var current in issuesToReport)
+                    foreach (var issueToReport in issuesToReport)
                     {
-                        PrintPackageIssue(logger, current);
+                        if (!ignoreAlreadyIgnoredIssues || issueToReport.IgnoreJustification == null)
+                        {
+                            IDictionary<string, IDictionary<string, string>> packageIgnoreInfo;
+                            if (!packageIgnoreInfos.TryGetValue(package.Id, out packageIgnoreInfo))
+                            {
+                                packageIgnoreInfo = new Dictionary<string, IDictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
+                                packageIgnoreInfos.Add(package.Id, packageIgnoreInfo);
+                            }
+                            IDictionary<string, string> packageRuleInfo;
+                            if (!packageIgnoreInfo.TryGetValue(issueToReport.PackageIssue.IssueId, out packageRuleInfo))
+                            {
+                                packageRuleInfo = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                                packageIgnoreInfo.Add(issueToReport.PackageIssue.IssueId, packageRuleInfo);
+                            }
+                            packageRuleInfo.Add(issueToReport.PackageIssue.Instance ?? "*", issueToReport.IgnoreJustification ?? "Enter justification");
+                        }
+
+                        PrintPackageIssue(logger, issueToReport);
                     }
                 }
                 else
@@ -103,6 +166,8 @@ namespace NuGetPackageVerifier
                 logger.LogInfo("Took {0}ms", packageTimeStopWatch.ElapsedMilliseconds);
                 Console.WriteLine();
             }
+
+            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(packageIgnoreInfos, Newtonsoft.Json.Formatting.Indented));
 
             totalTimeStopWatch.Stop();
             logger.LogInfo("Total took {0}ms", totalTimeStopWatch.ElapsedMilliseconds);

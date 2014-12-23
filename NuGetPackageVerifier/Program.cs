@@ -70,8 +70,7 @@ namespace NuGetPackageVerifier
             var numPackagesInRepo = localPackageRepo.GetPackages().Count();
             logger.LogInfo("Found {0} packages in {1}", numPackagesInRepo, nupkgsPath);
 
-            bool anyErrorOrWarnings = false;
-
+            Tuple<int, int> errorsAndWarnings = new Tuple<int, int>(0, 0);
 
             var ignoreAssistanceData = new Dictionary<string, IDictionary<string, IDictionary<string, string>>>(StringComparer.OrdinalIgnoreCase);
 
@@ -82,58 +81,13 @@ namespace NuGetPackageVerifier
                 logger.LogInfo("Analyzing {0} ({1})", package.Id, package.Version);
                 var issues = analyzer.AnalyzePackage(localPackageRepo, package, logger).ToList();
 
-                var issuesToReport = issues.Select(issue => issueProcessor.GetIssueReport(issue, package)).ToList();
+                var packageErrorsAndWarnings = ProcessPackageIssues(
+                    ignoreAssistanceMode, logger, issueProcessor,
+                    ignoreAssistanceData, package, issues);
 
-                if (issuesToReport.Count > 0)
-                {
-                    var infos = issuesToReport.Where(issueReport => issueReport.IssueLevel == LogLevel.Info).ToList();
-                    var warnings = issuesToReport.Where(issueReport => issueReport.IssueLevel == LogLevel.Warning).ToList();
-                    var errors = issuesToReport.Where(issueReport => issueReport.IssueLevel == LogLevel.Error).ToList();
-
-                    LogLevel errorLevel = LogLevel.Info;
-                    if (warnings.Count > 0)
-                    {
-                        errorLevel = LogLevel.Warning;
-                        anyErrorOrWarnings = true;
-                    }
-                    if (errors.Count > 0)
-                    {
-                        errorLevel = LogLevel.Error;
-                        anyErrorOrWarnings = true;
-                    }
-                    logger.Log(
-                        errorLevel,
-                        "{0} error(s), {1} warning(s), and {2} info(s) found with package {3} ({4})",
-                        errors.Count, warnings.Count, infos.Count, package.Id, package.Version);
-
-                    foreach (var issueToReport in issuesToReport)
-                    {
-                        // If requested, track ignores to assist
-                        if (ignoreAssistanceMode == IgnoreAssistanceMode.ShowAll ||
-                            (ignoreAssistanceMode == IgnoreAssistanceMode.ShowNew && issueToReport.IgnoreJustification == null))
-                        {
-                            IDictionary<string, IDictionary<string, string>> packageIgnoreInfo;
-                            if (!ignoreAssistanceData.TryGetValue(package.Id, out packageIgnoreInfo))
-                            {
-                                packageIgnoreInfo = new Dictionary<string, IDictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
-                                ignoreAssistanceData.Add(package.Id, packageIgnoreInfo);
-                            }
-                            IDictionary<string, string> packageRuleInfo;
-                            if (!packageIgnoreInfo.TryGetValue(issueToReport.PackageIssue.IssueId, out packageRuleInfo))
-                            {
-                                packageRuleInfo = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-                                packageIgnoreInfo.Add(issueToReport.PackageIssue.IssueId, packageRuleInfo);
-                            }
-                            packageRuleInfo.Add(issueToReport.PackageIssue.Instance ?? "*", issueToReport.IgnoreJustification ?? "Enter justification");
-                        }
-
-                        PrintPackageIssue(logger, issueToReport);
-                    }
-                }
-                else
-                {
-                    logger.LogInfo("No issues found with package {0}", package.Id, package.Version);
-                }
+                errorsAndWarnings = new Tuple<int, int>(
+                    errorsAndWarnings.Item1 + packageErrorsAndWarnings.Item1,
+                    errorsAndWarnings.Item2 + packageErrorsAndWarnings.Item2);
 
                 packageTimeStopWatch.Stop();
                 logger.LogInfo("Took {0}ms", packageTimeStopWatch.ElapsedMilliseconds);
@@ -147,12 +101,88 @@ namespace NuGetPackageVerifier
                 Console.WriteLine();
             }
 
-            // TODO: Show total errors and warnings here
+            LogLevel errorLevel = LogLevel.Info;
+            if (errorsAndWarnings.Item2 > 0)
+            {
+                errorLevel = LogLevel.Warning;
+            }
+            if (errorsAndWarnings.Item1 > 0)
+            {
+                errorLevel = LogLevel.Error;
+            }
+            logger.Log(
+                errorLevel,
+                "SUMMARY: {0} error(s) and {1} warning(s) found",
+                errorsAndWarnings.Item1, errorsAndWarnings.Item2);
 
             totalTimeStopWatch.Stop();
             logger.LogInfo("Total took {0}ms", totalTimeStopWatch.ElapsedMilliseconds);
 
-            return anyErrorOrWarnings ? ReturnErrorsOrWarnings : ReturnOk;
+
+            return (errorsAndWarnings.Item1 + errorsAndWarnings.Item2 > 0) ? ReturnErrorsOrWarnings : ReturnOk;
+        }
+
+        private static Tuple<int, int> ProcessPackageIssues(
+            IgnoreAssistanceMode ignoreAssistanceMode,
+            PackageVerifierLogger logger,
+            IssueProcessor issueProcessor,
+            Dictionary<string, IDictionary<string, IDictionary<string, string>>> ignoreAssistanceData,
+            IPackage package,
+            List<PackageVerifierIssue> issues)
+        {
+            var issuesToReport = issues.Select(issue => issueProcessor.GetIssueReport(issue, package)).ToList();
+
+            if (issuesToReport.Count > 0)
+            {
+                var infos = issuesToReport.Where(issueReport => issueReport.IssueLevel == LogLevel.Info).ToList();
+                var warnings = issuesToReport.Where(issueReport => issueReport.IssueLevel == LogLevel.Warning).ToList();
+                var errors = issuesToReport.Where(issueReport => issueReport.IssueLevel == LogLevel.Error).ToList();
+
+                LogLevel errorLevel = LogLevel.Info;
+                if (warnings.Count > 0)
+                {
+                    errorLevel = LogLevel.Warning;
+                }
+                if (errors.Count > 0)
+                {
+                    errorLevel = LogLevel.Error;
+                }
+                logger.Log(
+                    errorLevel,
+                    "{0} error(s) and {1} warning(s) found with package {2} ({3})",
+                    errors.Count, warnings.Count, package.Id, package.Version);
+
+                foreach (var issueToReport in issuesToReport)
+                {
+                    // If requested, track ignores to assist
+                    if (ignoreAssistanceMode == IgnoreAssistanceMode.ShowAll ||
+                        (ignoreAssistanceMode == IgnoreAssistanceMode.ShowNew && issueToReport.IgnoreJustification == null))
+                    {
+                        IDictionary<string, IDictionary<string, string>> packageIgnoreInfo;
+                        if (!ignoreAssistanceData.TryGetValue(package.Id, out packageIgnoreInfo))
+                        {
+                            packageIgnoreInfo = new Dictionary<string, IDictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
+                            ignoreAssistanceData.Add(package.Id, packageIgnoreInfo);
+                        }
+                        IDictionary<string, string> packageRuleInfo;
+                        if (!packageIgnoreInfo.TryGetValue(issueToReport.PackageIssue.IssueId, out packageRuleInfo))
+                        {
+                            packageRuleInfo = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                            packageIgnoreInfo.Add(issueToReport.PackageIssue.IssueId, packageRuleInfo);
+                        }
+                        packageRuleInfo.Add(issueToReport.PackageIssue.Instance ?? "*", issueToReport.IgnoreJustification ?? "Enter justification");
+                    }
+
+                    PrintPackageIssue(logger, issueToReport);
+                }
+
+                return new Tuple<int, int>(errors.Count, warnings.Count);
+            }
+            else
+            {
+                logger.LogInfo("No issues found with package {0}", package.Id, package.Version);
+                return new Tuple<int, int>(0, 0);
+            }
         }
 
         private static IList<IssueIgnore> GetIgnoresFromFile(string ignoreJsonFilePath, IPackageVerifierLogger logger)

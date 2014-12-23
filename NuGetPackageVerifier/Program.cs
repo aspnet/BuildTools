@@ -48,9 +48,7 @@ namespace NuGetPackageVerifier
 
             var totalTimeStopWatch = Stopwatch.StartNew();
 
-
             var nupkgsPath = args[0];
-
 
             var issueProcessor = new IssueProcessor(issuesToIgnore);
 
@@ -70,7 +68,8 @@ namespace NuGetPackageVerifier
             var numPackagesInRepo = localPackageRepo.GetPackages().Count();
             logger.LogInfo("Found {0} packages in {1}", numPackagesInRepo, nupkgsPath);
 
-            Tuple<int, int> errorsAndWarnings = new Tuple<int, int>(0, 0);
+            var totalErrors = 0;
+            var totalWarnings = 0;
 
             var ignoreAssistanceData = new Dictionary<string, IDictionary<string, IDictionary<string, string>>>(StringComparer.OrdinalIgnoreCase);
 
@@ -85,9 +84,8 @@ namespace NuGetPackageVerifier
                     ignoreAssistanceMode, logger, issueProcessor,
                     ignoreAssistanceData, package, issues);
 
-                errorsAndWarnings = new Tuple<int, int>(
-                    errorsAndWarnings.Item1 + packageErrorsAndWarnings.Item1,
-                    errorsAndWarnings.Item2 + packageErrorsAndWarnings.Item2);
+                totalErrors += packageErrorsAndWarnings.Item1;
+                totalWarnings += packageErrorsAndWarnings.Item2;
 
                 packageTimeStopWatch.Stop();
                 logger.LogInfo("Took {0}ms", packageTimeStopWatch.ElapsedMilliseconds);
@@ -102,24 +100,24 @@ namespace NuGetPackageVerifier
             }
 
             LogLevel errorLevel = LogLevel.Info;
-            if (errorsAndWarnings.Item2 > 0)
+            if (totalWarnings > 0)
             {
                 errorLevel = LogLevel.Warning;
             }
-            if (errorsAndWarnings.Item1 > 0)
+            if (totalErrors > 0)
             {
                 errorLevel = LogLevel.Error;
             }
             logger.Log(
                 errorLevel,
                 "SUMMARY: {0} error(s) and {1} warning(s) found",
-                errorsAndWarnings.Item1, errorsAndWarnings.Item2);
+                totalErrors, totalWarnings);
 
             totalTimeStopWatch.Stop();
             logger.LogInfo("Total took {0}ms", totalTimeStopWatch.ElapsedMilliseconds);
 
 
-            return (errorsAndWarnings.Item1 + errorsAndWarnings.Item2 > 0) ? ReturnErrorsOrWarnings : ReturnOk;
+            return (totalErrors + totalWarnings > 0) ? ReturnErrorsOrWarnings : ReturnOk;
         }
 
         private static Tuple<int, int> ProcessPackageIssues(

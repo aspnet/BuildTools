@@ -21,15 +21,23 @@ namespace NuGetPackageVerifier
 
         public IssueReport GetIssueReport(PackageVerifierIssue packageIssue, IPackage package)
         {
-            var ignoredRules = IssuesToIgnore.Where(
-                issueIgnore =>
-                    string.Equals(issueIgnore.IssueId, packageIssue.IssueId, StringComparison.OrdinalIgnoreCase) &&
-                    string.Equals(issueIgnore.Instance, packageIssue.Instance ?? "*", StringComparison.OrdinalIgnoreCase) &&
-                    string.Equals(issueIgnore.PackageId, package.Id, StringComparison.OrdinalIgnoreCase));
+            if (IssuesToIgnore != null)
+            {
+                // If there are issues to ignore, process them
+                var ignoredRules = IssuesToIgnore.Where(
+                    issueIgnore =>
+                        string.Equals(issueIgnore.IssueId, packageIssue.IssueId, StringComparison.OrdinalIgnoreCase) &&
+                        string.Equals(issueIgnore.Instance, packageIssue.Instance ?? "*", StringComparison.OrdinalIgnoreCase) &&
+                        string.Equals(issueIgnore.PackageId, package.Id, StringComparison.OrdinalIgnoreCase));
 
-            var firstIgnoreRule = ignoredRules.FirstOrDefault();
-
-            return new IssueReport(packageIssue, firstIgnoreRule != null, firstIgnoreRule?.Justification);
+                var firstIgnoreRule = ignoredRules.FirstOrDefault();
+                return new IssueReport(packageIssue, firstIgnoreRule != null, firstIgnoreRule?.Justification);
+            }
+            else
+            {
+                // If nothing to ignore, just report the issue as-is
+                return new IssueReport(packageIssue, false, null);
+            }
         }
     }
 }

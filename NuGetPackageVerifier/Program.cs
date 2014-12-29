@@ -226,7 +226,7 @@ namespace NuGetPackageVerifier
             // TODO: Support this: https://confluence.jetbrains.com/display/TCD8/Build+Script+Interaction+with+TeamCity
 
             var issueInfo = issue.PackageIssue.IssueId;
-            if (issue.PackageIssue.Instance == null)
+            if (issue.PackageIssue.Instance != null)
             {
                 issueInfo += " @ " + issue.PackageIssue.Instance;
             }

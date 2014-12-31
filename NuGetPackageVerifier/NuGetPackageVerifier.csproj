@@ -59,28 +59,28 @@
     <Compile Include="Logging\IPackageVerifierLogger.cs" />
     <Compile Include="Logging\LogLevel.cs" />
     <Compile Include="PackageAnalyzer.cs" />
-    <Compile Include="AssemblyHasDocumentFileRule.cs" />
-    <Compile Include="AssemblyStrongNameRule.cs" />
-    <Compile Include="AuthenticodeSigningRule.cs" />
+    <Compile Include="Rules\AssemblyHasDocumentFileRule.cs" />
+    <Compile Include="Rules\AssemblyStrongNameRule.cs" />
+    <Compile Include="Rules\AuthenticodeSigningRule.cs" />
     <Compile Include="PackageIssueFactory.cs" />
     <Compile Include="IssueIgnore.cs" />
     <Compile Include="IssueProcessor.cs" />
     <Compile Include="IssueReport.cs" />
     <Compile Include="IgnoreAssistanceMode.cs" />
-    <Compile Include="StrictSemanticVersionValidationRule.cs" />
-    <Compile Include="PowerShellScriptIsSignedRule.cs" />
+    <Compile Include="Rules\StrictSemanticVersionValidationRule.cs" />
+    <Compile Include="Rules\PowerShellScriptIsSignedRule.cs" />
     <Compile Include="PackageVerifierIssue.cs" />
     <Compile Include="PackageIssueLevel.cs" />
     <Compile Include="IPackageVerifierRule.cs" />
-    <Compile Include="RequiredAttributesRule.cs" />
-    <Compile Include="SatellitePackageRule.cs" />
+    <Compile Include="Rules\RequiredAttributesRule.cs" />
+    <Compile Include="Rules\SatellitePackageRule.cs" />
     <Compile Include="WinTrust.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="ignores.json" />
+    <None Include="packages-to-scan.json" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

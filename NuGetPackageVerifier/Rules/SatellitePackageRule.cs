@@ -2,7 +2,7 @@
 using NuGet;
 using NuGetPackageVerifier.Logging;
 
-namespace NuGetPackageVerifier
+namespace NuGetPackageVerifier.Rules
 {
     public class SatellitePackageRule : IPackageVerifierRule
     {

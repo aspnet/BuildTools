@@ -5,7 +5,7 @@ using System.IO;
 using System.IO.Compression;
 using NuGetPackageVerifier.Logging;
 
-namespace NuGetPackageVerifier
+namespace NuGetPackageVerifier.Rules
 {
     public class AuthenticodeSigningRule : IPackageVerifierRule
     {

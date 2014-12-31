@@ -12,7 +12,6 @@ namespace NuGetPackageVerifier
             IssuesToIgnore = issuesToIgnore;
         }
 
-        // TODO: Consider having an interface for smarter ignore rules (e.g. ignore rule X for all instances, ignore rule X on packages matching Foo.Bar.*)
         public IEnumerable<IssueIgnore> IssuesToIgnore
         {
             get;
@@ -31,7 +30,7 @@ namespace NuGetPackageVerifier
                         string.Equals(issueIgnore.PackageId, package.Id, StringComparison.OrdinalIgnoreCase));
 
                 var firstIgnoreRule = ignoredRules.FirstOrDefault();
-                return new IssueReport(packageIssue, firstIgnoreRule != null, firstIgnoreRule?.Justification);
+                return new IssueReport(packageIssue, firstIgnoreRule != null, firstIgnoreRule == null ? null : firstIgnoreRule.Justification);
             }
             else
             {

@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using NuGet;
 using NuGetPackageVerifier.Logging;
 
-namespace NuGetPackageVerifier
+namespace NuGetPackageVerifier.Rules
 {
     public class AssemblyStrongNameRule : IPackageVerifierRule
     {

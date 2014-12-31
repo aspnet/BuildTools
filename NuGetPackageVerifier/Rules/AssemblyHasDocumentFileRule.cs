@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using NuGetPackageVerifier.Logging;
 
-namespace NuGetPackageVerifier
+namespace NuGetPackageVerifier.Rules
 {
     public class AssemblyHasDocumentFileRule : IPackageVerifierRule
     {

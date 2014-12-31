@@ -6,9 +6,19 @@ using System.Linq;
 using Newtonsoft.Json;
 using NuGet;
 using NuGetPackageVerifier.Logging;
+using NuGetPackageVerifier.Rules;
 
 namespace NuGetPackageVerifier
 {
+    public class PackageSet
+    {
+        // Class names of rules to use
+        public string[] Rules { get; set; }
+
+        // List of packages(key), each with a set of rules to ignore(key), each with a set of instances(key), each of which has a justification(value)
+        public IDictionary<string, IDictionary<string, IDictionary<string, string>>> Packages { get; set; }
+    }
+
     public static class Program
     {
         private const int ReturnOk = 0;
@@ -26,71 +36,162 @@ namespace NuGetPackageVerifier
 
             if (args.Length < 1 || args.Length > 2)
             {
-                Console.WriteLine(@"USAGE: NuGetSuperBVT.exe c:\path\to\packages [c:\path\to\ignore.json]");
+                Console.WriteLine(@"USAGE: NuGetSuperBVT.exe c:\path\to\packages [c:\path\to\packages-to-scan.json]");
                 return ReturnBadArgs;
             }
 
             var logger = new PackageVerifierLogger();
 
-            IList<IssueIgnore> issuesToIgnore = null;
+            IDictionary<string, PackageSet> packageSets = null;
 
             if (args.Length >= 2)
             {
-                string ignoreJsonFilePath = args[1];
-                if (!File.Exists(ignoreJsonFilePath))
+                string packagesToScanJsonFilePath = args[1];
+                if (!File.Exists(packagesToScanJsonFilePath))
                 {
-                    logger.LogError("Couldn't find JSON ignore file at {0}", ignoreJsonFilePath);
+                    logger.LogError("Couldn't find packages JSON file at {0}", packagesToScanJsonFilePath);
                     return ReturnBadArgs;
                 }
 
-                issuesToIgnore = GetIgnoresFromFile(ignoreJsonFilePath, logger);
+                string packagesToScanJsonFileContent = File.ReadAllText(packagesToScanJsonFilePath);
+
+                packageSets = JsonConvert.DeserializeObject<IDictionary<string, PackageSet>>(packagesToScanJsonFileContent, new JsonSerializerSettings()
+                {
+                    MissingMemberHandling = MissingMemberHandling.Error
+                });
+
+                logger.LogInfo("Read {0} package set(s) from {1}", packageSets.Count, packagesToScanJsonFilePath);
             }
 
             var totalTimeStopWatch = Stopwatch.StartNew();
 
             var nupkgsPath = args[0];
 
-            var issueProcessor = new IssueProcessor(issuesToIgnore);
 
-            var analyzer = new PackageAnalyzer();
-            analyzer.Rules.Add(new AssemblyHasDocumentFileRule());
-            analyzer.Rules.Add(new AssemblyStrongNameRule());
-            analyzer.Rules.Add(new AuthenticodeSigningRule());
-            analyzer.Rules.Add(new PowerShellScriptIsSignedRule());
-            analyzer.Rules.Add(new RequiredAttributesRule());
-            analyzer.Rules.Add(new SatellitePackageRule());
-            analyzer.Rules.Add(new StrictSemanticVersionValidationRule());
+            // TODO: Look this up using reflection or something
+            var allRules = new IPackageVerifierRule[] {
+                new AssemblyHasDocumentFileRule(),
+                new AssemblyStrongNameRule(),
+                new AuthenticodeSigningRule(),
+                new PowerShellScriptIsSignedRule(),
+                new RequiredAttributesRule(),
+                new SatellitePackageRule(),
+                new StrictSemanticVersionValidationRule(),
+            }.ToDictionary(t => t.GetType().Name, t => t);
 
 
-            // TODO: Switch this to a custom IFileSystem that has only the packages we want (maybe?)
             var localPackageRepo = new LocalPackageRepository(nupkgsPath);
 
             var numPackagesInRepo = localPackageRepo.GetPackages().Count();
             logger.LogInfo("Found {0} packages in {1}", numPackagesInRepo, nupkgsPath);
+
+            var processedPackages = new HashSet<IPackage>();
 
             var totalErrors = 0;
             var totalWarnings = 0;
 
             var ignoreAssistanceData = new Dictionary<string, IDictionary<string, IDictionary<string, string>>>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (var package in localPackageRepo.GetPackages())
+            foreach (var packageSet in packageSets)
             {
-                var packageTimeStopWatch = Stopwatch.StartNew();
+                logger.LogInfo("Processing package set '{0}' with {1} package(s)", packageSet.Key, packageSet.Value.Packages.Count);
 
-                logger.LogInfo("Analyzing {0} ({1})", package.Id, package.Version);
-                var issues = analyzer.AnalyzePackage(localPackageRepo, package, logger).ToList();
+                var packageSetRuleInfo = packageSet.Value.Rules;
 
-                var packageErrorsAndWarnings = ProcessPackageIssues(
-                    ignoreAssistanceMode, logger, issueProcessor,
-                    ignoreAssistanceData, package, issues);
+                var packageSetRules = packageSetRuleInfo.Select(ruleId => allRules.Single(rule => string.Equals(rule.Key, ruleId, StringComparison.OrdinalIgnoreCase)).Value);
 
-                totalErrors += packageErrorsAndWarnings.Item1;
-                totalWarnings += packageErrorsAndWarnings.Item2;
+                var analyzer = new PackageAnalyzer();
+                foreach (var ruleInstance in packageSetRules)
+                {
+                    analyzer.Rules.Add(ruleInstance);
+                }
 
-                packageTimeStopWatch.Stop();
-                logger.LogInfo("Took {0}ms", packageTimeStopWatch.ElapsedMilliseconds);
-                Console.WriteLine();
+                IList<IssueIgnore> issuesToIgnore = GetIgnoresFromFile(packageSet.Value.Packages);
+
+                var issueProcessor = new IssueProcessor(issuesToIgnore);
+
+
+                foreach (var packageInfo in packageSet.Value.Packages)
+                {
+                    var packageId = packageInfo.Key;
+                    var packageIgnoreInfo = packageInfo.Value;
+
+                    var packagesWithId = localPackageRepo.FindPackagesById(packageId);
+                    if (!packagesWithId.Any())
+                    {
+                        logger.LogError("Couldn't find package '{0}' in the repo", packageId);
+                        totalErrors++;
+                        continue;
+                    }
+                    if (packagesWithId.Count() > 1)
+                    {
+                        logger.LogError("Found more than one package with id '{0}' in the repo", packageId);
+                        totalErrors++;
+                        continue;
+                    }
+                    var package = packagesWithId.Single();
+
+                    var packageTimeStopWatch = Stopwatch.StartNew();
+                    logger.LogInfo("Analyzing {0} ({1})", package.Id, package.Version);
+
+
+                    var issues = analyzer.AnalyzePackage(localPackageRepo, package, logger).ToList();
+
+                    var packageErrorsAndWarnings = ProcessPackageIssues(
+                        ignoreAssistanceMode, logger, issueProcessor,
+                        ignoreAssistanceData, package, issues);
+
+                    totalErrors += packageErrorsAndWarnings.Item1;
+                    totalWarnings += packageErrorsAndWarnings.Item2;
+
+
+                    packageTimeStopWatch.Stop();
+                    logger.LogInfo("Took {0}ms", packageTimeStopWatch.ElapsedMilliseconds);
+                    Console.WriteLine();
+
+                    processedPackages.Add(package);
+                }
             }
+
+            var unprocessedPackages = localPackageRepo.GetPackages().Except(processedPackages);
+
+            if (unprocessedPackages.Any())
+            {
+                logger.LogWarning("Found {0} unprocessed packages. Every package in the repo should be listed in exactly one package set. Running all rules on unlisted packages.", unprocessedPackages.Count());
+
+                // For unprocessed packages we run all rules (because we have no idea what exactly to run)
+                var analyzer = new PackageAnalyzer();
+                foreach (var ruleInstance in allRules.Values)
+                {
+                    analyzer.Rules.Add(ruleInstance);
+                }
+
+                var issueProcessor = new IssueProcessor(issuesToIgnore: null);
+
+                foreach (var unprocessedPackage in unprocessedPackages)
+                {
+                    logger.LogWarning("\tUnprocessed package: {0} ({1})", unprocessedPackage.Id, unprocessedPackage.Version);
+
+                    var packageTimeStopWatch = Stopwatch.StartNew();
+                    logger.LogInfo("Analyzing {0} ({1})", unprocessedPackage.Id, unprocessedPackage.Version);
+
+
+                    var issues = analyzer.AnalyzePackage(localPackageRepo, unprocessedPackage, logger).ToList();
+
+                    var packageErrorsAndWarnings = ProcessPackageIssues(
+                        ignoreAssistanceMode, logger, issueProcessor,
+                        ignoreAssistanceData, unprocessedPackage, issues);
+
+                    totalErrors += packageErrorsAndWarnings.Item1;
+                    totalWarnings += packageErrorsAndWarnings.Item2;
+
+
+                    packageTimeStopWatch.Stop();
+                    logger.LogInfo("Took {0}ms", packageTimeStopWatch.ElapsedMilliseconds);
+                    Console.WriteLine();
+                }
+            }
+
 
             if (ignoreAssistanceMode != IgnoreAssistanceMode.None)
             {
@@ -183,13 +284,8 @@ namespace NuGetPackageVerifier
             }
         }
 
-        private static IList<IssueIgnore> GetIgnoresFromFile(string ignoreJsonFilePath, IPackageVerifierLogger logger)
+        private static IList<IssueIgnore> GetIgnoresFromFile(IDictionary<string, IDictionary<string, IDictionary<string, string>>> ignoresInFile)
         {
-            string ignoreJsonFileContent = File.ReadAllText(ignoreJsonFilePath);
-
-            IDictionary<string, IDictionary<string, IDictionary<string, string>>> ignoresInFile = null;
-            ignoresInFile = JsonConvert.DeserializeObject<IDictionary<string, IDictionary<string, IDictionary<string, string>>>>(ignoreJsonFileContent);
-
             var issuesToIgnore = new List<IssueIgnore>();
             if (ignoresInFile != null)
             {
@@ -215,8 +311,6 @@ namespace NuGetPackageVerifier
                     }
                 }
             }
-
-            logger.LogInfo("Read JSON ignore file from {0} with {1} ignore(s)", ignoreJsonFilePath, ignoresInFile.Sum(package => package.Value.Sum(issue => issue.Value.Count())));
 
             return issuesToIgnore;
         }

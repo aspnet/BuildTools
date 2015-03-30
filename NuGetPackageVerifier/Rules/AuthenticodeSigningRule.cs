@@ -30,7 +30,7 @@ namespace NuGetPackageVerifier.Rules
                         var realAssemblyPath = pathOfFileToScan;
                         if (!File.Exists(realAssemblyPath))
                         {
-                            realAssemblyPath = pathOfFileToScan.Replace("+", "%2B");
+                            realAssemblyPath = pathOfFileToScan.Replace("+", "%2B").Replace("#", "%23");
                             if (!File.Exists(realAssemblyPath))
                             {
                                 logger.LogError("The assembly '{0}' in this package can't be found (a bug in this tool, most likely).", current.Path);

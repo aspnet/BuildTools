@@ -29,6 +29,8 @@ namespace NuGetPackageVerifier
         {
             // TODO: Take a switch saying whether to use TeamCity logger
 
+            // TODO: Show extraneous packages, exclusions, etc.
+
             // TODO: Get this from the command line
             var ignoreAssistanceMode = IgnoreAssistanceMode.None;
 

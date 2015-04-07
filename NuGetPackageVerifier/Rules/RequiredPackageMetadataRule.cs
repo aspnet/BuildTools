@@ -4,7 +4,7 @@ using NuGetPackageVerifier.Logging;
 
 namespace NuGetPackageVerifier.Rules
 {
-    public class RequiredAttributesRule : IPackageVerifierRule
+    public class RequiredPackageMetadataRule : IPackageVerifierRule
     {
         public IEnumerable<PackageVerifierIssue> Validate(IPackageRepository packageRepo, IPackage package, IPackageVerifierLogger logger)
         {

@@ -76,7 +76,7 @@ namespace NuGetPackageVerifier
                 new AssemblyStrongNameRule(),
                 new AuthenticodeSigningRule(),
                 new PowerShellScriptIsSignedRule(),
-                new RequiredAttributesRule(),
+                new RequiredPackageMetadataRule(),
                 new SatellitePackageRule(),
                 new StrictSemanticVersionValidationRule(),
             }.ToDictionary(t => t.GetType().Name, t => t);

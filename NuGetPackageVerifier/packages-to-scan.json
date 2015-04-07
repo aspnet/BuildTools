@@ -116,7 +116,6 @@
             "Microsoft.AspNet.WebSockets.Server": { },
             "Microsoft.AspNet.WebUtilities": { },
             "Microsoft.Framework.ApplicationHost": { },
-            "Microsoft.Framework.ApplicationHost2": { }, // TEMPORARY??
             "Microsoft.Framework.Caching.Distributed": { },
             "Microsoft.Framework.Caching.Interfaces": { },
             "Microsoft.Framework.Caching.Memory": { },

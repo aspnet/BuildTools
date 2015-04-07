@@ -5,7 +5,7 @@
             //"AssemblyStrongNameRule", // Don't check strong names because aspnet50/aspnetcore50 don't use them
             "AuthenticodeSigningRule",
             "PowerShellScriptIsSignedRule",
-            //"RequiredAttributesRule", // TODO: Temporarily disabled
+            //"RequiredPackageMetadataRule", // TODO: Temporarily disabled
             "SatellitePackageRule",
             "StrictSemanticVersionValidationRule"
         ],

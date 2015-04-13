@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using NuGet;
@@ -37,7 +36,7 @@ namespace NuGetPackageVerifier.Rules
                                 fileStream.Flush(true);
                             }
 
-                            if (IsAssemblyManaged(assemblyPath))
+                            if (AssemblyHelpers.IsAssemblyManaged(assemblyPath))
                             {
                                 isManagedCode = true;
                                 var clrStrongName = (IClrStrongName)RuntimeEnvironment.GetRuntimeInterfaceAsObject(new Guid("B79B0ACD-F5CD-409b-B5A5-A16244610B92"), new Guid("9FD93CCF-3280-4391-B3A9-96E1CDE77C8D"));
@@ -68,29 +67,6 @@ namespace NuGetPackageVerifier.Rules
                 }
             }
             yield break;
-        }
-
-        private static bool IsAssemblyManaged(string assemblyPath)
-        {
-            // From http://msdn.microsoft.com/en-us/library/ms173100.aspx
-            try
-            {
-                var testAssembly = AssemblyName.GetAssemblyName(assemblyPath);
-                return true;
-            }
-            catch (FileNotFoundException)
-            {
-                // The file cannot be found
-            }
-            catch (BadImageFormatException)
-            {
-                // The file is not an assembly
-            }
-            catch (FileLoadException)
-            {
-                // The assembly has already been loaded
-            }
-            return false;
         }
 
         [ComConversionLoss, Guid("9FD93CCF-3280-4391-B3A9-96E1CDE77C8D"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]

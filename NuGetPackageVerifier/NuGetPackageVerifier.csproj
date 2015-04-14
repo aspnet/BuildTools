@@ -89,6 +89,7 @@
     <Compile Include="Logging\LogLevel.cs" />
     <Compile Include="PackageAnalyzer.cs" />
     <Compile Include="Rules\AssemblyHasDocumentFileRule.cs" />
+    <Compile Include="Rules\AssemblyHasServicingAttributeRule.cs" />
     <Compile Include="Rules\AssemblyHasVersionAttributesRule.cs" />
     <Compile Include="Rules\AssemblyStrongNameRule.cs" />
     <Compile Include="Rules\AuthenticodeSigningRule.cs" />

@@ -5,6 +5,18 @@ namespace NuGetPackageVerifier
 {
     public static class PackageIssueFactory
     {
+        public static PackageVerifierIssue AssemblyMissingServicingAttribute(string assemblyPath)
+        {
+            return new PackageVerifierIssue(
+                "SERVICING_ATTRIBUTE",
+                assemblyPath,
+                string.Format(
+                    @"The managed assembly '{0}' in this package is missing the '[assembly: AssemblyMetadata(""Serviceable"", ""True"")]' attribute.",
+                    assemblyPath,
+                    typeof(AssemblyFileVersionAttribute).Name),
+                MyPackageIssueLevel.Error);
+        }
+
         public static PackageVerifierIssue AssemblyMissingFileVersionAttribute(string assemblyPath)
         {
             return AssemblyMissingVersionAttributeCore("VERSION_FILEVERSION", assemblyPath, typeof(AssemblyFileVersionAttribute).Name);

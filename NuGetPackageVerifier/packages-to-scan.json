@@ -3,6 +3,7 @@
         "rules": [
             "AssemblyHasDocumentFileRule",
             "AssemblyHasVersionAttributesRule",
+            "AssemblyHasServicingAttributeRule",
             //"AssemblyStrongNameRule", // Don't check strong names because aspnet50/aspnetcore50 don't use them
             "AuthenticodeSigningRule",
             "PowerShellScriptIsSignedRule",

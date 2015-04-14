@@ -48,6 +48,18 @@
     <Reference Include="Microsoft.Web.XmlTransform">
       <HintPath>..\packages\Microsoft.Web.Xdt.2.1.0\lib\net40\Microsoft.Web.XmlTransform.dll</HintPath>
     </Reference>
+    <Reference Include="Mono.Cecil">
+      <HintPath>..\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Mdb">
+      <HintPath>..\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.Mdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Pdb">
+      <HintPath>..\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.Pdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Rocks">
+      <HintPath>..\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.6.0.6\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -70,12 +82,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblyHelpers.cs" />
     <Compile Include="Logging\PackageVerifierLoggerExtensions.cs" />
     <Compile Include="Logging\PackageVerifierLogger.cs" />
     <Compile Include="Logging\IPackageVerifierLogger.cs" />
     <Compile Include="Logging\LogLevel.cs" />
     <Compile Include="PackageAnalyzer.cs" />
     <Compile Include="Rules\AssemblyHasDocumentFileRule.cs" />
+    <Compile Include="Rules\AssemblyHasVersionAttributesRule.cs" />
     <Compile Include="Rules\AssemblyStrongNameRule.cs" />
     <Compile Include="Rules\AuthenticodeSigningRule.cs" />
     <Compile Include="PackageIssueFactory.cs" />
@@ -88,7 +102,7 @@
     <Compile Include="PackageVerifierIssue.cs" />
     <Compile Include="PackageIssueLevel.cs" />
     <Compile Include="IPackageVerifierRule.cs" />
-    <Compile Include="Rules\RequiredAttributesRule.cs" />
+    <Compile Include="Rules\RequiredPackageMetadataRule.cs" />
     <Compile Include="Rules\SatellitePackageRule.cs" />
     <Compile Include="WinTrust.cs" />
     <Compile Include="Program.cs" />

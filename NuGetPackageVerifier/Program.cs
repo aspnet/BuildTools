@@ -73,6 +73,7 @@ namespace NuGetPackageVerifier
             // TODO: Look this up using reflection or something
             var allRules = new IPackageVerifierRule[] {
                 new AssemblyHasDocumentFileRule(),
+                new AssemblyHasVersionAttributesRule(),
                 new AssemblyStrongNameRule(),
                 new AuthenticodeSigningRule(),
                 new PowerShellScriptIsSignedRule(),

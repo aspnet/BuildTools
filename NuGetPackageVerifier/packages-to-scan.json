@@ -2,6 +2,7 @@
     "adx": { // Packages written by the ADX team and that ship on NuGet.org
         "rules": [
             "AssemblyHasDocumentFileRule",
+            "AssemblyHasVersionAttributesRule",
             //"AssemblyStrongNameRule", // Don't check strong names because aspnet50/aspnetcore50 don't use them
             "AuthenticodeSigningRule",
             "PowerShellScriptIsSignedRule",
@@ -22,26 +23,41 @@
             "dnx-clr-win-x64": {
                 "SIGN_AUTHENTICODE": {
                     "bin\\Newtonsoft.Json.dll": "We don't sign 3rd party DLLs"
+                },
+                "VERSION_INFORMATIONALVERSION": {
+                    "bin\\Newtonsoft.Json.dll": "3rd party DLLs don't require this attribute"
                 }
             },
             "dnx-clr-win-x86": {
                 "SIGN_AUTHENTICODE": {
                     "bin\\Newtonsoft.Json.dll": "We don't sign 3rd party DLLs"
+                },
+                "VERSION_INFORMATIONALVERSION": {
+                    "bin\\Newtonsoft.Json.dll": "3rd party DLLs don't require this attribute"
                 }
             },
             "dnx-coreclr-win-x64": {
                 "SIGN_AUTHENTICODE": {
                     "bin\\Newtonsoft.Json.dll": "We don't sign 3rd party DLLs"
+                },
+                "VERSION_INFORMATIONALVERSION": {
+                    "bin\\Newtonsoft.Json.dll": "3rd party DLLs don't require this attribute"
                 }
             },
             "dnx-coreclr-win-x86": {
                 "SIGN_AUTHENTICODE": {
                     "bin\\Newtonsoft.Json.dll": "We don't sign 3rd party DLLs"
+                },
+                "VERSION_INFORMATIONALVERSION": {
+                    "bin\\Newtonsoft.Json.dll": "3rd party DLLs don't require this attribute"
                 }
             },
             "dnx-mono": {
                 "SIGN_AUTHENTICODE": {
                     "bin\\Newtonsoft.Json.dll": "We don't sign 3rd party DLLs"
+                },
+                "VERSION_INFORMATIONALVERSION": {
+                    "bin\\Newtonsoft.Json.dll": "3rd party DLLs don't require this attribute"
                 }
             },
             "Microsoft.AspNet.Authentication": { },

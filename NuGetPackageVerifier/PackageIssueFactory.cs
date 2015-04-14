@@ -1,9 +1,25 @@
-﻿using NuGet;
+﻿using System.Reflection;
+using NuGet;
 
 namespace NuGetPackageVerifier
 {
     public static class PackageIssueFactory
     {
+        public static PackageVerifierIssue AssemblyMissingFileVersionAttribute(string assemblyPath)
+        {
+            return AssemblyMissingVersionAttributeCore("VERSION_FILEVERSION", assemblyPath, typeof(AssemblyFileVersionAttribute).Name);
+        }
+
+        public static PackageVerifierIssue AssemblyMissingInformationalVersionAttribute(string assemblyPath)
+        {
+            return AssemblyMissingVersionAttributeCore("VERSION_INFORMATIONALVERSION", assemblyPath, typeof(AssemblyInformationalVersionAttribute).Name);
+        }
+
+        private static PackageVerifierIssue AssemblyMissingVersionAttributeCore(string issueId, string assemblyPath, string attributeName)
+        {
+            return new PackageVerifierIssue(issueId, assemblyPath, string.Format("The managed assembly '{0}' in this package is missing the '{1}' attribute.", assemblyPath, attributeName), MyPackageIssueLevel.Error);
+        }
+
         public static PackageVerifierIssue AssemblyNotStrongNameSigned(string assemblyPath, int hResult)
         {
             // TODO: Translate common HRESULTS http://blogs.msdn.com/b/yizhang/

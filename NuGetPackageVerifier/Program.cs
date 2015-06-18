@@ -221,6 +221,7 @@ namespace NuGetPackageVerifier
             totalTimeStopWatch.Stop();
             logger.LogInfo("Total took {0}ms", totalTimeStopWatch.ElapsedMilliseconds);
 
+            Console.ReadLine();
 
             return (totalErrors + totalWarnings > 0) ? ReturnErrorsOrWarnings : ReturnOk;
         }
@@ -273,7 +274,14 @@ namespace NuGetPackageVerifier
                             packageRuleInfo = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
                             packageIgnoreInfo.Add(issueToReport.PackageIssue.IssueId, packageRuleInfo);
                         }
-                        packageRuleInfo.Add(issueToReport.PackageIssue.Instance ?? "*", issueToReport.IgnoreJustification ?? "Enter justification");
+                        if (packageRuleInfo.ContainsKey(issueToReport.PackageIssue.Instance ?? "*"))
+                        {
+                            Console.WriteLine("ALERT!!!!!!!!!!!!! Already added key {0}", issueToReport.PackageIssue.Instance);
+                        }
+                        else
+                        {
+                            packageRuleInfo.Add(issueToReport.PackageIssue.Instance ?? "*", issueToReport.IgnoreJustification ?? "Enter justification");
+                        }
                     }
 
                     PrintPackageIssue(logger, issueToReport);
@@ -283,7 +291,7 @@ namespace NuGetPackageVerifier
             }
             else
             {
-                logger.LogInfo("No issues found with package {0}", package.Id, package.Version);
+                logger.LogInfo("No issues found with package {0} ({1})", package.Id, package.Version);
                 return new Tuple<int, int>(0, 0);
             }
         }

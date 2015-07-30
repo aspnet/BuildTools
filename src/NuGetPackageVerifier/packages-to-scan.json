@@ -5,10 +5,10 @@
             "AssemblyHasVersionAttributesRule",
             "AssemblyHasServicingAttributeRule",
             //"AssemblyStrongNameRule", // Don't check strong names because aspnet50/aspnetcore50 don't use them
-            "AuthenticodeSigningRule",
-            "PowerShellScriptIsSignedRule",
+            //"AuthenticodeSigningRule",
+            //"PowerShellScriptIsSignedRule",
             //"RequiredPackageMetadataRule", // TODO: Temporarily disabled
-            "SatellitePackageRule",
+            //"SatellitePackageRule",
             "StrictSemanticVersionValidationRule"
         ],
         "packages": {
@@ -986,8 +986,8 @@
     "non-adx": { // Packages NOT written by the ADX team, but we still do a minimal scan on them
         "rules": [ // run minimal set of rules on packages that other teams ship
             "AssemblyStrongNameRule",
-            "AuthenticodeSigningRule",
-            "PowerShellScriptIsSignedRule"
+            //"AuthenticodeSigningRule",
+            //"PowerShellScriptIsSignedRule"
         ],
         "packages": {
             "Microsoft.CodeAnalysis.Analyzers": {
@@ -1030,7 +1030,6 @@
             "Microsoft.Win32.Registry": { },
             "Microsoft.Win32.Registry.AccessControl": { },
             "System.AppContext": { },
-            "System.Collections": { },
             "System.Collections": { },
             "System.Collections.Concurrent": { },
             "System.Collections.NonGeneric": { },

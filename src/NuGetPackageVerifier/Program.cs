@@ -34,11 +34,13 @@ namespace NuGetPackageVerifier
             // TODO: Get this from the command line
             var ignoreAssistanceMode = IgnoreAssistanceMode.None;
 
-            ignoreAssistanceMode = IgnoreAssistanceMode.ShowNew;
+            ignoreAssistanceMode = IgnoreAssistanceMode.ShowAll;
 
             if (args.Length < 1 || args.Length > 2)
             {
                 Console.WriteLine(@"USAGE: NuGetSuperBVT.exe c:\path\to\packages [c:\path\to\packages-to-scan.json]");
+                Console.ReadLine();
+
                 return ReturnBadArgs;
             }
 
@@ -51,6 +53,7 @@ namespace NuGetPackageVerifier
                 string packagesToScanJsonFilePath = args[1];
                 if (!File.Exists(packagesToScanJsonFilePath))
                 {
+                    Console.WriteLine(packagesToScanJsonFilePath);
                     logger.LogError("Couldn't find packages JSON file at {0}", packagesToScanJsonFilePath);
                     return ReturnBadArgs;
                 }
@@ -102,7 +105,7 @@ namespace NuGetPackageVerifier
 
                 var packageSetRuleInfo = packageSet.Value.Rules;
 
-                var packageSetRules = packageSetRuleInfo.Select(ruleId => allRules.Single(rule => string.Equals(rule.Key, ruleId, StringComparison.OrdinalIgnoreCase)).Value);
+                var packageSetRules = packageSetRuleInfo.Select(ruleId => allRules.SingleOrDefault(rule => string.Equals(rule.Key, ruleId, StringComparison.OrdinalIgnoreCase)).Value);
 
                 var analyzer = new PackageAnalyzer();
                 foreach (var ruleInstance in packageSetRules)
@@ -221,7 +224,7 @@ namespace NuGetPackageVerifier
             totalTimeStopWatch.Stop();
             logger.LogInfo("Total took {0}ms", totalTimeStopWatch.ElapsedMilliseconds);
 
-            Console.ReadLine();
+            //Console.ReadLine();
 
             return (totalErrors + totalWarnings > 0) ? ReturnErrorsOrWarnings : ReturnOk;
         }

@@ -80,7 +80,9 @@ namespace NuGetPackageVerifier
             }.ToDictionary(t => t.GetType().Name, t => t);
 
             var nupkgsPath = args[0];
-            var localPackageRepo = new LocalPackageRepository(nupkgsPath);
+            var localPackageRepo = new LocalPackageRepository(
+                new DefaultPackagePathResolver(nupkgsPath),
+                new CustomPhysicalFileSystem(nupkgsPath));
             var numPackagesInRepo = localPackageRepo.GetPackages().Count();
 
             logger.LogInfo("Found {0} packages in {1}", numPackagesInRepo, nupkgsPath);
@@ -352,6 +354,26 @@ namespace NuGetPackageVerifier
             if (issue.IgnoreJustification != null)
             {
                 logger.Log(issue.IssueLevel, "Justification: {0}", issue.IgnoreJustification);
+            }
+        }
+
+        private class CustomPhysicalFileSystem : PhysicalFileSystem
+        {
+            public CustomPhysicalFileSystem(string root)
+                : base(root)
+            {
+            }
+
+            public override IEnumerable<string> GetDirectories(string path)
+            {
+                // Workaround to disable recursive search for packages.
+                return Enumerable.Empty<string>();
+            }
+
+            public override IEnumerable<string> GetFiles(string path, string filter, bool recursive)
+            {
+                // Ignore symbol packages.
+                return base.GetFiles(path, filter, recursive).Where(item => !item.EndsWith(".symbols.nupkg"));
             }
         }
     }

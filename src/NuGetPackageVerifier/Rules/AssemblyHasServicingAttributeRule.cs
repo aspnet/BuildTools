@@ -1,10 +1,12 @@
-﻿using System;
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
-using Mono.Cecil.Rocks;
 using NuGet;
 using NuGetPackageVerifier.Logging;
 
@@ -12,18 +14,23 @@ namespace NuGetPackageVerifier.Rules
 {
     public class AssemblyHasServicingAttributeRule : IPackageVerifierRule
     {
-        public IEnumerable<PackageVerifierIssue> Validate(IPackageRepository packageRepo, IPackage package, IPackageVerifierLogger logger)
+        public IEnumerable<PackageVerifierIssue> Validate(
+            IPackageRepository packageRepo,
+            IPackage package,
+            IPackageVerifierLogger logger)
         {
-            foreach (IPackageFile currentFile in package.GetFiles())
+            foreach (var currentFile in package.GetFiles())
             {
-                string extension = Path.GetExtension(currentFile.Path);
+                var extension = Path.GetExtension(currentFile.Path);
                 if (extension.Equals(".dll", StringComparison.OrdinalIgnoreCase) ||
                     extension.Equals(".exe", StringComparison.OrdinalIgnoreCase))
                 {
-                    string assemblyPath = Path.ChangeExtension(Path.Combine(Path.GetTempPath(), Path.GetTempFileName()), extension);
+                    var assemblyPath = Path.ChangeExtension(
+                        Path.Combine(Path.GetTempPath(), Path.GetTempFileName()), extension);
+
                     try
                     {
-                        using (Stream packageFileStream = currentFile.GetStream())
+                        using (var packageFileStream = currentFile.GetStream())
                         {
                             var _assemblyBytes = new byte[packageFileStream.Length];
                             packageFileStream.Read(_assemblyBytes, 0, _assemblyBytes.Length);
@@ -76,8 +83,10 @@ namespace NuGetPackageVerifier.Rules
             {
                 return false;
             }
+
             var keyValue = asmAttr.ConstructorArguments[0].Value as string;
             var valueValue = asmAttr.ConstructorArguments[1].Value as string;
+
             return (keyValue == "Serviceable") && (valueValue == "True");
         }
     }

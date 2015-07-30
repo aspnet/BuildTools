@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
@@ -10,21 +13,27 @@ namespace NuGetPackageVerifier.Rules
 {
     public class AssemblyStrongNameRule : IPackageVerifierRule
     {
-        public IEnumerable<PackageVerifierIssue> Validate(IPackageRepository packageRepo, IPackage package, IPackageVerifierLogger logger)
+        public IEnumerable<PackageVerifierIssue> Validate(
+            IPackageRepository packageRepo,
+            IPackage package,
+            IPackageVerifierLogger logger)
         {
             foreach (IPackageFile currentFile in package.GetFiles())
             {
-                string extension = Path.GetExtension(currentFile.Path);
+                var extension = Path.GetExtension(currentFile.Path);
                 if (extension.Equals(".dll", StringComparison.OrdinalIgnoreCase) ||
                     extension.Equals(".exe", StringComparison.OrdinalIgnoreCase))
                 {
-                    string assemblyPath = Path.ChangeExtension(Path.Combine(Path.GetTempPath(), Path.GetTempFileName()), extension);
+                    var assemblyPath = Path.ChangeExtension(
+                        Path.Combine(Path.GetTempPath(), Path.GetTempFileName()), extension);
+
                     var isManagedCode = false;
                     var isStrongNameSigned = false;
-                    int hresult = 0;
+                    var hresult = 0;
+
                     try
                     {
-                        using (Stream packageFileStream = currentFile.GetStream())
+                        using (var packageFileStream = currentFile.GetStream())
                         {
                             var _assemblyBytes = new byte[packageFileStream.Length];
                             packageFileStream.Read(_assemblyBytes, 0, _assemblyBytes.Length);
@@ -39,7 +48,10 @@ namespace NuGetPackageVerifier.Rules
                             if (AssemblyHelpers.IsAssemblyManaged(assemblyPath))
                             {
                                 isManagedCode = true;
-                                var clrStrongName = (IClrStrongName)RuntimeEnvironment.GetRuntimeInterfaceAsObject(new Guid("B79B0ACD-F5CD-409b-B5A5-A16244610B92"), new Guid("9FD93CCF-3280-4391-B3A9-96E1CDE77C8D"));
+                                var clrStrongName = (IClrStrongName)RuntimeEnvironment.GetRuntimeInterfaceAsObject(
+                                    new Guid("B79B0ACD-F5CD-409b-B5A5-A16244610B92"),
+                                    new Guid("9FD93CCF-3280-4391-B3A9-96E1CDE77C8D"));
+
                                 bool verificationForced;
                                 hresult = clrStrongName.StrongNameSignatureVerificationEx(assemblyPath, true, out verificationForced);
                                 if (hresult == 0)
@@ -51,7 +63,8 @@ namespace NuGetPackageVerifier.Rules
                     }
                     catch (Exception ex)
                     {
-                        logger.LogError("Error while verifying strong name signature for {0}: {1}", currentFile.Path, ex.Message);
+                        logger.LogError(
+                            "Error while verifying strong name signature for {0}: {1}", currentFile.Path, ex.Message);
                     }
                     finally
                     {

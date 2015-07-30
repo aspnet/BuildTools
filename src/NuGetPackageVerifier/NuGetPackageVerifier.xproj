@@ -17,7 +17,7 @@
   <Import Project="$(VSToolsPath)\DNX\Microsoft.DNX.targets" Condition="'$(VSToolsPath)' != ''" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties mvc-packages-to-scan_1json__JSONSchema="http://json.schemastore.org/project-1.0.0-beta6" />
+      <UserProperties />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

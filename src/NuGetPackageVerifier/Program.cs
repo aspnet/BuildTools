@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -10,15 +13,6 @@ using NuGetPackageVerifier.Rules;
 
 namespace NuGetPackageVerifier
 {
-    public class PackageSet
-    {
-        // Class names of rules to use
-        public string[] Rules { get; set; }
-
-        // List of packages(key), each with a set of rules to ignore(key), each with a set of instances(key), each of which has a justification(value)
-        public IDictionary<string, IDictionary<string, IDictionary<string, string>>> Packages { get; set; }
-    }
-
     public static class Program
     {
         private const int ReturnOk = 0;
@@ -38,7 +32,7 @@ namespace NuGetPackageVerifier
 
             if (args.Length < 1 || args.Length > 2)
             {
-                Console.WriteLine(@"USAGE: NuGetSuperBVT.exe c:\path\to\packages [c:\path\to\packages-to-scan.json]");
+                Console.WriteLine(@"USAGE: NugetPackageVerifier c:\path\to\packages [c:\path\to\packages-to-scan.json]");
                 Console.ReadLine();
 
                 return ReturnBadArgs;
@@ -50,7 +44,7 @@ namespace NuGetPackageVerifier
 
             if (args.Length >= 2)
             {
-                string packagesToScanJsonFilePath = args[1];
+                var packagesToScanJsonFilePath = args[1];
                 if (!File.Exists(packagesToScanJsonFilePath))
                 {
                     Console.WriteLine(packagesToScanJsonFilePath);
@@ -58,20 +52,19 @@ namespace NuGetPackageVerifier
                     return ReturnBadArgs;
                 }
 
-                string packagesToScanJsonFileContent = File.ReadAllText(packagesToScanJsonFilePath);
+                var packagesToScanJsonFileContent = File.ReadAllText(packagesToScanJsonFilePath);
 
-                packageSets = JsonConvert.DeserializeObject<IDictionary<string, PackageSet>>(packagesToScanJsonFileContent, new JsonSerializerSettings()
-                {
-                    MissingMemberHandling = MissingMemberHandling.Error
-                });
+                packageSets = JsonConvert.DeserializeObject<IDictionary<string, PackageSet>>(
+                    packagesToScanJsonFileContent,
+                    new JsonSerializerSettings()
+                    {
+                        MissingMemberHandling = MissingMemberHandling.Error
+                    });
 
                 logger.LogInfo("Read {0} package set(s) from {1}", packageSets.Count, packagesToScanJsonFilePath);
             }
 
             var totalTimeStopWatch = Stopwatch.StartNew();
-
-            var nupkgsPath = args[0];
-
 
             // TODO: Look this up using reflection or something
             var allRules = new IPackageVerifierRule[] {
@@ -86,10 +79,10 @@ namespace NuGetPackageVerifier
                 new StrictSemanticVersionValidationRule(),
             }.ToDictionary(t => t.GetType().Name, t => t);
 
-
+            var nupkgsPath = args[0];
             var localPackageRepo = new LocalPackageRepository(nupkgsPath);
-
             var numPackagesInRepo = localPackageRepo.GetPackages().Count();
+
             logger.LogInfo("Found {0} packages in {1}", numPackagesInRepo, nupkgsPath);
 
             var processedPackages = new HashSet<IPackage>();
@@ -97,15 +90,21 @@ namespace NuGetPackageVerifier
             var totalErrors = 0;
             var totalWarnings = 0;
 
-            var ignoreAssistanceData = new Dictionary<string, IDictionary<string, IDictionary<string, string>>>(StringComparer.OrdinalIgnoreCase);
+            var ignoreAssistanceData = new Dictionary<string, IDictionary<string, IDictionary<string, string>>>(
+                StringComparer.OrdinalIgnoreCase);
 
             foreach (var packageSet in packageSets)
             {
-                logger.LogInfo("Processing package set '{0}' with {1} package(s)", packageSet.Key, packageSet.Value.Packages.Count);
+                logger.LogInfo(
+                    "Processing package set '{0}' with {1} package(s)",
+                    packageSet.Key,
+                    packageSet.Value.Packages.Count);
 
                 var packageSetRuleInfo = packageSet.Value.Rules;
 
-                var packageSetRules = packageSetRuleInfo.Select(ruleId => allRules.SingleOrDefault(rule => string.Equals(rule.Key, ruleId, StringComparison.OrdinalIgnoreCase)).Value);
+                var packageSetRules = packageSetRuleInfo.Select(
+                    ruleId => allRules.SingleOrDefault(
+                        rule => string.Equals(rule.Key, ruleId, StringComparison.OrdinalIgnoreCase)).Value);
 
                 var analyzer = new PackageAnalyzer();
                 foreach (var ruleInstance in packageSetRules)
@@ -113,7 +112,7 @@ namespace NuGetPackageVerifier
                     analyzer.Rules.Add(ruleInstance);
                 }
 
-                IList<IssueIgnore> issuesToIgnore = GetIgnoresFromFile(packageSet.Value.Packages);
+                var issuesToIgnore = GetIgnoresFromFile(packageSet.Value.Packages);
 
                 var issueProcessor = new IssueProcessor(issuesToIgnore);
 
@@ -141,16 +140,18 @@ namespace NuGetPackageVerifier
                     var packageTimeStopWatch = Stopwatch.StartNew();
                     logger.LogInfo("Analyzing {0} ({1})", package.Id, package.Version);
 
-
                     var issues = analyzer.AnalyzePackage(localPackageRepo, package, logger).ToList();
 
                     var packageErrorsAndWarnings = ProcessPackageIssues(
-                        ignoreAssistanceMode, logger, issueProcessor,
-                        ignoreAssistanceData, package, issues);
+                        ignoreAssistanceMode,
+                        logger,
+                        issueProcessor,
+                        ignoreAssistanceData,
+                        package,
+                        issues);
 
                     totalErrors += packageErrorsAndWarnings.Item1;
                     totalWarnings += packageErrorsAndWarnings.Item2;
-
 
                     packageTimeStopWatch.Stop();
                     logger.LogInfo("Took {0}ms", packageTimeStopWatch.ElapsedMilliseconds);
@@ -164,7 +165,10 @@ namespace NuGetPackageVerifier
 
             if (unprocessedPackages.Any())
             {
-                logger.LogWarning("Found {0} unprocessed packages. Every package in the repo should be listed in exactly one package set. Running all rules on unlisted packages.", unprocessedPackages.Count());
+                logger.LogWarning(
+                    "Found {0} unprocessed packages. Every package in the repo should be listed in exactly" +
+                    "one package set. Running all rules on unlisted packages.",
+                    unprocessedPackages.Count());
 
                 // For unprocessed packages we run all rules (because we have no idea what exactly to run)
                 var analyzer = new PackageAnalyzer();
@@ -182,23 +186,24 @@ namespace NuGetPackageVerifier
                     var packageTimeStopWatch = Stopwatch.StartNew();
                     logger.LogInfo("Analyzing {0} ({1})", unprocessedPackage.Id, unprocessedPackage.Version);
 
-
                     var issues = analyzer.AnalyzePackage(localPackageRepo, unprocessedPackage, logger).ToList();
 
                     var packageErrorsAndWarnings = ProcessPackageIssues(
-                        ignoreAssistanceMode, logger, issueProcessor,
-                        ignoreAssistanceData, unprocessedPackage, issues);
+                        ignoreAssistanceMode,
+                        logger,
+                        issueProcessor,
+                        ignoreAssistanceData,
+                        unprocessedPackage,
+                        issues);
 
                     totalErrors += packageErrorsAndWarnings.Item1;
                     totalWarnings += packageErrorsAndWarnings.Item2;
-
 
                     packageTimeStopWatch.Stop();
                     logger.LogInfo("Took {0}ms", packageTimeStopWatch.ElapsedMilliseconds);
                     Console.WriteLine();
                 }
             }
-
 
             if (ignoreAssistanceMode != IgnoreAssistanceMode.None)
             {
@@ -207,7 +212,7 @@ namespace NuGetPackageVerifier
                 Console.WriteLine();
             }
 
-            LogLevel errorLevel = LogLevel.Info;
+            var errorLevel = LogLevel.Info;
             if (totalWarnings > 0)
             {
                 errorLevel = LogLevel.Warning;
@@ -245,7 +250,7 @@ namespace NuGetPackageVerifier
                 var warnings = issuesToReport.Where(issueReport => issueReport.IssueLevel == LogLevel.Warning).ToList();
                 var errors = issuesToReport.Where(issueReport => issueReport.IssueLevel == LogLevel.Error).ToList();
 
-                LogLevel errorLevel = LogLevel.Info;
+                var errorLevel = LogLevel.Info;
                 if (warnings.Count > 0)
                 {
                     errorLevel = LogLevel.Warning;
@@ -257,7 +262,10 @@ namespace NuGetPackageVerifier
                 logger.Log(
                     errorLevel,
                     "{0} error(s) and {1} warning(s) found with package {2} ({3})",
-                    errors.Count, warnings.Count, package.Id, package.Version);
+                    errors.Count,
+                    warnings.Count,
+                    package.Id,
+                    package.Version);
 
                 foreach (var issueToReport in issuesToReport)
                 {

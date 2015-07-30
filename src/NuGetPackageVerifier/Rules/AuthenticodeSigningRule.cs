@@ -1,4 +1,7 @@
-﻿using NuGet;
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using NuGet;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,10 +12,16 @@ namespace NuGetPackageVerifier.Rules
 {
     public class AuthenticodeSigningRule : IPackageVerifierRule
     {
-        public IEnumerable<PackageVerifierIssue> Validate(IPackageRepository packageRepo, IPackage package, IPackageVerifierLogger logger)
+        public IEnumerable<PackageVerifierIssue> Validate(
+            IPackageRepository packageRepo,
+            IPackage package,
+            IPackageVerifierLogger logger)
         {
-            string packagePath = packageRepo.Source + "\\" + package.Id + "." + package.Version.ToString() + ".nupkg";
-            string nupkgWithoutExt = Path.Combine(Path.GetDirectoryName(packagePath), Path.GetFileNameWithoutExtension(packagePath));
+            var packagePath = packageRepo.Source + "\\" + package.Id + "." + package.Version.ToString() + ".nupkg";
+            var nupkgWithoutExt = Path.Combine(
+                Path.GetDirectoryName(packagePath),
+                Path.GetFileNameWithoutExtension(packagePath));
+
             try
             {
                 UnzipPackage(nupkgWithoutExt);
@@ -20,24 +29,28 @@ namespace NuGetPackageVerifier.Rules
                 foreach (IPackageFile current in package.GetFiles())
                 {
                     //string packagePath = package.FileSystem.Root + "\\" + Id + "." + Version + ".nupkg"
-                    string extension = Path.GetExtension(current.Path);
+                    var extension = Path.GetExtension(current.Path);
 
                     // TODO: Need to add more extensions?
                     if (extension.Equals(".dll", StringComparison.OrdinalIgnoreCase) ||
                         extension.Equals(".exe", StringComparison.OrdinalIgnoreCase))
                     {
-                        string pathOfFileToScan = Path.Combine(nupkgWithoutExt, current.Path);
+                        var pathOfFileToScan = Path.Combine(nupkgWithoutExt, current.Path);
                         var realAssemblyPath = pathOfFileToScan;
                         if (!File.Exists(realAssemblyPath))
                         {
                             realAssemblyPath = pathOfFileToScan.Replace("+", "%2B").Replace("#", "%23");
                             if (!File.Exists(realAssemblyPath))
                             {
-                                logger.LogError("The assembly '{0}' in this package can't be found (a bug in this tool, most likely).", current.Path);
+                                logger.LogError(
+                                    "The assembly '{0}' in this package can't be found (a bug in this tool, most likely).",
+                                    current.Path);
+
                                 continue;
                             }
                         }
-                        bool isAuthenticodeSigned = WinTrust.IsAuthenticodeSigned(realAssemblyPath);
+
+                        var isAuthenticodeSigned = WinTrust.IsAuthenticodeSigned(realAssemblyPath);
                         if (!isAuthenticodeSigned)
                         {
                             yield return PackageIssueFactory.PEFileNotAuthenticodeSigned(current.Path);

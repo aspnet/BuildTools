@@ -1,4 +1,7 @@
-﻿using NuGet;
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using NuGet;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,12 +20,15 @@ namespace NuGetPackageVerifier.Rules
             ".ps1xml"
         };
 
-        public IEnumerable<PackageVerifierIssue> Validate(IPackageRepository packageRepo, IPackage package, IPackageVerifierLogger logger)
+        public IEnumerable<PackageVerifierIssue> Validate(
+            IPackageRepository packageRepo,
+            IPackage package,
+            IPackageVerifierLogger logger)
         {
             foreach (IPackageFile current in package.GetFiles())
             {
-                string extension = Path.GetExtension(current.Path);
-                if (PowerShellScriptIsSignedRule.PowerShellExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase))
+                var extension = Path.GetExtension(current.Path);
+                if (PowerShellExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase))
                 {
                     if (!VerifySigned(current))
                     {
@@ -30,6 +36,7 @@ namespace NuGetPackageVerifier.Rules
                     }
                 }
             }
+
             yield break;
         }
 
@@ -38,10 +45,12 @@ namespace NuGetPackageVerifier.Rules
             bool result;
             using (Stream stream = packageFile.GetStream())
             {
-                System.IO.StreamReader streamReader = new System.IO.StreamReader(stream);
-                string text = streamReader.ReadToEnd();
-                result = (text.IndexOf("# SIG # Begin signature block", StringComparison.OrdinalIgnoreCase) > -1 && text.IndexOf("# SIG # End signature block", StringComparison.OrdinalIgnoreCase) > -1);
+                var streamReader = new StreamReader(stream);
+                var text = streamReader.ReadToEnd();
+                result = (text.IndexOf("# SIG # Begin signature block", StringComparison.OrdinalIgnoreCase) > -1 &&
+                    text.IndexOf("# SIG # End signature block", StringComparison.OrdinalIgnoreCase) > -1);
             }
+
             return result;
         }
     }

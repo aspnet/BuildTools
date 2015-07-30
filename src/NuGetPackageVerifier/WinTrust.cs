@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
 using System.IO;
 using System.Runtime.InteropServices;
 
@@ -88,7 +91,7 @@ namespace NuGetPackageVerifier
 
         public static bool IsAuthenticodeSigned(string path)
         {
-            WinTrustFileInfo fileInfo = new WinTrustFileInfo()
+            var fileInfo = new WinTrustFileInfo()
             {
                 cbStruct = (uint)Marshal.SizeOf(typeof(WinTrustFileInfo)),
                 pcwszFilePath = Path.GetFullPath(path),
@@ -96,7 +99,7 @@ namespace NuGetPackageVerifier
                 pgKnownSubject = IntPtr.Zero
             };
 
-            WinTrustData data = new WinTrustData()
+            var data = new WinTrustData()
             {
                 cbStruct = (uint)Marshal.SizeOf(typeof(WinTrustData)),
                 dwProvFlags = Convert.ToUInt32(Provider.WTD_SAFER_FLAG),
@@ -115,12 +118,12 @@ namespace NuGetPackageVerifier
             // TODO: Potential memory leak. Need to invetigate
             Marshal.StructureToPtr(fileInfo, data.pFile, false);
 
-            IntPtr pGuid = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(Guid)));
-            IntPtr pData = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(WinTrustData)));
+            var pGuid = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(Guid)));
+            var pData = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(WinTrustData)));
             Marshal.StructureToPtr(data, pData, true);
             Marshal.StructureToPtr(new Guid(WINTRUST_ACTION_GENERIC_VERIFY_V2), pGuid, true);
 
-            uint result = WinVerifyTrust(IntPtr.Zero, pGuid, pData);
+            var result = WinVerifyTrust(IntPtr.Zero, pGuid, pData);
 
             Marshal.FreeHGlobal(pGuid);
             Marshal.FreeHGlobal(pData);

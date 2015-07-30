@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NuGet;
@@ -12,11 +15,7 @@ namespace NuGetPackageVerifier
             IssuesToIgnore = issuesToIgnore;
         }
 
-        public IEnumerable<IssueIgnore> IssuesToIgnore
-        {
-            get;
-            private set;
-        }
+        public IEnumerable<IssueIgnore> IssuesToIgnore { get; private set; }
 
         public IssueReport GetIssueReport(PackageVerifierIssue packageIssue, IPackage package)
         {
@@ -30,7 +29,11 @@ namespace NuGetPackageVerifier
                         string.Equals(issueIgnore.PackageId, package.Id, StringComparison.OrdinalIgnoreCase));
 
                 var firstIgnoreRule = ignoredRules.FirstOrDefault();
-                return new IssueReport(packageIssue, firstIgnoreRule != null, firstIgnoreRule == null ? null : firstIgnoreRule.Justification);
+
+                return new IssueReport(
+                    packageIssue,
+                    firstIgnoreRule != null,
+                    firstIgnoreRule == null ? null : firstIgnoreRule.Justification);
             }
             else
             {

@@ -32,7 +32,7 @@ namespace NuGetPackageVerifier
 
             if (args.Length < 1 || args.Length > 2)
             {
-                Console.WriteLine(@"USAGE: NugetPackageVerifier c:\path\to\packages [c:\path\to\packages-to-scan.json]");
+                Console.WriteLine(@"USAGE: nugetverify c:\path\to\packages [c:\path\to\packages-to-scan.json]");
                 Console.ReadLine();
 
                 return ReturnBadArgs;
@@ -95,18 +95,26 @@ namespace NuGetPackageVerifier
             var ignoreAssistanceData = new Dictionary<string, IDictionary<string, IDictionary<string, string>>>(
                 StringComparer.OrdinalIgnoreCase);
 
+            IEnumerable<IPackageVerifierRule> defaultRuleSet = null;
+
             foreach (var packageSet in packageSets)
             {
                 logger.LogInfo(
                     "Processing package set '{0}' with {1} package(s)",
                     packageSet.Key,
-                    packageSet.Value.Packages.Count);
+                    packageSet.Value.Packages?.Count ?? 0);
 
                 var packageSetRuleInfo = packageSet.Value.Rules;
 
                 var packageSetRules = packageSetRuleInfo.Select(
                     ruleId => allRules.SingleOrDefault(
                         rule => string.Equals(rule.Key, ruleId, StringComparison.OrdinalIgnoreCase)).Value);
+
+                if (string.Equals(packageSet.Key, "Default", StringComparison.OrdinalIgnoreCase))
+                {
+                    defaultRuleSet = packageSetRules;
+                    continue;
+                }
 
                 var analyzer = new PackageAnalyzer();
                 foreach (var ruleInstance in packageSetRules)
@@ -168,13 +176,14 @@ namespace NuGetPackageVerifier
             if (unprocessedPackages.Any())
             {
                 logger.LogWarning(
-                    "Found {0} unprocessed packages. Every package in the repo should be listed in exactly" +
-                    "one package set. Running all rules on unlisted packages.",
+                    "Found {0} unprocessed packages. Every package in the repo should be listed in exactly " +
+                    "one package set. Running default or all rules on unlisted packages.",
                     unprocessedPackages.Count());
 
-                // For unprocessed packages we run all rules (because we have no idea what exactly to run)
+                // For unprocessed packages we run the rules from 'Default' package set if present
+                // or we run all rules (because we have no idea what exactly to run)
                 var analyzer = new PackageAnalyzer();
-                foreach (var ruleInstance in allRules.Values)
+                foreach (var ruleInstance in defaultRuleSet ?? allRules.Values)
                 {
                     analyzer.Rules.Add(ruleInstance);
                 }

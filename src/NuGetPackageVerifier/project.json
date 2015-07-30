@@ -11,7 +11,7 @@
         "Mono.Cecil": "0.9.5.4"
     },
     "commands": {
-        "NuGetPackageVerifier": "NuGetPackageVerifier"
+        "nugetverify": "NuGetPackageVerifier"
     },
   "frameworks" : {
     "dnx451": {

@@ -1,7 +1,7 @@
 ﻿{
     "version": "1.0.0-*",
-    "description": "",
-    "authors": [ "" ],
+    "description": "Verifies ASPNET 5 NuGet packages.",
+    "authors": [ "Microsoft" ],
     "tags": [ "" ],
     "projectUrl": "",
     "licenseUrl": "",

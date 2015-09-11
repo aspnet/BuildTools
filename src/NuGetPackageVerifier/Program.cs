@@ -169,6 +169,17 @@ namespace NuGetPackageVerifier
 
                     processedPackages.Add(package);
                 }
+
+                foreach (var issue in issueProcessor.IssuesToIgnore)
+                {
+                    // TODO: Don't show this for rules that we don't run.
+                    logger.LogWarning(
+                        "Unnecessary exclusion in {0}{3}Issue: {1}{3}Instance: {2}{3}",
+                        issue.PackageId,
+                        issue.IssueId,
+                        issue.Instance,
+                        Environment.NewLine);
+                }
             }
 
             var unprocessedPackages = localPackageRepo.GetPackages().Except(processedPackages);

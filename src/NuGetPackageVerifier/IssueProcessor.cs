@@ -12,28 +12,37 @@ namespace NuGetPackageVerifier
     {
         public IssueProcessor(IEnumerable<IssueIgnore> issuesToIgnore)
         {
-            IssuesToIgnore = issuesToIgnore;
+            IssuesToIgnore = issuesToIgnore?.ToList();
         }
 
-        public IEnumerable<IssueIgnore> IssuesToIgnore { get; private set; }
+        public List<IssueIgnore> IssuesToIgnore { get; private set; }
 
         public IssueReport GetIssueReport(PackageVerifierIssue packageIssue, IPackage package)
         {
             if (IssuesToIgnore != null)
             {
                 // If there are issues to ignore, process them
-                var ignoredRules = IssuesToIgnore.Where(
+                var ignoredRuleIndex = IssuesToIgnore.FindIndex(
                     issueIgnore =>
                         string.Equals(issueIgnore.IssueId, packageIssue.IssueId, StringComparison.OrdinalIgnoreCase) &&
                         string.Equals(issueIgnore.Instance, packageIssue.Instance ?? "*", StringComparison.OrdinalIgnoreCase) &&
                         string.Equals(issueIgnore.PackageId, package.Id, StringComparison.OrdinalIgnoreCase));
 
-                var firstIgnoreRule = ignoredRules.FirstOrDefault();
+                if (ignoredRuleIndex != -1)
+                {
+                    var ignoredRule = IssuesToIgnore[ignoredRuleIndex];
+                    IssuesToIgnore.RemoveAt(ignoredRuleIndex);
+
+                    return new IssueReport(
+                        packageIssue,
+                        ignore: true,
+                        ignoreJustification: ignoredRule.Justification);
+                }
 
                 return new IssueReport(
                     packageIssue,
-                    firstIgnoreRule != null,
-                    firstIgnoreRule == null ? null : firstIgnoreRule.Justification);
+                    ignore: false,
+                    ignoreJustification: null);
             }
             else
             {

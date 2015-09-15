@@ -15,8 +15,17 @@ namespace NuGetPackageVerifier
                 assemblyPath,
                 string.Format(
                     @"The managed assembly '{0}' in this package is missing the '[assembly: AssemblyMetadata(""Serviceable"", ""True"")]' attribute.",
-                    assemblyPath,
-                    typeof(AssemblyFileVersionAttribute).Name),
+                    assemblyPath),
+                MyPackageIssueLevel.Error);
+        }
+
+        public static PackageVerifierIssue AssemblyMissingNeutralResourcesLanguageAttribute(string assemblyPath)
+        {
+            return new PackageVerifierIssue(
+                "NEUTRAL_RESOURCES_LANGUAGE",
+                string.Format(
+                    @"The managed assembly '{0}' in this package is missing the '[assembly: NeutralResourcesLanguage(""en-us"")]' attribute.",
+                    assemblyPath),
                 MyPackageIssueLevel.Error);
         }
 

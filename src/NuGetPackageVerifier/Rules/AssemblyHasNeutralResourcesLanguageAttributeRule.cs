@@ -5,14 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
+using System.Resources;
 using Mono.Cecil;
 using NuGet;
 using NuGetPackageVerifier.Logging;
 
 namespace NuGetPackageVerifier.Rules
 {
-    public class AssemblyHasServicingAttributeRule : IPackageVerifierRule
+    public class AssemblyHasNeutralResourcesLanguageAttributeRule : IPackageVerifierRule
     {
         public IEnumerable<PackageVerifierIssue> Validate(
             IPackageRepository packageRepo,
@@ -42,9 +42,9 @@ namespace NuGetPackageVerifier.Rules
 
                             var asmAttrs = assemblyDefinition.CustomAttributes;
 
-                            if (!HasServicingAttribute(asmAttrs))
+                            if (!HasNeutralResourcesLanguageAttribute(asmAttrs))
                             {
-                                yield return PackageIssueFactory.AssemblyMissingServicingAttribute(currentFile.Path);
+                                yield return PackageIssueFactory.AssemblyMissingNeutralResourcesLanguageAttribute(currentFile.Path);
                             }
                         }
                     }
@@ -57,29 +57,29 @@ namespace NuGetPackageVerifier.Rules
                     }
                 }
             }
+
             yield break;
         }
 
-        private static bool HasServicingAttribute(Mono.Collections.Generic.Collection<CustomAttribute> asmAttrs)
+        private static bool HasNeutralResourcesLanguageAttribute(Mono.Collections.Generic.Collection<CustomAttribute> asmAttrs)
         {
-            return asmAttrs.Any(asmAttr => IsValidServicingAttribute(asmAttr));
+            return asmAttrs.Any(asmAttr => IsValidNeutralResourcesLanguageAttribute(asmAttr));
         }
 
-        private static bool IsValidServicingAttribute(CustomAttribute asmAttr)
+        private static bool IsValidNeutralResourcesLanguageAttribute(CustomAttribute asmAttr)
         {
-            if (asmAttr.AttributeType.FullName != typeof(AssemblyMetadataAttribute).FullName)
+            if (asmAttr.AttributeType.FullName != typeof(NeutralResourcesLanguageAttribute).FullName)
             {
                 return false;
             }
-            if (asmAttr.ConstructorArguments.Count != 2)
+            if (asmAttr.ConstructorArguments.Count != 1)
             {
                 return false;
             }
 
-            var keyValue = asmAttr.ConstructorArguments[0].Value as string;
-            var valueValue = asmAttr.ConstructorArguments[1].Value as string;
+            var value = asmAttr.ConstructorArguments[0].Value as string;
 
-            return (keyValue == "Serviceable") && (valueValue == "True");
+            return string.Equals(value, "en-us", StringComparison.OrdinalIgnoreCase);
         }
     }
 }

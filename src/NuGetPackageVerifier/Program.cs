@@ -71,6 +71,7 @@ namespace NuGetPackageVerifier
                 new AssemblyHasDocumentFileRule(),
                 new AssemblyHasVersionAttributesRule(),
                 new AssemblyHasServicingAttributeRule(),
+                new AssemblyHasNeutralResourcesLanguageAttributeRule(),
                 new AssemblyStrongNameRule(),
                 new AuthenticodeSigningRule(),
                 new PowerShellScriptIsSignedRule(),

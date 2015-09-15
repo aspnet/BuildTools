@@ -31,32 +31,25 @@ namespace NuGetPackageVerifier.Rules
                     try
                     {
                         using (var packageFileStream = currentFile.GetStream())
+                        using (var fileStream = new FileStream(assemblyPath, FileMode.Create))
                         {
-                            var _assemblyBytes = new byte[packageFileStream.Length];
-                            packageFileStream.Read(_assemblyBytes, 0, _assemblyBytes.Length);
+                            packageFileStream.CopyTo(fileStream);
+                        }
 
-                            using (var fileStream = new FileStream(assemblyPath, FileMode.Create))
+                        if (AssemblyHelpers.IsAssemblyManaged(assemblyPath))
+                        {
+                            var assemblyDefinition = AssemblyDefinition.ReadAssembly(assemblyPath);
+
+                            var asmAttrs = assemblyDefinition.CustomAttributes;
+
+                            if (!HasAttrWithArg(asmAttrs, typeof(AssemblyFileVersionAttribute).FullName))
                             {
-                                packageFileStream.Seek(0, SeekOrigin.Begin);
-                                packageFileStream.CopyTo(fileStream);
-                                fileStream.Flush(true);
+                                yield return PackageIssueFactory.AssemblyMissingFileVersionAttribute(currentFile.Path);
                             }
 
-                            if (AssemblyHelpers.IsAssemblyManaged(assemblyPath))
+                            if (!HasAttrWithArg(asmAttrs, typeof(AssemblyInformationalVersionAttribute).FullName))
                             {
-                                var assemblyDefinition = AssemblyDefinition.ReadAssembly(assemblyPath);
-
-                                var asmAttrs = assemblyDefinition.CustomAttributes;
-
-                                if (!HasAttrWithArg(asmAttrs, typeof(AssemblyFileVersionAttribute).FullName))
-                                {
-                                    yield return PackageIssueFactory.AssemblyMissingFileVersionAttribute(currentFile.Path);
-                                }
-
-                                if (!HasAttrWithArg(asmAttrs, typeof(AssemblyInformationalVersionAttribute).FullName))
-                                {
-                                    yield return PackageIssueFactory.AssemblyMissingInformationalVersionAttribute(currentFile.Path);
-                                }
+                                yield return PackageIssueFactory.AssemblyMissingInformationalVersionAttribute(currentFile.Path);
                             }
                         }
                     }

@@ -10,28 +10,30 @@ namespace NuGetPackageVerifier
 {
     public class IssueProcessor
     {
+        private List<IssueIgnore> _allIssuesToIgnore;
+
         public IssueProcessor(IEnumerable<IssueIgnore> issuesToIgnore)
         {
-            IssuesToIgnore = issuesToIgnore?.ToList();
+            _allIssuesToIgnore = issuesToIgnore?.ToList();
+            RemainingIssuesToIgnore = new List<IssueIgnore>(_allIssuesToIgnore);
         }
 
-        public List<IssueIgnore> IssuesToIgnore { get; private set; }
+        public List<IssueIgnore> RemainingIssuesToIgnore { get; }
 
         public IssueReport GetIssueReport(PackageVerifierIssue packageIssue, IPackage package)
         {
-            if (IssuesToIgnore != null)
+            if (_allIssuesToIgnore != null)
             {
                 // If there are issues to ignore, process them
-                var ignoredRuleIndex = IssuesToIgnore.FindIndex(
+                var ignoredRule = _allIssuesToIgnore.Find(
                     issueIgnore =>
                         string.Equals(issueIgnore.IssueId, packageIssue.IssueId, StringComparison.OrdinalIgnoreCase) &&
                         string.Equals(issueIgnore.Instance, packageIssue.Instance ?? "*", StringComparison.OrdinalIgnoreCase) &&
                         string.Equals(issueIgnore.PackageId, package.Id, StringComparison.OrdinalIgnoreCase));
 
-                if (ignoredRuleIndex != -1)
+                if (ignoredRule != null)
                 {
-                    var ignoredRule = IssuesToIgnore[ignoredRuleIndex];
-                    IssuesToIgnore.RemoveAt(ignoredRuleIndex);
+                    RemainingIssuesToIgnore.Remove(ignoredRule);
 
                     return new IssueReport(
                         packageIssue,

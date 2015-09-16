@@ -23,6 +23,7 @@ namespace NuGetPackageVerifier
         {
             return new PackageVerifierIssue(
                 "NEUTRAL_RESOURCES_LANGUAGE",
+                assemblyPath,
                 string.Format(
                     @"The managed assembly '{0}' in this package is missing the '[assembly: NeutralResourcesLanguage(""en-us"")]' attribute.",
                     assemblyPath),

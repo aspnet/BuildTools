@@ -140,38 +140,34 @@ namespace NuGetPackageVerifier
                         totalErrors++;
                         continue;
                     }
-                    if (packagesWithId.Count() > 1)
+
+                    foreach (var package in packagesWithId)
                     {
-                        logger.LogError("Found more than one package with id '{0}' in the repo", packageId);
-                        totalErrors++;
-                        continue;
+                        var packageTimeStopWatch = Stopwatch.StartNew();
+                        logger.LogInfo("Analyzing {0} ({1})", package.Id, package.Version);
+
+                        var issues = analyzer.AnalyzePackage(localPackageRepo, package, logger).ToList();
+
+                        var packageErrorsAndWarnings = ProcessPackageIssues(
+                            ignoreAssistanceMode,
+                            logger,
+                            issueProcessor,
+                            ignoreAssistanceData,
+                            package,
+                            issues);
+
+                        totalErrors += packageErrorsAndWarnings.Item1;
+                        totalWarnings += packageErrorsAndWarnings.Item2;
+
+                        packageTimeStopWatch.Stop();
+                        logger.LogInfo("Took {0}ms", packageTimeStopWatch.ElapsedMilliseconds);
+                        Console.WriteLine();
+
+                        processedPackages.Add(package);
                     }
-                    var package = packagesWithId.Single();
-
-                    var packageTimeStopWatch = Stopwatch.StartNew();
-                    logger.LogInfo("Analyzing {0} ({1})", package.Id, package.Version);
-
-                    var issues = analyzer.AnalyzePackage(localPackageRepo, package, logger).ToList();
-
-                    var packageErrorsAndWarnings = ProcessPackageIssues(
-                        ignoreAssistanceMode,
-                        logger,
-                        issueProcessor,
-                        ignoreAssistanceData,
-                        package,
-                        issues);
-
-                    totalErrors += packageErrorsAndWarnings.Item1;
-                    totalWarnings += packageErrorsAndWarnings.Item2;
-
-                    packageTimeStopWatch.Stop();
-                    logger.LogInfo("Took {0}ms", packageTimeStopWatch.ElapsedMilliseconds);
-                    Console.WriteLine();
-
-                    processedPackages.Add(package);
                 }
 
-                foreach (var issue in issueProcessor.IssuesToIgnore)
+                foreach (var issue in issueProcessor.RemainingIssuesToIgnore)
                 {
                     // TODO: Don't show this for rules that we don't run.
                     logger.LogWarning(

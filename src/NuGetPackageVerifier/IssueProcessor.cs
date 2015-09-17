@@ -15,7 +15,7 @@ namespace NuGetPackageVerifier
         public IssueProcessor(IEnumerable<IssueIgnore> issuesToIgnore)
         {
             _allIssuesToIgnore = issuesToIgnore?.ToList();
-            RemainingIssuesToIgnore = new List<IssueIgnore>(_allIssuesToIgnore);
+            RemainingIssuesToIgnore = issuesToIgnore?.ToList();
         }
 
         public List<IssueIgnore> RemainingIssuesToIgnore { get; }

@@ -9,10 +9,12 @@ namespace NuGetPackageVerifier.Logging
     {
         public void Log(LogLevel logLevel, string message)
         {
+            var output = Console.Out;
             ConsoleColor foreColor;
             switch (logLevel)
             {
                 case LogLevel.Error:
+                    output = Console.Error;
                     foreColor = ConsoleColor.Red;
                     break;
 
@@ -27,7 +29,7 @@ namespace NuGetPackageVerifier.Logging
             }
 
             Console.ForegroundColor = foreColor;
-            Console.WriteLine("{0}: {1}", logLevel.ToString().ToUpperInvariant(), message);
+            output.WriteLine("{0}: {1}", logLevel.ToString().ToUpperInvariant(), message);
             Console.ForegroundColor = ConsoleColor.Gray;
         }
     }

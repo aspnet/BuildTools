@@ -7,5 +7,9 @@ Travis:   [![Travis](https://travis-ci.org/aspnet/DnxTools.svg?branch=master)](h
 
 Utilities used in the build system for projects that are used with DNX.
 
+For issues with DNX and DNU, go to https://github.com/aspnet/dnx/issues/.
+
+For issues with DNVM, go to https://github.com/aspnet/dnvm/issues/.
+
 This project is part of ASP.NET 5. You can find samples, documentation and getting started instructions for ASP.NET 5 at the [Home](https://github.com/aspnet/home) repo.
 

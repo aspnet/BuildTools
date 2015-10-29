@@ -7,7 +7,7 @@
     "licenseUrl": "",
     "dependencies": {
         "Newtonsoft.Json": "6.0.6",
-        "NuGet.Core": "2.8.5",
+        "NuGet.Core": "2.8.6",
         "Mono.Cecil": "0.9.5.4"
     },
     "commands": {

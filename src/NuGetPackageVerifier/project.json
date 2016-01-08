@@ -1,20 +1,20 @@
 ﻿{
-    "version": "1.0.1-*",
-    "description": "Verifies ASPNET 5 NuGet packages.",
-    "authors": [ "Microsoft" ],
-    "tags": [ "" ],
-    "projectUrl": "",
-    "licenseUrl": "",
-    "dependencies": {
-        "Newtonsoft.Json": "6.0.6",
-        "NuGet.Core": "2.8.6",
-        "Mono.Cecil": "0.9.5.4"
-    },
-    "commands": {
-        "nugetverify": "NuGetPackageVerifier"
-    },
-  "frameworks" : {
-    "dnx451": {
+  "version": "1.0.1-*",
+  "description": "Verifies ASPNET 5 NuGet packages.",
+  "authors": [ "Microsoft" ],
+  "tags": [ "" ],
+  "projectUrl": "",
+  "licenseUrl": "",
+  "compilationOptions": {
+    "emitEntryPoint": true
+  },
+  "dependencies": {
+    "Newtonsoft.Json": "6.0.6",
+    "NuGet.Core": "2.8.6",
+    "Mono.Cecil": "0.9.5.4"
+  },
+  "frameworks": {
+    "net451": {
       "frameworkAssemblies": {
         "Microsoft.CSharp": "",
         "System.Collections": "",

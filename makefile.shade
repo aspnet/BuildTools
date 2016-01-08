@@ -3,8 +3,21 @@ var VERSION='0.1'
 var FULL_VERSION='0.1'
 var AUTHORS='Microsoft Open Technologies, Inc.'
 
+default BASE_DIR='${Directory.GetCurrentDirectory()}'
+default TARGET_DIR='${Path.Combine(BASE_DIR, "artifacts")}'
+
 use-standard-lifecycle
 k-standard-goals
 
 #xml-docs-test .clean .build-compile description='Check generated XML documentation files for errors' target='test'
   k-xml-docs-test
+
+#nuget-pack target='package'
+  @{
+  	var outputDir = Path.Combine(TARGET_DIR, "build");
+  	var existingNupkg = Directory.EnumerateFiles(outputDir).First(f => f.EndsWith(".nupkg"));
+  	var version = Path.GetFileNameWithoutExtension(existingNupkg).Substring("NuGetPackageVerifier.".Length);
+  	var nuspecPath = Path.Combine("src", "NuGetPackageVerifier", "NuGetPackageVerifier.nuspec");
+  	var basePath = Path.Combine(TARGET_DIR, "build", "NuGetPackageVerifier", "net451");
+  }
+  exec program='.build/NuGet.exe' commandline='pack -nopack ${nuspecPath} -version ${version} -base ${basePath} -out ${outputDir}'

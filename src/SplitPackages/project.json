@@ -1,0 +1,24 @@
+﻿{
+  "version": "1.0.1-*",
+  "description": "Copies Nuget packages form a given source folder into a specific set of folders based on a CSV file.",
+  "authors": [ "Microsoft" ],
+  "tags": [ "" ],
+  "projectUrl": "",
+  "licenseUrl": "",
+  "compilationOptions": {
+    "emitEntryPoint": true
+  },
+  "dependencies": {
+  },
+  "frameworks": {
+    "net451": {
+      "frameworkAssemblies": {
+        "Microsoft.CSharp": "",
+        "System.Collections": "",
+        "System.Xml.Linq": "",
+        "System.Threading": "",
+        "System.IO.Compression.FileSystem": ""
+      }
+    }
+  }
+}

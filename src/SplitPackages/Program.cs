@@ -5,26 +5,86 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.Extensions.CommandLineUtils;
+using Microsoft.Extensions.Logging;
 
 namespace SplitPackages
 {
     class Program
     {
-        static void Main(string[] args)
+        private const int Ok = 0;
+        private const int Error = 1;
+
+        private ILogger _logger;
+        private bool _whatIf;
+
+        private CommandLineApplication _app;
+        private CommandOption _sourceOption;
+        private CommandOption _csvOption;
+        private CommandOption _destinationOption;
+
+        public Program(
+            CommandLineApplication app,
+            CommandOption sourceOption,
+            CommandOption csvOption,
+            CommandOption destinationOption,
+            CommandOption whatIfOption)
         {
-            if (args.Contains("help", StringComparer.OrdinalIgnoreCase) ||
-                args.Length < 3 ||
-                args.Length > 4)
-            {
-                PrintUsage();
-                return;
-            }
+            _app = app;
+            _sourceOption = sourceOption;
+            _csvOption = csvOption;
+            _destinationOption = destinationOption;
+            _whatIf = whatIfOption.HasValue();
 
-            bool whatif = args.Length == 4 && args[3].Equals("whatif", StringComparison.OrdinalIgnoreCase);
+            InitializeLogger();
+        }
 
+        static int Main(string[] args)
+        {
+            var app = new CommandLineApplication();
+            app.Name = "SplitPackages";
+
+            app.HelpOption("-?|-h|--help");
+
+            var sourceOption = app.Option(
+                    "--source <DIR>",
+                    "The directory containing the nuget packages to split in different folders",
+                    CommandOptionType.SingleValue);
+
+            var csvOption = app.Option(
+                "--csv <PATH>",
+                "Path to the CSV file containing the names and subfolders where each package must go",
+                CommandOptionType.SingleValue);
+
+            var destinationOption = app.Option(
+                "--destination <DIR>",
+                "The directory on which subdirectories will be created for the different destinations of the packages",
+                CommandOptionType.SingleValue);
+
+            var whatIfOption = app.Option(
+                "--whatif",
+                "Performs a dry run of the command with the given arguments without copying the packages",
+                CommandOptionType.NoValue);
+
+            var program = new Program(app, sourceOption, csvOption, destinationOption, whatIfOption);
+
+            app.OnExecute(new Func<int>(program.Execute));
+
+            return app.Execute(args);
+        }
+
+        private int Execute()
+        {
             try
             {
-                var arguments = NormalizeArguments(args);
+                if (!_sourceOption.HasValue() || !_csvOption.HasValue() || !_destinationOption.HasValue())
+                {
+                    _app.ShowHelp();
+                    return Error;
+                }
+
+                var arguments = PrepareArguments(_sourceOption, _csvOption, _destinationOption);
+
                 var packagesFromSource = GetPackagesFromSourceFolder(arguments.SourceFolder);
                 var packagesFromCsv = GetPackagesFromCsvFile(arguments.CsvFile);
                 var expandedPackages = ExpandPackages(packagesFromCsv, arguments.SourceFolder);
@@ -39,16 +99,34 @@ namespace SplitPackages
 
                 SetDestinationPath(arguments, expandedPackages);
 
-                CopyPackages(expandedPackages, whatif);
+                CopyPackages(expandedPackages);
+
+                return Ok;
             }
             catch (Exception e)
             {
-                WriteError(e.Message);
-                return;
+                _logger.LogError(e.Message);
+                _app.ShowHelp();
+                return Error;
             }
         }
 
-        private static Arguments NormalizeArguments(string[] args)
+        private void InitializeLogger()
+        {
+            var loggerFactory = new LoggerFactory();
+            loggerFactory.AddConsole();
+            _logger = loggerFactory.CreateLogger<Program>();
+        }
+
+        private Arguments PrepareArguments(
+            CommandOption source,
+            CommandOption csv,
+            CommandOption destination)
+        {
+            return PrepareArguments(source.Value(), csv.Value(), destination.Value());
+        }
+
+        private Arguments PrepareArguments(params string[] args)
         {
             var sourcePackages = Path.GetFullPath(args[0]);
             var csvFile = Path.GetFullPath(args[1]);
@@ -57,23 +135,15 @@ namespace SplitPackages
             if (!Directory.Exists(sourcePackages))
             {
                 var msg = $@"Source packages folder does not exist or is not a folder
-{sourcePackages}";
+    {sourcePackages}";
                 throw new InvalidOperationException(msg);
             }
 
             if (!File.Exists(csvFile))
             {
                 var msg = $@"csv file does not exist or is not a file
-{csvFile}";
+    {csvFile}";
                 throw new InvalidOperationException(msg);
-            }
-
-            if (!Directory.Exists(destinationFolder))
-            {
-                var msg = $@"Destination folder does not exist, creating folder at:
-{destinationFolder}";
-                WriteInformational(msg);
-                Directory.CreateDirectory(destinationFolder);
             }
 
             return new Arguments
@@ -84,7 +154,7 @@ namespace SplitPackages
             };
         }
 
-        private static IList<PackageItem> GetPackagesFromSourceFolder(string sourceFolder)
+        private IList<PackageItem> GetPackagesFromSourceFolder(string sourceFolder)
         {
             var packages = Directory.EnumerateFiles(sourceFolder);
 
@@ -96,7 +166,7 @@ namespace SplitPackages
             }).ToList();
         }
 
-        private static IList<PackageItem> GetPackagesFromCsvFile(string csvFile)
+        private IList<PackageItem> GetPackagesFromCsvFile(string csvFile)
         {
             var lines = File.ReadAllLines(csvFile);
             var parsedLines = lines.Select(l => l.Split(','));
@@ -109,11 +179,11 @@ namespace SplitPackages
             }).ToList();
         }
 
-        private static IList<PackageItem> ExpandPackages(IList<PackageItem> packagesFromCsv, string sourceFolder)
+        private IList<PackageItem> ExpandPackages(IList<PackageItem> packagesFromCsv, string sourceFolder)
         {
             var allPackages = new HashSet<PackageItem>();
 
-            for (int i = 0; i < packagesFromCsv.Count; i++)
+            for (var i = 0; i < packagesFromCsv.Count; i++)
             {
                 var foundPackages = Directory.EnumerateFiles(sourceFolder, packagesFromCsv[i].Name);
                 var expandedPackages = foundPackages.Select(fp => new PackageItem
@@ -139,11 +209,11 @@ namespace SplitPackages
             return allPackages.ToList();
         }
 
-        private static void EnsureNoExtraSourcePackagesFound(IList<PackageItem> source, IList<PackageItem> expanded)
+        private void EnsureNoExtraSourcePackagesFound(IList<PackageItem> source, IList<PackageItem> expanded)
         {
-            for (int i = 0; i < source.Count; i++)
+            for (var i = 0; i < source.Count; i++)
             {
-                for (int j = 0; j < expanded.Count; j++)
+                for (var j = 0; j < expanded.Count; j++)
                 {
                     if (source[i].Name.Equals(
                         expanded[j].Name,
@@ -155,15 +225,15 @@ namespace SplitPackages
             }
         }
 
-        private static void EmitWarningsForMissingPackages(IList<PackageItem> source, IList<PackageItem> csv)
+        private void EmitWarningsForMissingPackages(IList<PackageItem> source, IList<PackageItem> csv)
         {
             for (int i = 0; i < source.Count; i++)
             {
                 if (!source[i].FoundInCsv)
                 {
                     var msg = $@"No entry in the csv file matched the following package:
-{source[i].Name}";
-                    WriteWarning(msg);
+    {source[i].Name}";
+                    _logger.LogWarning(msg);
                 }
             }
 
@@ -172,25 +242,43 @@ namespace SplitPackages
                 if (!csv[i].FoundInFolder)
                 {
                     var msg = $@"No package found in the source folder for the following csv entry:
-{csv[i].Name}";
-                    WriteWarning(msg);
+    {csv[i].Name}";
+                    _logger.LogWarning(msg);
                 }
             }
         }
 
-        private static void EnsureDestinationDirectories(string destinationFolder, IEnumerable<string> folders)
+        private void EnsureDestinationDirectories(string destinationFolder, IEnumerable<string> folders)
         {
+            if (!Directory.Exists(destinationFolder))
+            {
+                var msg = $@"Destination folder does not exist, creating folder at:
+    {destinationFolder}";
+                _logger.LogInformation(msg);
+
+                if (!_whatIf)
+                {
+                    Directory.CreateDirectory(destinationFolder);
+                }
+            }
+
             foreach (var destination in folders)
             {
                 var path = Path.Combine(destinationFolder, destination);
                 if (!Directory.Exists(path))
                 {
-                    Directory.CreateDirectory(path);
+                    _logger.LogInformation($@"Creating destination folder at:
+{path}");
+
+                    if (!_whatIf)
+                    {
+                        Directory.CreateDirectory(path);
+                    }
                 }
             }
         }
 
-        private static void SetDestinationPath(Arguments arguments, IList<PackageItem> expandedPackages)
+        private void SetDestinationPath(Arguments arguments, IList<PackageItem> expandedPackages)
         {
             foreach (var package in expandedPackages)
             {
@@ -203,59 +291,18 @@ namespace SplitPackages
             }
         }
 
-        private static void CopyPackages(IList<PackageItem> expandedPackages, bool whatif)
+        private void CopyPackages(IList<PackageItem> expandedPackages)
         {
             foreach (var package in expandedPackages)
             {
-                WriteInformational($@"Copying package {package.Name} from
-{package.OriginPath} to
-{package.DestinationPath}");
-                if (!whatif)
+                _logger.LogInformation($@"Copying package {package.Name} from
+    {package.OriginPath} to
+    {package.DestinationPath}");
+                if (!_whatIf)
                 {
                     File.Copy(package.OriginPath, package.DestinationPath, overwrite: true);
                 }
             }
-        }
-
-        private static void WriteInformational(string msg)
-        {
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine($"[informational]: {msg}");
-            Console.ResetColor();
-        }
-
-        private static void WriteWarning(string msg)
-        {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine($"[warning]: {msg}");
-            Console.ResetColor();
-        }
-
-        private static void WriteError(string error)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($@"There was an error executing the command:
-{error}");
-            Console.ResetColor();
-            PrintUsage();
-        }
-
-        private static void PrintUsage()
-        {
-            var text = @"
-SplitPackages [help] [source packages] [csv path] [destination folder]
-
--help Prints out this summary.
-
--source packages: The path to the folder containing the built packages.
-
--csv path: The path to the CSV containing the packages and the destination
-           folder for each package.
-
--destination folder: The path to the folder in which the destination folder for
-           individual package categories will be created.";
-
-            Console.WriteLine(text);
         }
 
         private class PackageItem : IEquatable<PackageItem>
@@ -274,7 +321,7 @@ SplitPackages [help] [source packages] [csv path] [destination folder]
 
             public override int GetHashCode()
             {
-                return OriginPath?.GetHashCode() * 7 ?? 1;
+                return OriginPath != null ? OriginPath.GetHashCode() : 1;
             }
         }
 

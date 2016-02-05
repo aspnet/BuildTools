@@ -9,7 +9,7 @@
     "emitEntryPoint": true
   },
   "dependencies": {
-    "Newtonsoft.Json": "6.0.6",
+    "Newtonsoft.Json": "8.0.2",
     "NuGet.Core": "2.8.6",
     "Mono.Cecil": "0.9.5.4"
   },

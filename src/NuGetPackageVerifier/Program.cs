@@ -78,6 +78,7 @@ namespace NuGetPackageVerifier
                 new RequiredPackageMetadataRule(),
                 new SatellitePackageRule(),
                 new StrictSemanticVersionValidationRule(),
+                new AssemblyHasCorrectJsonNetVersionRule(),
             }.ToDictionary(t => t.GetType().Name, t => t);
 
             var nupkgsPath = args[0];

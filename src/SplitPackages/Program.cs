@@ -5,11 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NuGet.Packaging;
 
 namespace SplitPackages
 {
@@ -17,19 +17,6 @@ namespace SplitPackages
     {
         private const int Ok = 0;
         private const int Error = 1;
-
-        private static readonly Regex DependencyRegex;
-
-        static Program()
-        {
-            //var moniker = @"\.v4\.(5|6)(.1)?";
-            var moniker = @"\.v\d(.\d){1,2}";
-            var nameExpr = @"(?<name>[a-z]+((\.|-)[a-z0-9]+)*?(" + moniker + ")?){1}";
-            var versionExpr = @"(?<version>\d+(\.\d+){2,3}(\-[a-z0-9]+)*)";
-
-            DependencyRegex = new Regex($"({nameExpr})\\.({versionExpr})(.nupkg)?",
-                RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-        }
 
         private ILogger _logger;
 
@@ -169,10 +156,7 @@ namespace SplitPackages
 
             foreach (var path in packagesByFolder)
             {
-                var dependenciesList = path
-                    .Select(p => p.DestinationPath)
-                    .Select(Path.GetFileNameWithoutExtension)
-                    .Select(CreateDependency);
+                var dependenciesList = path.Select(CreateDependency);
 
                 var jsonFileBuilder = new ProjectJsonFileBuilder(
                     Path.Combine(path.Key, "project.json"),
@@ -185,22 +169,19 @@ namespace SplitPackages
             }
         }
 
-        private Dependency CreateDependency(string packageName)
+        private Dependency CreateDependency(PackageItem package)
         {
-            var result = DependencyRegex.Match(packageName);
-            if (!result.Success)
+            if (package.Identity == null || package.Version == null)
             {
-                Logger.LogWarning($"Unable to extract name and version from {packageName}");
+                Logger.LogWarning($"Unable to extract name and version from {package.Name}");
                 return new Dependency();
             }
             else
             {
-                var name = result.Groups["name"].Value;
-                var version = result.Groups["version"].Value;
                 return new Dependency
                 {
-                    Name = name,
-                    Version = version
+                    Name = package.Identity,
+                    Version = package.Version
                 };
             }
         }
@@ -253,7 +234,8 @@ namespace SplitPackages
 
         private IList<PackageItem> GetPackagesFromSourceFolder(string sourceFolder)
         {
-            var packages = Directory.EnumerateFiles(sourceFolder);
+            var packages = Directory.EnumerateFiles(sourceFolder)
+                .Where(f => Path.GetExtension(f).Equals(".nupkg", StringComparison.OrdinalIgnoreCase));
 
             return packages.Select(p => new PackageItem
             {
@@ -303,7 +285,22 @@ namespace SplitPackages
                 }
             }
 
+            foreach (var item in allPackages)
+            {
+                ReadNugetIdentityAndVersion(item);
+            }
+
             return allPackages.ToList();
+        }
+
+        private static void ReadNugetIdentityAndVersion(PackageItem item)
+        {
+            using (var reader = new PackageArchiveReader(item.OriginPath))
+            {
+                var identity = reader.GetIdentity();
+                item.Identity = identity.Id;
+                item.Version = identity.Version.ToString();
+            }
         }
 
         private void EnsureNoExtraSourcePackagesFound(IList<PackageItem> source, IList<PackageItem> expanded)
@@ -431,6 +428,8 @@ namespace SplitPackages
             public string DestinationPath { get; set; }
             public bool FoundInCsv { get; set; }
             public bool FoundInFolder { get; set; }
+            public string Identity { get; set; }
+            public string Version { get; set; }
 
             public bool Equals(PackageItem other)
             {

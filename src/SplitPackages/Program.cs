@@ -5,8 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace SplitPackages
 {
@@ -15,28 +18,58 @@ namespace SplitPackages
         private const int Ok = 0;
         private const int Error = 1;
 
+        private static readonly Regex DependencyRegex;
+
+        static Program()
+        {
+            //var moniker = @"\.v4\.(5|6)(.1)?";
+            var moniker = @"\.v\d(.\d){1,2}";
+            var nameExpr = @"(?<name>[a-z]+((\.|-)[a-z0-9]+)*?(" + moniker + ")?){1}";
+            var versionExpr = @"(?<version>\d+(\.\d+){2,3}(\-[a-z0-9]+)*)";
+
+            DependencyRegex = new Regex($"({nameExpr})\\.({versionExpr})(.nupkg)?",
+                RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+        }
+
         private ILogger _logger;
-        private bool _whatIf;
 
         private CommandLineApplication _app;
         private CommandOption _sourceOption;
         private CommandOption _csvOption;
         private CommandOption _destinationOption;
+        private CommandOption _whatIf;
+        private CommandOption _warningsOnly;
+        private CommandOption _warningsAsErrors;
+
+        public ILogger Logger
+        {
+            get
+            {
+                if (_logger == null)
+                {
+                    _logger = CreateLogger();
+                }
+
+                return _logger;
+            }
+        }
 
         public Program(
             CommandLineApplication app,
             CommandOption sourceOption,
             CommandOption csvOption,
             CommandOption destinationOption,
-            CommandOption whatIfOption)
+            CommandOption whatIfOption,
+            CommandOption warningsOnly,
+            CommandOption warningsAsErrors)
         {
             _app = app;
             _sourceOption = sourceOption;
             _csvOption = csvOption;
             _destinationOption = destinationOption;
-            _whatIf = whatIfOption.HasValue();
-
-            InitializeLogger();
+            _whatIf = whatIfOption;
+            _warningsOnly = warningsOnly;
+            _warningsAsErrors = warningsAsErrors;
         }
 
         static int Main(string[] args)
@@ -66,7 +99,24 @@ namespace SplitPackages
                 "Performs a dry run of the command with the given arguments without copying the packages",
                 CommandOptionType.NoValue);
 
-            var program = new Program(app, sourceOption, csvOption, destinationOption, whatIfOption);
+            var warningsOnly = app.Option(
+                "--warningsonly",
+                "Avoids printing to the output anything other than warnings or errors",
+                CommandOptionType.NoValue);
+
+            var warningsAsErrors = app.Option(
+                "--warningsaserrors",
+                "Treats warnigns and errors and stops the execution of the command",
+                CommandOptionType.NoValue);
+
+            var program = new Program(
+                app,
+                sourceOption,
+                csvOption,
+                destinationOption,
+                whatIfOption,
+                warningsOnly,
+                warningsAsErrors);
 
             app.OnExecute(new Func<int>(program.Execute));
 
@@ -101,21 +151,68 @@ namespace SplitPackages
 
                 CopyPackages(expandedPackages);
 
+                CreateProjectJsonFiles(expandedPackages);
+
                 return Ok;
             }
             catch (Exception e)
             {
-                _logger.LogError(e.Message);
+                Logger.LogError(e.Message);
                 _app.ShowHelp();
                 return Error;
             }
         }
 
-        private void InitializeLogger()
+        private void CreateProjectJsonFiles(IEnumerable<PackageItem> packages)
+        {
+            var packagesByFolder = packages.GroupBy(p => Path.GetDirectoryName(p.DestinationPath));
+
+            foreach (var path in packagesByFolder)
+            {
+                var dependenciesList = path
+                    .Select(p => p.DestinationPath)
+                    .Select(Path.GetFileNameWithoutExtension)
+                    .Select(CreateDependency);
+
+                var jsonFileBuilder = new ProjectJsonFileBuilder(
+                    Path.Combine(path.Key, "project.json"),
+                    _whatIf.HasValue(),
+                    _warningsAsErrors.HasValue(),
+                    Logger);
+
+                jsonFileBuilder.AddDependencies(dependenciesList.ToList());
+                jsonFileBuilder.Execute();
+            }
+        }
+
+        private Dependency CreateDependency(string packageName)
+        {
+            var result = DependencyRegex.Match(packageName);
+            if (!result.Success)
+            {
+                Logger.LogWarning($"Unable to extract name and version from {packageName}");
+                return new Dependency();
+            }
+            else
+            {
+                var name = result.Groups["name"].Value;
+                var version = result.Groups["version"].Value;
+                return new Dependency
+                {
+                    Name = name,
+                    Version = version
+                };
+            }
+        }
+
+        private ILogger CreateLogger()
         {
             var loggerFactory = new LoggerFactory();
-            loggerFactory.AddConsole();
-            _logger = loggerFactory.CreateLogger<Program>();
+            var logLevel = _warningsOnly.HasValue() ? LogLevel.Warning : LogLevel.Information;
+
+            loggerFactory.AddConsole(logLevel, includeScopes: false);
+
+            return loggerFactory.CreateLogger<Program>();
         }
 
         private Arguments PrepareArguments(
@@ -168,7 +265,7 @@ namespace SplitPackages
 
         private IList<PackageItem> GetPackagesFromCsvFile(string csvFile)
         {
-            var lines = File.ReadAllLines(csvFile);
+            var lines = File.ReadAllLines(csvFile).Skip(1); // Skip file header
             var parsedLines = lines.Select(l => l.Split(','));
 
             return parsedLines.Select(parsed => new PackageItem
@@ -233,7 +330,7 @@ namespace SplitPackages
                 {
                     var msg = $@"No entry in the csv file matched the following package:
     {source[i].Name}";
-                    _logger.LogWarning(msg);
+                    LogWarning(msg);
                 }
             }
 
@@ -243,7 +340,7 @@ namespace SplitPackages
                 {
                     var msg = $@"No package found in the source folder for the following csv entry:
     {csv[i].Name}";
-                    _logger.LogWarning(msg);
+                    LogWarning(msg);
                 }
             }
         }
@@ -254,9 +351,9 @@ namespace SplitPackages
             {
                 var msg = $@"Destination folder does not exist, creating folder at:
     {destinationFolder}";
-                _logger.LogInformation(msg);
+                Logger.LogInformation(msg);
 
-                if (!_whatIf)
+                if (!_whatIf.HasValue())
                 {
                     Directory.CreateDirectory(destinationFolder);
                 }
@@ -267,10 +364,10 @@ namespace SplitPackages
                 var path = Path.Combine(destinationFolder, destination);
                 if (!Directory.Exists(path))
                 {
-                    _logger.LogInformation($@"Creating destination folder at:
+                    Logger.LogInformation($@"Creating destination folder at:
 {path}");
 
-                    if (!_whatIf)
+                    if (!_whatIf.HasValue())
                     {
                         Directory.CreateDirectory(path);
                     }
@@ -295,13 +392,34 @@ namespace SplitPackages
         {
             foreach (var package in expandedPackages)
             {
-                _logger.LogInformation($@"Copying package {package.Name} from
+                Logger.LogInformation($@"Copying package {package.Name} from
     {package.OriginPath} to
     {package.DestinationPath}");
-                if (!_whatIf)
+                if (!_whatIf.HasValue())
                 {
                     File.Copy(package.OriginPath, package.DestinationPath, overwrite: true);
                 }
+            }
+        }
+
+        private void LogWarning(string message)
+        {
+            if (_warningsAsErrors.HasValue())
+            {
+                throw new InvalidOperationException(message);
+            }
+
+            Logger.LogWarning(message);
+        }
+
+        private class Dependency
+        {
+            public string Name { get; set; }
+            public string Version { get; set; }
+
+            public override string ToString()
+            {
+                return $"Name {Name}, Version {Version}";
             }
         }
 
@@ -330,6 +448,75 @@ namespace SplitPackages
             public string SourceFolder { get; set; }
             public string CsvFile { get; set; }
             public string DestinationFolder { get; set; }
+        }
+
+        private class ProjectJsonFileBuilder
+        {
+            private readonly string _path;
+            private readonly bool _whatIf;
+            private readonly bool _warningsAsErrors;
+            private readonly ILogger _logger;
+
+            public ProjectJsonFileBuilder(
+                string path,
+                bool whatIf,
+                bool warningsAsErrors,
+                ILogger logger)
+            {
+                _path = path;
+                _whatIf = whatIf;
+                _warningsAsErrors = warningsAsErrors;
+                _logger = logger;
+            }
+
+            private static IList<Dependency> _dependencies;
+
+            public void AddDependencies(IList<Dependency> dependencies)
+            {
+                _dependencies = dependencies;
+            }
+
+            public void Execute()
+            {
+                var document = new JObject();
+                document["dependencies"] = JObject.FromObject(CreateDependenciesDictionary());
+
+                var writer = _whatIf ? StreamWriter.Null : File.CreateText(_path);
+                using (var jsonWriter = new JsonTextWriter(writer) { Formatting = Formatting.Indented })
+                {
+                    _logger.LogInformation($"Writing project.json file to {_path}");
+                    document.WriteTo(jsonWriter);
+
+                    if (_whatIf)
+                    {
+                        _logger.LogInformation(document.ToString());
+                    }
+                }
+            }
+
+            private IDictionary<string, string> CreateDependenciesDictionary()
+            {
+                var dictionary = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var dependency in _dependencies)
+                {
+                    if (dictionary.ContainsKey(dependency.Name))
+                    {
+                        var message = $"A duplicate dependency exists in {_path}, name = {dependency.Name}";
+                        if (_warningsAsErrors)
+                        {
+                            throw new InvalidOperationException(message);
+                        }
+
+                        _logger.LogWarning(message);
+                    }
+                    else
+                    {
+                        dictionary[dependency.Name] = dependency.Version;
+                    }
+                }
+
+                return dictionary;
+            }
         }
     }
 }

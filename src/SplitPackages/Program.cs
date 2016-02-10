@@ -124,7 +124,7 @@ namespace SplitPackages
 
                 var packagesFromSource = GetPackagesFromSourceFolder(arguments.SourceFolder);
                 var packagesFromCsv = GetPackagesFromCsvFile(arguments.CsvFile);
-                var expandedPackages = ExpandPackages(packagesFromCsv, arguments.SourceFolder);
+                var expandedPackages = ExpandPackages(packagesFromCsv, packagesFromSource, arguments.SourceFolder);
 
                 EnsureNoExtraSourcePackagesFound(packagesFromSource, expandedPackages);
 
@@ -165,6 +165,7 @@ namespace SplitPackages
                     Logger);
 
                 jsonFileBuilder.AddDependencies(dependenciesList.ToList());
+                jsonFileBuilder.AddFramework(Framework.Net451);
                 jsonFileBuilder.Execute();
             }
         }
@@ -237,12 +238,22 @@ namespace SplitPackages
             var packages = Directory.EnumerateFiles(sourceFolder)
                 .Where(f => Path.GetExtension(f).Equals(".nupkg", StringComparison.OrdinalIgnoreCase));
 
-            return packages.Select(p => new PackageItem
+            var result = packages.Select(p => new PackageItem
             {
                 OriginPath = p,
                 Name = Path.GetFileName(p),
                 FoundInFolder = true
             }).ToList();
+
+            foreach (var package in result)
+            {
+                SetNugetIdentityAndVersion(package);
+            }
+
+            Logger.LogInformation($@"Packages found on the source folder
+{string.Join(Environment.NewLine, result.Select(p => p.ToString()))}");
+
+            return result;
         }
 
         private IList<PackageItem> GetPackagesFromCsvFile(string csvFile)
@@ -250,32 +261,54 @@ namespace SplitPackages
             var lines = File.ReadAllLines(csvFile).Skip(1); // Skip file header
             var parsedLines = lines.Select(l => l.Split(','));
 
-            return parsedLines.Select(parsed => new PackageItem
-            {
-                Name = parsed[0].Trim(),
-                DestinationFolderName = parsed[1].Trim(),
-                FoundInCsv = true
-            }).ToList();
+            // Order the entries so that most specific entries come first.
+            return parsedLines
+                .OrderByDescending(l => l[0], StringComparer.OrdinalIgnoreCase)
+                .Select(parsed => new PackageItem
+                {
+                    Name = parsed[0].Trim(),
+                    DestinationFolderName = parsed[1].Trim(),
+                    FoundInCsv = true
+                }).ToList();
         }
 
-        private IList<PackageItem> ExpandPackages(IList<PackageItem> packagesFromCsv, string sourceFolder)
+        private IList<PackageItem> ExpandPackages(
+            IList<PackageItem> packagesFromCsv,
+            IList<PackageItem> packagesFromSource,
+            string source)
         {
             var allPackages = new HashSet<PackageItem>();
 
+            var noPackages = new List<PackageItem>();
+
             for (var i = 0; i < packagesFromCsv.Count; i++)
             {
-                var foundPackages = Directory.EnumerateFiles(sourceFolder, packagesFromCsv[i].Name);
-                var expandedPackages = foundPackages.Select(fp => new PackageItem
+                IList<PackageItem> expandedPackages;
+                var packageName = packagesFromCsv[i].Name;
+                var destination = packagesFromCsv[i].DestinationFolderName;
+
+                if (packageName.Contains("*"))
                 {
-                    OriginPath = fp,
-                    Name = Path.GetFileName(fp),
-                    FoundInCsv = true,
-                    FoundInFolder = true,
-                    DestinationFolderName = packagesFromCsv[i].DestinationFolderName
-                }).ToList();
+                    expandedPackages = ExpandPackagesFromPattern(source, packagesFromSource, packageName, destination);
+
+                    Logger.LogInformation($@"Packages extended for pattern '{packageName}'
+{string.Join(Environment.NewLine, expandedPackages.Select(r => r.ToString()))}");
+                }
+                else if (LiteralPatternIsDependency(packagesFromSource, packageName))
+                {
+                    expandedPackages = ExpandPackagesFromLiteral(packagesFromSource, packageName, destination);
+                    Logger.LogInformation($@"Packages extended for literal '{packageName}'
+{string.Join(Environment.NewLine, expandedPackages.Select(r => r.ToString()))}");
+                }
+                else
+                {
+                    expandedPackages = noPackages;
+                }
 
                 foreach (var package in expandedPackages)
                 {
+                    package.FoundInFolder = true;
+                    package.FoundInCsv = true;
                     allPackages.Add(package);
                 }
 
@@ -287,19 +320,74 @@ namespace SplitPackages
 
             foreach (var item in allPackages)
             {
-                ReadNugetIdentityAndVersion(item);
+                SetNugetIdentityAndVersion(item);
             }
 
             return allPackages.ToList();
         }
 
-        private static void ReadNugetIdentityAndVersion(PackageItem item)
+        private static bool LiteralPatternIsDependency(IList<PackageItem> packages, string packageName)
         {
-            using (var reader = new PackageArchiveReader(item.OriginPath))
+            return packages.Any(p => p.Identity.Equals(packageName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static IList<PackageItem> ExpandPackagesFromLiteral(
+            IList<PackageItem> packagesFromSource,
+            string packageName,
+            string destinationFolderName)
+        {
+            var packageFromSource = packagesFromSource
+                .Single(p => p.Identity.Equals(packageName, StringComparison.OrdinalIgnoreCase));
+
+            return new List<PackageItem>
+            {
+                new PackageItem {
+                    OriginPath = packageFromSource.OriginPath,
+                    Name = packageFromSource.Name,
+                    DestinationFolderName = destinationFolderName,
+                    Identity = packageFromSource.Identity,
+                    Version = packageFromSource.Version
+                }
+            };
+        }
+
+        private static IList<PackageItem> ExpandPackagesFromPattern(
+            string sourceFolder,
+            IList<PackageItem> packagesFromSource, string pattern, string destinationFolderName)
+        {
+            return Directory.EnumerateFiles(sourceFolder, pattern)
+                .Select(fp =>
+                {
+                    var packageFromSource = packagesFromSource.Single(p => p.OriginPath == fp);
+                    return new PackageItem
+                    {
+                        OriginPath = fp,
+                        Name = Path.GetFileName(fp),
+                        DestinationFolderName = destinationFolderName,
+                        Identity = packageFromSource.Identity,
+                        Version = packageFromSource.Version
+                    };
+                })
+                .ToList();
+        }
+
+        private static void SetNugetIdentityAndVersion(PackageItem item)
+        {
+            var dependency = ReadNugetIdentityAndVersion(item.OriginPath);
+            item.Identity = dependency.Name;
+            item.Version = dependency.Version;
+        }
+
+        private static Dependency ReadNugetIdentityAndVersion(string path)
+        {
+            using (var reader = new PackageArchiveReader(path))
             {
                 var identity = reader.GetIdentity();
-                item.Identity = identity.Id;
-                item.Version = identity.Version.ToString();
+                return new Dependency
+                {
+                    Name = identity.Id,
+                    Version = identity.Version.ToString()
+                };
             }
         }
 
@@ -440,6 +528,11 @@ namespace SplitPackages
             {
                 return OriginPath != null ? OriginPath.GetHashCode() : 1;
             }
+
+            public override string ToString()
+            {
+                return $"Name {Name}, Identity {Identity}, Version {Version}, Csv {FoundInCsv}, Source {FoundInFolder}";
+            }
         }
 
         private class Arguments
@@ -468,17 +561,31 @@ namespace SplitPackages
                 _logger = logger;
             }
 
-            private static IList<Dependency> _dependencies;
+            private IList<Dependency> _dependencies;
+            private IList<string> _frameworks = new List<string>();
 
             public void AddDependencies(IList<Dependency> dependencies)
             {
                 _dependencies = dependencies;
             }
 
+            public void AddFramework(Framework fx)
+            {
+                switch (fx)
+                {
+                    case Framework.Net451:
+                        _frameworks.Add("net451");
+                        break;
+                    default:
+                        break;
+                }
+            }
+
             public void Execute()
             {
                 var document = new JObject();
                 document["dependencies"] = JObject.FromObject(CreateDependenciesDictionary());
+                document["frameworks"] = JObject.FromObject(_frameworks.ToDictionary(f => f, _ => new JObject()));
 
                 var writer = _whatIf ? StreamWriter.Null : File.CreateText(_path);
                 using (var jsonWriter = new JsonTextWriter(writer) { Formatting = Formatting.Indented })
@@ -516,6 +623,11 @@ namespace SplitPackages
 
                 return dictionary;
             }
+        }
+
+        public enum Framework
+        {
+            Net451
         }
     }
 }

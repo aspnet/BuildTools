@@ -137,7 +137,7 @@ namespace NuGetPackageVerifier
             return new PackageVerifierIssue(
                 "WRONG_JSONNET_VERSION",
                 string.Format("{0}; {1}", assemblyPath, targetFramework),
-                string.Format("The assembly '{0}' references the wrong Json.Net version. Current version '{1}'; Expected version '8.0.2'.", assemblyPath, currentVersion),
+                string.Format("The assembly '{0}' references the wrong Json.NET version. Current version '{1}'; Expected version '8.0.2'.", assemblyPath, currentVersion),
                 MyPackageIssueLevel.Error);
         }
     }

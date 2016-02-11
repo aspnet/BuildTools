@@ -68,17 +68,22 @@ namespace NuGetPackageVerifier
 
             // TODO: Look this up using reflection or something
             var allRules = new IPackageVerifierRule[] {
+                new AssemblyHasCorrectJsonNetVersionRule(),
                 new AssemblyHasDocumentFileRule(),
+                new AssemblyHasNeutralResourcesLanguageAttributeRule(),
                 new AssemblyHasVersionAttributesRule(),
                 new AssemblyHasServicingAttributeRule(),
-                new AssemblyHasNeutralResourcesLanguageAttributeRule(),
                 new AssemblyStrongNameRule(),
                 new AuthenticodeSigningRule(),
                 new PowerShellScriptIsSignedRule(),
                 new RequiredPackageMetadataRule(),
                 new SatellitePackageRule(),
                 new StrictSemanticVersionValidationRule(),
-                new AssemblyHasCorrectJsonNetVersionRule(),
+                //Composite rules
+                new AdxVerificationCompositeRule(),
+                new DefaultCompositeRule(),
+                new NonAdxVerificationCompositeRule(),
+                new SigningVerificationCompositeRule(),
             }.ToDictionary(t => t.GetType().Name, t => t);
 
             var nupkgsPath = args[0];

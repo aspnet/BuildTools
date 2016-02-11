@@ -259,7 +259,9 @@ namespace SplitPackages
         private IList<PackageItem> GetPackagesFromCsvFile(string csvFile)
         {
             var lines = File.ReadAllLines(csvFile).Skip(1); // Skip file header
-            var parsedLines = lines.Select(l => l.Split(','));
+            var parsedLines = lines
+                .Where(l => !string.IsNullOrWhiteSpace(l))
+                .Select(l => l.Split(','));
 
             // Order the entries so that most specific entries come first.
             return parsedLines

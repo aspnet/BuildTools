@@ -87,7 +87,7 @@ namespace SplitPackages
                 CommandOptionType.NoValue);
 
             var warningsOnly = app.Option(
-                "--warningsonly",
+                "--quiet",
                 "Avoids printing to the output anything other than warnings or errors",
                 CommandOptionType.NoValue);
 
@@ -326,7 +326,8 @@ namespace SplitPackages
 
             return new List<PackageItem>
             {
-                new PackageItem {
+                new PackageItem
+                {
                     OriginPath = packageFromSource.OriginPath,
                     Name = packageFromSource.Name,
                     DestinationFolderName = destinationFolderName,
@@ -338,7 +339,9 @@ namespace SplitPackages
 
         private static IList<PackageItem> ExpandPackagesFromPattern(
             string sourceFolder,
-            IList<PackageItem> packagesFromSource, string pattern, string destinationFolderName)
+            IList<PackageItem> packagesFromSource,
+            string pattern,
+            string destinationFolderName)
         {
             return Directory.EnumerateFiles(sourceFolder, pattern)
                 .Select(fp =>

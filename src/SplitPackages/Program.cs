@@ -156,7 +156,7 @@ namespace SplitPackages
 
             foreach (var path in packagesByFolder)
             {
-                var dependenciesList = path.Select(CreateDependency);
+                var dependenciesList = path.ToList();
 
                 var jsonFileBuilder = new ProjectJsonFileBuilder(
                     Path.Combine(path.Key, "project.json"),
@@ -164,26 +164,9 @@ namespace SplitPackages
                     _warningsAsErrors.HasValue(),
                     Logger);
 
-                jsonFileBuilder.AddDependencies(dependenciesList.ToList());
+                jsonFileBuilder.AddDependencies(dependenciesList);
                 jsonFileBuilder.AddFramework(Framework.Net451);
                 jsonFileBuilder.Execute();
-            }
-        }
-
-        private Dependency CreateDependency(PackageItem package)
-        {
-            if (package.Identity == null || package.Version == null)
-            {
-                Logger.LogWarning($"Unable to extract name and version from {package.Name}");
-                return new Dependency();
-            }
-            else
-            {
-                return new Dependency
-                {
-                    Name = package.Identity,
-                    Version = package.Version
-                };
             }
         }
 
@@ -375,21 +358,11 @@ namespace SplitPackages
 
         private static void SetNugetIdentityAndVersion(PackageItem item)
         {
-            var dependency = ReadNugetIdentityAndVersion(item.OriginPath);
-            item.Identity = dependency.Name;
-            item.Version = dependency.Version;
-        }
-
-        private static Dependency ReadNugetIdentityAndVersion(string path)
-        {
-            using (var reader = new PackageArchiveReader(path))
+            using (var reader = new PackageArchiveReader(item.OriginPath))
             {
                 var identity = reader.GetIdentity();
-                return new Dependency
-                {
-                    Name = identity.Id,
-                    Version = identity.Version.ToString()
-                };
+                item.Identity = identity.Id;
+                item.Version = identity.Version.ToString();
             }
         }
 
@@ -499,17 +472,6 @@ namespace SplitPackages
             Logger.LogWarning(message);
         }
 
-        private class Dependency
-        {
-            public string Name { get; set; }
-            public string Version { get; set; }
-
-            public override string ToString()
-            {
-                return $"Name {Name}, Version {Version}";
-            }
-        }
-
         private class PackageItem : IEquatable<PackageItem>
         {
             public string Name { get; set; }
@@ -563,10 +525,10 @@ namespace SplitPackages
                 _logger = logger;
             }
 
-            private IList<Dependency> _dependencies;
+            private IList<PackageItem> _dependencies;
             private IList<string> _frameworks = new List<string>();
 
-            public void AddDependencies(IList<Dependency> dependencies)
+            public void AddDependencies(IList<PackageItem> dependencies)
             {
                 _dependencies = dependencies;
             }
@@ -587,7 +549,7 @@ namespace SplitPackages
             {
                 var document = new JObject();
                 document["dependencies"] = JObject.FromObject(CreateDependenciesDictionary());
-                document["frameworks"] = JObject.FromObject(_frameworks.ToDictionary(f => f, _ => new JObject()));
+                document["frameworks"] = JObject.FromObject(CreateFrameworksDictionary());
 
                 var writer = _whatIf ? StreamWriter.Null : File.CreateText(_path);
                 using (var jsonWriter = new JsonTextWriter(writer) { Formatting = Formatting.Indented })
@@ -600,6 +562,11 @@ namespace SplitPackages
                         _logger.LogInformation(document.ToString());
                     }
                 }
+            }
+
+            private Dictionary<string, JObject> CreateFrameworksDictionary()
+            {
+                return _frameworks.ToDictionary(f => f, _ => new JObject());
             }
 
             private IDictionary<string, string> CreateDependenciesDictionary()

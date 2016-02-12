@@ -14,11 +14,11 @@ k-standard-goals
 
 #nuget-pack target='package'
   @{
-  	var outputDir = Path.Combine(TARGET_DIR, "build");
-  	var existingNupkg = Directory.EnumerateFiles(outputDir).First(f => f.EndsWith(".nupkg"));
-  	var version = Path.GetFileNameWithoutExtension(existingNupkg).Substring("NuGetPackageVerifier.".Length);
-  	var nuspecPath = Path.Combine("src", "NuGetPackageVerifier", "NuGetPackageVerifier.nuspec");
-  	var configuration = Environment.GetEnvironmentVariable("Configuration") ?? "Debug";
-  	var basePath = Path.Combine(outputDir, "NuGetPackageVerifier", configuration, "net451");
+    var outputDir = Path.Combine(TARGET_DIR, "build");
+    var existingNupkg = Directory.EnumerateFiles(outputDir).First(f => f.EndsWith(".nupkg"));
+    var version = Path.GetFileNameWithoutExtension(existingNupkg).Substring("NuGetPackageVerifier.".Length);
+    var nuspecPath = Path.Combine("src", "NuGetPackageVerifier", "NuGetPackageVerifier.nuspec");
+    var configuration = Environment.GetEnvironmentVariable("Configuration") ?? "Debug";
+    var basePath = Path.Combine(outputDir, "NuGetPackageVerifier", configuration, "net451", "win7-x64");
   }
   exec program='.build/NuGet.exe' commandline='pack -nopack ${nuspecPath} -version ${version} -base ${basePath} -out ${outputDir}'

@@ -577,9 +577,9 @@ namespace SplitPackages
                 var dictionary = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
                 foreach (var dependency in _dependencies)
                 {
-                    if (dictionary.ContainsKey(dependency.Name))
+                    if (dictionary.ContainsKey(dependency.Identity))
                     {
-                        var message = $"A duplicate dependency exists in {_path}, name = {dependency.Name}";
+                        var message = $"A duplicate dependency exists in {_path}, name = {dependency.Identity}";
                         if (_warningsAsErrors)
                         {
                             throw new InvalidOperationException(message);
@@ -589,7 +589,7 @@ namespace SplitPackages
                     }
                     else
                     {
-                        dictionary[dependency.Name] = dependency.Version;
+                        dictionary[dependency.Identity] = dependency.Version;
                     }
                 }
 

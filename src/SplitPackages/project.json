@@ -16,6 +16,11 @@
         "NuGet.Client": "3.4.0-*"
     },
     "frameworks": {
+        "dnxcore50": {
+            "dependencies": {
+                "NETStandard.Library": "1.0.0-*"
+            }
+        },
         "net451": {
             "frameworkAssemblies": {
                 "Microsoft.CSharp": "",

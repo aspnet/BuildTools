@@ -13,6 +13,7 @@ namespace NuGetPackageVerifier.Rules
         {
             new AuthenticodeSigningRule(),
             new PowerShellScriptIsSignedRule(),
+            new RequiredNuSpecInfoRule(),
         };
 
         public IEnumerable<PackageVerifierIssue> Validate(

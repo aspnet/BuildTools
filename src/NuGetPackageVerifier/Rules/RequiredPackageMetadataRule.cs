@@ -14,17 +14,9 @@ namespace NuGetPackageVerifier.Rules
             IPackage package,
             IPackageVerifierLogger logger)
         {
-            if (string.IsNullOrEmpty(package.Copyright))
+            if (string.IsNullOrEmpty(package.Summary))
             {
-                yield return PackageIssueFactory.RequiredCopyright();
-            }
-            if (package.LicenseUrl == null)
-            {
-                yield return PackageIssueFactory.RequiredLicenseUrl();
-            }
-            if (package.IconUrl == null)
-            {
-                yield return PackageIssueFactory.RequiredIconUrl();
+                yield return PackageIssueFactory.RequiredSummary();
             }
             if (string.IsNullOrEmpty(package.Tags))
             {
@@ -33,18 +25,6 @@ namespace NuGetPackageVerifier.Rules
             if (string.IsNullOrEmpty(package.Title))
             {
                 yield return PackageIssueFactory.RequiredTitle();
-            }
-            if (string.IsNullOrEmpty(package.Summary))
-            {
-                yield return PackageIssueFactory.RequiredSummary();
-            }
-            if (package.ProjectUrl == null)
-            {
-                yield return PackageIssueFactory.RequiredProjectUrl();
-            }
-            if (!package.RequireLicenseAcceptance)
-            {
-                yield return PackageIssueFactory.RequiredRequireLicenseAcceptanceTrue();
             }
 
             yield break;

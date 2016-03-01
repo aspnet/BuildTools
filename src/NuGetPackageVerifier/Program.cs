@@ -68,11 +68,16 @@ namespace NuGetPackageVerifier
 
             // TODO: Look this up using reflection or something
             var allRules = new IPackageVerifierRule[] {
+                new AssemblyHasCompanyAttributeRule(),
+                new AssemblyHasCopyrightAttributeRule(),
                 new AssemblyHasCorrectJsonNetVersionRule(),
+                new AssemblyHasDescriptionAttributeRule(),
                 new AssemblyHasDocumentFileRule(),
                 new AssemblyHasNeutralResourcesLanguageAttributeRule(),
-                new AssemblyHasVersionAttributesRule(),
+                new AssemblyHasProductAttributeRule(),
                 new AssemblyHasServicingAttributeRule(),
+                new AssemblyHasTitleAttributeRule(),
+                new AssemblyHasVersionAttributesRule(),
                 new AssemblyStrongNameRule(),
                 new AuthenticodeSigningRule(),
                 new PowerShellScriptIsSignedRule(),

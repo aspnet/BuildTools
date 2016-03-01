@@ -30,6 +30,61 @@ namespace NuGetPackageVerifier
                 MyPackageIssueLevel.Error);
         }
 
+        public static PackageVerifierIssue AssemblyMissingCopyrightAttribute(string assemblyPath)
+        {
+            return new PackageVerifierIssue(
+                "ASSEMBLY_COPYRIGHT",
+                assemblyPath,
+                string.Format(
+                    @"The managed assembly '{0}' in this package is missing the 'AssemblyCopyright' attribute.",
+                    assemblyPath),
+                MyPackageIssueLevel.Error);
+        }
+
+        public static PackageVerifierIssue AssemblyMissingCompanyAttribute(string assemblyPath)
+        {
+            return new PackageVerifierIssue(
+                "ASSEMBLY_COMPANY",
+                assemblyPath,
+                string.Format(
+                    @"The managed assembly '{0}' in this package is missing the 'AssemblyCompany' attribute.",
+                    assemblyPath),
+                MyPackageIssueLevel.Error);
+        }
+
+        public static PackageVerifierIssue AssemblyMissingProductAttribute(string assemblyPath)
+        {
+            return new PackageVerifierIssue(
+                "ASSEMBLY_PRODUCT",
+                assemblyPath,
+                string.Format(
+                    @"The managed assembly '{0}' in this package is missing the 'AssemblyProduct' attribute.",
+                    assemblyPath),
+                MyPackageIssueLevel.Error);
+        }
+
+        public static PackageVerifierIssue AssemblyMissingDescriptionAttribute(string assemblyPath)
+        {
+            return new PackageVerifierIssue(
+                "ASSEMBLY_DESCRIPTION",
+                assemblyPath,
+                string.Format(
+                    @"The managed assembly '{0}' in this package is missing the 'AssemblyDescription' attribute.",
+                    assemblyPath),
+                MyPackageIssueLevel.Error);
+        }
+
+        public static PackageVerifierIssue AssemblyMissingTitleAttribute(string assemblyPath)
+        {
+            return new PackageVerifierIssue(
+                "ASSEMBLY_TITLE",
+                assemblyPath,
+                string.Format(
+                    @"The managed assembly '{0}' in this package is missing the 'AssemblyTitle' attribute.",
+                    assemblyPath),
+                MyPackageIssueLevel.Error);
+        }
+
         public static PackageVerifierIssue AssemblyMissingFileVersionAttribute(string assemblyPath)
         {
             return AssemblyMissingVersionAttributeCore("VERSION_FILEVERSION", assemblyPath, typeof(AssemblyFileVersionAttribute).Name);

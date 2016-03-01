@@ -9,26 +9,21 @@ using NuGet;
 
 namespace NuGetPackageVerifier.Rules
 {
-    public class AssemblyHasVersionAttributesRule : AssemblyHasAttributeRuleBase
+    public class AssemblyHasTitleAttributeRule : AssemblyHasAttributeRuleBase
     {
         public override IEnumerable<PackageVerifierIssue> ValidateAttribute(
             IPackageFile currentFile,
             Mono.Collections.Generic.Collection<CustomAttribute> assemblyAttributes)
         {
-            if (!HasAttrWithArg(assemblyAttributes, typeof(AssemblyFileVersionAttribute).FullName))
+            if (!HasTitleAttribute(assemblyAttributes))
             {
-                yield return PackageIssueFactory.AssemblyMissingFileVersionAttribute(currentFile.Path);
-            }
-
-            if (!HasAttrWithArg(assemblyAttributes, typeof(AssemblyInformationalVersionAttribute).FullName))
-            {
-                yield return PackageIssueFactory.AssemblyMissingInformationalVersionAttribute(currentFile.Path);
+                yield return PackageIssueFactory.AssemblyMissingTitleAttribute(currentFile.Path);
             }
         }
 
-        private static bool HasAttrWithArg(Mono.Collections.Generic.Collection<CustomAttribute> asmAttrs, string attrTypeName)
+        private static bool HasTitleAttribute(Mono.Collections.Generic.Collection<CustomAttribute> asmAttrs)
         {
-            var foundAttr = asmAttrs.SingleOrDefault(attr => attr.AttributeType.FullName == attrTypeName);
+            var foundAttr = asmAttrs.SingleOrDefault(attr => attr.AttributeType.FullName == typeof(AssemblyTitleAttribute).FullName);
             if (foundAttr == null)
             {
                 return false;

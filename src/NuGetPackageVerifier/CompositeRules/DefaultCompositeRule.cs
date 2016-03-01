@@ -11,10 +11,15 @@ namespace NuGetPackageVerifier.Rules
     {
         IPackageVerifierRule[] _rules = new IPackageVerifierRule[]
         {
+            new AssemblyHasCompanyAttributeRule(),
+            new AssemblyHasCopyrightAttributeRule(),
             new AssemblyHasCorrectJsonNetVersionRule(),
             new AssemblyHasDocumentFileRule(),
+            new AssemblyHasDescriptionAttributeRule(),
             new AssemblyHasNeutralResourcesLanguageAttributeRule(),
+            new AssemblyHasProductAttributeRule(),
             new AssemblyHasServicingAttributeRule(),
+            new AssemblyHasTitleAttributeRule(),
             new AssemblyHasVersionAttributesRule(),
             new SatellitePackageRule(),
             new StrictSemanticVersionValidationRule(),

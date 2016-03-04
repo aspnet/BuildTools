@@ -76,7 +76,6 @@ namespace NuGetPackageVerifier
                 new AssemblyHasNeutralResourcesLanguageAttributeRule(),
                 new AssemblyHasProductAttributeRule(),
                 new AssemblyHasServicingAttributeRule(),
-                new AssemblyHasTitleAttributeRule(),
                 new AssemblyHasVersionAttributesRule(),
                 new AssemblyStrongNameRule(),
                 new AuthenticodeSigningRule(),

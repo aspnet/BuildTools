@@ -19,7 +19,6 @@ namespace NuGetPackageVerifier.Rules
             new AssemblyHasNeutralResourcesLanguageAttributeRule(),
             new AssemblyHasProductAttributeRule(),
             new AssemblyHasServicingAttributeRule(),
-            new AssemblyHasTitleAttributeRule(),
             new AssemblyHasVersionAttributesRule(),
             new SatellitePackageRule(),
             new StrictSemanticVersionValidationRule(),

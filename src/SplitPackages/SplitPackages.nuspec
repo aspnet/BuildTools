@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>SplitPackages</id>
+    <version>0.0.0</version>
+    <authors>Microsoft</authors>
+    <description>Splits AspNet 5 packages.</description>
+  </metadata>
+</package>

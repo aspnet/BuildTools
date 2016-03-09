@@ -1,12 +1,12 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using NuGet;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NuGetPackageVerifier.Logging;
+using NuGet.Packaging;
 
 namespace NuGetPackageVerifier.Rules
 {
@@ -21,18 +21,21 @@ namespace NuGetPackageVerifier.Rules
         };
 
         public IEnumerable<PackageVerifierIssue> Validate(
-            IPackageRepository packageRepo,
-            IPackage package,
+            FileInfo nupkgFile,
+            IPackageMetadata package,
             IPackageVerifierLogger logger)
         {
-            foreach (IPackageFile current in package.GetFiles())
+            using (var reader = new PackageArchiveReader(nupkgFile.FullName))
             {
-                var extension = Path.GetExtension(current.Path);
-                if (PowerShellExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase))
+                foreach (var current in reader.GetFiles())
                 {
-                    if (!VerifySigned(current))
+                    var extension = Path.GetExtension(current);
+                    if (PowerShellExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase))
                     {
-                        yield return PackageIssueFactory.PowerShellScriptNotSigned(current.Path);
+                        if (!VerifySigned(reader, current))
+                        {
+                            yield return PackageIssueFactory.PowerShellScriptNotSigned(current);
+                        }
                     }
                 }
             }
@@ -40,10 +43,10 @@ namespace NuGetPackageVerifier.Rules
             yield break;
         }
 
-        private static bool VerifySigned(IPackageFile packageFile)
+        private static bool VerifySigned(PackageArchiveReader reader, string packageFilePath)
         {
             bool result;
-            using (Stream stream = packageFile.GetStream())
+            using (Stream stream = reader.GetStream(packageFilePath))
             {
                 var streamReader = new StreamReader(stream);
                 var text = streamReader.ReadToEnd();

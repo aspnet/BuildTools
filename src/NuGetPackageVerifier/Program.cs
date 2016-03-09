@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
-using NuGet;
+using NuGet.Packaging;
 using NuGetPackageVerifier.Logging;
 using NuGetPackageVerifier.Rules;
 
@@ -91,14 +91,18 @@ namespace NuGetPackageVerifier
             }.ToDictionary(t => t.GetType().Name, t => t);
 
             var nupkgsPath = args[0];
-            var localPackageRepo = new LocalPackageRepository(
-                new DefaultPackagePathResolver(nupkgsPath),
-                new CustomPhysicalFileSystem(nupkgsPath));
-            var numPackagesInRepo = localPackageRepo.GetPackages().Count();
+            var dirInfo = new DirectoryInfo(nupkgsPath);
+            var allPackages = dirInfo.GetFiles("*.nupkg", SearchOption.TopDirectoryOnly);
+            var nupkgs = allPackages.Where(n => !n.Name.EndsWith(".symbols.nupkg"));
+            var packages = nupkgs.ToDictionary<FileInfo, IPackageMetadata>(file =>
+            {
+                var reader = new PackageArchiveReader(file.FullName);
+                return new PackageBuilder(reader.GetNuspec(), basePath: null);
+            });
 
-            logger.LogInfo("Found {0} packages in {1}", numPackagesInRepo, nupkgsPath);
+            logger.LogInfo("Found {0} packages in {1}", nupkgs.Count(), nupkgsPath);
 
-            var processedPackages = new HashSet<IPackage>();
+            var processedPackages = new HashSet<IPackageMetadata>();
 
             var totalErrors = 0;
             var totalWarnings = 0;
@@ -143,7 +147,7 @@ namespace NuGetPackageVerifier
                     var packageId = packageInfo.Key;
                     var packageIgnoreInfo = packageInfo.Value;
 
-                    var packagesWithId = localPackageRepo.FindPackagesById(packageId);
+                    var packagesWithId = packages.Where(p => p.Key.Id.Equals(packageId));
                     if (!packagesWithId.Any())
                     {
                         logger.LogError("Couldn't find package '{0}' in the repo", packageId);
@@ -151,12 +155,13 @@ namespace NuGetPackageVerifier
                         continue;
                     }
 
-                    foreach (var package in packagesWithId)
+                    foreach (var packagePair in packagesWithId)
                     {
+                        var package = packagePair.Key;
                         var packageTimeStopWatch = Stopwatch.StartNew();
                         logger.LogInfo("Analyzing {0} ({1})", package.Id, package.Version);
 
-                        var issues = analyzer.AnalyzePackage(localPackageRepo, package, logger).ToList();
+                        var issues = analyzer.AnalyzePackage(packagePair.Value, package, logger).ToList();
 
                         var packageErrorsAndWarnings = ProcessPackageIssues(
                             ignoreAssistanceMode,
@@ -189,7 +194,7 @@ namespace NuGetPackageVerifier
                 }
             }
 
-            var unprocessedPackages = localPackageRepo.GetPackages().Except(processedPackages);
+            var unprocessedPackages = packages.Keys.Except(processedPackages);
 
             if (unprocessedPackages.Any())
             {
@@ -215,7 +220,7 @@ namespace NuGetPackageVerifier
                     var packageTimeStopWatch = Stopwatch.StartNew();
                     logger.LogInfo("Analyzing {0} ({1})", unprocessedPackage.Id, unprocessedPackage.Version);
 
-                    var issues = analyzer.AnalyzePackage(localPackageRepo, unprocessedPackage, logger).ToList();
+                    var issues = analyzer.AnalyzePackage(packages[unprocessedPackage], unprocessedPackage, logger).ToList();
 
                     var packageErrorsAndWarnings = ProcessPackageIssues(
                         ignoreAssistanceMode,
@@ -268,7 +273,7 @@ namespace NuGetPackageVerifier
             PackageVerifierLogger logger,
             IssueProcessor issueProcessor,
             Dictionary<string, IDictionary<string, IDictionary<string, string>>> ignoreAssistanceData,
-            IPackage package,
+            IPackageMetadata package,
             List<PackageVerifierIssue> issues)
         {
             var issuesToReport = issues.Select(issue => issueProcessor.GetIssueReport(issue, package)).ToList();
@@ -381,26 +386,6 @@ namespace NuGetPackageVerifier
             if (issue.IgnoreJustification != null)
             {
                 logger.Log(issue.IssueLevel, "Justification: {0}", issue.IgnoreJustification);
-            }
-        }
-
-        private class CustomPhysicalFileSystem : PhysicalFileSystem
-        {
-            public CustomPhysicalFileSystem(string root)
-                : base(root)
-            {
-            }
-
-            public override IEnumerable<string> GetDirectories(string path)
-            {
-                // Workaround to disable recursive search for packages.
-                return Enumerable.Empty<string>();
-            }
-
-            public override IEnumerable<string> GetFiles(string path, string filter, bool recursive)
-            {
-                // Ignore symbol packages.
-                return base.GetFiles(path, filter, recursive).Where(item => !item.EndsWith(".symbols.nupkg"));
             }
         }
     }

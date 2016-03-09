@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Mono.Cecil;
-using NuGet;
+using NuGet.Packaging;
 using NuGetPackageVerifier.Logging;
 
 namespace NuGetPackageVerifier.Rules
@@ -14,41 +14,44 @@ namespace NuGetPackageVerifier.Rules
     public abstract class AssemblyHasAttributeRuleBase : IPackageVerifierRule
     {
         public IEnumerable<PackageVerifierIssue> Validate(
-            IPackageRepository packageRepo,
-            IPackage package,
+            FileInfo nupkgFile,
+            IPackageMetadata package,
             IPackageVerifierLogger logger)
         {
-            foreach (var currentFile in package.GetFiles())
+            using (var reader = new PackageArchiveReader(nupkgFile.FullName))
             {
-                var extension = Path.GetExtension(currentFile.Path);
-                if (extension.Equals(".dll", StringComparison.OrdinalIgnoreCase) ||
-                    extension.Equals(".exe", StringComparison.OrdinalIgnoreCase))
+                foreach (var currentFile in reader.GetFiles())
                 {
-                    var assemblyPath = Path.ChangeExtension(
-                        Path.Combine(Path.GetTempPath(), Path.GetTempFileName()), extension);
-
-                    try
+                    var extension = Path.GetExtension(currentFile);
+                    if (extension.Equals(".dll", StringComparison.OrdinalIgnoreCase) ||
+                        extension.Equals(".exe", StringComparison.OrdinalIgnoreCase))
                     {
-                        using (var packageFileStream = currentFile.GetStream())
-                        using (var fileStream = new FileStream(assemblyPath, FileMode.Create))
+                        var assemblyPath = Path.ChangeExtension(
+                            Path.Combine(Path.GetTempPath(), Path.GetTempFileName()), extension);
+
+                        try
                         {
-                            packageFileStream.CopyTo(fileStream);
+                            using (var packageFileStream = reader.GetStream(currentFile))
+                            using (var fileStream = new FileStream(assemblyPath, FileMode.Create))
+                            {
+                                packageFileStream.CopyTo(fileStream);
+                            }
+
+                            if (AssemblyHelpers.IsAssemblyManaged(assemblyPath))
+                            {
+                                var assemblyDefinition = AssemblyDefinition.ReadAssembly(assemblyPath);
+
+                                var asmAttrs = assemblyDefinition.CustomAttributes;
+
+                                return ValidateAttribute(currentFile, asmAttrs);
+                            }
                         }
-
-                        if (AssemblyHelpers.IsAssemblyManaged(assemblyPath))
+                        finally
                         {
-                            var assemblyDefinition = AssemblyDefinition.ReadAssembly(assemblyPath);
-
-                            var asmAttrs = assemblyDefinition.CustomAttributes;
-
-                            return ValidateAttribute(currentFile, asmAttrs);
-                        }
-                    }
-                    finally
-                    {
-                        if (File.Exists(assemblyPath))
-                        {
-                            File.Delete(assemblyPath);
+                            if (File.Exists(assemblyPath))
+                            {
+                                File.Delete(assemblyPath);
+                            }
                         }
                     }
                 }
@@ -58,7 +61,7 @@ namespace NuGetPackageVerifier.Rules
         }
 
         public abstract IEnumerable<PackageVerifierIssue> ValidateAttribute(
-            IPackageFile currentFile,
+            string currentFilePath,
             Mono.Collections.Generic.Collection<CustomAttribute> assemblyAttributes);
     }
 }

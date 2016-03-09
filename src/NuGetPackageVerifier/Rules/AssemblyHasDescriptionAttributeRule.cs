@@ -5,19 +5,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
-using NuGet;
 
 namespace NuGetPackageVerifier.Rules
 {
     public class AssemblyHasDescriptionAttributeRule : AssemblyHasAttributeRuleBase
     {
         public override IEnumerable<PackageVerifierIssue> ValidateAttribute(
-            IPackageFile currentFile,
+            string currentFilePath,
             Mono.Collections.Generic.Collection<CustomAttribute> assemblyAttributes)
         {
             if (!HasDescriptionAttribute(assemblyAttributes))
             {
-                yield return PackageIssueFactory.AssemblyMissingDescriptionAttribute(currentFile.Path);
+                yield return PackageIssueFactory.AssemblyMissingDescriptionAttribute(currentFilePath);
             }
         }
 

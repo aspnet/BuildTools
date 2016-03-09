@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using NuGet;
+using NuGet.Packaging;
 using NuGetPackageVerifier.Logging;
 
 namespace NuGetPackageVerifier.Rules
@@ -14,35 +14,31 @@ namespace NuGetPackageVerifier.Rules
     public class AssemblyStrongNameRule : IPackageVerifierRule
     {
         public IEnumerable<PackageVerifierIssue> Validate(
-            IPackageRepository packageRepo,
-            IPackage package,
+            FileInfo nupkgFile,
+            IPackageMetadata package,
             IPackageVerifierLogger logger)
         {
-            foreach (IPackageFile currentFile in package.GetFiles())
+            using (var reader = new PackageArchiveReader(nupkgFile.FullName))
             {
-                var extension = Path.GetExtension(currentFile.Path);
-                if (extension.Equals(".dll", StringComparison.OrdinalIgnoreCase) ||
-                    extension.Equals(".exe", StringComparison.OrdinalIgnoreCase))
+                foreach (var currentFile in reader.GetFiles())
                 {
-                    var assemblyPath = Path.ChangeExtension(
-                        Path.Combine(Path.GetTempPath(), Path.GetTempFileName()), extension);
-
-                    var isManagedCode = false;
-                    var isStrongNameSigned = false;
-                    var hresult = 0;
-
-                    try
+                    var extension = Path.GetExtension(currentFile);
+                    if (extension.Equals(".dll", StringComparison.OrdinalIgnoreCase) ||
+                        extension.Equals(".exe", StringComparison.OrdinalIgnoreCase))
                     {
-                        using (var packageFileStream = currentFile.GetStream())
-                        {
-                            var _assemblyBytes = new byte[packageFileStream.Length];
-                            packageFileStream.Read(_assemblyBytes, 0, _assemblyBytes.Length);
+                        var assemblyPath = Path.ChangeExtension(
+                            Path.Combine(Path.GetTempPath(), Path.GetTempFileName()), extension);
 
-                            using (var fileStream = new FileStream(assemblyPath, FileMode.Create))
+                        var isManagedCode = false;
+                        var isStrongNameSigned = false;
+                        var hresult = 0;
+
+                        try
+                        {
+                            using (var packageFileStream = reader.GetStream(currentFile))
+                            using (var fileStream = File.OpenWrite(assemblyPath))
                             {
-                                packageFileStream.Seek(0, SeekOrigin.Begin);
                                 packageFileStream.CopyTo(fileStream);
-                                fileStream.Flush(true);
                             }
 
                             if (AssemblyHelpers.IsAssemblyManaged(assemblyPath))
@@ -60,22 +56,22 @@ namespace NuGetPackageVerifier.Rules
                                 }
                             }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError(
-                            "Error while verifying strong name signature for {0}: {1}", currentFile.Path, ex.Message);
-                    }
-                    finally
-                    {
-                        if (File.Exists(assemblyPath))
+                        catch (Exception ex)
                         {
-                            File.Delete(assemblyPath);
+                            logger.LogError(
+                                "Error while verifying strong name signature for {0}: {1}", currentFile, ex.Message);
                         }
-                    }
-                    if (isManagedCode && !isStrongNameSigned)
-                    {
-                        yield return PackageIssueFactory.AssemblyNotStrongNameSigned(currentFile.Path, hresult);
+                        finally
+                        {
+                            if (File.Exists(assemblyPath))
+                            {
+                                File.Delete(assemblyPath);
+                            }
+                        }
+                        if (isManagedCode && !isStrongNameSigned)
+                        {
+                            yield return PackageIssueFactory.AssemblyNotStrongNameSigned(currentFile, hresult);
+                        }
                     }
                 }
             }

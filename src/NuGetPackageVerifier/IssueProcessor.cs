@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NuGet;
+using NuGet.Packaging;
 
 namespace NuGetPackageVerifier
 {
@@ -20,7 +20,7 @@ namespace NuGetPackageVerifier
 
         public List<IssueIgnore> RemainingIssuesToIgnore { get; }
 
-        public IssueReport GetIssueReport(PackageVerifierIssue packageIssue, IPackage package)
+        public IssueReport GetIssueReport(PackageVerifierIssue packageIssue, IPackageMetadata package)
         {
             if (_allIssuesToIgnore != null)
             {

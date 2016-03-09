@@ -2,8 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using NuGet;
+using NuGet.Packaging;
 using NuGetPackageVerifier.Logging;
 
 namespace NuGetPackageVerifier
@@ -21,14 +22,14 @@ namespace NuGetPackageVerifier
         }
 
         public IEnumerable<PackageVerifierIssue> AnalyzePackage(
-            IPackageRepository packageRepo,
-            IPackage package,
+            FileInfo nupkgFile,
+            IPackageMetadata package,
             IPackageVerifierLogger logger)
         {
             var packageIssues = new List<PackageVerifierIssue>();
             foreach (var rule in Rules)
             {
-                var issues = rule.Validate(packageRepo, package, logger).ToList();
+                var issues = rule.Validate(nupkgFile, package, logger).ToList();
                 packageIssues = packageIssues.Concat(issues).ToList();
             }
 

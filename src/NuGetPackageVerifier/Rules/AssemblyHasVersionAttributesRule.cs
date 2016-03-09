@@ -5,24 +5,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
-using NuGet;
 
 namespace NuGetPackageVerifier.Rules
 {
     public class AssemblyHasVersionAttributesRule : AssemblyHasAttributeRuleBase
     {
         public override IEnumerable<PackageVerifierIssue> ValidateAttribute(
-            IPackageFile currentFile,
+            string currentFilePath,
             Mono.Collections.Generic.Collection<CustomAttribute> assemblyAttributes)
         {
             if (!HasAttrWithArg(assemblyAttributes, typeof(AssemblyFileVersionAttribute).FullName))
             {
-                yield return PackageIssueFactory.AssemblyMissingFileVersionAttribute(currentFile.Path);
+                yield return PackageIssueFactory.AssemblyMissingFileVersionAttribute(currentFilePath);
             }
 
             if (!HasAttrWithArg(assemblyAttributes, typeof(AssemblyInformationalVersionAttribute).FullName))
             {
-                yield return PackageIssueFactory.AssemblyMissingInformationalVersionAttribute(currentFile.Path);
+                yield return PackageIssueFactory.AssemblyMissingInformationalVersionAttribute(currentFilePath);
             }
         }
 

@@ -5,19 +5,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
-using NuGet;
 
 namespace NuGetPackageVerifier.Rules
 {
     public class AssemblyHasServicingAttributeRule : AssemblyHasAttributeRuleBase
     {
         public override IEnumerable<PackageVerifierIssue> ValidateAttribute(
-            IPackageFile currentFile,
+            string currentFilePath,
             Mono.Collections.Generic.Collection<CustomAttribute> assemblyAttributes)
         {
             if (!HasServicingAttribute(assemblyAttributes))
             {
-                yield return PackageIssueFactory.AssemblyMissingServicingAttribute(currentFile.Path);
+                yield return PackageIssueFactory.AssemblyMissingServicingAttribute(currentFilePath);
             }
         }
 

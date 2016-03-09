@@ -2,8 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using NuGet;
+using NuGet.Packaging;
 using NuGetPackageVerifier.Logging;
 
 namespace NuGetPackageVerifier.Rules
@@ -11,19 +12,19 @@ namespace NuGetPackageVerifier.Rules
     public class AssemblyHasCorrectJsonNetVersionRule : IPackageVerifierRule
     {
         public IEnumerable<PackageVerifierIssue> Validate(
-            IPackageRepository packageRepo,
-            IPackage package,
+            FileInfo nupkgFile,
+            IPackageMetadata package,
             IPackageVerifierLogger logger)
         {
-            foreach (var dependencySet in package.DependencySets)
+            foreach (var dependencySet in package.DependencyGroups)
             {
-                var jsonDependency = dependencySet.Dependencies.FirstOrDefault(d => d.Id == "Newtonsoft.Json");
-                if (jsonDependency != null && !string.Equals(jsonDependency.VersionSpec.ToString(), "8.0.2"))
+                var jsonDependency = dependencySet.Packages.FirstOrDefault(d => d.Id == "Newtonsoft.Json");
+                if (jsonDependency != null && !string.Equals(jsonDependency.VersionRange.MinVersion.ToString(), "8.0.2"))
                 {
                     yield return PackageIssueFactory.AssemblyHasWrongJsonNetVersion(
                         package.Id,
-                        dependencySet.TargetFramework.FullName,
-                        jsonDependency.VersionSpec.ToString());
+                        dependencySet.TargetFramework.Framework,
+                        jsonDependency.VersionRange.MinVersion.ToString());
                 }
             }
         }

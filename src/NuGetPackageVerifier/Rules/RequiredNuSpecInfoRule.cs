@@ -2,7 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using NuGet;
+using System.IO;
+using NuGet.Packaging;
 using NuGetPackageVerifier.Logging;
 
 namespace NuGetPackageVerifier.Rules
@@ -10,8 +11,8 @@ namespace NuGetPackageVerifier.Rules
     public class RequiredNuSpecInfoRule : IPackageVerifierRule
     {
         public IEnumerable<PackageVerifierIssue> Validate(
-            IPackageRepository packageRepo,
-            IPackage package,
+            FileInfo nupkgFile,
+            IPackageMetadata package,
             IPackageVerifierLogger logger)
         {
             if (string.IsNullOrEmpty(package.Copyright))

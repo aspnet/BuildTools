@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using NuGet;
+using System.IO;
+using NuGet.Packaging;
+using NuGet.Packaging.Core;
 using NuGetPackageVerifier.Logging;
 
 namespace NuGetPackageVerifier.Rules
@@ -10,23 +12,28 @@ namespace NuGetPackageVerifier.Rules
     public class SatellitePackageRule : IPackageVerifierRule
     {
         public IEnumerable<PackageVerifierIssue> Validate(
-            IPackageRepository packageRepo,
-            IPackage package,
+            FileInfo nupkgFile,
+            IPackageMetadata package,
             IPackageVerifierLogger logger)
         {
-            if (package.IsSatellitePackage())
+            using (var reader = new PackageArchiveReader(nupkgFile.FullName))
             {
-                if (package.Summary.Contains("{"))
+                PackageIdentity identity;
+                string packageLanguage;
+                if (PackageHelper.IsSatellitePackage(reader, out identity, out packageLanguage))
                 {
-                    yield return PackageIssueFactory.Satellite_PackageSummaryNotLocalized();
-                }
-                if (package.Title.Contains("{"))
-                {
-                    yield return PackageIssueFactory.Satellite_PackageTitleNotLocalized();
-                }
-                if (package.Description.Contains("{"))
-                {
-                    yield return PackageIssueFactory.Satellite_PackageDescriptionNotLocalized();
+                    if (package.Summary.Contains("{"))
+                    {
+                        yield return PackageIssueFactory.Satellite_PackageSummaryNotLocalized();
+                    }
+                    if (package.Title.Contains("{"))
+                    {
+                        yield return PackageIssueFactory.Satellite_PackageTitleNotLocalized();
+                    }
+                    if (package.Description.Contains("{"))
+                    {
+                        yield return PackageIssueFactory.Satellite_PackageDescriptionNotLocalized();
+                    }
                 }
             }
 

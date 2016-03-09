@@ -5,19 +5,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
-using NuGet;
 
 namespace NuGetPackageVerifier.Rules
 {
     public class AssemblyHasCompanyAttributeRule : AssemblyHasAttributeRuleBase
     {
         public override IEnumerable<PackageVerifierIssue> ValidateAttribute(
-            IPackageFile currentFile,
+            string currentFilePath,
             Mono.Collections.Generic.Collection<CustomAttribute> assemblyAttributes)
         {
             if (!HasCompanyAttribute(assemblyAttributes))
             {
-                yield return PackageIssueFactory.AssemblyMissingCompanyAttribute(currentFile.Path);
+                yield return PackageIssueFactory.AssemblyMissingCompanyAttribute(currentFilePath);
             }
         }
 

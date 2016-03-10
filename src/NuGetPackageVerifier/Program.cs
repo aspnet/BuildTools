@@ -79,6 +79,7 @@ namespace NuGetPackageVerifier
                 new AssemblyHasVersionAttributesRule(),
                 new AssemblyStrongNameRule(),
                 new AuthenticodeSigningRule(),
+                new FrameworkAssembliesDoesNotContainFacadesRule(),
                 new PowerShellScriptIsSignedRule(),
                 new RequiredPackageMetadataRule(),
                 new SatellitePackageRule(),

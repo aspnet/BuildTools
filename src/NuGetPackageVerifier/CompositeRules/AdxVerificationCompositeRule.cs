@@ -20,6 +20,7 @@ namespace NuGetPackageVerifier.Rules
             new AssemblyHasProductAttributeRule(),
             new AssemblyHasServicingAttributeRule(),
             new AssemblyHasVersionAttributesRule(),
+            new FrameworkAssembliesDoesNotContainFacadesRule(),
             new SatellitePackageRule(),
             new StrictSemanticVersionValidationRule(),
         };

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Reflection;
+using NuGet.Frameworks;
 using NuGet.Versioning;
 
 namespace NuGetPackageVerifier
@@ -182,6 +183,20 @@ namespace NuGetPackageVerifier
                 "WRONG_JSONNET_VERSION",
                 string.Format("{0}; {1}", assemblyPath, targetFramework),
                 string.Format("The assembly '{0}' references the wrong Json.NET version. Current version '{1}'; Expected version '8.0.2'.", assemblyPath, currentVersion),
+                MyPackageIssueLevel.Error);
+        }
+
+        public static PackageVerifierIssue FrameworkAssembliesContainFacade(string assemblyName, NuGetFramework supportedFramework)
+        {
+            var shortFrameworkName = supportedFramework.GetShortFolderName();
+
+            return new PackageVerifierIssue(
+                "NUSPEC_FACADE",
+                string.Format("{0}/{1}", shortFrameworkName, assemblyName),
+                string.Format(
+                    "Framework assembly '{0}' for framework '{1}' is a facade and must not be added to the NuSpec.",
+                    assemblyName,
+                    shortFrameworkName),
                 MyPackageIssueLevel.Error);
         }
     }

@@ -19,11 +19,11 @@ namespace NuGetPackageVerifier.Rules
             foreach (var dependencySet in package.DependencyGroups)
             {
                 var jsonDependency = dependencySet.Packages.FirstOrDefault(d => d.Id == "Newtonsoft.Json");
-                if (jsonDependency != null && !string.Equals(jsonDependency.VersionRange.MinVersion.ToString(), "8.0.2"))
+                if (jsonDependency != null && !string.Equals(jsonDependency.VersionRange.MinVersion.ToString(), "8.0.3"))
                 {
                     yield return PackageIssueFactory.AssemblyHasWrongJsonNetVersion(
                         package.Id,
-                        dependencySet.TargetFramework.Framework,
+                        dependencySet.TargetFramework.DotNetFrameworkName,
                         jsonDependency.VersionRange.MinVersion.ToString());
                 }
             }

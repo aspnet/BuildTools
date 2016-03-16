@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using NuGet.Packaging;
@@ -13,6 +14,8 @@ namespace NuGetPackageVerifier.Rules
 {
     public class AssemblyStrongNameRule : IPackageVerifierRule
     {
+        private static string _publicKeyToken = "ADB9793829DDAE60";
+
         public IEnumerable<PackageVerifierIssue> Validate(
             FileInfo nupkgFile,
             IPackageMetadata package,
@@ -31,6 +34,7 @@ namespace NuGetPackageVerifier.Rules
 
                         var isManagedCode = false;
                         var isStrongNameSigned = false;
+                        var hasCorrectPublicKeyToken = false;
                         var hresult = 0;
 
                         try
@@ -54,6 +58,13 @@ namespace NuGetPackageVerifier.Rules
                                 {
                                     isStrongNameSigned = true;
                                 }
+
+                                var testAssembly = AssemblyName.GetAssemblyName(assemblyPath);
+                                var tokenHexString = BitConverter.ToString(testAssembly.GetPublicKeyToken()).Replace("-", "");
+                                if (_publicKeyToken.Equals(tokenHexString))
+                                {
+                                    hasCorrectPublicKeyToken = true;
+                                }
                             }
                         }
                         catch (Exception ex)
@@ -68,9 +79,15 @@ namespace NuGetPackageVerifier.Rules
                                 File.Delete(assemblyPath);
                             }
                         }
+
                         if (isManagedCode && !isStrongNameSigned)
                         {
                             yield return PackageIssueFactory.AssemblyNotStrongNameSigned(currentFile, hresult);
+                        }
+
+                        if (isManagedCode && !hasCorrectPublicKeyToken)
+                        {
+                            yield return PackageIssueFactory.AssemblyHasWrongPublicKeyToken(currentFile, _publicKeyToken);
                         }
                     }
                 }

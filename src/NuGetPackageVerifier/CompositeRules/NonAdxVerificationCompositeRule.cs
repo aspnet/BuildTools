@@ -12,7 +12,6 @@ namespace NuGetPackageVerifier.Rules
     {
         IPackageVerifierRule[] _rules = new IPackageVerifierRule[]
         {
-            new AssemblyStrongNameRule(),
             new AuthenticodeSigningRule(),
         };
 

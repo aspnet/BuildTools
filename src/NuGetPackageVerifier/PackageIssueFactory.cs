@@ -95,6 +95,11 @@ namespace NuGetPackageVerifier
             return new PackageVerifierIssue("SIGN_STRONGNAME", assemblyPath, string.Format("The managed assembly '{0}' in this package is either not signed or is delay signed. HRESULT=0x{1:X}", assemblyPath, hResult), MyPackageIssueLevel.Error);
         }
 
+        public static PackageVerifierIssue AssemblyHasWrongPublicKeyToken(string assemblyPath, string expectedToken)
+        {
+            return new PackageVerifierIssue("WRONG_PUBLICKEYTOKEN", assemblyPath, string.Format("The managed assembly '{0}' in this package does not have the expected public key token ({1}).", assemblyPath, expectedToken), MyPackageIssueLevel.Error);
+        }
+
         public static PackageVerifierIssue NotSemanticVersion(SemanticVersion version)
         {
             return new PackageVerifierIssue("VERSION_NOTSEMANTIC",

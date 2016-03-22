@@ -68,6 +68,7 @@ namespace NuGetPackageVerifier
 
             // TODO: Look this up using reflection or something
             var allRules = new IPackageVerifierRule[] {
+                new AssemblyHasCommitHashAttributeRule(),
                 new AssemblyHasCompanyAttributeRule(),
                 new AssemblyHasCopyrightAttributeRule(),
                 new AssemblyHasCorrectJsonNetVersionRule(),

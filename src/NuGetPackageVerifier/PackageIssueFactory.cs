@@ -19,6 +19,17 @@ namespace NuGetPackageVerifier
                 MyPackageIssueLevel.Error);
         }
 
+        public static PackageVerifierIssue AssemblyMissingHashAttribute(string assemblyPath)
+        {
+            return new PackageVerifierIssue(
+                "ASSEMBLY_COMMIT_HASH",
+                assemblyPath,
+                string.Format(
+                    @"The managed assembly '{0}' in this package is missing the '[assembly: AssemblyMetadata(""CommitHash"", ""<text>"")]' attribute.",
+                    assemblyPath),
+                MyPackageIssueLevel.Error);
+        }
+
         public static PackageVerifierIssue AssemblyMissingNeutralResourcesLanguageAttribute(string assemblyPath)
         {
             return new PackageVerifierIssue(

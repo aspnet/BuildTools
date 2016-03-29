@@ -3,7 +3,7 @@
 
 namespace NuGetPackageVerifier
 {
-    public enum MyPackageIssueLevel
+    public enum PackageIssueLevel
     {
         Warning,
         Error

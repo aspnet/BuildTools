@@ -15,6 +15,7 @@ namespace NuGetPackageVerifier.Rules
             new AssemblyHasCommitHashAttributeRule(),
             new AssemblyHasCompanyAttributeRule(),
             new AssemblyHasCopyrightAttributeRule(),
+            new AssemblyHasCorrectBuildConfigurationRule(),
             new AssemblyHasCorrectJsonNetVersionRule(),
             new AssemblyHasDocumentFileRule(),
             new AssemblyHasNeutralResourcesLanguageAttributeRule(),

@@ -5,12 +5,12 @@ namespace NuGetPackageVerifier
 {
     public class PackageVerifierIssue
     {
-        public PackageVerifierIssue(string issueId, string issue, MyPackageIssueLevel level)
+        public PackageVerifierIssue(string issueId, string issue, PackageIssueLevel level)
             : this(issueId, instance: null, issue: issue, level: level)
         {
         }
 
-        public PackageVerifierIssue(string issueId, string instance, string issue, MyPackageIssueLevel level)
+        public PackageVerifierIssue(string issueId, string instance, string issue, PackageIssueLevel level)
         {
             Instance = instance;
             IssueId = issueId;
@@ -18,7 +18,7 @@ namespace NuGetPackageVerifier
             Level = level;
         }
 
-        public MyPackageIssueLevel Level
+        public PackageIssueLevel Level
         {
             get;
             private set;

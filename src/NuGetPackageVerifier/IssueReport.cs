@@ -10,7 +10,7 @@ namespace NuGetPackageVerifier
         public IssueReport(PackageVerifierIssue packageIssue, bool ignore, string ignoreJustification)
         {
             PackageIssue = packageIssue;
-            IssueLevel = ignore ? LogLevel.Info : packageIssue.Level == MyPackageIssueLevel.Warning ? LogLevel.Warning : LogLevel.Error;
+            IssueLevel = ignore ? LogLevel.Info : packageIssue.Level == PackageIssueLevel.Warning ? LogLevel.Warning : LogLevel.Error;
             IgnoreJustification = ignoreJustification;
         }
 

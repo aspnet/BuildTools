@@ -25,8 +25,8 @@ namespace SplitPackages
         private CommandOption _csvOption;
         private CommandOption _destinationOption;
         private CommandOption _whatIf;
-        private CommandOption _warningsOnly;
-        private CommandOption _warningsAsErrors;
+        private CommandOption _quiet;
+        private CommandOption _ignoreErrors;
 
         public ILogger Logger
         {
@@ -47,16 +47,16 @@ namespace SplitPackages
             CommandOption csvOption,
             CommandOption destinationOption,
             CommandOption whatIfOption,
-            CommandOption warningsOnly,
-            CommandOption warningsAsErrors)
+            CommandOption quiet,
+            CommandOption ignoreErrors)
         {
             _app = app;
             _sourceOption = sourceOption;
             _csvOption = csvOption;
             _destinationOption = destinationOption;
             _whatIf = whatIfOption;
-            _warningsOnly = warningsOnly;
-            _warningsAsErrors = warningsAsErrors;
+            _quiet = quiet;
+            _ignoreErrors = ignoreErrors;
         }
 
         static int Main(string[] args)
@@ -86,14 +86,14 @@ namespace SplitPackages
                 "Performs a dry run of the command with the given arguments without copying the packages",
                 CommandOptionType.NoValue);
 
-            var warningsOnly = app.Option(
+            var quiet = app.Option(
                 "--quiet",
                 "Avoids printing to the output anything other than warnings or errors",
                 CommandOptionType.NoValue);
 
-            var warningsAsErrors = app.Option(
-                "--warningsaserrors",
-                "Treats warnigns and errors and stops the execution of the command",
+            var ignoreErrors = app.Option(
+                "--ignore-errors",
+                "Treats errors as warnings and allows the command to continue executing",
                 CommandOptionType.NoValue);
 
             var program = new Program(
@@ -102,8 +102,8 @@ namespace SplitPackages
                 csvOption,
                 destinationOption,
                 whatIfOption,
-                warningsOnly,
-                warningsAsErrors);
+                quiet,
+                ignoreErrors);
 
             app.OnExecute(new Func<int>(program.Execute));
 
@@ -128,7 +128,17 @@ namespace SplitPackages
 
                 EnsureNoExtraSourcePackagesFound(packagesFromSource, expandedPackages);
 
-                EmitWarningsForMissingPackages(packagesFromSource, packagesFromCsv);
+                var errors = new List<string>();
+                EmitWarningsForMissingPackages(packagesFromSource, packagesFromCsv, errors);
+
+                if (errors.Count > 0)
+                {
+                    WriteErrorMessage(errors);
+                    if (!_ignoreErrors.HasValue())
+                    {
+                        return Error;
+                    }
+                }
 
                 EnsureDestinationDirectories(
                     arguments.DestinationFolder,
@@ -150,6 +160,24 @@ namespace SplitPackages
             }
         }
 
+        private void WriteErrorMessage(List<string> errors)
+        {
+            var header = new [] {
+                "The list of packages in the source folder is inconsistent with the list of packages in the CSV file:"
+            };
+
+            var message = string.Join($"{Environment.NewLine}    ", header.Concat(errors));
+
+            if(_ignoreErrors.HasValue())
+            {
+                Logger.LogWarning(message);
+            }
+            else
+            {
+                Logger.LogError(message);
+            }
+        }
+
         private void CreateProjectJsonFiles(IEnumerable<PackageItem> packages)
         {
             var packagesByFolder = packages.GroupBy(p => Path.GetDirectoryName(p.DestinationPath));
@@ -161,7 +189,7 @@ namespace SplitPackages
                 var jsonFileBuilder = new ProjectJsonFileBuilder(
                     Path.Combine(path.Key, "project.json"),
                     _whatIf.HasValue(),
-                    _warningsAsErrors.HasValue(),
+                    _ignoreErrors.HasValue(),
                     Logger);
 
                 jsonFileBuilder.AddDependencies(dependenciesList);
@@ -173,7 +201,7 @@ namespace SplitPackages
         private ILogger CreateLogger()
         {
             var loggerFactory = new LoggerFactory();
-            var logLevel = _warningsOnly.HasValue() ? LogLevel.Warning : LogLevel.Information;
+            var logLevel = _quiet.HasValue() ? LogLevel.Warning : LogLevel.Information;
 
             loggerFactory.AddConsole(logLevel, includeScopes: false);
 
@@ -385,7 +413,7 @@ namespace SplitPackages
             }
         }
 
-        private void EmitWarningsForMissingPackages(IList<PackageItem> source, IList<PackageItem> csv)
+        private void EmitWarningsForMissingPackages(IList<PackageItem> source, IList<PackageItem> csv, IList<string> errors)
         {
             for (int i = 0; i < source.Count; i++)
             {
@@ -393,7 +421,7 @@ namespace SplitPackages
                 {
                     var msg = $@"No entry in the csv file matched the following package:
     {source[i].Name}";
-                    LogWarning(msg);
+                    LogWarning(msg, errors);
                 }
             }
 
@@ -403,7 +431,7 @@ namespace SplitPackages
                 {
                     var msg = $@"No package found in the source folder for the following csv entry:
     {csv[i].Name}";
-                    LogWarning(msg);
+                    LogWarning(msg, errors);
                 }
             }
         }
@@ -465,14 +493,14 @@ namespace SplitPackages
             }
         }
 
-        private void LogWarning(string message)
+        private void LogWarning(string message, IList<string> errors)
         {
-            if (_warningsAsErrors.HasValue())
+            if (_ignoreErrors.HasValue())
             {
-                throw new InvalidOperationException(message);
+                Logger.LogWarning(message);
             }
 
-            Logger.LogWarning(message);
+            errors.Add(message);
         }
 
         private class PackageItem : IEquatable<PackageItem>
@@ -513,18 +541,18 @@ namespace SplitPackages
         {
             private readonly string _path;
             private readonly bool _whatIf;
-            private readonly bool _warningsAsErrors;
+            private readonly bool _ignoreErrors;
             private readonly ILogger _logger;
 
             public ProjectJsonFileBuilder(
                 string path,
                 bool whatIf,
-                bool warningsAsErrors,
+                bool ignoreErrors,
                 ILogger logger)
             {
                 _path = path;
                 _whatIf = whatIf;
-                _warningsAsErrors = warningsAsErrors;
+                _ignoreErrors = ignoreErrors;
                 _logger = logger;
             }
 
@@ -580,7 +608,7 @@ namespace SplitPackages
                     if (dictionary.ContainsKey(dependency.Identity))
                     {
                         var message = $"A duplicate dependency exists in {_path}, name = {dependency.Identity}";
-                        if (_warningsAsErrors)
+                        if (_ignoreErrors)
                         {
                             throw new InvalidOperationException(message);
                         }

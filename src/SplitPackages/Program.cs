@@ -27,6 +27,7 @@ namespace SplitPackages
         private CommandOption _whatIf;
         private CommandOption _warningsOnly;
         private CommandOption _warningsAsErrors;
+        private CommandOption _preservePackagesAtSource;
 
         public ILogger Logger
         {
@@ -48,7 +49,8 @@ namespace SplitPackages
             CommandOption destinationOption,
             CommandOption whatIfOption,
             CommandOption warningsOnly,
-            CommandOption warningsAsErrors)
+            CommandOption warningsAsErrors,
+            CommandOption preservePackagesAtSource)
         {
             _app = app;
             _sourceOption = sourceOption;
@@ -57,6 +59,7 @@ namespace SplitPackages
             _whatIf = whatIfOption;
             _warningsOnly = warningsOnly;
             _warningsAsErrors = warningsAsErrors;
+            _preservePackagesAtSource = preservePackagesAtSource;
         }
 
         static int Main(string[] args)
@@ -67,9 +70,9 @@ namespace SplitPackages
             app.HelpOption("-?|-h|--help");
 
             var sourceOption = app.Option(
-                    "--source <DIR>",
-                    "The directory containing the nuget packages to split in different folders",
-                    CommandOptionType.SingleValue);
+                "--source <DIR>",
+                "The directory containing the nuget packages to split in different folders",
+                CommandOptionType.SingleValue);
 
             var csvOption = app.Option(
                 "--csv <PATH>",
@@ -93,7 +96,12 @@ namespace SplitPackages
 
             var warningsAsErrors = app.Option(
                 "--warningsaserrors",
-                "Treats warnigns and errors and stops the execution of the command",
+                "Treats warnings and errors and stops the execution of the command",
+                CommandOptionType.NoValue);
+
+            var preservePackagesAtSource = app.Option(
+                "--preservepackagesatsource",
+                "Copy instead of move packages from source to destination.",
                 CommandOptionType.NoValue);
 
             var program = new Program(
@@ -103,7 +111,8 @@ namespace SplitPackages
                 destinationOption,
                 whatIfOption,
                 warningsOnly,
-                warningsAsErrors);
+                warningsAsErrors,
+                preservePackagesAtSource);
 
             app.OnExecute(new Func<int>(program.Execute));
 
@@ -136,7 +145,7 @@ namespace SplitPackages
 
                 SetDestinationPath(arguments, expandedPackages);
 
-                CopyPackages(expandedPackages);
+                ProcessPackages(expandedPackages);
 
                 CreateProjectJsonFiles(expandedPackages);
 
@@ -451,16 +460,25 @@ namespace SplitPackages
             }
         }
 
-        private void CopyPackages(IList<PackageItem> expandedPackages)
+        private void ProcessPackages(IList<PackageItem> expandedPackages)
         {
+            var action = _preservePackagesAtSource.HasValue() ? "Copying": "Moving";
             foreach (var package in expandedPackages)
             {
-                Logger.LogInformation($@"Copying package {package.Name} from
+
+                Logger.LogInformation($@"{action} package {package.Name} from
     {package.OriginPath} to
     {package.DestinationPath}");
                 if (!_whatIf.HasValue())
                 {
-                    File.Copy(package.OriginPath, package.DestinationPath, overwrite: true);
+                    if (_preservePackagesAtSource.HasValue())
+                    {
+                        File.Copy(package.OriginPath, package.DestinationPath, overwrite: true);
+                    }
+                    else
+                    {
+                        File.Move(package.OriginPath, package.DestinationPath);
+                    }
                 }
             }
         }

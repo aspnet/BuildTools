@@ -4,6 +4,6 @@
     <id>NuGetPackageVerifier</id>
     <version>0.0.0</version>
     <authors>Microsoft</authors>
-    <description>Verifies AspNet 5 packages.</description>
+    <description>Verifies Asp.Net Core packages.</description>
   </metadata>
 </package>

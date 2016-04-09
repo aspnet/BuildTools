@@ -184,18 +184,44 @@ namespace SplitPackages
 
             foreach (var path in packagesByFolder)
             {
-                var dependenciesList = path.ToList();
-
-                var jsonFileBuilder = new ProjectJsonFileBuilder(
-                    Path.Combine(path.Key, "project.json"),
-                    _whatIf.HasValue(),
-                    _ignoreErrors.HasValue(),
-                    Logger);
-
-                jsonFileBuilder.AddDependencies(dependenciesList);
-                jsonFileBuilder.AddFramework(Framework.Net451);
-                jsonFileBuilder.Execute();
+                CreateProjectJsonFile(path.Key, path);
+                CreateProjectJsonFileWithImports(path.Key, path);
             }
+        }
+
+        private void CreateProjectJsonFile(string path, IEnumerable<PackageItem> packages)
+        {
+            ProjectJsonFileBuilder jsonFileBuilder = CreateBaseJsonFileBuilder(
+                Path.Combine(path, "project.noimports.json"),
+                packages);
+
+            jsonFileBuilder.Execute();
+        }
+
+        private void CreateProjectJsonFileWithImports(string path, IEnumerable<PackageItem> packages)
+        {
+            ProjectJsonFileBuilder jsonFileBuilder = CreateBaseJsonFileBuilder(
+                Path.Combine(path, "project.json"),
+                packages);
+
+            jsonFileBuilder.AddImports(Frameworks.NetCoreApp10, Frameworks.DnxCore50);
+            jsonFileBuilder.AddImports(Frameworks.NetCoreApp10, Frameworks.Dotnet56);
+            jsonFileBuilder.AddImports(Frameworks.NetCoreApp10, Frameworks.PortableNet45Win8);
+            jsonFileBuilder.Execute();
+        }
+
+        private ProjectJsonFileBuilder CreateBaseJsonFileBuilder(string path, IEnumerable<PackageItem> packages)
+        {
+            var jsonFileBuilder = new ProjectJsonFileBuilder(
+                path,
+                _whatIf.HasValue(),
+                _quiet.HasValue(),
+                Logger);
+
+            jsonFileBuilder.AddFramework(Frameworks.Net451);
+            jsonFileBuilder.AddFramework(Frameworks.NetCoreApp10);
+            jsonFileBuilder.AddDependencies(packages);
+            return jsonFileBuilder;
         }
 
         private ILogger CreateLogger()
@@ -258,7 +284,7 @@ namespace SplitPackages
 
             foreach (var package in result)
             {
-                SetNugetIdentityAndVersion(package);
+                ReadPackagesDetails(package);
             }
 
             Logger.LogInformation($@"Packages found on the source folder
@@ -333,7 +359,7 @@ namespace SplitPackages
 
             foreach (var item in allPackages)
             {
-                SetNugetIdentityAndVersion(item);
+                ReadPackagesDetails(item);
             }
 
             return allPackages.ToList();
@@ -387,13 +413,18 @@ namespace SplitPackages
                 .ToList();
         }
 
-        private static void SetNugetIdentityAndVersion(PackageItem item)
+        private static void ReadPackagesDetails(PackageItem item)
         {
             using (var reader = new PackageArchiveReader(item.OriginPath))
             {
                 var identity = reader.GetIdentity();
                 item.Identity = identity.Id;
                 item.Version = identity.Version.ToString();
+
+                foreach (var fx in reader.GetSupportedFrameworks())
+                {
+                    item.SupportedFrameworks.Add(fx.DotNetFrameworkName);
+                }
             }
         }
 
@@ -503,131 +534,11 @@ namespace SplitPackages
             errors.Add(message);
         }
 
-        private class PackageItem : IEquatable<PackageItem>
-        {
-            public string Name { get; set; }
-            public string OriginPath { get; set; }
-            public string DestinationFolderName { get; set; }
-            public string DestinationPath { get; set; }
-            public bool FoundInCsv { get; set; }
-            public bool FoundInFolder { get; set; }
-            public string Identity { get; set; }
-            public string Version { get; set; }
-
-            public bool Equals(PackageItem other)
-            {
-                return string.Equals(OriginPath, other?.OriginPath);
-            }
-
-            public override int GetHashCode()
-            {
-                return OriginPath != null ? OriginPath.GetHashCode() : 1;
-            }
-
-            public override string ToString()
-            {
-                return $"Name {Name}, Identity {Identity}, Version {Version}, Csv {FoundInCsv}, Source {FoundInFolder}";
-            }
-        }
-
         private class Arguments
         {
             public string SourceFolder { get; set; }
             public string CsvFile { get; set; }
             public string DestinationFolder { get; set; }
-        }
-
-        private class ProjectJsonFileBuilder
-        {
-            private readonly string _path;
-            private readonly bool _whatIf;
-            private readonly bool _ignoreErrors;
-            private readonly ILogger _logger;
-
-            public ProjectJsonFileBuilder(
-                string path,
-                bool whatIf,
-                bool ignoreErrors,
-                ILogger logger)
-            {
-                _path = path;
-                _whatIf = whatIf;
-                _ignoreErrors = ignoreErrors;
-                _logger = logger;
-            }
-
-            private IList<PackageItem> _dependencies;
-            private IList<string> _frameworks = new List<string>();
-
-            public void AddDependencies(IList<PackageItem> dependencies)
-            {
-                _dependencies = dependencies;
-            }
-
-            public void AddFramework(Framework fx)
-            {
-                switch (fx)
-                {
-                    case Framework.Net451:
-                        _frameworks.Add("net451");
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            public void Execute()
-            {
-                var document = new JObject();
-                document["dependencies"] = JObject.FromObject(CreateDependenciesDictionary());
-                document["frameworks"] = JObject.FromObject(CreateFrameworksDictionary());
-
-                var writer = _whatIf ? StreamWriter.Null : File.CreateText(_path);
-                using (var jsonWriter = new JsonTextWriter(writer) { Formatting = Formatting.Indented })
-                {
-                    _logger.LogInformation($"Writing project.json file to {_path}");
-                    document.WriteTo(jsonWriter);
-
-                    if (_whatIf)
-                    {
-                        _logger.LogInformation(document.ToString());
-                    }
-                }
-            }
-
-            private Dictionary<string, JObject> CreateFrameworksDictionary()
-            {
-                return _frameworks.ToDictionary(f => f, _ => new JObject());
-            }
-
-            private IDictionary<string, string> CreateDependenciesDictionary()
-            {
-                var dictionary = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-                foreach (var dependency in _dependencies)
-                {
-                    if (dictionary.ContainsKey(dependency.Identity))
-                    {
-                        var message = $"A duplicate dependency exists in {_path}, name = {dependency.Identity}";
-                        if (_ignoreErrors)
-                        {
-                            throw new InvalidOperationException(message);
-                        }
-
-                        _logger.LogWarning(message);
-                    }
-                    else
-                    {
-                        dictionary[dependency.Identity] = dependency.Version;
-                    }
-                }
-
-                return dictionary;
-            }
-        }
-
-        public enum Framework
-        {
-            Net451
         }
     }
 }

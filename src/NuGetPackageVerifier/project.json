@@ -1,6 +1,6 @@
-﻿{
+{
   "version": "1.0.1-*",
-  "description": "Verifies ASPNET 5 NuGet packages.",
+  "description": "Verifies Asp.Net Core NuGet packages.",
   "authors": [ "Microsoft" ],
   "tags": [ "" ],
   "projectUrl": "",

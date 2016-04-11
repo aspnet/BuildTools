@@ -1,0 +1,29 @@
+﻿{
+  "version": "1.0.1-*",
+  "description": "Creates a zip package with the expanded version of our nuget packages that can be used as a local cache",
+  "authors": [ "Microsoft" ],
+  "tags": [ "" ],
+  "projectUrl": "",
+  "licenseUrl": "",
+  "compilationOptions": {
+    "emitEntryPoint": true
+  },
+  "dependencies": {
+    "Microsoft.Extensions.CommandLineUtils": "1.0.0-*",
+    "Microsoft.Extensions.Logging": "1.0.0-*",
+    "Microsoft.Extensions.Logging.Console": "1.0.0-*",
+    "Newtonsoft.Json": "8.0.2",
+    "NuGet.Client": "3.4.0-*"
+  },
+  "frameworks": {
+    "net451": {
+      "frameworkAssemblies": {
+        "Microsoft.CSharp": "",
+        "System.Collections": "",
+        "System.Xml.Linq": "",
+        "System.Threading": "",
+        "System.IO.Compression.FileSystem": ""
+      }
+    }
+  }
+}

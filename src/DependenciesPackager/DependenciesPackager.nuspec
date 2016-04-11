@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>DependenciesPackager</id>
+    <version>0.0.0</version>
+    <authors>Microsoft</authors>
+    <description>Packages ASP.NET Core dlls into a zip folder with a nuget cache file structure for use by installers and other tools.</description>
+  </metadata>
+</package>

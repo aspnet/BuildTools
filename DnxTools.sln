@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A4F4353B-C3D2-40B0-909A-5B48A748EA76}"
 EndProject
@@ -13,6 +13,8 @@ EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "NuGetPackageVerifier", "src\NuGetPackageVerifier\NuGetPackageVerifier.xproj", "{657AFF5E-164E-493D-8501-8026B7C20808}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "SplitPackages", "src\SplitPackages\SplitPackages.xproj", "{C98F7832-85FB-451B-9152-87425ACF8EEB}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "DependenciesPackager", "src\DependenciesPackager\DependenciesPackager.xproj", "{183BBD52-FFC3-4636-9C6F-EAFA5CDBFEAB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,6 +30,10 @@ Global
 		{C98F7832-85FB-451B-9152-87425ACF8EEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C98F7832-85FB-451B-9152-87425ACF8EEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C98F7832-85FB-451B-9152-87425ACF8EEB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{183BBD52-FFC3-4636-9C6F-EAFA5CDBFEAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{183BBD52-FFC3-4636-9C6F-EAFA5CDBFEAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{183BBD52-FFC3-4636-9C6F-EAFA5CDBFEAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{183BBD52-FFC3-4636-9C6F-EAFA5CDBFEAB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

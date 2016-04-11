@@ -14,7 +14,7 @@ k-standard-goals
 
 #nuget-pack target='package'
   @{
-    foreach(var project in new[]{"NuGetPackageVerifier", "SplitPackages"})
+    foreach(var project in new[]{ "NuGetPackageVerifier", "SplitPackages", "DependenciesPackager" })
     {
       var outputDir = Path.Combine(TARGET_DIR, "build");
       var existingNupkg = Directory.EnumerateFiles(outputDir)

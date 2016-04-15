@@ -2,17 +2,29 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Text;
+using Microsoft.DotNet.ProjectModel;
+using Microsoft.DotNet.ProjectModel.Compilation;
 using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Logging;
+using NuGet.Frameworks;
 
 namespace DependenciesPackager
 {
     class Program
     {
+        private static readonly string TempRestoreFolderName = "TempRestorePackages";
+        private static readonly string TempDiagnosticsRestoreFolderName = "TempDiagnosticsRestorePackages";
+        private static readonly string TempPublishFolderName = "TempPublish";
+
+        private readonly IEnumerable<string> Runtimes = new[] { "x86", "x64" };
+        private readonly IEnumerable<NuGetFramework> FrameworkConfigurations = new[] { FrameworkConstants.CommonFrameworks.NetCoreApp10 };
+
         private const int Ok = 0;
         private const int Error = 1;
 
@@ -25,7 +37,8 @@ namespace DependenciesPackager
         private CommandOption _fallbackFeeds;
         private CommandOption _destination;
         private CommandOption _version;
-        private CommandOption _dotnetPath;
+        private CommandOption _cliPath;
+        private CommandOption _quiet;
 
         public ILogger Logger
         {
@@ -43,7 +56,7 @@ namespace DependenciesPackager
         private ILogger CreateLogger()
         {
             var loggerFactory = new LoggerFactory();
-            var logLevel = LogLevel.Information;
+            var logLevel = _quiet.HasValue() ? LogLevel.Warning : LogLevel.Information;
 
             loggerFactory.AddConsole(logLevel, includeScopes: false);
 
@@ -58,7 +71,8 @@ namespace DependenciesPackager
             CommandOption fallbackFeeds,
             CommandOption destination,
             CommandOption packagesVersion,
-            CommandOption dotnetPath)
+            CommandOption cliPath,
+            CommandOption quiet)
         {
             _app = app;
             _projectJson = projectJson;
@@ -67,7 +81,8 @@ namespace DependenciesPackager
             _fallbackFeeds = fallbackFeeds;
             _destination = destination;
             _version = packagesVersion;
-            _dotnetPath = dotnetPath;
+            _cliPath = cliPath;
+            _quiet = quiet;
         }
 
         static int Main(string[] args)
@@ -112,6 +127,11 @@ namespace DependenciesPackager
                 "The path to the dotnet CLI tools to use",
                 CommandOptionType.SingleValue);
 
+            var quiet = app.Option(
+                "--quiet",
+                "Avoids printing to the output anything other than warnings or errors",
+                CommandOptionType.NoValue);
+
             var program = new Program(
                 app,
                 projectJson,
@@ -120,7 +140,8 @@ namespace DependenciesPackager
                 fallbackFeeds,
                 destination,
                 packagesVersion,
-                useCli);
+                useCli,
+                quiet);
 
             app.OnExecute(new Func<int>(program.Execute));
 
@@ -141,26 +162,43 @@ namespace DependenciesPackager
                     return Error;
                 }
 
-                try
+                if (_diagnosticsProjectJson.HasValue())
                 {
-                    if (_diagnosticsProjectJson.HasValue())
-                    {
-                        RunDotnetRestore(_diagnosticsProjectJson.Value());
-                    }
-
-                    if (RunDotnetRestore(_projectJson.Value()) != 0)
-                    {
-                        throw new InvalidOperationException("Error restoring nuget packages into destination folder");
-                    }
-
-                    RemoveUnnecessaryFiles();
-                    CreateZipPackage();
+                    RunDotnetRestore(_diagnosticsProjectJson.Value(), TempDiagnosticsRestoreFolderName);
                 }
-                catch (Exception e)
+
+                if (RunDotnetRestore(_projectJson.Value(), TempRestoreFolderName) != 0)
                 {
-                    Logger.LogError(e.Message);
-                    return Error;
+                    Logger.LogWarning("Error restoring nuget packages into destination folder");
                 }
+
+                var project = ProjectReader.GetProject(_projectJson.Value());
+
+                foreach (var framework in FrameworkConfigurations)
+                {
+                    foreach (var runtime in Runtimes)
+                    {
+                        var cacheBasePath = Path.Combine(_destination.Value(), _version.Value(), runtime);
+
+                        var projectContext = CreateProjectContext(project, framework, runtime);
+                        var entries = GetEntries(projectContext, runtime);
+
+                        Logger.LogInformation($"Performing crossgen on {framework.GetShortFolderName()} for runtime {runtime}.");
+
+                        var publishFolderPath = GetPublishFolderPath(projectContext);
+                        CreatePublishFolder(entries, publishFolderPath);
+                        var crossGenPath = CopyCrossgenToPublishFolder(entries, $"win7-{runtime}", publishFolderPath);
+                        RunCrossGenOnEntries(entries, publishFolderPath, crossGenPath, cacheBasePath);
+                        DisplayCrossGenOutput(entries);
+
+                        CopyPackageSignatures(entries, cacheBasePath);
+
+                        CompareWithRestoreHive(Path.Combine(_destination.Value(), TempRestoreFolderName), cacheBasePath);
+                        PrintHiveFilesForDiagnostics(cacheBasePath);
+                    }
+                }
+
+                CreateZipPackage();
 
                 return Ok;
             }
@@ -172,39 +210,255 @@ namespace DependenciesPackager
             }
         }
 
+        private void PrintHiveFilesForDiagnostics(string cacheBasePath)
+        {
+            Logger.LogInformation($@"Files in hive:
+{string.Join($"{Environment.NewLine}    ", Directory.EnumerateFiles(cacheBasePath, "*", SearchOption.AllDirectories))}");
+        }
+
+        private void CompareWithRestoreHive(string restoredCache, string hivePath)
+        {
+            var dlls = Directory.EnumerateFiles(restoredCache, "*.dll", SearchOption.AllDirectories);
+            var signatures = Directory.EnumerateFiles(restoredCache, "*.sha512", SearchOption.AllDirectories);
+            var filesInRestoredCache = new HashSet<string>(
+                dlls.Concat(signatures).Select(p => p.Remove(0, restoredCache.Length + 1)));
+
+            var hiveFilePaths = Directory.EnumerateFiles(hivePath, "*", SearchOption.AllDirectories);
+            var filesInHive = new HashSet<string>(hiveFilePaths.Select(p => p.Remove(0, hivePath.Length + 1)));
+
+            var filesNotInHive = filesInRestoredCache.Except(filesInHive, StringComparer.OrdinalIgnoreCase);
+            foreach (var file in filesNotInHive)
+            {
+                Logger.LogWarning($@"The file
+    {Path.Combine(restoredCache, file)} can not be found in
+    {Path.Combine(hivePath, file)}");
+            }
+        }
+
+        private static void CopyPackageSignatures(PackageEntry[] entries, string cacheBasePath)
+        {
+            foreach (var entry in entries.Where(e => e.Library is PackageDescription))
+            {
+                var packageDescription = (PackageDescription)entry.Library;
+                var hash = packageDescription.PackageLibrary.Files.Single(f => f.EndsWith(".sha512"));
+                File.Copy(
+                    Path.Combine(entry.Library.Path, hash),
+                    Path.Combine(
+                        cacheBasePath,
+                        entry.Library.Identity.Name,
+                        entry.Library.Identity.Version.ToNormalizedString(),
+                        hash),
+                    overwrite: true);
+            }
+        }
+
+        private void DisplayCrossGenOutput(PackageEntry[] entries)
+        {
+            var errorMessage = new StringBuilder();
+            errorMessage.AppendLine("Output of running crossgen of assemblies:");
+            foreach (var package in entries)
+            {
+                errorMessage.AppendLine($"    Output for assets in {package.Library.Identity}");
+                foreach (var entry in package.CrossGenOutput)
+                {
+                    errorMessage.AppendLine($"    Output for asset {entry.Key.ResolvedPath}");
+                    foreach (var line in entry.Value)
+                    {
+                        errorMessage.AppendLine(line);
+                    }
+                }
+            }
+
+            Logger.LogInformation(errorMessage.ToString());
+        }
+
+        private void RunCrossGenOnEntries(PackageEntry[] entries, string publishFolderPath, string crossGenPath, string cacheBasePath)
+        {
+            foreach (var package in entries)
+            {
+                foreach (var asset in package.Assets)
+                {
+                    var subDirectory = CreateSubDirectory(cacheBasePath, package, asset);
+                    var targetPath = Path.Combine(subDirectory, asset.FileName);
+                    var succeeded = RunCrossGenOnAssembly(crossGenPath, publishFolderPath, package, asset, targetPath);
+
+                    if (!succeeded)
+                    {
+                        Logger.LogWarning("Copying non crossgen asset instead.");
+                        File.Copy(asset.ResolvedPath, targetPath, overwrite: true);
+                    }
+                }
+            }
+        }
+
+        private string CreateSubDirectory(string cacheBasePath, PackageEntry package, LibraryAsset asset)
+        {
+            var subDirectoryPath = Path.Combine(
+                cacheBasePath,
+                package.Library.Identity.Name,
+                package.Library.Identity.Version.ToNormalizedString(),
+                Path.GetDirectoryName(asset.RelativePath));
+
+            Logger.LogInformation($"Creating sub directory on {subDirectoryPath}.");
+
+            var subDirectory = Directory.CreateDirectory(subDirectoryPath);
+            return subDirectory.FullName;
+        }
+
+        private string GetPublishFolderPath(ProjectContext projectContext)
+        {
+            return Path.Combine(
+                _destination.Value(),
+                TempPublishFolderName,
+                projectContext.TargetFramework.GetShortFolderName(),
+                projectContext.RuntimeIdentifier);
+        }
+
+        private void CreatePublishFolder(PackageEntry[] entries, string publishFolder)
+        {
+            Logger.LogInformation($"Creating directory {publishFolder}.");
+            Directory.CreateDirectory(publishFolder);
+
+            foreach (var package in entries)
+            {
+                foreach (var asset in package.Assets)
+                {
+                    var path = asset.ResolvedPath;
+                    var targetPath = Path.Combine(publishFolder, asset.FileName);
+
+                    Logger.LogInformation($@"Copying file
+    {path} into
+    {targetPath}");
+                    File.Copy(path, targetPath, overwrite: true);
+                }
+            }
+        }
+
+        private PackageEntry[] GetEntries(ProjectContext context, string runtime)
+        {
+            var restoreCache = Path.Combine(_destination.Value(), TempRestoreFolderName);
+            return context
+                .CreateExporter("CACHE")
+                .GetDependencies()
+                .Select(d => new PackageEntry
+                {
+                    Library = d.Library,
+                    Assets = (d.RuntimeAssemblyGroups.SingleOrDefault(rg => rg.Runtime == $"win7-{runtime}") ??
+                              d.RuntimeAssemblyGroups.SingleOrDefault(rg => rg.Runtime == ""))?.Assets
+                })
+                .Where(e =>
+                    e.Library?.Path?.StartsWith(restoreCache, StringComparison.OrdinalIgnoreCase) != null &&
+                    e.Assets?.Any() == true)
+                .ToArray();
+        }
+
+        private ProjectContext CreateProjectContext(Project project, NuGetFramework framework, string runtime)
+        {
+            var builder = new ProjectContextBuilder()
+                .WithPackagesDirectory(Path.Combine(_destination.Value(), TempRestoreFolderName))
+                .WithProject(project)
+                .WithTargetFramework(framework)
+                .WithRuntimeIdentifiers(new[] { $"win7-{runtime}" });
+
+            return builder.Build();
+        }
+
+        private bool RunCrossGenOnAssembly(
+            string crossGenPath,
+            string publishedAssemblies,
+            PackageEntry package,
+            LibraryAsset asset,
+            string targetPath)
+        {
+            var assemblyPath = asset.ResolvedPath;
+
+            var arguments = new[]
+            {
+                $"/Platform_Assemblies_Paths {publishedAssemblies}",
+                $"/in {assemblyPath}",
+                $"/out {targetPath}"
+            };
+
+            Logger.LogInformation($@"Running crossgen on
+    {assemblyPath} and putting results on
+    {targetPath} with arguments
+        {string.Join($"{Environment.NewLine}        ", arguments)}.");
+
+            Environment.CurrentDirectory = publishedAssemblies;
+            StringBuilder output = new StringBuilder();
+            StringBuilder error = new StringBuilder();
+
+            var exitCode = new ProcessRunner(crossGenPath, string.Join(" ", arguments))
+                .WriteOutputToStringBuilder(output, "    ")
+                .WriteErrorsToStringBuilder(error, "    ")
+                .Run();
+
+            package.CrossGenOutput.Add(asset, new List<string> { output.ToString(), error.ToString() });
+
+            if (exitCode == 0)
+            {
+                Logger.LogInformation($"Native image {targetPath} generated successfully.");
+                return true;
+            }
+            else
+            {
+                Logger.LogWarning($"Crossgen failed for {targetPath}.");
+                return false;
+            }
+        }
+
+        private string CopyCrossgenToPublishFolder(
+            IEnumerable<PackageEntry> packages,
+            string moniker,
+            string publishDirectory)
+        {
+            var entry = packages.SingleOrDefault(p =>
+                p.Library.Identity.Name.Equals(
+                    $"runtime.{moniker}.Microsoft.NETCore.Runtime.CoreCLR",
+                    StringComparison.OrdinalIgnoreCase));
+
+            if (entry == null)
+            {
+                throw new InvalidOperationException("Couldn't find the dependency 'Microsoft.NETCore.Runtime.CoreCLR'");
+            }
+
+            var path = Directory
+                .GetFiles(entry.Library.Path, "crossgen.exe", SearchOption.AllDirectories)
+                .SingleOrDefault();
+
+            if (path == null)
+            {
+                throw new InvalidOperationException("Couldn't find path to crossgen.exe");
+            }
+
+            var crossGenDirectory = Path.GetDirectoryName(path);
+            foreach (var file in Directory.GetFiles(crossGenDirectory))
+            {
+                File.Copy(file, Path.Combine(publishDirectory, Path.GetFileName(file)), overwrite: true);
+            }
+
+            return Path.Combine(publishDirectory, Path.GetFileName(path));
+        }
+
         private void CreateZipPackage()
         {
             var packagesFolder = Path.Combine(_destination.Value(), _version.Value());
             var zipFileName = Path.Combine(_destination.Value(), $"AspNetCore.{_version.Value()}.zip");
             Logger.LogInformation($"Creating zip package on {zipFileName}");
-            ZipFile.CreateFromDirectory(packagesFolder, zipFileName);
+            ZipFile.CreateFromDirectory(packagesFolder, zipFileName, CompressionLevel.Optimal, includeBaseDirectory: false);
         }
 
-        private void RemoveUnnecessaryFiles()
+        private int RunDotnetRestore(string projectJson, string packagesFolderName)
         {
-            Logger.LogInformation($"Removing unnecessary files from folder");
-            var packagesFolder = Path.Combine(_destination.Value(), _version.Value());
-            var dlls = Directory.GetFiles(packagesFolder, "*.dll", SearchOption.AllDirectories);
-            var shas = Directory.GetFiles(packagesFolder, "*.sha512", SearchOption.AllDirectories);
-            var allEntries = Directory.GetFiles(packagesFolder, "*", SearchOption.AllDirectories);
-            var entriesToRemove = allEntries.Except(dlls).Except(shas);
-
-            foreach (var entry in entriesToRemove)
-            {
-                File.Delete(entry);
-            }
-        }
-
-        private int RunDotnetRestore(string projectJson)
-        {
-            Logger.LogInformation($"Running dotnet restore on {Path.Combine(_destination.Value(), _version.Value())}");
+            Logger.LogInformation($"Running dotnet restore on {Path.Combine(_destination.Value(), packagesFolderName)}");
             var sources = string.Join(" ", _sourceFolders.Values.Select(v => $"--source {v}"));
             var fallbackFeeds = string.Join(" ", _fallbackFeeds.Values.Select(v => $"--fallbacksource {v} "));
-            var packages = $"--packages {Path.Combine(_destination.Value(), _version.Value())}";
+            var packages = $"--packages {Path.Combine(_destination.Value(), packagesFolderName)}";
 
-            var dotnet = _dotnetPath.HasValue() ? _dotnetPath.Value() : "dotnet";
+            var dotnet = _cliPath.HasValue() ? _cliPath.Value() : "dotnet";
 
-            var arguments = string.Join(" ",
+            var arguments = string.Join(
+                " ",
                 "restore",
                 packages,
                 projectJson,
@@ -212,24 +466,125 @@ namespace DependenciesPackager
                 fallbackFeeds,
                 "--verbosity Verbose");
 
-            var processInfo = new ProcessStartInfo(dotnet, arguments);
-            processInfo.CreateNoWindow = true;
-            processInfo.UseShellExecute = false;
-            processInfo.RedirectStandardError = true;
-            processInfo.RedirectStandardOutput = true;
-            var process = Process.Start(processInfo);
+            return new ProcessRunner(dotnet, arguments)
+                .WriteOutputToConsole()
+                .WriteOutputToConsole()
+                .Run();
+        }
 
-            string line = process.StandardOutput.ReadLine();
-            while (line != null)
+        private class ProcessRunner
+        {
+            private const int DefaultTimeOutMinutes = 20;
+
+            private readonly string _arguments;
+            private readonly string _exePath;
+            private readonly IDictionary<string, string> _environment = new Dictionary<string, string>();
+            private Process _process = null;
+
+            public ProcessRunner(
+                string exePath,
+                string arguments)
             {
-                Console.WriteLine(line);
-                line = process.StandardOutput.ReadLine();
+                _exePath = exePath;
+                _arguments = arguments;
             }
 
-            Console.WriteLine(process.StandardError.ReadToEnd());
-            process.WaitForExit();
+            public Action<string> OnError { get; set; } = s => { };
 
-            return process.ExitCode;
+            public Action<string> OnOutput { get; set; } = s => { };
+
+            public int ExitCode => _process.ExitCode;
+
+            public int TimeOut { get; set; } = DefaultTimeOutMinutes * 60 * 1000;
+
+            public ProcessRunner WriteErrorsToConsole()
+            {
+                OnError = s => Console.WriteLine(s);
+                return this;
+            }
+
+            public ProcessRunner WriteOutputToConsole()
+            {
+                OnOutput = s => Console.WriteLine(s);
+                return this;
+            }
+
+            public ProcessRunner WriteErrorsToStringBuilder(StringBuilder builder, string indentation)
+            {
+                OnError = s => builder.AppendLine(indentation + s);
+                return this;
+            }
+
+            public ProcessRunner WriteOutputToStringBuilder(StringBuilder builder, string indentation)
+            {
+                OnOutput = s => builder.AppendLine(indentation + s);
+                return this;
+            }
+
+            public ProcessRunner AddEnvironmentVariable(string name, string value)
+            {
+                _environment.Add(name, value);
+                return this;
+            }
+
+            public ProcessRunner WithTimeOut(int minutes)
+            {
+                TimeOut = minutes * 60 * 1000;
+                return this;
+            }
+
+            public int Run()
+            {
+                if (_process != null)
+                {
+                    throw new InvalidOperationException("The process has already been started.");
+                }
+
+                ProcessStartInfo processInfo = CreateProcessInfo();
+                _process = new Process();
+                _process.StartInfo = processInfo;
+                _process.EnableRaisingEvents = true;
+                _process.ErrorDataReceived += (s, e) => OnError(e.Data);
+                _process.OutputDataReceived += (s, e) => OnOutput(e.Data);
+                _process.Start();
+
+                _process.BeginOutputReadLine();
+                _process.BeginErrorReadLine();
+
+                _process.WaitForExit(TimeOut);
+                if (!_process.HasExited)
+                {
+                    _process.Close();
+                    throw new InvalidOperationException($"Process {_process.ProcessName} timed out");
+                }
+
+                return _process.ExitCode;
+            }
+
+            private ProcessStartInfo CreateProcessInfo()
+            {
+                var processInfo = new ProcessStartInfo(_exePath, _arguments);
+                foreach (var variable in _environment)
+                {
+                    processInfo.EnvironmentVariables.Add(variable.Key, variable.Value);
+                }
+
+                processInfo.CreateNoWindow = true;
+                processInfo.UseShellExecute = false;
+                processInfo.RedirectStandardError = true;
+                processInfo.RedirectStandardOutput = true;
+
+                return processInfo;
+            }
+        }
+
+        private class PackageEntry
+        {
+            public IReadOnlyList<LibraryAsset> Assets { get; set; }
+            public LibraryDescription Library { get; set; }
+
+            public IDictionary<LibraryAsset, IList<string>> CrossGenOutput { get; } =
+                new Dictionary<LibraryAsset, IList<string>>();
         }
     }
 }

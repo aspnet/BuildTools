@@ -1,47 +1,46 @@
 #!/usr/bin/env bash
+repoFolder="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd $repoFolder
 
-SOURCE="${BASH_SOURCE[0]}"
-while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
-  DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
-  SOURCE="$(readlink "$SOURCE")"
-  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
-done
-repoFolder="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
-
-buildFolder=.build
-koreBuildFolder=$buildFolder/KoreBuild-dotnet
-
-nugetPath=$buildFolder/nuget.exe
-
-if test `uname` = Darwin; then
-    cachedir=~/Library/Caches/KBuild
-else
-    if [ -z $XDG_DATA_HOME ]; then
-        cachedir=$HOME/.local/share
-    else
-        cachedir=$XDG_DATA_HOME;
-    fi
+koreBuildZip="https://github.com/aspnet/KoreBuild/archive/release.zip"
+if [ ! -z $KOREBUILD_ZIP ]; then
+    koreBuildZip=$KOREBUILD_ZIP
 fi
-mkdir -p $cachedir
-nugetVersion=latest
-cacheNuget=$cachedir/nuget.$nugetVersion.exe
 
-nugetUrl=https://dist.nuget.org/win-x86-commandline/$nugetVersion/nuget.exe
+buildFolder=".build"
+buildFile="$buildFolder/KoreBuild.sh"
 
 if test ! -d $buildFolder; then
+    echo "Downloading KoreBuild from $koreBuildZip"
+    
+    tempFolder="/tmp/KoreBuild-$(uuidgen)"    
+    mkdir $tempFolder
+    
+    localZipFile="$tempFolder/korebuild.zip"
+    
+    retries=6
+    until (wget -O $localZipFile $koreBuildZip 2>/dev/null || curl -o $localZipFile --location $koreBuildZip 2>/dev/null)
+    do
+        echo "Failed to download '$koreBuildZip'"
+        if [ "$retries" -le 0 ]; then
+            exit 1
+        fi
+        retries=$((retries - 1))
+        echo "Waiting 10 seconds before retrying. Retries left: $retries"
+        sleep 10s
+    done
+    
+    unzip -q -d $tempFolder $localZipFile
+  
     mkdir $buildFolder
-fi
-
-if test ! -f $nugetPath; then
-    if test ! -f $cacheNuget; then
-        wget -O $cacheNuget $nugetUrl 2>/dev/null || curl -o $cacheNuget --location $nugetUrl /dev/null
+    cp -r $tempFolder/**/build/** $buildFolder
+    
+    chmod +x $buildFile
+    
+    # Cleanup
+    if test ! -d $tempFolder; then
+        rm -rf $tempFolder  
     fi
-
-    cp $cacheNuget $nugetPath
 fi
 
-if test ! -d $koreBuildFolder; then
-    mono $nugetPath install KoreBuild-dotnet -ExcludeVersion -o $buildFolder -nocache -pre
-fi
-
-source $koreBuildFolder/build/KoreBuild.sh
+$buildFile -r $repoFolder "$@"

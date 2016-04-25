@@ -192,7 +192,7 @@ namespace SplitPackages
         private void CreateProjectJsonFile(string path, IEnumerable<PackageItem> packages)
         {
             ProjectJsonFileBuilder jsonFileBuilder = CreateBaseJsonFileBuilder(
-                Path.Combine(path, "project.noimports.json"),
+                Path.Combine(path, "noimports.project.json"),
                 packages);
 
             jsonFileBuilder.Execute();

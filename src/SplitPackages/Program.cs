@@ -206,7 +206,7 @@ namespace SplitPackages
 
             jsonFileBuilder.AddImports(Frameworks.NetCoreApp10, Frameworks.DnxCore50);
             jsonFileBuilder.AddImports(Frameworks.NetCoreApp10, Frameworks.Dotnet56);
-            jsonFileBuilder.AddImports(Frameworks.NetCoreApp10, Frameworks.PortableNet45Win8);
+            jsonFileBuilder.AddImports(Frameworks.NetCoreApp10, Frameworks.PortableNet451Win8);
             jsonFileBuilder.Execute();
         }
 

@@ -14,7 +14,7 @@ namespace SplitPackages
         public static string Net451 => FrameworkConstants.CommonFrameworks.Net451.DotNetFrameworkName;
         public static string DnxCore50 => FrameworkConstants.CommonFrameworks.DnxCore50.DotNetFrameworkName;
         public static string Dotnet56 => FrameworkConstants.CommonFrameworks.DotNet56.DotNetFrameworkName;
-        public static string PortableNet45Win8 => NuGetFramework.Parse("portable-net45+win8").DotNetFrameworkName;
+        public static string PortableNet451Win8 => NuGetFramework.Parse("portable-net451+win8").DotNetFrameworkName;
 
         public static string GetMoniker(string frameworkName)
         {

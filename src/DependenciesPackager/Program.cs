@@ -8,6 +8,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Microsoft.DotNet.ProjectModel;
 using Microsoft.DotNet.ProjectModel.Compilation;
 using Microsoft.Extensions.CommandLineUtils;
@@ -39,6 +40,7 @@ namespace DependenciesPackager
         private CommandOption _version;
         private CommandOption _cliPath;
         private CommandOption _quiet;
+        private CommandOption _keepTemporaryFiles;
 
         public ILogger Logger
         {
@@ -72,7 +74,8 @@ namespace DependenciesPackager
             CommandOption destination,
             CommandOption packagesVersion,
             CommandOption cliPath,
-            CommandOption quiet)
+            CommandOption quiet,
+            CommandOption keepTemporaryFiles)
         {
             _app = app;
             _projectJson = projectJson;
@@ -83,6 +86,7 @@ namespace DependenciesPackager
             _version = packagesVersion;
             _cliPath = cliPath;
             _quiet = quiet;
+            _keepTemporaryFiles = keepTemporaryFiles;
         }
 
         static int Main(string[] args)
@@ -132,6 +136,11 @@ namespace DependenciesPackager
                 "Avoids printing to the output anything other than warnings or errors",
                 CommandOptionType.NoValue);
 
+            var keepTemporaryFiles = app.Option(
+                "--keep-temporary-files",
+                "Avoids deleting the package folders and the publish folder used for crossgen",
+                CommandOptionType.NoValue);
+
             var program = new Program(
                 app,
                 projectJson,
@@ -141,7 +150,8 @@ namespace DependenciesPackager
                 destination,
                 packagesVersion,
                 useCli,
-                quiet);
+                quiet,
+                keepTemporaryFiles);
 
             app.OnExecute(new Func<int>(program.Execute));
 
@@ -172,6 +182,8 @@ namespace DependenciesPackager
                     Logger.LogWarning("Error restoring nuget packages into destination folder");
                 }
 
+                RemoveUnnecessaryRestoredFiles();
+
                 var project = ProjectReader.GetProject(_projectJson.Value());
 
                 foreach (var framework in FrameworkConfigurations)
@@ -199,6 +211,10 @@ namespace DependenciesPackager
                 }
 
                 CreateZipPackage();
+                if (!_keepTemporaryFiles.HasValue())
+                {
+                    CleanupIntermediateFiles();
+                }
 
                 return Ok;
             }
@@ -207,6 +223,84 @@ namespace DependenciesPackager
                 Logger.LogError(e.Message);
                 _app.ShowHelp();
                 return Error;
+            }
+        }
+
+        private void RemoveUnnecessaryRestoredFiles()
+        {
+            var restorePath = Path.Combine(_destination.Value(), TempRestoreFolderName);
+
+            var files = Directory.GetFiles(restorePath, "*", SearchOption.AllDirectories);
+            var dlls = Directory.GetFiles(restorePath, "*.dll", SearchOption.AllDirectories);
+            var signatures = Directory.GetFiles(restorePath, "*.sha512", SearchOption.AllDirectories);
+            var crossgen = Directory.GetFiles(restorePath, "crossgen.exe", SearchOption.AllDirectories);
+
+            Logger.LogInformation($@"Dlls in restored packages:
+{string.Join($"    {Environment.NewLine}", dlls)}");
+
+            Logger.LogInformation($@"Signature files in restored packages:
+{string.Join($"    {Environment.NewLine}", signatures)}");
+
+            var filesToRemove = files.Except(dlls.Concat(signatures).Concat(crossgen));
+            foreach (var file in filesToRemove)
+            {
+                Logger.LogInformation($"Removing file '{file}.");
+                File.Delete(file);
+            }
+        }
+
+        private void CleanupIntermediateFiles()
+        {
+            Retry(() =>
+            {
+                var restorePath = Path.Combine(_destination.Value(), TempRestoreFolderName);
+                if (Directory.Exists(restorePath))
+                {
+                    Directory.Delete(restorePath, recursive: true);
+                }
+            }, 3);
+
+            Retry(() =>
+            {
+                var diagnosticsRestorePath = Path.Combine(_destination.Value(), TempDiagnosticsRestoreFolderName);
+                if (Directory.Exists(diagnosticsRestorePath))
+                {
+                    Directory.Delete(diagnosticsRestorePath, recursive: true);
+                }
+            }, 3);
+
+            Retry(() =>
+            {
+                var publishPath = Path.Combine(_destination.Value(), TempPublishFolderName);
+                if (Directory.Exists(publishPath))
+                {
+                    Directory.Delete(publishPath, recursive: true);
+                }
+            }, 3);
+
+            Retry(() =>
+            {
+                var expandedCachePath = Path.Combine(_destination.Value(), _version.Value());
+                if (Directory.Exists(expandedCachePath))
+                {
+                    Directory.Delete(expandedCachePath, recursive: true);
+                }
+            }, 3);
+        }
+
+        private void Retry(Action action, int times)
+        {
+            for (var i = 0; i < times; i++)
+            {
+                try
+                {
+                    action();
+                    return;
+                }
+                catch
+                {
+                    Thread.Sleep(5000);
+                }
             }
         }
 

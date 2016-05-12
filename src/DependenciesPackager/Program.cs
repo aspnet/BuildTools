@@ -536,8 +536,15 @@ namespace DependenciesPackager
 
         private void CreateZipPackage()
         {
-            var packagesFolder = Path.Combine(_destination.Value(), _version.Value());
-            var zipFileName = Path.Combine(_destination.Value(), $"AspNetCore.{_version.Value()}.zip");
+            var version = _version.Value();
+            var destinationFolderPath = _destination.Value();
+            var packagesFolder = Path.Combine(destinationFolderPath, version);
+
+            // Marker file used by Antares to keep track of the installed caches
+            var versionMarkerPath = Path.Combine(packagesFolder, $"{version}.version");
+            File.WriteAllText(versionMarkerPath, string.Empty);
+
+            var zipFileName = Path.Combine(destinationFolderPath, $"AspNetCore.{version}.packagecache.zip");
             Logger.LogInformation($"Creating zip package on {zipFileName}");
             ZipFile.CreateFromDirectory(packagesFolder, zipFileName, CompressionLevel.Optimal, includeBaseDirectory: false);
         }

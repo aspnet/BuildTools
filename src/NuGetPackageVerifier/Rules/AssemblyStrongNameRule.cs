@@ -61,7 +61,7 @@ namespace NuGetPackageVerifier.Rules
 
                                 var testAssembly = AssemblyName.GetAssemblyName(assemblyPath);
                                 var tokenHexString = BitConverter.ToString(testAssembly.GetPublicKeyToken()).Replace("-", "");
-                                if (_publicKeyToken.Equals(tokenHexString))
+                                if (_publicKeyToken.Equals(tokenHexString, StringComparison.OrdinalIgnoreCase))
                                 {
                                     hasCorrectPublicKeyToken = true;
                                 }

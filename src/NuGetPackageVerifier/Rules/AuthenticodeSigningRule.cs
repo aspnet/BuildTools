@@ -17,14 +17,10 @@ namespace NuGetPackageVerifier.Rules
             IPackageMetadata package,
             IPackageVerifierLogger logger)
         {
-            var packagePath = nupkgFile.FullName;
-            var nupkgWithoutExt = Path.Combine(
-                Path.GetDirectoryName(packagePath),
-                Path.GetFileNameWithoutExtension(packagePath));
-
+            var extractPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             try
             {
-                UnzipPackage(nupkgWithoutExt);
+                UnzipPackage(nupkgFile, extractPath);
                 using (var reader = new PackageArchiveReader(nupkgFile.FullName))
                 {
                     foreach (var current in reader.GetFiles())
@@ -36,7 +32,7 @@ namespace NuGetPackageVerifier.Rules
                         if (extension.Equals(".dll", StringComparison.OrdinalIgnoreCase) ||
                             extension.Equals(".exe", StringComparison.OrdinalIgnoreCase))
                         {
-                            var pathOfFileToScan = Path.Combine(nupkgWithoutExt, current);
+                            var pathOfFileToScan = Path.Combine(extractPath, current);
                             var realAssemblyPath = pathOfFileToScan;
                             if (!File.Exists(realAssemblyPath))
                             {
@@ -62,21 +58,16 @@ namespace NuGetPackageVerifier.Rules
             }
             finally
             {
-                CleanUpFolder(nupkgWithoutExt, logger);
+                CleanUpFolder(extractPath, logger);
             }
 
             yield break;
         }
 
-        private void UnzipPackage(string path)
+        private void UnzipPackage(FileInfo nupkgFile, string extractDir)
         {
-            if (Directory.Exists(path))
-            {
-                Directory.Delete(path, recursive: true);
-            }
-            Directory.CreateDirectory(path);
-
-            ZipFile.ExtractToDirectory(path + ".nupkg", path);
+            Directory.CreateDirectory(extractDir);
+            ZipFile.ExtractToDirectory(nupkgFile.FullName, extractDir);
         }
 
         private void CleanUpFolder(string path, IPackageVerifierLogger logger)

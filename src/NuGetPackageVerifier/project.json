@@ -1,16 +1,12 @@
 {
   "version": "1.0.1-*",
   "description": "Verifies Asp.Net Core NuGet packages.",
-  "authors": [ "Microsoft" ],
-  "tags": [ "" ],
-  "projectUrl": "",
-  "licenseUrl": "",
-  "compilationOptions": {
+  "buildOptions": {
     "emitEntryPoint": true
   },
   "dependencies": {
     "Newtonsoft.Json": "8.0.2",
-    "NuGet.Packaging": "3.4.0-*",
+    "NuGet.Packaging": "3.5.0-*",
     "Mono.Cecil": "0.9.5.4"
   },
   "frameworks": {

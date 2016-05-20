@@ -27,7 +27,6 @@ namespace SplitPackages
         private CommandOption _whatIf;
         private CommandOption _quiet;
         private CommandOption _ignoreErrors;
-        private CommandOption _preservePackagesAtSource;
 
         public ILogger Logger
         {
@@ -49,8 +48,7 @@ namespace SplitPackages
             CommandOption destinationOption,
             CommandOption whatIfOption,
             CommandOption quiet,
-            CommandOption ignoreErrors,
-            CommandOption preservePackagesAtSource)
+            CommandOption ignoreErrors)
         {
             _app = app;
             _sourceOption = sourceOption;
@@ -59,7 +57,6 @@ namespace SplitPackages
             _whatIf = whatIfOption;
             _quiet = quiet;
             _ignoreErrors = ignoreErrors;
-            _preservePackagesAtSource = preservePackagesAtSource;
         }
 
         static int Main(string[] args)
@@ -99,11 +96,6 @@ namespace SplitPackages
                 "Treats errors as warnings and allows the command to continue executing",
                 CommandOptionType.NoValue);
 
-            var preservePackagesAtSource = app.Option(
-                "--preservepackagesatsource",
-                "Copy instead of move packages from source to destination.",
-                CommandOptionType.NoValue);
-
             var program = new Program(
                 app,
                 sourceOption,
@@ -111,8 +103,7 @@ namespace SplitPackages
                 destinationOption,
                 whatIfOption,
                 quiet,
-                ignoreErrors,
-                preservePackagesAtSource);
+                ignoreErrors);
 
             app.OnExecute(new Func<int>(program.Execute));
 
@@ -155,7 +146,7 @@ namespace SplitPackages
 
                 SetDestinationPath(arguments, expandedPackages);
 
-                ProcessPackages(expandedPackages);
+                CopyPackages(expandedPackages);
 
                 CreateProjectJsonFiles(expandedPackages);
 
@@ -519,26 +510,17 @@ namespace SplitPackages
             }
         }
 
-        private void ProcessPackages(IList<PackageItem> expandedPackages)
+        private void CopyPackages(IList<PackageItem> expandedPackages)
         {
-            var action = _preservePackagesAtSource.HasValue() ? "Copying": "Moving";
             foreach (var package in expandedPackages)
             {
-
-                Logger.LogInformation($@"{action} package {package.Name} from
+                Logger.LogInformation($@"Copying package {package.Name} from
     {package.OriginPath} to
     {package.DestinationPath}");
                 if (!_whatIf.HasValue())
                 {
-                    if (_preservePackagesAtSource.HasValue())
-                    {
                     File.Copy(package.OriginPath, package.DestinationPath, overwrite: true);
                 }
-                    else
-                    {
-                        File.Move(package.OriginPath, package.DestinationPath);
-            }
-        }
             }
         }
 

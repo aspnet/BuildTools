@@ -11,6 +11,8 @@ namespace NuGetPackageVerifier.Rules
 {
     public class AssemblyHasCorrectJsonNetVersionRule : IPackageVerifierRule
     {
+        private static readonly string ExpectedJsonNetVersion = "8.0.3";
+
         public IEnumerable<PackageVerifierIssue> Validate(
             FileInfo nupkgFile,
             IPackageMetadata package,
@@ -19,12 +21,13 @@ namespace NuGetPackageVerifier.Rules
             foreach (var dependencySet in package.DependencyGroups)
             {
                 var jsonDependency = dependencySet.Packages.FirstOrDefault(d => d.Id == "Newtonsoft.Json");
-                if (jsonDependency != null && !string.Equals(jsonDependency.VersionRange.MinVersion.ToString(), "8.0.3"))
+                if (jsonDependency != null && !string.Equals(jsonDependency.VersionRange.MinVersion.ToString(), ExpectedJsonNetVersion))
                 {
                     yield return PackageIssueFactory.AssemblyHasWrongJsonNetVersion(
                         package.Id,
                         dependencySet.TargetFramework.DotNetFrameworkName,
-                        jsonDependency.VersionRange.MinVersion.ToString());
+                        jsonDependency.VersionRange.MinVersion.ToString(),
+                        ExpectedJsonNetVersion);
                 }
             }
         }

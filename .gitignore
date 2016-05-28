@@ -17,3 +17,5 @@ node_modules
 .nuget/NuGet.exe
 project.lock.json
 .build
+.vs/
+

@@ -7,9 +7,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using NuGet.Packaging;
+using PackageClassifier;
 
 namespace SplitPackages
 {
@@ -122,33 +120,30 @@ namespace SplitPackages
 
                 var arguments = PrepareArguments(_sourceOption, _csvOption, _destinationOption);
 
-                var packagesFromSource = GetPackagesFromSourceFolder(arguments.SourceFolder);
+                var cache = GetPackagesFromSourceFolder(arguments.SourceFolder);
                 var packagesFromCsv = GetPackagesFromCsvFile(arguments.CsvFile);
-                var expandedPackages = ExpandPackages(packagesFromCsv, packagesFromSource, arguments.SourceFolder);
+                var classifier = new Classifier(cache, packagesFromCsv);
 
-                EnsureNoExtraSourcePackagesFound(packagesFromSource, expandedPackages);
+                LogPackageMappings(classifier);
 
-                var errors = new List<string>();
-                EmitWarningsForMissingPackages(packagesFromSource, packagesFromCsv, errors);
-
-                if (errors.Count > 0)
+                if (classifier.Diagnostics.Count > 0)
                 {
-                    WriteErrorMessage(errors);
+                    WriteErrorMessage(classifier.Diagnostics);
                     if (!_ignoreErrors.HasValue())
                     {
                         return Error;
                     }
                 }
 
+                var categoryClassification = classifier.GetClassification("Category");
+
                 EnsureDestinationDirectories(
                     arguments.DestinationFolder,
-                    expandedPackages.Select(e => e.DestinationFolderName).Distinct());
+                    categoryClassification.ClassifiedPackages.Select(c => c.Trait.Value));
 
-                SetDestinationPath(arguments, expandedPackages);
+                CopyPackages(arguments.DestinationFolder, categoryClassification);
 
-                CopyPackages(expandedPackages);
-
-                CreateProjectJsonFiles(expandedPackages);
+                CreateProjectJsonFiles(arguments.DestinationFolder, categoryClassification);
 
                 return Ok;
             }
@@ -160,15 +155,18 @@ namespace SplitPackages
             }
         }
 
-        private void WriteErrorMessage(List<string> errors)
+        private void WriteErrorMessage(IList<string> errors)
         {
-            var header = new [] {
+            var header = new[] {
                 "The list of packages in the source folder is inconsistent with the list of packages in the CSV file:"
             };
 
-            var message = string.Join($"{Environment.NewLine}    ", header.Concat(errors));
+            var paddedErrors = errors.Select(e => string.Join(
+                Environment.NewLine,
+                e.Split(Environment.NewLine.ToCharArray()).Select(l => $"    {l}")));
 
-            if(_ignoreErrors.HasValue())
+            var message = string.Join($"{Environment.NewLine}    ", header.Concat(paddedErrors));
+            if (_ignoreErrors.HasValue())
             {
                 Logger.LogWarning(message);
             }
@@ -178,31 +176,24 @@ namespace SplitPackages
             }
         }
 
-        private void CreateProjectJsonFiles(IEnumerable<PackageItem> packages)
+        private void CreateProjectJsonFiles(string destinationPath, ClassificationResult result)
         {
-            var packagesByFolder = packages.GroupBy(p => Path.GetDirectoryName(p.DestinationPath));
-
-            foreach (var path in packagesByFolder)
+            foreach (var classification in result.ClassifiedPackages)
             {
-                CreateProjectJsonFile(path.Key, path);
-                CreateProjectJsonFileWithImports(path.Key, path);
+                CreateProjectJsonFile(Path.Combine(destinationPath, classification.Trait.Value, "noimports.project.json"), classification);
+                CreateProjectJsonFileWithImports(Path.Combine(destinationPath, classification.Trait.Value, "project.json"), classification);
             }
         }
 
-        private void CreateProjectJsonFile(string path, IEnumerable<PackageItem> packages)
+        private void CreateProjectJsonFile(string path, ClassifiedPackages packages)
         {
-            ProjectJsonFileBuilder jsonFileBuilder = CreateBaseJsonFileBuilder(
-                Path.Combine(path, "noimports.project.json"),
-                packages);
-
+            ProjectJsonFileBuilder jsonFileBuilder = CreateBaseJsonFileBuilder(path, packages);
             jsonFileBuilder.Execute();
         }
 
-        private void CreateProjectJsonFileWithImports(string path, IEnumerable<PackageItem> packages)
+        private void CreateProjectJsonFileWithImports(string path, ClassifiedPackages packages)
         {
-            ProjectJsonFileBuilder jsonFileBuilder = CreateBaseJsonFileBuilder(
-                Path.Combine(path, "project.json"),
-                packages);
+            ProjectJsonFileBuilder jsonFileBuilder = CreateBaseJsonFileBuilder(path, packages);
 
             jsonFileBuilder.AddImports(Frameworks.NetCoreApp10, Frameworks.DnxCore50);
             jsonFileBuilder.AddImports(Frameworks.NetCoreApp10, Frameworks.Dotnet56);
@@ -210,7 +201,7 @@ namespace SplitPackages
             jsonFileBuilder.Execute();
         }
 
-        private ProjectJsonFileBuilder CreateBaseJsonFileBuilder(string path, IEnumerable<PackageItem> packages)
+        private ProjectJsonFileBuilder CreateBaseJsonFileBuilder(string path, ClassifiedPackages packages)
         {
             var jsonFileBuilder = new ProjectJsonFileBuilder(
                 path,
@@ -220,7 +211,7 @@ namespace SplitPackages
 
             jsonFileBuilder.AddFramework(Frameworks.Net451);
             jsonFileBuilder.AddFramework(Frameworks.NetCoreApp10);
-            jsonFileBuilder.AddDependencies(packages);
+            jsonFileBuilder.AddDependencies(packages.Packages);
             return jsonFileBuilder;
         }
 
@@ -270,199 +261,40 @@ namespace SplitPackages
             };
         }
 
-        private IList<PackageItem> GetPackagesFromSourceFolder(string sourceFolder)
+        private PackageSourcesCache GetPackagesFromSourceFolder(string sourceFolder)
         {
-            var packages = Directory.EnumerateFiles(sourceFolder)
-                .Where(f => Path.GetExtension(f).Equals(".nupkg", StringComparison.OrdinalIgnoreCase));
-
-            var result = packages.Select(p => new PackageItem
-            {
-                OriginPath = p,
-                Name = Path.GetFileName(p),
-                FoundInFolder = true
-            }).ToList();
-
-            foreach (var package in result)
-            {
-                ReadPackagesDetails(package);
-            }
+            var result = new PackageSourcesCache(new[] { sourceFolder });
 
             Logger.LogInformation($@"Packages found on the source folder
-{string.Join(Environment.NewLine, result.Select(p => p.ToString()))}");
+{string.Join(Environment.NewLine, result.Packages.Select(p => p.ToString()))}");
 
             return result;
         }
 
-        private IList<PackageItem> GetPackagesFromCsvFile(string csvFile)
+        private Classification GetPackagesFromCsvFile(string csvFile)
         {
-            var lines = File.ReadAllLines(csvFile).Skip(1); // Skip file header
-            var parsedLines = lines
-                .Where(l => !string.IsNullOrWhiteSpace(l))
-                .Select(l => l.Split(','));
+            var classification = Classification.FromCsv(File.OpenText(csvFile));
 
-            // Order the entries so that most specific entries come first.
-            return parsedLines
-                .OrderByDescending(l => l[0], StringComparer.OrdinalIgnoreCase)
-                .Select(parsed => new PackageItem
-                {
-                    Name = parsed[0].Trim(),
-                    DestinationFolderName = parsed[1].Trim(),
-                    FoundInCsv = true
-                }).ToList();
+            if (classification.Diagnostics != null)
+            {
+                Logger.LogError(classification.Diagnostics);
+            }
+
+            return classification;
         }
 
-        private IList<PackageItem> ExpandPackages(
-            IList<PackageItem> packagesFromCsv,
-            IList<PackageItem> packagesFromSource,
-            string source)
+        private void LogPackageMappings(Classifier classifier)
         {
-            var allPackages = new HashSet<PackageItem>();
-
-            var noPackages = new List<PackageItem>();
-
-            for (var i = 0; i < packagesFromCsv.Count; i++)
+            foreach (var mapping in classifier.PackageMappings)
             {
-                IList<PackageItem> expandedPackages;
-                var packageName = packagesFromCsv[i].Name;
-                var destination = packagesFromCsv[i].DestinationFolderName;
-
-                if (packageName.Contains("*"))
+                var packagePaths = string.Concat(mapping.Packages.Select(p => $"{Environment.NewLine}    {p}"));
+                if (mapping.Entry.Identity.Contains("*"))
                 {
-                    expandedPackages = ExpandPackagesFromPattern(source, packagesFromSource, packageName, destination);
-
-                    Logger.LogInformation($@"Packages extended for pattern '{packageName}'
-{string.Join(Environment.NewLine, expandedPackages.Select(r => r.ToString()))}");
-                }
-                else if (LiteralPatternIsDependency(packagesFromSource, packageName))
-                {
-                    expandedPackages = ExpandPackagesFromLiteral(packagesFromSource, packageName, destination);
-                    Logger.LogInformation($@"Packages extended for literal '{packageName}'
-{string.Join(Environment.NewLine, expandedPackages.Select(r => r.ToString()))}");
+                    Logger.LogInformation($@"Packages extended for pattern '{mapping.Entry.Identity}':{packagePaths}");
                 }
                 else
                 {
-                    expandedPackages = noPackages;
-                }
-
-                foreach (var package in expandedPackages)
-                {
-                    package.FoundInFolder = true;
-                    package.FoundInCsv = true;
-                    allPackages.Add(package);
-                }
-
-                if (expandedPackages.Count > 0)
-                {
-                    packagesFromCsv[i].FoundInFolder = true;
-                }
-            }
-
-            foreach (var item in allPackages)
-            {
-                ReadPackagesDetails(item);
-            }
-
-            return allPackages.ToList();
-        }
-
-        private static bool LiteralPatternIsDependency(IList<PackageItem> packages, string packageName)
-        {
-            return packages.Any(p => p.Identity.Equals(packageName, StringComparison.OrdinalIgnoreCase));
-        }
-
-        private static IList<PackageItem> ExpandPackagesFromLiteral(
-            IList<PackageItem> packagesFromSource,
-            string packageName,
-            string destinationFolderName)
-        {
-            var packageFromSource = packagesFromSource
-                .Single(p => p.Identity.Equals(packageName, StringComparison.OrdinalIgnoreCase));
-
-            return new List<PackageItem>
-            {
-                new PackageItem
-                {
-                    OriginPath = packageFromSource.OriginPath,
-                    Name = packageFromSource.Name,
-                    DestinationFolderName = destinationFolderName,
-                    Identity = packageFromSource.Identity,
-                    Version = packageFromSource.Version
-                }
-            };
-        }
-
-        private static IList<PackageItem> ExpandPackagesFromPattern(
-            string sourceFolder,
-            IList<PackageItem> packagesFromSource,
-            string pattern,
-            string destinationFolderName)
-        {
-            return Directory.EnumerateFiles(sourceFolder, pattern)
-                .Select(fp =>
-                {
-                    var packageFromSource = packagesFromSource.Single(p => p.OriginPath == fp);
-                    return new PackageItem
-                    {
-                        OriginPath = fp,
-                        Name = Path.GetFileName(fp),
-                        DestinationFolderName = destinationFolderName,
-                        Identity = packageFromSource.Identity,
-                        Version = packageFromSource.Version
-                    };
-                })
-                .ToList();
-        }
-
-        private static void ReadPackagesDetails(PackageItem item)
-        {
-            using (var reader = new PackageArchiveReader(item.OriginPath))
-            {
-                var identity = reader.GetIdentity();
-                item.Identity = identity.Id;
-                item.Version = identity.Version.ToString();
-
-                foreach (var fx in reader.GetSupportedFrameworks())
-                {
-                    item.SupportedFrameworks.Add(fx.DotNetFrameworkName);
-                }
-            }
-        }
-
-        private void EnsureNoExtraSourcePackagesFound(IList<PackageItem> source, IList<PackageItem> expanded)
-        {
-            for (var i = 0; i < source.Count; i++)
-            {
-                for (var j = 0; j < expanded.Count; j++)
-                {
-                    if (source[i].Name.Equals(
-                        expanded[j].Name,
-                        StringComparison.OrdinalIgnoreCase))
-                    {
-                        source[i].FoundInCsv = true;
-                    }
-                }
-            }
-        }
-
-        private void EmitWarningsForMissingPackages(IList<PackageItem> source, IList<PackageItem> csv, IList<string> errors)
-        {
-            for (int i = 0; i < source.Count; i++)
-            {
-                if (!source[i].FoundInCsv)
-                {
-                    var msg = $@"No entry in the csv file matched the following package:
-    {source[i].Name}";
-                    LogWarning(msg, errors);
-                }
-            }
-
-            for (int i = 0; i < csv.Count; i++)
-            {
-                if (!csv[i].FoundInFolder)
-                {
-                    var msg = $@"No package found in the source folder for the following csv entry:
-    {csv[i].Name}";
-                    LogWarning(msg, errors);
+                    Logger.LogInformation($@"Packages extended for literal '{mapping.Entry.Identity}':{packagePaths}");
                 }
             }
         }
@@ -497,41 +329,28 @@ namespace SplitPackages
             }
         }
 
-        private void SetDestinationPath(Arguments arguments, IList<PackageItem> expandedPackages)
+        private string GetDestinationPath(string destinationFolder, Trait categoryTrait, PackageInformation package)
         {
-            foreach (var package in expandedPackages)
-            {
-                var path = Path.Combine(
-                    arguments.DestinationFolder,
-                    package.DestinationFolderName,
-                    package.Name);
-
-                package.DestinationPath = path;
-            }
+            return Path.Combine(destinationFolder, categoryTrait.Value, package.Name);
         }
 
-        private void CopyPackages(IList<PackageItem> expandedPackages)
+        private void CopyPackages(string destinationFolder, ClassificationResult classification)
         {
-            foreach (var package in expandedPackages)
+            foreach (var classifiedValue in classification.ClassifiedPackages)
             {
-                Logger.LogInformation($@"Copying package {package.Name} from
-    {package.OriginPath} to
-    {package.DestinationPath}");
-                if (!_whatIf.HasValue())
+                foreach (var package in classifiedValue.Packages)
                 {
-                    File.Copy(package.OriginPath, package.DestinationPath, overwrite: true);
+                    var destinationPath = GetDestinationPath(destinationFolder, classifiedValue.Trait, package);
+                    Logger.LogInformation($@"Copying package {package.Name} from
+    {package.FullPath} to
+    {destinationPath}");
+
+                    if (!_whatIf.HasValue())
+                    {
+                        File.Copy(package.FullPath, destinationPath, overwrite: true);
+                    }
                 }
             }
-        }
-
-        private void LogWarning(string message, IList<string> errors)
-        {
-            if (_ignoreErrors.HasValue())
-            {
-                Logger.LogWarning(message);
-            }
-
-            errors.Add(message);
         }
 
         private class Arguments

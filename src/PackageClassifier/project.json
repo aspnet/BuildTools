@@ -1,26 +1,17 @@
 {
   "version": "1.0.1-*",
-  "description": "Copies Nuget packages form a given source folder into a specific set of folders based on a CSV file.",
+  "description": "Classifies a set of packages from several directories based on information from a csv file",
   "authors": [ "Microsoft" ],
-  "buildOptions": {
-    "emitEntryPoint": true
-  },
   "dependencies": {
-    "PackageClassifier": "1.0.1-*",
-    "Microsoft.Extensions.CommandLineUtils": "1.0.0-*",
     "Microsoft.Extensions.Logging": "1.0.0-*",
     "Microsoft.Extensions.Logging.Console": "1.0.0-*",
     "Newtonsoft.Json": "9.0.1-beta1",
     "NuGet.Client": "3.5.0-*"
   },
   "frameworks": {
-    "netcoreapp1.0": {
+    "netstandard1.6": {
       "dependencies": {
-        "System.Runtime.Serialization.Primitives": "4.1.1-*",
-        "Microsoft.NETCore.App": {
-          "version": "1.0.0-*",
-          "type": "platform"
-        }
+        "System.Runtime.Serialization.Primitives": "4.1.1-*"
       }
     },
     "net451": {

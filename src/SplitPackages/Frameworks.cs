@@ -22,16 +22,16 @@ namespace SplitPackages
             return fx.GetShortFolderName();
         }
 
-        public static FrameworkClasification ClassifyFramework(IList<string> supportedFrameworks)
+        public static FrameworkClasification ClassifyFramework(IEnumerable<string> supportedFrameworks)
         {
             var frameworks = supportedFrameworks
                 .Select(f => NuGetFramework.ParseFrameworkName(f, DefaultFrameworkNameProvider.Instance));
 
             var supportsNet451 = GetCompatibleFrameworks(frameworks, FrameworkConstants.CommonFrameworks.Net451);
-            var supportsNetStandard = GetCompatibleFrameworks(frameworks, FrameworkConstants.CommonFrameworks.NetStandardApp15);
+            var supportsNetStandard = GetCompatibleFrameworks(frameworks, FrameworkConstants.CommonFrameworks.NetCoreApp10);
 
             if ((supportsNet451.Any() && supportsNetStandard.Any()) ||
-                supportedFrameworks.Count == 0)
+                supportedFrameworks.Count() == 0)
             {
                 return FrameworkClasification.All();
             }
@@ -42,8 +42,8 @@ namespace SplitPackages
             }
             else
             {
-                var imports = supportsNet451.Except(new[] { FrameworkConstants.CommonFrameworks.NetStandardApp15 });
-                return FrameworkClasification.NetStandardApp15(imports.Select(f => f.DotNetFrameworkName));
+                var imports = supportsNet451.Except(new[] { FrameworkConstants.CommonFrameworks.NetCoreApp10 });
+                return FrameworkClasification.NetCoreApp10(imports.Select(f => f.DotNetFrameworkName));
             }
         }
 
@@ -72,7 +72,7 @@ namespace SplitPackages
 
             public bool IsNet451 => Framework == Frameworks.Net451;
 
-            public bool IsNetStandardApp15 => Framework == Frameworks.NetCoreApp10;
+            public bool IsNetCoreApp10 => Framework == Frameworks.NetCoreApp10;
 
             public string Framework { get; }
 
@@ -89,7 +89,7 @@ namespace SplitPackages
                 return new FrameworkClasification(Frameworks.Net451, imports);
             }
 
-            public static FrameworkClasification NetStandardApp15(IEnumerable<string> imports)
+            public static FrameworkClasification NetCoreApp10(IEnumerable<string> imports)
             {
                 return new FrameworkClasification(Frameworks.NetCoreApp10, imports);
             }
@@ -107,7 +107,7 @@ namespace SplitPackages
                 framework);
         }
 
-        private static bool SupportsNetStandardApp15(NuGetFramework framework)
+        private static bool SupportsNetCoreApp10(NuGetFramework framework)
         {
             return DefaultCompatibilityProvider.Instance.IsCompatible(
                 FrameworkConstants.CommonFrameworks.NetStandard15,

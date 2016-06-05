@@ -5,7 +5,7 @@
     "emitEntryPoint": true
   },
   "dependencies": {
-    "Newtonsoft.Json": "8.0.2",
+    "Newtonsoft.Json": "9.0.1-beta1",
     "NuGet.Packaging": "3.5.0-*",
     "Mono.Cecil": "0.9.5.4"
   },

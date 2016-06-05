@@ -8,6 +8,7 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using PackageClassifier;
 
 namespace SplitPackages
 {
@@ -30,10 +31,10 @@ namespace SplitPackages
             _logger = logger;
         }
 
-        private IList<PackageItem> _dependencies = new List<PackageItem>();
+        private IList<PackageInformation> _dependencies = new List<PackageInformation>();
         private IList<FrameworkDefinition> _frameworks = new List<FrameworkDefinition>();
 
-        public void AddDependencies(IEnumerable<PackageItem> dependencies)
+        public void AddDependencies(IEnumerable<PackageInformation> dependencies)
         {
             foreach (var dependency in dependencies)
             {
@@ -45,19 +46,19 @@ namespace SplitPackages
                     _dependencies.Add(dependency);
                 }
 
-                if (classification.IsNet451 || classification.IsNetStandardApp15)
+                if (classification.IsNet451 || classification.IsNetCoreApp10)
                 {
                     AddToFramework(dependency, classification.Framework);
                 }
 
-                if (!(classification.IsAll || classification.IsNet451 || classification.IsNetStandardApp15))
+                if (!(classification.IsAll || classification.IsNet451 || classification.IsNetCoreApp10))
                 {
                     throw new InvalidOperationException($"Cannot classify package '{dependency.Identity}'.");
                 }
             }
         }
 
-        private void LogClassification(PackageItem dependency, Frameworks.FrameworkClasification classification)
+        private void LogClassification(PackageInformation dependency, Frameworks.FrameworkClasification classification)
         {
             var imports = "";
             if (classification.Imports.Any())
@@ -71,7 +72,7 @@ namespace SplitPackages
 {imports}");
         }
 
-        private void AddToFramework(PackageItem dependency, string framework)
+        private void AddToFramework(PackageInformation dependency, string framework)
         {
             var fx = _frameworks.FirstOrDefault(f => f.Name == framework);
             if (fx == null)
@@ -90,7 +91,7 @@ namespace SplitPackages
 
             if (fx == Frameworks.NetCoreApp10)
             {
-                _frameworks.Add(FrameworkDefinition.NetStandardApp15);
+                _frameworks.Add(FrameworkDefinition.NetCoreApp10);
             }
         }
 
@@ -145,7 +146,7 @@ namespace SplitPackages
                 });
         }
 
-        private IDictionary<string, string> CreateDependenciesDictionary(IList<PackageItem> dependencies)
+        private IDictionary<string, string> CreateDependenciesDictionary(IList<PackageInformation> dependencies)
         {
             var dictionary = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             foreach (var dependency in dependencies)
@@ -173,9 +174,9 @@ namespace SplitPackages
         {
             public string Name { get; set; }
             public IList<string> Imports { get; set; }
-            public IList<PackageItem> Dependencies { get; set; } = new List<PackageItem>();
+            public IList<PackageInformation> Dependencies { get; set; } = new List<PackageInformation>();
 
-            public static FrameworkDefinition NetStandardApp15 => new FrameworkDefinition
+            public static FrameworkDefinition NetCoreApp10 => new FrameworkDefinition
             {
                 Name = Frameworks.NetCoreApp10,
                 Imports = new List<string>()

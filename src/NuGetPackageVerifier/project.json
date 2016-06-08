@@ -2,10 +2,12 @@
   "version": "1.0.1-*",
   "description": "Verifies Asp.Net Core NuGet packages.",
   "buildOptions": {
-    "emitEntryPoint": true
+    "emitEntryPoint": true,
+    "embed": [ "already-owned-packages.txt" ]
   },
   "dependencies": {
-    "Newtonsoft.Json": "9.0.1-beta1",
+    "HtmlAgilityPack": "1.4.9",
+    "Newtonsoft.Json": "9.0.1",
     "NuGet.Packaging": "3.5.0-beta2-*",
     "Mono.Cecil": "0.9.5.4"
   },
@@ -14,9 +16,10 @@
       "frameworkAssemblies": {
         "Microsoft.CSharp": "",
         "System.Collections": "",
-        "System.Xml.Linq": "",
+        "System.IO.Compression.FileSystem": "",
+        "System.Net.Http": "",
         "System.Threading": "",
-        "System.IO.Compression.FileSystem": ""
+        "System.Xml.Linq": ""
       }
     }
   }

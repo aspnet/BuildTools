@@ -209,5 +209,19 @@ namespace NuGetPackageVerifier
                 string.Format("The assembly '{0}' references the wrong Json.NET version. Current version '{1}'; Expected version '{2}'.", assemblyPath, currentVersion, expectedVersion),
                 PackageIssueLevel.Error);
         }
+
+        public static PackageVerifierIssue IdDoesNotExist(string id)
+        {
+            return new PackageVerifierIssue(
+                "PACKAGE_OWNERSHIP",
+                id,
+                $"The id '{id}' does not exist on NuGet.org. See https://github.com/aspnet/Coherence-Signed/wiki/New-package-Id-creation for instructions.",
+                PackageIssueLevel.Warning);
+        }
+
+        public static PackageVerifierIssue IdIsNotOwned(string id, string[] allowedOwners)
+        {
+            return new PackageVerifierIssue("PACKAGE_OWNERSHIP", id, $"The id '{id}' is not owned by one of {string.Join(", ", allowedOwners)}.", PackageIssueLevel.Error);
+        }
     }
 }

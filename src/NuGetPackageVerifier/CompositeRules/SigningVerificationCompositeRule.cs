@@ -15,6 +15,7 @@ namespace NuGetPackageVerifier.Rules
             new AuthenticodeSigningRule(),
             new PowerShellScriptIsSignedRule(),
             new RequiredNuSpecInfoRule(),
+            new PackageOwnershipRule(),
             new DefaultCompositeRule(),
         };
 

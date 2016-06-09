@@ -220,7 +220,7 @@ namespace DependenciesPackager
             }
             catch (Exception e)
             {
-                Logger.LogError(e.Message);
+                Logger.LogError(e.ToString());
                 _app.ShowHelp();
                 return Error;
             }
@@ -581,6 +581,7 @@ namespace DependenciesPackager
             private readonly string _exePath;
             private readonly IDictionary<string, string> _environment = new Dictionary<string, string>();
             private Process _process = null;
+            private object _writeLock = new object();
 
             public ProcessRunner(
                 string exePath,
@@ -612,13 +613,25 @@ namespace DependenciesPackager
 
             public ProcessRunner WriteErrorsToStringBuilder(StringBuilder builder, string indentation)
             {
-                OnError = s => builder.AppendLine(indentation + s);
+                OnError = s =>
+                {
+                    lock (_writeLock)
+                    {
+                        builder.AppendLine(indentation + s);
+                    }
+                };
                 return this;
             }
 
             public ProcessRunner WriteOutputToStringBuilder(StringBuilder builder, string indentation)
             {
-                OnOutput = s => builder.AppendLine(indentation + s);
+                OnOutput = s =>
+                {
+                    lock (_writeLock)
+                    {
+                        builder.AppendLine(indentation + s);
+                    }
+                };
                 return this;
             }
 

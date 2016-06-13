@@ -145,6 +145,10 @@ namespace SplitPackages
 
                 CreateProjectJsonFiles(arguments.DestinationFolder, categoryClassification);
 
+                var optimizedCacheClassification = classifier.GetClassification("OptimizedCache");
+
+                CreateProjectJsonFileForOptimizedCache(arguments.DestinationFolder, optimizedCacheClassification);
+
                 return Ok;
             }
             catch (Exception e)
@@ -153,6 +157,26 @@ namespace SplitPackages
                 _app.ShowHelp();
                 return Error;
             }
+        }
+
+        private void CreateProjectJsonFileForOptimizedCache(string destinationPath, ClassificationResult optimizedCacheClassification)
+        {
+            var builder = new ProjectJsonFileBuilder(
+                Path.Combine(destinationPath, "cache.project.json"),
+                _whatIf.HasValue(),
+                _ignoreErrors.HasValue(),
+                Logger);
+
+            var hardcodedDependencies = new[] {
+                new PackageInformation(null, "Microsoft.NetCore.App", "1.0.0", new[] { Frameworks.NetCoreApp10 })
+            };
+
+            builder.AddFramework(Frameworks.NetCoreApp10);
+            var classifiedPackages = optimizedCacheClassification.GetPackagesForValue("include");
+            builder.AddDependencies(hardcodedDependencies);
+            builder.AddDependencies(classifiedPackages);
+            builder.AddImports(Frameworks.NetCoreApp10, Frameworks.PortableNet451Win8);
+            builder.Execute();
         }
 
         private void WriteErrorMessage(IList<string> errors)

@@ -159,7 +159,6 @@ namespace NuGetPackageVerifier
                     foreach (var packagePair in packagesWithId)
                     {
                         var package = packagePair.Key;
-                        var packageTimeStopWatch = Stopwatch.StartNew();
                         logger.LogInfo("Analyzing {0} ({1})", package.Id, package.Version);
 
                         var issues = analyzer.AnalyzePackage(packagePair.Value, package, logger).ToList();
@@ -175,8 +174,6 @@ namespace NuGetPackageVerifier
                         totalErrors += packageErrorsAndWarnings.Item1;
                         totalWarnings += packageErrorsAndWarnings.Item2;
 
-                        packageTimeStopWatch.Stop();
-                        logger.LogInfo("Took {0}ms", packageTimeStopWatch.ElapsedMilliseconds);
                         Console.WriteLine();
 
                         processedPackages.Add(package);
@@ -218,7 +215,6 @@ namespace NuGetPackageVerifier
                 {
                     logger.LogWarning("\tUnprocessed package: {0} ({1})", unprocessedPackage.Id, unprocessedPackage.Version);
 
-                    var packageTimeStopWatch = Stopwatch.StartNew();
                     logger.LogInfo("Analyzing {0} ({1})", unprocessedPackage.Id, unprocessedPackage.Version);
 
                     var issues = analyzer.AnalyzePackage(packages[unprocessedPackage], unprocessedPackage, logger).ToList();
@@ -234,8 +230,6 @@ namespace NuGetPackageVerifier
                     totalErrors += packageErrorsAndWarnings.Item1;
                     totalWarnings += packageErrorsAndWarnings.Item2;
 
-                    packageTimeStopWatch.Stop();
-                    logger.LogInfo("Took {0}ms", packageTimeStopWatch.ElapsedMilliseconds);
                     Console.WriteLine();
                 }
             }

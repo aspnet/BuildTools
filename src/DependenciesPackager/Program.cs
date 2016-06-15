@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading;
 using Microsoft.DotNet.ProjectModel;
 using Microsoft.DotNet.ProjectModel.Compilation;
+using Microsoft.DotNet.ProjectModel.Graph;
 using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Logging;
 using NuGet.Frameworks;
@@ -23,7 +24,6 @@ namespace DependenciesPackager
         private static readonly string TempDiagnosticsRestoreFolderName = "TempDiagnosticsRestorePackages";
         private static readonly string TempPublishFolderName = "TempPublish";
 
-        private readonly IEnumerable<string> Runtimes = new[] { "x86", "x64" };
         private readonly IEnumerable<NuGetFramework> FrameworkConfigurations = new[] { FrameworkConstants.CommonFrameworks.NetCoreApp10 };
 
         private const int Ok = 0;
@@ -40,6 +40,8 @@ namespace DependenciesPackager
         private CommandOption _version;
         private CommandOption _cliPath;
         private CommandOption _quiet;
+        private CommandOption _runtimes;
+        private CommandOption _prefix;
         private CommandOption _keepTemporaryFiles;
 
         public ILogger Logger
@@ -75,6 +77,8 @@ namespace DependenciesPackager
             CommandOption packagesVersion,
             CommandOption cliPath,
             CommandOption quiet,
+            CommandOption runtimes,
+            CommandOption prefix,
             CommandOption keepTemporaryFiles)
         {
             _app = app;
@@ -86,6 +90,8 @@ namespace DependenciesPackager
             _version = packagesVersion;
             _cliPath = cliPath;
             _quiet = quiet;
+            _runtimes = runtimes;
+            _prefix = prefix;
             _keepTemporaryFiles = keepTemporaryFiles;
         }
 
@@ -141,6 +147,16 @@ namespace DependenciesPackager
                 "Avoids deleting the package folders and the publish folder used for crossgen",
                 CommandOptionType.NoValue);
 
+            var runtimes = app.Option(
+                "--runtime",
+                "The runtimes for which to generate the cache",
+                CommandOptionType.MultipleValue);
+
+            var prefix = app.Option(
+                "--prefix",
+                "The prefix to use for the zip file name",
+                CommandOptionType.SingleValue);
+
             var program = new Program(
                 app,
                 projectJson,
@@ -151,6 +167,8 @@ namespace DependenciesPackager
                 packagesVersion,
                 useCli,
                 quiet,
+                runtimes,
+                prefix,
                 keepTemporaryFiles);
 
             app.OnExecute(new Func<int>(program.Execute));
@@ -166,6 +184,8 @@ namespace DependenciesPackager
                     !_sourceFolders.HasValue() ||
                     !_fallbackFeeds.HasValue() ||
                     !_destination.HasValue() ||
+                    !_runtimes.HasValue() ||
+                    !_prefix.HasValue() ||
                     !_version.HasValue())
                 {
                     _app.ShowHelp();
@@ -188,9 +208,9 @@ namespace DependenciesPackager
 
                 foreach (var framework in FrameworkConfigurations)
                 {
-                    foreach (var runtime in Runtimes)
+                    foreach (var runtime in _runtimes.Values)
                     {
-                        var cacheBasePath = Path.Combine(_destination.Value(), _version.Value(), runtime);
+                        var cacheBasePath = Path.Combine(_destination.Value(), _version.Value(), GetArchitecture(runtime));
 
                         var projectContext = CreateProjectContext(project, framework, runtime);
                         var entries = GetEntries(projectContext, runtime);
@@ -199,13 +219,15 @@ namespace DependenciesPackager
 
                         var publishFolderPath = GetPublishFolderPath(projectContext);
                         CreatePublishFolder(entries, publishFolderPath);
-                        var crossGenPath = CopyCrossgenToPublishFolder(entries, $"win7-{runtime}", publishFolderPath);
+                        var crossGenPath = CopyCrossgenToPublishFolder(entries, runtime, publishFolderPath);
+                        CopyClrJitToPublishFolder(Path.Combine(_destination.Value(), TempRestoreFolderName), runtime, publishFolderPath);
                         RunCrossGenOnEntries(entries, publishFolderPath, crossGenPath, cacheBasePath);
                         DisplayCrossGenOutput(entries);
 
                         CopyPackageSignatures(entries, cacheBasePath);
 
-                        CompareWithRestoreHive(Path.Combine(_destination.Value(), TempRestoreFolderName), cacheBasePath);
+                        CompareWithRestoreHive(Path.Combine(_destination.Value(), TempRestoreFolderName), cacheBasePath, project);
+                        RemoveUnnecesaryHiveFiles(cacheBasePath, project);
                         PrintHiveFilesForDiagnostics(cacheBasePath);
                     }
                 }
@@ -226,6 +248,23 @@ namespace DependenciesPackager
             }
         }
 
+        private string GetArchitecture(string runtime)
+        {
+            return runtime.Substring(runtime.LastIndexOf('-') + 1);
+        }
+
+        private void RemoveUnnecesaryHiveFiles(string cacheBasePath, Project project)
+        {
+            var directories = new DirectoryInfo(cacheBasePath);
+            foreach (var directory in directories.EnumerateDirectories())
+            {
+                if (!project.Dependencies.Any(d => d.Name.Equals(directory.Name)))
+                {
+                    directory.Delete(recursive: true);
+                }
+            }
+        }
+
         private void RemoveUnnecessaryRestoredFiles()
         {
             var restorePath = Path.Combine(_destination.Value(), TempRestoreFolderName);
@@ -234,6 +273,7 @@ namespace DependenciesPackager
             var dlls = Directory.GetFiles(restorePath, "*.dll", SearchOption.AllDirectories);
             var signatures = Directory.GetFiles(restorePath, "*.sha512", SearchOption.AllDirectories);
             var crossgen = Directory.GetFiles(restorePath, "crossgen.exe", SearchOption.AllDirectories);
+            var clrjit = Directory.GetFiles(restorePath, "clrjit.dll", SearchOption.AllDirectories);
 
             Logger.LogInformation($@"Dlls in restored packages:
 {string.Join($"    {Environment.NewLine}", dlls)}");
@@ -241,7 +281,7 @@ namespace DependenciesPackager
             Logger.LogInformation($@"Signature files in restored packages:
 {string.Join($"    {Environment.NewLine}", signatures)}");
 
-            var filesToRemove = files.Except(dlls.Concat(signatures).Concat(crossgen));
+            var filesToRemove = files.Except(dlls.Concat(signatures).Concat(crossgen).Concat(clrjit));
             foreach (var file in filesToRemove)
             {
                 Logger.LogInformation($"Removing file '{file}.");
@@ -310,12 +350,16 @@ namespace DependenciesPackager
 {string.Join($"{Environment.NewLine}    ", Directory.EnumerateFiles(cacheBasePath, "*", SearchOption.AllDirectories))}");
         }
 
-        private void CompareWithRestoreHive(string restoredCache, string hivePath)
+        private void CompareWithRestoreHive(string restoredCache, string hivePath, Project project)
         {
             var dlls = Directory.EnumerateFiles(restoredCache, "*.dll", SearchOption.AllDirectories);
             var signatures = Directory.EnumerateFiles(restoredCache, "*.sha512", SearchOption.AllDirectories);
-            var filesInRestoredCache = new HashSet<string>(
-                dlls.Concat(signatures).Select(p => p.Remove(0, restoredCache.Length + 1)));
+            var allFiles = dlls
+                .Concat(signatures)
+                .Where(p => project.Dependencies.Any(d => p.Contains(d.Name) && !p.Contains("net451") && !p.Contains("Microsoft.NETCore.App")))
+                .Select(p => p.Remove(0, restoredCache.Length + 1));
+
+            var filesInRestoredCache = new HashSet<string>(allFiles);
 
             var hiveFilePaths = Directory.EnumerateFiles(hivePath, "*", SearchOption.AllDirectories);
             var filesInHive = new HashSet<string>(hiveFilePaths.Select(p => p.Remove(0, hivePath.Length + 1)));
@@ -437,7 +481,7 @@ namespace DependenciesPackager
                 .Select(d => new PackageEntry
                 {
                     Library = d.Library,
-                    Assets = (d.RuntimeAssemblyGroups.SingleOrDefault(rg => rg.Runtime == $"win7-{runtime}") ??
+                    Assets = (d.RuntimeAssemblyGroups.SingleOrDefault(rg => rg.Runtime == runtime) ??
                               d.RuntimeAssemblyGroups.SingleOrDefault(rg => rg.Runtime == ""))?.Assets
                 })
                 .Where(e =>
@@ -451,8 +495,9 @@ namespace DependenciesPackager
             var builder = new ProjectContextBuilder()
                 .WithPackagesDirectory(Path.Combine(_destination.Value(), TempRestoreFolderName))
                 .WithProject(project)
+                .WithLockFile(LockFileReader.Read(project.ProjectFilePath.Replace("project.json", "project.lock.json"), designTime: false))
                 .WithTargetFramework(framework)
-                .WithRuntimeIdentifiers(new[] { $"win7-{runtime}" });
+                .WithRuntimeIdentifiers(new[] { runtime });
 
             return builder.Build();
         }
@@ -534,6 +579,33 @@ namespace DependenciesPackager
             return Path.Combine(publishDirectory, Path.GetFileName(path));
         }
 
+        private void CopyClrJitToPublishFolder(
+            string tempRestorePath,
+            string moniker,
+            string publishDirectory)
+        {
+            var clrJitPath = Path.Combine(tempRestorePath, $"runtime.{moniker}.Microsoft.NETCore.Jit");
+            if (!Directory.Exists(clrJitPath))
+            {
+                throw new InvalidOperationException("Couldn't find the dependency 'Microsoft.NETCore.Jit'");
+            }
+
+            var path = Directory
+                .GetFiles(clrJitPath, "clrjit.dll", SearchOption.AllDirectories)
+                .SingleOrDefault();
+
+            if (path == null)
+            {
+                throw new InvalidOperationException("Couldn't find path to clrjit.dll");
+            }
+
+            var crossGenDirectory = Path.GetDirectoryName(path);
+            foreach (var file in Directory.GetFiles(crossGenDirectory))
+            {
+                File.Copy(file, Path.Combine(publishDirectory, Path.GetFileName(file)), overwrite: true);
+            }
+        }
+
         private void CreateZipPackage()
         {
             var version = _version.Value();
@@ -544,7 +616,7 @@ namespace DependenciesPackager
             var versionMarkerPath = Path.Combine(packagesFolder, $"{version}.version");
             File.WriteAllText(versionMarkerPath, string.Empty);
 
-            var zipFileName = Path.Combine(destinationFolderPath, $"AspNetCore.{version}.packagecache.zip");
+            var zipFileName = Path.Combine(destinationFolderPath, $"{_prefix.Value()}.{version}.packagecache.zip");
             Logger.LogInformation($"Creating zip package on {zipFileName}");
             ZipFile.CreateFromDirectory(packagesFolder, zipFileName, CompressionLevel.Optimal, includeBaseDirectory: false);
         }

@@ -11,13 +11,13 @@
     "Microsoft.DotNet.ProjectModel": "1.0.0-*"
   },
   "frameworks": {
-    "net451": {
-      "frameworkAssemblies": {
-        "Microsoft.CSharp": "",
-        "System.Collections": "",
-        "System.Xml.Linq": "",
-        "System.Threading": "",
-        "System.IO.Compression.FileSystem": ""
+    "netcoreapp1.0": {
+      "dependencies": {
+        "System.Diagnostics.Process": "4.1.0",
+        "Microsoft.NETCore.App": {
+          "version": "1.0.0-*",
+          "type": "platform"
+        }
       }
     }
   }

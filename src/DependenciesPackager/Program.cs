@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading;
 using Microsoft.DotNet.ProjectModel;
@@ -20,11 +21,27 @@ namespace DependenciesPackager
 {
     class Program
     {
+        private const int CrossGenFlag = 4;
         private static readonly string TempRestoreFolderName = "TempRestorePackages";
         private static readonly string TempDiagnosticsRestoreFolderName = "TempDiagnosticsRestorePackages";
         private static readonly string TempPublishFolderName = "TempPublish";
 
         private readonly IEnumerable<NuGetFramework> FrameworkConfigurations = new[] { FrameworkConstants.CommonFrameworks.NetCoreApp10 };
+
+        private readonly IDictionary<string, CrossGenToolFileNames> CrossGenFiles = new Dictionary<string, CrossGenToolFileNames>
+        {
+            ["win7"] = new CrossGenToolFileNames("crossgen.exe","clrjit.dll"),
+            ["ubuntu.16.04"] = new CrossGenToolFileNames("crossgen", "libclrjit.so"),
+            ["ubuntu.14.04"] = new CrossGenToolFileNames("crossgen", "libclrjit.so"),
+        };
+
+        private readonly ISet<string> ValidRuntimes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "win7-x86",
+            "win7-x64",
+            "ubuntu.14.04-x64",
+            "ubuntu.16.04-x64",
+        };
 
         private const int Ok = 0;
         private const int Error = 1;
@@ -192,6 +209,20 @@ namespace DependenciesPackager
                     return Error;
                 }
 
+                var invalidRuntimes = false;
+                foreach (var runtime in _runtimes.Values)
+                {
+                    if (!ValidRuntimes.Contains(runtime))
+                    {
+                        invalidRuntimes = true;
+                        Logger.LogError($"Invalid runtime {runtime}");
+                    }
+                }
+                if (invalidRuntimes)
+                {
+                    return Error;
+                }
+
                 if (_diagnosticsProjectJson.HasValue())
                 {
                     RunDotnetRestore(_diagnosticsProjectJson.Value(), TempDiagnosticsRestoreFolderName);
@@ -229,6 +260,7 @@ namespace DependenciesPackager
                         CompareWithRestoreHive(Path.Combine(_destination.Value(), TempRestoreFolderName), cacheBasePath, project);
                         RemoveUnnecesaryHiveFiles(cacheBasePath, project);
                         PrintHiveFilesForDiagnostics(cacheBasePath);
+                        ValidateHiveFiles(cacheBasePath);
                     }
                 }
 
@@ -245,6 +277,23 @@ namespace DependenciesPackager
                 Logger.LogError(e.ToString());
                 _app.ShowHelp();
                 return Error;
+            }
+        }
+
+        private void ValidateHiveFiles(string cacheBasePath)
+        {
+            var dlls = Directory.EnumerateFiles(cacheBasePath, "*.dll", SearchOption.AllDirectories);
+            foreach (var dll in dlls)
+            {
+                using (var stream = File.OpenRead(dll))
+                {
+                    var reader = new PEReader(stream);
+                    var isCrossGen = ((int)reader.PEHeaders.CorHeader.Flags & CrossGenFlag) == CrossGenFlag;
+                    if (!isCrossGen)
+                    {
+                        Logger.LogWarning($"{dll} is not crossgen");
+                    }
+                }
             }
         }
 
@@ -272,8 +321,8 @@ namespace DependenciesPackager
             var files = Directory.GetFiles(restorePath, "*", SearchOption.AllDirectories);
             var dlls = Directory.GetFiles(restorePath, "*.dll", SearchOption.AllDirectories);
             var signatures = Directory.GetFiles(restorePath, "*.sha512", SearchOption.AllDirectories);
-            var crossgen = Directory.GetFiles(restorePath, "crossgen.exe", SearchOption.AllDirectories);
-            var clrjit = Directory.GetFiles(restorePath, "clrjit.dll", SearchOption.AllDirectories);
+            var crossgen = CrossGenFiles.SelectMany(kvp => Directory.GetFiles(restorePath, kvp.Value.CrossGen, SearchOption.AllDirectories));
+            var clrjit = CrossGenFiles.SelectMany(kvp => Directory.GetFiles(restorePath, kvp.Value.ClrJit, SearchOption.AllDirectories));
 
             Logger.LogInformation($@"Dlls in restored packages:
 {string.Join($"    {Environment.NewLine}", dlls)}");
@@ -523,11 +572,11 @@ namespace DependenciesPackager
     {targetPath} with arguments
         {string.Join($"{Environment.NewLine}        ", arguments)}.");
 
-            Environment.CurrentDirectory = publishedAssemblies;
             StringBuilder output = new StringBuilder();
             StringBuilder error = new StringBuilder();
 
             var exitCode = new ProcessRunner(crossGenPath, string.Join(" ", arguments))
+                .WithWorkingDirectory(publishedAssemblies)
                 .WriteOutputToStringBuilder(output, "    ")
                 .WriteErrorsToStringBuilder(error, "    ")
                 .Run();
@@ -561,13 +610,14 @@ namespace DependenciesPackager
                 throw new InvalidOperationException("Couldn't find the dependency 'Microsoft.NETCore.Runtime.CoreCLR'");
             }
 
+            var crossGenExecutable = CrossGenFiles[GetPlatform(moniker)].CrossGen;
             var path = Directory
-                .GetFiles(entry.Library.Path, "crossgen.exe", SearchOption.AllDirectories)
+                .GetFiles(entry.Library.Path, crossGenExecutable, SearchOption.AllDirectories)
                 .SingleOrDefault();
 
             if (path == null)
             {
-                throw new InvalidOperationException("Couldn't find path to crossgen.exe");
+                throw new InvalidOperationException($"Couldn't find path to {crossGenExecutable}");
             }
 
             var crossGenDirectory = Path.GetDirectoryName(path);
@@ -590,13 +640,14 @@ namespace DependenciesPackager
                 throw new InvalidOperationException("Couldn't find the dependency 'Microsoft.NETCore.Jit'");
             }
 
+            var clrJit = CrossGenFiles[GetPlatform(moniker)].ClrJit;
             var path = Directory
-                .GetFiles(clrJitPath, "clrjit.dll", SearchOption.AllDirectories)
+                .GetFiles(clrJitPath, clrJit, SearchOption.AllDirectories)
                 .SingleOrDefault();
 
             if (path == null)
             {
-                throw new InvalidOperationException("Couldn't find path to clrjit.dll");
+                throw new InvalidOperationException($"Couldn't find path to {clrJit}");
             }
 
             var crossGenDirectory = Path.GetDirectoryName(path);
@@ -604,6 +655,12 @@ namespace DependenciesPackager
             {
                 File.Copy(file, Path.Combine(publishDirectory, Path.GetFileName(file)), overwrite: true);
             }
+        }
+
+        //Remove the architecture part (-x86/-x64) from the runtime moniker (return win7, ubuntu.16.04, etc).
+        private string GetPlatform(string moniker)
+        {
+            return moniker.Substring(0, moniker.Length - 4);
         }
 
         private void CreateZipPackage()
@@ -654,6 +711,7 @@ namespace DependenciesPackager
             private readonly IDictionary<string, string> _environment = new Dictionary<string, string>();
             private Process _process = null;
             private object _writeLock = new object();
+            private string _workingDirectory;
 
             public ProcessRunner(
                 string exePath,
@@ -661,6 +719,7 @@ namespace DependenciesPackager
             {
                 _exePath = exePath;
                 _arguments = arguments;
+                _workingDirectory = Path.GetDirectoryName(_exePath);
             }
 
             public Action<string> OnError { get; set; } = s => { };
@@ -707,6 +766,12 @@ namespace DependenciesPackager
                 return this;
             }
 
+            public ProcessRunner WithWorkingDirectory(string workingDirectory)
+            {
+                _workingDirectory = workingDirectory;
+                return this;
+            }
+
             public ProcessRunner AddEnvironmentVariable(string name, string value)
             {
                 _environment.Add(name, value);
@@ -740,7 +805,7 @@ namespace DependenciesPackager
                 _process.WaitForExit(TimeOut);
                 if (!_process.HasExited)
                 {
-                    _process.Close();
+                    _process.Dispose();
                     throw new InvalidOperationException($"Process {_process.ProcessName} timed out");
                 }
 
@@ -752,9 +817,10 @@ namespace DependenciesPackager
                 var processInfo = new ProcessStartInfo(_exePath, _arguments);
                 foreach (var variable in _environment)
                 {
-                    processInfo.EnvironmentVariables.Add(variable.Key, variable.Value);
+                    processInfo.Environment.Add(variable.Key, variable.Value);
                 }
 
+                processInfo.WorkingDirectory = _workingDirectory;
                 processInfo.CreateNoWindow = true;
                 processInfo.UseShellExecute = false;
                 processInfo.RedirectStandardError = true;
@@ -771,6 +837,18 @@ namespace DependenciesPackager
 
             public IDictionary<LibraryAsset, IList<string>> CrossGenOutput { get; } =
                 new Dictionary<LibraryAsset, IList<string>>();
+        }
+
+        private class CrossGenToolFileNames
+        {
+            public CrossGenToolFileNames(string crossgen, string clrjit)
+            {
+                CrossGen = crossgen;
+                ClrJit = clrjit;
+            }
+
+            public string ClrJit { get; }
+            public string CrossGen { get; }
         }
     }
 }

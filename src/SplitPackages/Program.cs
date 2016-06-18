@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Logging;
+using NuGet.Versioning;
 using PackageClassifier;
 
 namespace SplitPackages
@@ -147,7 +148,7 @@ namespace SplitPackages
 
                 var optimizedCacheClassification = classifier.GetClassification("OptimizedCache");
 
-                CreateProjectJsonFileForOptimizedCache(arguments.DestinationFolder, optimizedCacheClassification);
+                CreateProjectJsonFilesForOptimizedCache(arguments.DestinationFolder, optimizedCacheClassification);
 
                 return Ok;
             }
@@ -159,10 +160,49 @@ namespace SplitPackages
             }
         }
 
-        private void CreateProjectJsonFileForOptimizedCache(string destinationPath, ClassificationResult optimizedCacheClassification)
+        private void CreateProjectJsonFilesForOptimizedCache(string destinationPath, ClassificationResult optimizedCacheClassification)
+        {
+            CreateProjectJsonFileWithTimeStamps(destinationPath, optimizedCacheClassification);
+            CreateProjectJsonFileWithoutTimeStamps(destinationPath, optimizedCacheClassification);
+        }
+
+        private void CreateProjectJsonFileWithTimeStamps(string destinationPath, ClassificationResult optimizedCacheClassification)
+        {
+            var packages = optimizedCacheClassification.GetPackagesForValue("include");
+            var builder = CreateBaseJsonFileBuilderForCache(destinationPath, "cache.project.json");
+            builder.AddDependencies(packages);
+            builder.Execute();
+        }
+
+        private void CreateProjectJsonFileWithoutTimeStamps(string destinationPath, ClassificationResult optimizedCacheClassification)
+        {
+            var packages = optimizedCacheClassification.GetPackagesForValue("include");
+            var correctedPackages = packages.Select(p => new PackageInformation(p.FullPath, p.Identity, GetFinalVersion(p.Version), p.SupportedFrameworks));
+
+            var builder = CreateBaseJsonFileBuilderForCache(destinationPath, "final.cache.project.json");
+            builder.AddDependencies(correctedPackages);
+            builder.Execute();
+        }
+
+        private string GetFinalVersion(string version)
+        {
+            var frameworkVersion = new NuGetVersion(version);
+            if (frameworkVersion.Release.Contains("rtm"))
+            {
+                return new NuGetVersion(frameworkVersion.Version).ToNormalizedString();
+            }
+            else
+            {
+                var prefix = frameworkVersion.Release.Substring(0, frameworkVersion.Release.IndexOf('-'));
+                var releaseLabel = $"{prefix}-final";
+                return new NuGetVersion(frameworkVersion.Version, releaseLabel).ToNormalizedString();
+            }
+        }
+
+        private ProjectJsonFileBuilder CreateBaseJsonFileBuilderForCache(string destinationPath, string projectName)
         {
             var builder = new ProjectJsonFileBuilder(
-                Path.Combine(destinationPath, "cache.project.json"),
+                Path.Combine(destinationPath, projectName),
                 _whatIf.HasValue(),
                 _ignoreErrors.HasValue(),
                 Logger);
@@ -172,11 +212,9 @@ namespace SplitPackages
             };
 
             builder.AddFramework(Frameworks.NetCoreApp10);
-            var classifiedPackages = optimizedCacheClassification.GetPackagesForValue("include");
             builder.AddDependencies(hardcodedDependencies);
-            builder.AddDependencies(classifiedPackages);
             builder.AddImports(Frameworks.NetCoreApp10, Frameworks.PortableNet451Win8);
-            builder.Execute();
+            return builder;
         }
 
         private void WriteErrorMessage(IList<string> errors)

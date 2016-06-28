@@ -109,6 +109,18 @@ namespace NuGetPackageVerifier
             return new PackageVerifierIssue(issueId, assemblyPath, string.Format("The managed assembly '{0}' in this package is missing the '{1}' attribute.", assemblyPath, attributeName), PackageIssueLevel.Error);
         }
 
+        public static PackageVerifierIssue SingleAuthorOnly(string assemblyPath)
+        {
+            return new PackageVerifierIssue("PACKAGE_AUTHOR_MULTIPLE", assemblyPath, string.Format(
+                "The package '{0}' must only have one Author.", assemblyPath), PackageIssueLevel.Error);
+        }
+
+        public static PackageVerifierIssue AuthorIsIncorrect(string assemblyPath, string expectedAuthor)
+        {
+            return new PackageVerifierIssue("PACKAGE_AUTHOR_INCORRECT", assemblyPath, string.Format(
+                "The package '{0}'s Author must be {1}", assemblyPath, expectedAuthor), PackageIssueLevel.Error);
+        }
+
         public static PackageVerifierIssue AssemblyNotStrongNameSigned(string assemblyPath, int hResult)
         {
             // TODO: Translate common HRESULTS http://blogs.msdn.com/b/yizhang/
@@ -139,6 +151,11 @@ namespace NuGetPackageVerifier
         public static PackageVerifierIssue Satellite_PackageDescriptionNotLocalized()
         {
             return new PackageVerifierIssue("LOC_DESC", "Package description is not localized correctly", PackageIssueLevel.Error);
+        }
+
+        public static PackageVerifierIssue RequiredAuthor()
+        {
+            return RequiredCore("NUSPEC_AUTHOR", "Author", PackageIssueLevel.Error);
         }
 
         public static PackageVerifierIssue RequiredCopyright()

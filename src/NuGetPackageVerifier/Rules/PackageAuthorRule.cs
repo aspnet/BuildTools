@@ -28,9 +28,10 @@ namespace NuGetPackageVerifier.Rules
                 yield return PackageIssueFactory.SingleAuthorOnly(package.Id);
             }
 
-            if (string.Equals(package.Authors.First(), _expectedAuthor, System.StringComparison.Ordinal))
+            var author = package.Authors.First();
+            if (!string.Equals(author, _expectedAuthor, System.StringComparison.Ordinal))
             {
-                yield return PackageIssueFactory.AuthorIsIncorrect(package.Id, _expectedAuthor);
+                yield return PackageIssueFactory.AuthorIsIncorrect(package.Id, _expectedAuthor, author);
             }
         }
     }

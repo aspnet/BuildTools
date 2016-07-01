@@ -55,6 +55,7 @@ Microsoft.AspNetCore.Mvc.WebApiCompatShim
 Microsoft.AspNetCore.Owin
 Microsoft.AspNetCore.Proxy
 Microsoft.AspNetCore.Razor
+Microsoft.AspNetCore.Razor.Design
 Microsoft.AspNetCore.Razor.Runtime
 Microsoft.AspNetCore.Razor.Tools
 Microsoft.AspNetCore.Routing
@@ -120,6 +121,7 @@ Microsoft.Extensions.Logging.Abstractions
 Microsoft.Extensions.Logging.Console
 Microsoft.Extensions.Logging.Debug
 Microsoft.Extensions.Logging.EventLog
+Microsoft.Extensions.Logging.EventSource
 Microsoft.Extensions.Logging.Filter
 Microsoft.Extensions.Logging.TraceSource
 Microsoft.Extensions.ObjectPool

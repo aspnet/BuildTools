@@ -7,7 +7,9 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
 using HtmlAgilityPack;
+using Newtonsoft.Json;
 using NuGet.Packaging;
 using NuGetPackageVerifier.Logging;
 
@@ -36,9 +38,8 @@ namespace NuGetPackageVerifier.Rules
             logger.LogInfo($"Looking up ownership for package {package.Id}. Add this package to the owned-packages.txt list if it's owned.");
 
             var url = string.Format(CultureInfo.InvariantCulture, NuGetV3Endpoint, package.Id);
-            var jsonResult = _httpClient.GetStringAsync(url).Result;
-            var result = Newtonsoft.Json.JsonConvert.DeserializeObject<PackageSearchResult>(jsonResult);
-            if (result.Data.Length == 0)
+            var result = GetPackageSearchResultAsync(logger, url).Result;
+            if (result?.Data.Length == 0)
             {
                 yield return PackageIssueFactory.IdDoesNotExist(package.Id);
             }
@@ -70,6 +71,22 @@ namespace NuGetPackageVerifier.Rules
                 {
                     yield return PackageIssueFactory.IdIsNotOwned(package.Id, AllowedOwners);
                 }
+            }
+        }
+
+        private async Task<PackageSearchResult> GetPackageSearchResultAsync(IPackageVerifierLogger logger, string url)
+        {
+            using (var httpResponse = await _httpClient.GetAsync(url))
+            {
+                if (!httpResponse.IsSuccessStatusCode)
+                {
+                    logger.LogWarning($"{NuGetV3Endpoint} request failed. Response code {httpResponse.StatusCode}.");
+                    // The service might be unavailable. Return null here to fallback to screen scrapping the gallery.
+                    return null;
+                }
+
+                var content = await httpResponse.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<PackageSearchResult>(content);
             }
         }
 

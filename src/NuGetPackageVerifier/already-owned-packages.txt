@@ -75,6 +75,8 @@ Microsoft.Data.Sqlite
 Microsoft.DotNet.Watcher.Core
 Microsoft.DotNet.Watcher.Tools
 Microsoft.EntityFrameworkCore
+Microsoft.EntityFrameworkCore.Design
+Microsoft.EntityFrameworkCore.Design.Core
 Microsoft.EntityFrameworkCore.InMemory
 Microsoft.EntityFrameworkCore.Relational
 Microsoft.EntityFrameworkCore.Relational.Design

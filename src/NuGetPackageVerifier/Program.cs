@@ -21,14 +21,10 @@ namespace NuGetPackageVerifier
 
         public static int Main(string[] args)
         {
-            // TODO: Take a switch saying whether to use TeamCity logger
-
             // TODO: Show extraneous packages, exclusions, etc.
 
             // TODO: Get this from the command line
-            var ignoreAssistanceMode = IgnoreAssistanceMode.None;
-
-            ignoreAssistanceMode = IgnoreAssistanceMode.ShowAll;
+            var ignoreAssistanceMode = IgnoreAssistanceMode.ShowAll;
 
             if (args.Length < 1 || args.Length > 2)
             {
@@ -38,7 +34,15 @@ namespace NuGetPackageVerifier
                 return ReturnBadArgs;
             }
 
-            var logger = new PackageVerifierLogger();
+            IPackageVerifierLogger logger;
+            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("TEAMCITY_VERSION")))
+            {
+                logger = new TeamCityLogger();
+            }
+            else
+            {
+                logger = new PackageVerifierLogger();
+            }
 
             IDictionary<string, PackageSet> packageSets = null;
 
@@ -213,8 +217,6 @@ namespace NuGetPackageVerifier
 
                 foreach (var unprocessedPackage in unprocessedPackages)
                 {
-                    logger.LogWarning("\tUnprocessed package: {0} ({1})", unprocessedPackage.Id, unprocessedPackage.Version);
-
                     logger.LogInfo("Analyzing {0} ({1})", unprocessedPackage.Id, unprocessedPackage.Version);
 
                     var issues = analyzer.AnalyzePackage(packages[unprocessedPackage], unprocessedPackage, logger).ToList();
@@ -265,7 +267,7 @@ namespace NuGetPackageVerifier
 
         private static Tuple<int, int> ProcessPackageIssues(
             IgnoreAssistanceMode ignoreAssistanceMode,
-            PackageVerifierLogger logger,
+            IPackageVerifierLogger logger,
             IssueProcessor issueProcessor,
             Dictionary<string, IDictionary<string, IDictionary<string, string>>> ignoreAssistanceData,
             IPackageMetadata package,
@@ -369,8 +371,6 @@ namespace NuGetPackageVerifier
 
         private static void PrintPackageIssue(IPackageVerifierLogger logger, IssueReport issue)
         {
-            // TODO: Support this: https://confluence.jetbrains.com/display/TCD8/Build+Script+Interaction+with+TeamCity
-
             var issueInfo = issue.PackageIssue.IssueId;
             if (issue.PackageIssue.Instance != null)
             {

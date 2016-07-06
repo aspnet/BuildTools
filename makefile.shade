@@ -14,6 +14,9 @@ k-standard-goals
 
 #nuget-pack target='package'
   @{
+    var dependenciesPackagerPath = Path.Combine(BASE_DIR, "src", "DependenciesPackager");
+    var configuration = Environment.GetEnvironmentVariable("Configuration") ?? "Debug";
+    Exec("dotnet", "publish " + dependenciesPackagerPath + " --no-build " + "--configuration " + configuration);
     foreach(var project in new[]{ "NuGetPackageVerifier", "SplitPackages", "DependenciesPackager" })
     {
       var outputDir = Path.Combine(TARGET_DIR, "build");
@@ -23,8 +26,12 @@ k-standard-goals
 
       var version = Path.GetFileNameWithoutExtension(existingNupkg).Substring(project.Length + 1);
       var nuspecPath = Path.Combine("src", project, project + ".nuspec");
-      var configuration = Environment.GetEnvironmentVariable("Configuration") ?? "Debug";
       var basePath = Path.Combine(outputDir, project, configuration, "net451", "win7-x64");
+
+      if(project == "DependenciesPackager")
+      {
+          basePath = Path.Combine(dependenciesPackagerPath, "bin", "Debug", "netcoreapp1.0", "publish");
+      }
 
       Exec(".build/NuGet.exe", "pack -nopack " + nuspecPath + " -version " + version + " -base " + basePath + " -out " + outputDir);
     }

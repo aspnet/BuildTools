@@ -30,7 +30,7 @@ k-standard-goals
 
       if(project == "DependenciesPackager")
       {
-          basePath = Path.Combine(dependenciesPackagerPath, "bin", "Debug", "netcoreapp1.0", "publish");
+          basePath = Path.Combine(dependenciesPackagerPath, "bin", configuration, "netcoreapp1.0", "publish");
       }
 
       Exec(".build/NuGet.exe", "pack -nopack " + nuspecPath + " -version " + version + " -base " + basePath + " -out " + outputDir);

@@ -1,24 +1,24 @@
 {
-  "version": "1.0.1-*",
+  "version": "1.0.0",
   "description": "Copies Nuget packages form a given source folder into a specific set of folders based on a CSV file.",
   "authors": [ "Microsoft" ],
   "buildOptions": {
     "emitEntryPoint": true
   },
   "dependencies": {
-    "PackageClassifier": "1.0.1-*",
-    "Microsoft.Extensions.CommandLineUtils": "1.0.0-*",
-    "Microsoft.Extensions.Logging": "1.0.0-*",
-    "Microsoft.Extensions.Logging.Console": "1.0.0-*",
-    "Newtonsoft.Json": "9.0.1-beta1",
-    "NuGet.Client": "3.5.0-*"
+    "PackageClassifier": { "target" : "project" },
+    "Microsoft.Extensions.CommandLineUtils": "1.0.0",
+    "Microsoft.Extensions.Logging": "1.0.0",
+    "Microsoft.Extensions.Logging.Console": "1.0.0",
+    "Newtonsoft.Json": "9.0.1",
+    "NuGet.Client": "3.5.0-beta2-1484"
   },
   "frameworks": {
     "netcoreapp1.0": {
       "dependencies": {
-        "System.Runtime.Serialization.Primitives": "4.1.1-*",
+        "System.Runtime.Serialization.Primitives": "4.1.1",
         "Microsoft.NETCore.App": {
-          "version": "1.0.0-*",
+          "version": "1.0.0",
           "type": "platform"
         }
       }

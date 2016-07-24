@@ -5,11 +5,9 @@ AppVeyor: [![AppVeyor](https://ci.appveyor.com/api/projects/status/4apmcfsiatwg8
 
 Travis:   [![Travis](https://travis-ci.org/aspnet/DnxTools.svg?branch=master)](https://travis-ci.org/aspnet/DnxTools)
 
-Utilities used in the build system for projects that are used with DNX.
+Utilities used in the build system for projects that are used with ASP.NET Core and Entity Framework Core.
 
-For issues with DNX and DNU, go to https://github.com/aspnet/dnx/issues/.
-
-For issues with DNVM, go to https://github.com/aspnet/dnvm/issues/.
+Please do not log DNX or DNVM issues here. They are no longer in development.
 
 This project is part of ASP.NET Core. You can find samples, documentation and getting started instructions for ASP.NET Core at the [Home](https://github.com/aspnet/home) repo.
 

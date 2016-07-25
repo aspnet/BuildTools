@@ -17,7 +17,7 @@ k-standard-goals
     var dependenciesPackagerPath = Path.Combine(BASE_DIR, "src", "DependenciesPackager");
     var configuration = Environment.GetEnvironmentVariable("Configuration") ?? "Debug";
     Exec("dotnet", "publish " + dependenciesPackagerPath + " --no-build " + "--configuration " + configuration);
-    foreach(var project in new[]{ "NuGetPackageVerifier", "SplitPackages", "DependenciesPackager" })
+    foreach(var project in new[]{ "NuGetPackageVerifier", "SplitPackages", "DependenciesPackager", "PackageCacheUploader" })
     {
       var outputDir = Path.Combine(TARGET_DIR, "build");
       var existingNupkg = Directory.EnumerateFiles(outputDir)
@@ -28,7 +28,7 @@ k-standard-goals
       var nuspecPath = Path.Combine("src", project, project + ".nuspec");
       var basePath = Path.Combine(outputDir, project, configuration, "net451", "win7-x64");
 
-      if(project == "DependenciesPackager")
+      if(project == "DependenciesPackager" || project == "PackageCacheUploader")
       {
           basePath = Path.Combine(dependenciesPackagerPath, "bin", configuration, "netcoreapp1.0", "publish");
       }

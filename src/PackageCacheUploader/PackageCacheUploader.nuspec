@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>PackageCacheUploader</id>
+    <version>0.0.0</version>
+    <authors>Microsoft</authors>
+    <description>Upload package cache to Azure Storage</description>
+  </metadata>
+</package>

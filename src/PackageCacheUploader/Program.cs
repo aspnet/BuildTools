@@ -18,6 +18,7 @@ namespace DependenciesPackager
         private readonly CommandOption _connectionString;
         private readonly CommandOption _container;
         private readonly CommandOption _quiet;
+        private readonly CommandOption _runtime;
 
         public ILogger Logger
         {
@@ -37,7 +38,8 @@ namespace DependenciesPackager
             }
         }
 
-        private string PackageCacheFileName => $"{_prefix.Value()}.{_version.Value()}.packagecache.zip";
+        // Make sure the schema is consistent with DependenciesPackager
+        private string PackageCacheFileName => $"{_prefix.Value()}.{_version.Value()}.{_runtime.Value()}packagecache.zip";
 
         public Program(
             CommandLineApplication app,
@@ -46,7 +48,8 @@ namespace DependenciesPackager
             CommandOption azureStorageConnectionString,
             CommandOption azureStorageContainer,
             CommandOption sourceFolder,
-            CommandOption quiet)
+            CommandOption quiet,
+            CommandOption runtime)
         {
             _app = app;
             _sourceFolder = sourceFolder;
@@ -55,6 +58,7 @@ namespace DependenciesPackager
             _connectionString = azureStorageConnectionString;
             _container = azureStorageContainer;
             _quiet = quiet;
+            _runtime = runtime;
         }
 
         static int Main(string[] args)
@@ -94,6 +98,11 @@ namespace DependenciesPackager
                 "Avoids printing to the output anything other than warnings or errors",
                 CommandOptionType.NoValue);
 
+            var runtime = app.Option(
+                "--runtime",
+                "The runtime for which to generate the cache",
+                CommandOptionType.SingleValue);
+
             var program = new Program(
                 app,
                 prefix,
@@ -101,7 +110,8 @@ namespace DependenciesPackager
                 connectionString,
                 container,
                 sourceFolder,
-                quiet);
+                quiet,
+                runtime);
 
             app.OnExecute(new Func<int>(program.Execute));
 

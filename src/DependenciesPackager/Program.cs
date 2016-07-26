@@ -30,7 +30,7 @@ namespace DependenciesPackager
 
         private readonly IDictionary<string, CrossGenToolFileNames> CrossGenFiles = new Dictionary<string, CrossGenToolFileNames>
         {
-            ["win7"] = new CrossGenToolFileNames("crossgen.exe","clrjit.dll"),
+            ["win7"] = new CrossGenToolFileNames("crossgen.exe", "clrjit.dll"),
             ["ubuntu.16.04"] = new CrossGenToolFileNames("crossgen", "libclrjit.so"),
             ["ubuntu.14.04"] = new CrossGenToolFileNames("crossgen", "libclrjit.so"),
         };

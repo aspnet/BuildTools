@@ -57,7 +57,7 @@ namespace DependenciesPackager
         private CommandOption _version;
         private CommandOption _cliPath;
         private CommandOption _quiet;
-        private CommandOption _runtimes;
+        private CommandOption _runtime;
         private CommandOption _prefix;
         private CommandOption _keepTemporaryFiles;
 
@@ -84,6 +84,11 @@ namespace DependenciesPackager
             return loggerFactory.CreateLogger<Program>();
         }
 
+        private string PackageCacheZipFilename
+        {
+            get { return $"{_prefix.Value()}.{_version.Value()}.{_runtime.Value()}.packagecache.zip"; }
+        }
+
         public Program(
             CommandLineApplication app,
             CommandOption projectJson,
@@ -94,7 +99,7 @@ namespace DependenciesPackager
             CommandOption packagesVersion,
             CommandOption cliPath,
             CommandOption quiet,
-            CommandOption runtimes,
+            CommandOption runtime,
             CommandOption prefix,
             CommandOption keepTemporaryFiles)
         {
@@ -107,7 +112,7 @@ namespace DependenciesPackager
             _version = packagesVersion;
             _cliPath = cliPath;
             _quiet = quiet;
-            _runtimes = runtimes;
+            _runtime = runtime;
             _prefix = prefix;
             _keepTemporaryFiles = keepTemporaryFiles;
         }
@@ -164,10 +169,10 @@ namespace DependenciesPackager
                 "Avoids deleting the package folders and the publish folder used for crossgen",
                 CommandOptionType.NoValue);
 
-            var runtimes = app.Option(
+            var runtime = app.Option(
                 "--runtime",
-                "The runtimes for which to generate the cache",
-                CommandOptionType.MultipleValue);
+                "The runtime for which to generate the cache",
+                CommandOptionType.SingleValue);
 
             var prefix = app.Option(
                 "--prefix",
@@ -184,7 +189,7 @@ namespace DependenciesPackager
                 packagesVersion,
                 useCli,
                 quiet,
-                runtimes,
+                runtime,
                 prefix,
                 keepTemporaryFiles);
 
@@ -201,7 +206,7 @@ namespace DependenciesPackager
                     !_sourceFolders.HasValue() ||
                     !_fallbackFeeds.HasValue() ||
                     !_destination.HasValue() ||
-                    !_runtimes.HasValue() ||
+                    !_runtime.HasValue() ||
                     !_prefix.HasValue() ||
                     !_version.HasValue())
                 {
@@ -209,17 +214,9 @@ namespace DependenciesPackager
                     return Error;
                 }
 
-                var invalidRuntimes = false;
-                foreach (var runtime in _runtimes.Values)
+                if (!ValidRuntimes.Contains(_runtime.Value()))
                 {
-                    if (!ValidRuntimes.Contains(runtime))
-                    {
-                        invalidRuntimes = true;
-                        Logger.LogError($"Invalid runtime {runtime}");
-                    }
-                }
-                if (invalidRuntimes)
-                {
+                    Logger.LogError($"Invalid runtime {_runtime.Value()}");
                     return Error;
                 }
 
@@ -239,29 +236,27 @@ namespace DependenciesPackager
 
                 foreach (var framework in FrameworkConfigurations)
                 {
-                    foreach (var runtime in _runtimes.Values)
-                    {
-                        var cacheBasePath = Path.Combine(_destination.Value(), _version.Value(), GetArchitecture(runtime));
+                    var runtime = _runtime.Value();
+                    var cacheBasePath = Path.Combine(_destination.Value(), _version.Value(), GetArchitecture(runtime));
 
-                        var projectContext = CreateProjectContext(project, framework, runtime);
-                        var entries = GetEntries(projectContext, runtime);
+                    var projectContext = CreateProjectContext(project, framework, runtime);
+                    var entries = GetEntries(projectContext, runtime);
 
-                        Logger.LogInformation($"Performing crossgen on {framework.GetShortFolderName()} for runtime {runtime}.");
+                    Logger.LogInformation($"Performing crossgen on {framework.GetShortFolderName()} for runtime {runtime}.");
 
-                        var publishFolderPath = GetPublishFolderPath(projectContext);
-                        CreatePublishFolder(entries, publishFolderPath);
-                        var crossGenPath = CopyCrossgenToPublishFolder(entries, runtime, publishFolderPath);
-                        CopyClrJitToPublishFolder(Path.Combine(_destination.Value(), TempRestoreFolderName), runtime, publishFolderPath);
-                        RunCrossGenOnEntries(entries, publishFolderPath, crossGenPath, cacheBasePath);
-                        DisplayCrossGenOutput(entries);
+                    var publishFolderPath = GetPublishFolderPath(projectContext);
+                    CreatePublishFolder(entries, publishFolderPath);
+                    var crossGenPath = CopyCrossgenToPublishFolder(entries, runtime, publishFolderPath);
+                    CopyClrJitToPublishFolder(Path.Combine(_destination.Value(), TempRestoreFolderName), runtime, publishFolderPath);
+                    RunCrossGenOnEntries(entries, publishFolderPath, crossGenPath, cacheBasePath);
+                    DisplayCrossGenOutput(entries);
 
-                        CopyPackageSignatures(entries, cacheBasePath);
+                    CopyPackageSignatures(entries, cacheBasePath);
 
-                        CompareWithRestoreHive(Path.Combine(_destination.Value(), TempRestoreFolderName), cacheBasePath, project);
-                        RemoveUnnecesaryHiveFiles(cacheBasePath, project);
-                        PrintHiveFilesForDiagnostics(cacheBasePath);
-                        ValidateHiveFiles(cacheBasePath);
-                    }
+                    CompareWithRestoreHive(Path.Combine(_destination.Value(), TempRestoreFolderName), cacheBasePath, project);
+                    RemoveUnnecesaryHiveFiles(cacheBasePath, project);
+                    PrintHiveFilesForDiagnostics(cacheBasePath);
+                    ValidateHiveFiles(cacheBasePath);
                 }
 
                 CreateZipPackage();
@@ -673,7 +668,7 @@ namespace DependenciesPackager
             var versionMarkerPath = Path.Combine(packagesFolder, $"{version}.version");
             File.WriteAllText(versionMarkerPath, string.Empty);
 
-            var zipFileName = Path.Combine(destinationFolderPath, $"{_prefix.Value()}.{version}.packagecache.zip");
+            var zipFileName = Path.Combine(destinationFolderPath, PackageCacheZipFilename);
             Logger.LogInformation($"Creating zip package on {zipFileName}");
             ZipFile.CreateFromDirectory(packagesFolder, zipFileName, CompressionLevel.Optimal, includeBaseDirectory: false);
         }

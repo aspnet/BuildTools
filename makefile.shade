@@ -14,9 +14,14 @@ k-standard-goals
 
 #nuget-pack target='package'
   @{
-    var dependenciesPackagerPath = Path.Combine(BASE_DIR, "src", "DependenciesPackager");
     var configuration = Environment.GetEnvironmentVariable("Configuration") ?? "Debug";
+
+    var dependenciesPackagerPath = Path.Combine(BASE_DIR, "src", "DependenciesPackager");
     Exec("dotnet", "publish " + dependenciesPackagerPath + " --no-build " + "--configuration " + configuration);
+
+    var packagecacheUploaderPath = Path.Combine(BASE_DIR, "src", "PackageCacheUploader");
+    Exec("dotnet", "publish " + packagecacheUploaderPath + " --no-build " + "--configuration " + configuration);
+
     foreach(var project in new[]{ "NuGetPackageVerifier", "SplitPackages", "DependenciesPackager", "PackageCacheUploader" })
     {
       var outputDir = Path.Combine(TARGET_DIR, "build");
@@ -28,9 +33,14 @@ k-standard-goals
       var nuspecPath = Path.Combine("src", project, project + ".nuspec");
       var basePath = Path.Combine(outputDir, project, configuration, "net451", "win7-x64");
 
-      if(project == "DependenciesPackager" || project == "PackageCacheUploader")
+      if (project == "DependenciesPackager")
       {
           basePath = Path.Combine(dependenciesPackagerPath, "bin", configuration, "netcoreapp1.0", "publish");
+      }
+
+      if (project == "PackageCacheUploader")
+      {
+          basePath = Path.Combine(packagecacheUploaderPath, "bin", configuration, "netcoreapp1.0", "publish");
       }
 
       Exec(".build/NuGet.exe", "pack -nopack " + nuspecPath + " -version " + version + " -base " + basePath + " -out " + outputDir);

@@ -17,6 +17,7 @@ namespace DependenciesPackager
         private readonly CommandOption _prefix;
         private readonly CommandOption _connectionString;
         private readonly CommandOption _container;
+        private readonly CommandOption _name;
         private readonly CommandOption _quiet;
 
         public ILogger Logger
@@ -45,6 +46,7 @@ namespace DependenciesPackager
             CommandOption version,
             CommandOption azureStorageConnectionString,
             CommandOption azureStorageContainer,
+            CommandOption name,
             CommandOption sourceFolder,
             CommandOption quiet)
         {
@@ -54,6 +56,7 @@ namespace DependenciesPackager
             _prefix = prefix;
             _connectionString = azureStorageConnectionString;
             _container = azureStorageContainer;
+            _name = name;
             _quiet = quiet;
         }
 
@@ -94,12 +97,18 @@ namespace DependenciesPackager
                 "Avoids printing to the output anything other than warnings or errors",
                 CommandOptionType.NoValue);
 
+            var name = app.Option(
+                "--name",
+                "The change the file name to the given string on Azure Blob Storage. If missing, use the original file name.",
+                CommandOptionType.SingleValue);
+
             var program = new Program(
                 app,
                 prefix,
                 version,
                 connectionString,
                 container,
+                name,
                 sourceFolder,
                 quiet);
 
@@ -135,7 +144,7 @@ namespace DependenciesPackager
 
                 container.CreateIfNotExistsAsync().Wait();
 
-                var blob = container.GetBlockBlobReference(PackageCacheFileName);
+                var blob = container.GetBlockBlobReference(_name.HasValue() ? _name.Value() : PackageCacheFileName);
                 blob.UploadFromFileAsync(fullpath).Wait();
 
                 return 0;

@@ -12,9 +12,7 @@ namespace DependenciesPackager
     {
         private ILogger _logger;
         private CommandLineApplication _app;
-        private readonly CommandOption _sourceFolder;
-        private readonly CommandOption _version;
-        private readonly CommandOption _prefix;
+        private readonly CommandOption _source;
         private readonly CommandOption _connectionString;
         private readonly CommandOption _container;
         private readonly CommandOption _name;
@@ -38,22 +36,16 @@ namespace DependenciesPackager
             }
         }
 
-        private string PackageCacheFileName => $"{_prefix.Value()}.{_version.Value()}.packagecache.zip";
-
         public Program(
             CommandLineApplication app,
-            CommandOption prefix,
-            CommandOption version,
             CommandOption azureStorageConnectionString,
             CommandOption azureStorageContainer,
             CommandOption name,
-            CommandOption sourceFolder,
+            CommandOption source,
             CommandOption quiet)
         {
             _app = app;
-            _sourceFolder = sourceFolder;
-            _version = version;
-            _prefix = prefix;
+            _source = source;
             _connectionString = azureStorageConnectionString;
             _container = azureStorageContainer;
             _name = name;
@@ -67,19 +59,9 @@ namespace DependenciesPackager
 
             app.HelpOption("-?|-h|--help");
 
-            var sourceFolder = app.Option(
+            var source = app.Option(
                 "--source <DIRS>",
-                "Path to the directory containing the packages cache zip file",
-                CommandOptionType.SingleValue);
-
-            var version = app.Option(
-                "--version <VERSION>",
-                "The version of the artifacts produced",
-                CommandOptionType.SingleValue);
-
-            var prefix = app.Option(
-                "--prefix",
-                "The prefix to use for the zip file name",
+                "Path to the file to be uploaded",
                 CommandOptionType.SingleValue);
 
             var connectionString = app.Option(
@@ -104,12 +86,10 @@ namespace DependenciesPackager
 
             var program = new Program(
                 app,
-                prefix,
-                version,
                 connectionString,
                 container,
                 name,
-                sourceFolder,
+                source,
                 quiet);
 
             app.OnExecute(new Func<int>(program.Execute));
@@ -121,20 +101,17 @@ namespace DependenciesPackager
         {
             try
             {
-                if (!_sourceFolder.HasValue() ||
+                if (!_source.HasValue() ||
                     !_connectionString.HasValue() ||
-                    !_container.HasValue() ||
-                    !_prefix.HasValue() ||
-                    !_version.HasValue())
+                    !_container.HasValue())
                 {
                     _app.ShowHelp();
                     return 1;
                 }
 
-                var fullpath = Path.Combine(_sourceFolder.Value(), PackageCacheFileName);
-                if (!File.Exists(fullpath))
+                if (!File.Exists(_source.Value()))
                 {
-                    Logger.LogError("Unable to find package cache file： {PackageCacheFileName}.");
+                    Logger.LogError("Unable to find package cache file {PackageCacheFileName}.");
                     return 1;
                 }
 
@@ -144,8 +121,8 @@ namespace DependenciesPackager
 
                 container.CreateIfNotExistsAsync().Wait();
 
-                var blob = container.GetBlockBlobReference(_name.HasValue() ? _name.Value() : PackageCacheFileName);
-                blob.UploadFromFileAsync(fullpath).Wait();
+                var blob = container.GetBlockBlobReference(_name.HasValue() ? _name.Value() : Path.GetFileName(_source.Value()));
+                blob.UploadFromFileAsync(_source.Value()).Wait();
 
                 return 0;
             }

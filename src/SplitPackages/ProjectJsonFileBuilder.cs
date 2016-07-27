@@ -131,7 +131,7 @@ namespace SplitPackages
 
         private IDictionary<string, JObject> CreateRuntimesDictionary()
         {
-            return new[] { Runtime.Win7x64, Runtime.Win7x86 }.ToDictionary(r => r.Name, r => new JObject());
+            return Runtime.AllRuntimes.ToDictionary(r => r.Name, r => new JObject());
         }
 
         private Dictionary<string, JObject> CreateFrameworksDictionary()

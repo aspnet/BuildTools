@@ -33,6 +33,7 @@ namespace DependenciesPackager
             ["win7"] = new CrossGenToolFileNames("crossgen.exe","clrjit.dll"),
             ["ubuntu.16.04"] = new CrossGenToolFileNames("crossgen", "libclrjit.so"),
             ["ubuntu.14.04"] = new CrossGenToolFileNames("crossgen", "libclrjit.so"),
+            ["debian.8"] = new CrossGenToolFileNames("crossgen", "libclrjit.so"),
         };
 
         private readonly ISet<string> ValidRuntimes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -41,6 +42,7 @@ namespace DependenciesPackager
             "win7-x64",
             "ubuntu.14.04-x64",
             "ubuntu.16.04-x64",
+            "debian.8-x64"
         };
 
         private const int Ok = 0;

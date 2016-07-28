@@ -673,7 +673,7 @@ namespace DependenciesPackager
             var versionMarkerPath = Path.Combine(packagesFolder, $"{version}.version");
             File.WriteAllText(versionMarkerPath, string.Empty);
 
-            var zipFileName = Path.Combine(destinationFolderPath, $"{_prefix.Value()}.{version}.packagecache.zip");
+            var zipFileName = Path.Combine(destinationFolderPath, $"{_prefix.Value()}-{version}-{_runtimes.Value()}.zip");
             Logger.LogInformation($"Creating zip package on {zipFileName}");
             ZipFile.CreateFromDirectory(packagesFolder, zipFileName, CompressionLevel.Optimal, includeBaseDirectory: false);
         }

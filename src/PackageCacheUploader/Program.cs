@@ -13,7 +13,6 @@ namespace DependenciesPackager
         private ILogger _logger;
         private CommandLineApplication _app;
         private readonly CommandOption _source;
-        private readonly CommandOption _connectionString;
         private readonly CommandOption _container;
         private readonly CommandOption _name;
         private readonly CommandOption _quiet;
@@ -38,7 +37,6 @@ namespace DependenciesPackager
 
         public Program(
             CommandLineApplication app,
-            CommandOption azureStorageConnectionString,
             CommandOption azureStorageContainer,
             CommandOption name,
             CommandOption source,
@@ -46,7 +44,6 @@ namespace DependenciesPackager
         {
             _app = app;
             _source = source;
-            _connectionString = azureStorageConnectionString;
             _container = azureStorageContainer;
             _name = name;
             _quiet = quiet;
@@ -62,11 +59,6 @@ namespace DependenciesPackager
             var source = app.Option(
                 "--source <DIRS>",
                 "Path to the file to be uploaded",
-                CommandOptionType.SingleValue);
-
-            var connectionString = app.Option(
-                "--connection",
-                "Azure torage connection string",
                 CommandOptionType.SingleValue);
 
             var container = app.Option(
@@ -86,7 +78,6 @@ namespace DependenciesPackager
 
             var program = new Program(
                 app,
-                connectionString,
                 container,
                 name,
                 source,
@@ -102,10 +93,16 @@ namespace DependenciesPackager
             try
             {
                 if (!_source.HasValue() ||
-                    !_connectionString.HasValue() ||
                     !_container.HasValue())
                 {
                     _app.ShowHelp();
+                    return 1;
+                }
+
+                var connectionString = Environment.GetEnvironmentVariable("DIST_ASPNET_STORAGE_ACCOUNT");
+                if (string.IsNullOrEmpty(connectionString))
+                {
+                    Logger.LogError("Environment variable DIST_ASPNET_STORAGE_ACCOUNT is not set.");
                     return 1;
                 }
 
@@ -115,7 +112,7 @@ namespace DependenciesPackager
                     return 1;
                 }
 
-                var account = Microsoft.WindowsAzure.Storage.CloudStorageAccount.Parse(_connectionString.Value());
+                var account = Microsoft.WindowsAzure.Storage.CloudStorageAccount.Parse(connectionString);
                 var client = account.CreateCloudBlobClient();
                 var container = client.GetContainerReference(_container.Value());
 

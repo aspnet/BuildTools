@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NuGet.Packaging;
@@ -44,8 +45,16 @@ namespace PackageClassifier
                     file.FullName,
                     identity.Id,
                     identity.Version.ToString(),
-                    reader.GetSupportedFrameworks().Select(fx => fx.DotNetFrameworkName));
+                    GetSupportedFrameworks(reader));
             }
+        }
+
+        private IEnumerable<string> GetSupportedFrameworks(PackageArchiveReader reader)
+        {
+            // To array is required here to force the enumeration.
+            return reader.GetLibItems()
+                .Select(frameworkSpecificGroup => frameworkSpecificGroup.TargetFramework.DotNetFrameworkName)
+                .ToArray();
         }
 
         public PackageInformation[] GetById(string id)

@@ -1,0 +1,23 @@
+﻿{
+  "version": "1.0.0-*",
+  "dependencies": {
+    "xunit": "2.2.0-*",
+    "dotnet-test-xunit": "2.2.0-*",
+    "ApiCheck": "1.0.0-*",
+    "ApiCheckBaseline.V1": "1.0.0-*",
+    "ApiCheckBaseline.V2": "1.0.0-*"
+  },
+  "testRunner": "xunit",
+  "frameworks": {
+    "netcoreapp1.0": {
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "version": "1.0.0",
+          "type": "platform"
+        }
+      },
+      "imports": "dnxcore50"
+    },
+    "net452": {}
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ApiCheck": {
+      "commandName": "Project",
+      "commandLineArgs": "generate -a C:\\work\\Mvc\\src\\Microsoft.AspNetCore.Mvc.Abstractions\\bin\\Debug\\netstandard1.3\\Microsoft.AspNetCore.Mvc.Abstractions.dll -l C:\\work\\Mvc\\src\\Microsoft.AspNetCore.Mvc.Abstractions\\project.lock.json -f netcoreapp1.0 -o results.json"
+    }
+  }
+}

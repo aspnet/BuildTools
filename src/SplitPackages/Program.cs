@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Microsoft.Extensions.CommandLineUtils;
@@ -60,6 +61,13 @@ namespace SplitPackages
 
         static int Main(string[] args)
         {
+            if (args.Length > 0 && args[0] == "--debug")
+            {
+                args = args.Skip(1).ToArray();
+                Console.WriteLine($"Waiting for debugger to attach to {Process.GetCurrentProcess().Id}.");
+                Console.ReadLine();
+            }
+
             var app = new CommandLineApplication();
             app.Name = "SplitPackages";
 
@@ -168,7 +176,7 @@ namespace SplitPackages
 
         private void CreateProjectJsonFileWithTimeStamps(string destinationPath, ClassificationResult optimizedCacheClassification)
         {
-            var packages = optimizedCacheClassification.GetPackagesForValue("include");
+            var packages = GetPackagesForOptimizedCache(optimizedCacheClassification);
             var builder = CreateBaseJsonFileBuilderForCache(destinationPath, "cache.project.json");
             builder.AddDependencies(packages);
             builder.Execute();
@@ -176,12 +184,18 @@ namespace SplitPackages
 
         private void CreateProjectJsonFileWithoutTimeStamps(string destinationPath, ClassificationResult optimizedCacheClassification)
         {
-            var packages = optimizedCacheClassification.GetPackagesForValue("include");
+            var packages = GetPackagesForOptimizedCache(optimizedCacheClassification);
             var correctedPackages = packages.Select(p => new PackageInformation(p.FullPath, p.Identity, GetFinalVersion(p.Version), p.SupportedFrameworks));
 
             var builder = CreateBaseJsonFileBuilderForCache(destinationPath, "final.cache.project.json");
             builder.AddDependencies(correctedPackages);
             builder.Execute();
+        }
+
+        private IEnumerable<PackageInformation> GetPackagesForOptimizedCache(ClassificationResult optimizedCacheClassification)
+        {
+            var packages = optimizedCacheClassification.GetPackagesForValue("include");
+            return packages.Where(p => Frameworks.ClassifyFramework(p.SupportedFrameworks).IsNetCoreApp10);
         }
 
         private string GetFinalVersion(string version)
@@ -207,7 +221,8 @@ namespace SplitPackages
                 _ignoreErrors.HasValue(),
                 Logger);
 
-            var hardcodedDependencies = new[] {
+            var hardcodedDependencies = new[]
+            {
                 new PackageInformation(null, "Microsoft.NetCore.App", "1.0.0", new[] { Frameworks.NetCoreApp10 })
             };
 

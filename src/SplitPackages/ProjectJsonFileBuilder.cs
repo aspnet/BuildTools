@@ -77,7 +77,10 @@ namespace SplitPackages
             var fx = _frameworks.FirstOrDefault(f => f.Name == framework);
             if (fx == null)
             {
-                throw new InvalidOperationException($"Framework '{framework.ToString()}' in package '{dependency.Name}' is not valid.");
+                var expectedFrameworks = string.Join(", ", _frameworks.Select(f => f.Name));
+                var supportedFrameworks = string.Join(", ", dependency.SupportedFrameworks);
+                throw new InvalidOperationException($"Package {dependency.Name} does not support any of the following frameworks '{expectedFrameworks}'. " +
+                    $"The following frameworks are supported by the package: {supportedFrameworks}.");
             }
             fx.Dependencies.Add(dependency);
         }

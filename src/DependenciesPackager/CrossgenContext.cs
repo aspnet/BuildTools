@@ -125,6 +125,7 @@ namespace DependenciesPackager
                 {
                     var subDir = CreateSubDirectory(outputPath, package, asset);
                     var targetPath = Path.Combine(subDir.FullName, asset.FileName);
+
                     if (!CrossgenAssembly(_stagingFolder, package, asset, targetPath))
                     {
                         _logger.LogWarning($"Failed to crossgen asset {asset.FileName}. Copy the original asset instead.");
@@ -140,11 +141,12 @@ namespace DependenciesPackager
             {
                 var desp = (PackageDescription)entry.Library;
                 var hash = desp.PackageLibrary.Files.Single(file => file.EndsWith(".sha512"));
+                var desination = Path.Combine(outputPath,
+                    entry.Library.Identity.Name.ToLowerInvariant(),
+                    entry.Library.Identity.Version.ToNormalizedString().ToLowerInvariant(),
+                    hash.ToLowerInvariant());
 
-                File.Copy(
-                    Path.Combine(entry.Library.Path, hash),
-                    Path.Combine(outputPath, entry.Library.Identity.Name, entry.Library.Identity.Version.ToNormalizedString(), hash),
-                    overwrite: true);
+                File.Copy(Path.Combine(entry.Library.Path, hash), desination, overwrite: true);
             }
         }
 
@@ -181,10 +183,13 @@ namespace DependenciesPackager
 
         private DirectoryInfo CreateSubDirectory(string cacheBasePath, PackageEntry package, LibraryAsset asset)
         {
+            // special treatment of the cases in the path to accommodating NuGet package search
+            // https://github.com/aspnet/BuildTools/issues/94
+            // https://github.com/NuGet/Home/issues/2522
             var subDirectoryPath = Path.Combine(
                 cacheBasePath,
-                package.Library.Identity.Name,
-                package.Library.Identity.Version.ToNormalizedString(),
+                package.Library.Identity.Name.ToLowerInvariant(),
+                package.Library.Identity.Version.ToNormalizedString().ToLowerInvariant(),
                 Path.GetDirectoryName(asset.RelativePath));
 
             _logger.LogInformation($"Creating sub directory on {subDirectoryPath}.");

@@ -34,7 +34,7 @@ namespace DependenciesPackager
             _project = project;
             _logger = logger;
 
-            _dependencies = new HashSet<string>(_project.Dependencies.Select(d => d.Name));
+            _dependencies = new HashSet<string>(_project.Dependencies.Select(d => d.Name), StringComparer.OrdinalIgnoreCase);
         }
 
         public string OutputPath { get; }

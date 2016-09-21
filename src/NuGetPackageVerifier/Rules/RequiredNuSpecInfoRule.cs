@@ -2,36 +2,30 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.IO;
-using NuGet.Packaging;
-using NuGetPackageVerifier.Logging;
 
 namespace NuGetPackageVerifier.Rules
 {
     public class RequiredNuSpecInfoRule : IPackageVerifierRule
     {
-        public IEnumerable<PackageVerifierIssue> Validate(
-            FileInfo nupkgFile,
-            IPackageMetadata package,
-            IPackageVerifierLogger logger)
+        public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
-            if (string.IsNullOrEmpty(package.Copyright))
+            if (string.IsNullOrEmpty(context.Metadata.Copyright))
             {
                 yield return PackageIssueFactory.RequiredCopyright();
             }
-            if (package.LicenseUrl == null)
+            if (context.Metadata.LicenseUrl == null)
             {
                 yield return PackageIssueFactory.RequiredLicenseUrl();
             }
-            if (package.IconUrl == null)
+            if (context.Metadata.IconUrl == null)
             {
                 yield return PackageIssueFactory.RequiredIconUrl();
             }
-            if (package.ProjectUrl == null)
+            if (context.Metadata.ProjectUrl == null)
             {
                 yield return PackageIssueFactory.RequiredProjectUrl();
             }
-            if (!package.RequireLicenseAcceptance)
+            if (!context.Metadata.RequireLicenseAcceptance)
             {
                 yield return PackageIssueFactory.RequiredRequireLicenseAcceptanceTrue();
             }

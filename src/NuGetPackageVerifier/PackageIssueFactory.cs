@@ -8,6 +8,24 @@ namespace NuGetPackageVerifier
 {
     public static class PackageIssueFactory
     {
+        public static PackageVerifierIssue PackageTypeMissing(string packageType)
+        {
+            return new PackageVerifierIssue(
+                "PACKAGE_TYPE_MISSING",
+                string.Format("Package type '{0}' not found in package metadata.", packageType),
+                PackageIssueLevel.Error
+            );
+        }
+
+        public static PackageVerifierIssue PackageTypeUnexpected(string packageType)
+        {
+            return new PackageVerifierIssue(
+                "PACKAGE_TYPE_UNEXPECTED",
+                string.Format("Unexpected package type '{0}' found in package metadata.", packageType),
+                PackageIssueLevel.Warning
+            );
+        }
+
         public static PackageVerifierIssue AssemblyMissingServicingAttribute(string assemblyPath)
         {
             return new PackageVerifierIssue(

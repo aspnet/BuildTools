@@ -16,12 +16,9 @@ namespace NuGetPackageVerifier.Rules
     {
         private static string _publicKeyToken = "ADB9793829DDAE60";
 
-        public IEnumerable<PackageVerifierIssue> Validate(
-            FileInfo nupkgFile,
-            IPackageMetadata package,
-            IPackageVerifierLogger logger)
+        public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
-            using (var reader = new PackageArchiveReader(nupkgFile.FullName))
+            using (var reader = new PackageArchiveReader(context.PackageFileInfo.FullName))
             {
                 foreach (var currentFile in reader.GetFiles())
                 {
@@ -69,7 +66,7 @@ namespace NuGetPackageVerifier.Rules
                         }
                         catch (Exception ex)
                         {
-                            logger.LogError(
+                            context.Logger.LogError(
                                 "Error while verifying strong name signature for {0}: {1}", currentFile, ex.Message);
                         }
                         finally

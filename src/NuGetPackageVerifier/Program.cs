@@ -112,7 +112,7 @@ namespace NuGetPackageVerifier
             var totalErrors = 0;
             var totalWarnings = 0;
 
-            var ignoreAssistanceData = new Dictionary<string, IDictionary<string, IDictionary<string, string>>>(
+            var ignoreAssistanceData = new Dictionary<string, PackageVerifierOptions>(
                 StringComparer.OrdinalIgnoreCase);
 
             IEnumerable<IPackageVerifierRule> defaultRuleSet = null;
@@ -146,11 +146,9 @@ namespace NuGetPackageVerifier
 
                 var issueProcessor = new IssueProcessor(issuesToIgnore);
 
-
                 foreach (var packageInfo in packageSet.Value.Packages)
                 {
                     var packageId = packageInfo.Key;
-                    var packageIgnoreInfo = packageInfo.Value;
 
                     var packagesWithId = packages.Where(p => p.Key.Id.Equals(packageId));
                     if (!packagesWithId.Any())
@@ -165,7 +163,15 @@ namespace NuGetPackageVerifier
                         var package = packagePair.Key;
                         logger.LogInfo("Analyzing {0} ({1})", package.Id, package.Version);
 
-                        var issues = analyzer.AnalyzePackage(packagePair.Value, package, logger).ToList();
+                        var context = new PackageAnalysisContext
+                        {
+                            PackageFileInfo = packagePair.Value,
+                            Metadata = package,
+                            Logger = logger,
+                            Options = packageInfo.Value
+                        };
+
+                        var issues = analyzer.AnalyzePackage(context).ToList();
 
                         var packageErrorsAndWarnings = ProcessPackageIssues(
                             ignoreAssistanceMode,
@@ -219,7 +225,14 @@ namespace NuGetPackageVerifier
                 {
                     logger.LogInfo("Analyzing {0} ({1})", unprocessedPackage.Id, unprocessedPackage.Version);
 
-                    var issues = analyzer.AnalyzePackage(packages[unprocessedPackage], unprocessedPackage, logger).ToList();
+                    var context = new PackageAnalysisContext
+                    {
+                        PackageFileInfo = packages[unprocessedPackage],
+                        Metadata = unprocessedPackage,
+                        Logger = logger
+                    };
+
+                    var issues = analyzer.AnalyzePackage(context).ToList();
 
                     var packageErrorsAndWarnings = ProcessPackageIssues(
                         ignoreAssistanceMode,
@@ -239,7 +252,12 @@ namespace NuGetPackageVerifier
             if (ignoreAssistanceMode != IgnoreAssistanceMode.None)
             {
                 Console.WriteLine("Showing JSON for ignore content:");
-                Console.WriteLine(JsonConvert.SerializeObject(ignoreAssistanceData, Formatting.Indented));
+                Console.WriteLine(JsonConvert.SerializeObject(ignoreAssistanceData,
+                    Formatting.Indented,
+                    new JsonSerializerSettings
+                    {
+                        NullValueHandling = NullValueHandling.Ignore
+                    }));
                 Console.WriteLine();
             }
 
@@ -269,7 +287,7 @@ namespace NuGetPackageVerifier
             IgnoreAssistanceMode ignoreAssistanceMode,
             IPackageVerifierLogger logger,
             IssueProcessor issueProcessor,
-            Dictionary<string, IDictionary<string, IDictionary<string, string>>> ignoreAssistanceData,
+            Dictionary<string, PackageVerifierOptions> ignoreAssistanceData,
             IPackageMetadata package,
             List<PackageVerifierIssue> issues)
         {
@@ -304,17 +322,18 @@ namespace NuGetPackageVerifier
                     if (ignoreAssistanceMode == IgnoreAssistanceMode.ShowAll ||
                         (ignoreAssistanceMode == IgnoreAssistanceMode.ShowNew && issueToReport.IgnoreJustification == null))
                     {
-                        IDictionary<string, IDictionary<string, string>> packageIgnoreInfo;
-                        if (!ignoreAssistanceData.TryGetValue(package.Id, out packageIgnoreInfo))
+                        PackageVerifierOptions options;
+                        if (!ignoreAssistanceData.TryGetValue(package.Id, out options))
                         {
-                            packageIgnoreInfo = new Dictionary<string, IDictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
-                            ignoreAssistanceData.Add(package.Id, packageIgnoreInfo);
+                            options = new PackageVerifierOptions();
+                            ignoreAssistanceData.Add(package.Id, options);
                         }
+
                         IDictionary<string, string> packageRuleInfo;
-                        if (!packageIgnoreInfo.TryGetValue(issueToReport.PackageIssue.IssueId, out packageRuleInfo))
+                        if (!options.NoWarn.TryGetValue(issueToReport.PackageIssue.IssueId, out packageRuleInfo))
                         {
                             packageRuleInfo = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-                            packageIgnoreInfo.Add(issueToReport.PackageIssue.IssueId, packageRuleInfo);
+                            options.NoWarn.Add(issueToReport.PackageIssue.IssueId, packageRuleInfo);
                         }
                         if (packageRuleInfo.ContainsKey(issueToReport.PackageIssue.Instance ?? "*"))
                         {
@@ -338,7 +357,7 @@ namespace NuGetPackageVerifier
             }
         }
 
-        private static IList<IssueIgnore> GetIgnoresFromFile(IDictionary<string, IDictionary<string, IDictionary<string, string>>> ignoresInFile)
+        private static IList<IssueIgnore> GetIgnoresFromFile(IDictionary<string, PackageVerifierOptions> ignoresInFile)
         {
             var issuesToIgnore = new List<IssueIgnore>();
             if (ignoresInFile != null)
@@ -346,7 +365,11 @@ namespace NuGetPackageVerifier
                 foreach (var packageIgnoreData in ignoresInFile)
                 {
                     var packageId = packageIgnoreData.Key;
-                    foreach (var ruleIgnoreData in packageIgnoreData.Value)
+                    if (packageIgnoreData.Value == null)
+                    {
+                        continue;
+                    }
+                    foreach (var ruleIgnoreData in packageIgnoreData.Value.NoWarn)
                     {
                         var issueId = ruleIgnoreData.Key;
                         foreach (var instanceIgnoreData in ruleIgnoreData.Value)

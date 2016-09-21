@@ -7,18 +7,14 @@ using System.IO;
 using System.Linq;
 using Mono.Cecil;
 using NuGet.Packaging;
-using NuGetPackageVerifier.Logging;
 
 namespace NuGetPackageVerifier.Rules
 {
     public abstract class AssemblyHasAttributeRuleBase : IPackageVerifierRule
     {
-        public IEnumerable<PackageVerifierIssue> Validate(
-            FileInfo nupkgFile,
-            IPackageMetadata package,
-            IPackageVerifierLogger logger)
+        public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
-            using (var reader = new PackageArchiveReader(nupkgFile.FullName))
+            using (var reader = new PackageArchiveReader(context.PackageFileInfo.FullName))
             {
                 foreach (var currentFile in reader.GetFiles())
                 {

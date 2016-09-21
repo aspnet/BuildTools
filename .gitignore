@@ -18,4 +18,4 @@ node_modules
 project.lock.json
 .build
 .vs/
-
+.vscode/

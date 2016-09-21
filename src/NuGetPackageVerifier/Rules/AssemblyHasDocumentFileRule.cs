@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using NuGetPackageVerifier.Logging;
 using NuGet.Packaging;
 using NuGet.Packaging.Core;
 
@@ -13,12 +12,9 @@ namespace NuGetPackageVerifier.Rules
 {
     public class AssemblyHasDocumentFileRule : IPackageVerifierRule
     {
-        public IEnumerable<PackageVerifierIssue> Validate(
-            FileInfo nupkgFile,
-            IPackageMetadata package,
-            IPackageVerifierLogger logger)
+        public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
-            using (var reader = new PackageArchiveReader(nupkgFile.FullName))
+            using (var reader = new PackageArchiveReader(context.PackageFileInfo.FullName))
             {
                 PackageIdentity identity;
                 string packageLanguage;

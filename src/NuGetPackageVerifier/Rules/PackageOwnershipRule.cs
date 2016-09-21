@@ -10,7 +10,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
-using NuGet.Packaging;
 using NuGetPackageVerifier.Logging;
 
 namespace NuGetPackageVerifier.Rules
@@ -28,20 +27,20 @@ namespace NuGetPackageVerifier.Rules
         private static readonly IList<string> OwnedPackages = GetOwnedPackages();
         private readonly HttpClient _httpClient = new HttpClient();
 
-        public IEnumerable<PackageVerifierIssue> Validate(FileInfo nupkgFile, IPackageMetadata package, IPackageVerifierLogger logger)
+        public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
-            if (OwnedPackages.Contains(package.Id, StringComparer.OrdinalIgnoreCase))
+            if (OwnedPackages.Contains(context.Metadata.Id, StringComparer.OrdinalIgnoreCase))
             {
                 yield break;
             }
 
-            logger.LogInfo($"Looking up ownership for package {package.Id}. Add this package to the owned-packages.txt list if it's owned.");
+            context.Logger.LogInfo($"Looking up ownership for package {context.Metadata.Id}. Add this package to the owned-packages.txt list if it's owned.");
 
-            var url = string.Format(CultureInfo.InvariantCulture, NuGetV3Endpoint, package.Id);
-            var result = GetPackageSearchResultAsync(logger, url).Result;
+            var url = string.Format(CultureInfo.InvariantCulture, NuGetV3Endpoint, context.Metadata.Id);
+            var result = GetPackageSearchResultAsync(context.Logger, url).Result;
             if (result?.Data.Length == 0)
             {
-                yield return PackageIssueFactory.IdDoesNotExist(package.Id);
+                yield return PackageIssueFactory.IdDoesNotExist(context.Metadata.Id);
             }
             else
             {
@@ -51,13 +50,13 @@ namespace NuGetPackageVerifier.Rules
                 if (owners.Length == 0)
                 {
                     // The API result can sometimes be empty and not contain any owner data.
-                    var packagePage = NuGetOrgPackagePage + package.Id;
+                    var packagePage = NuGetOrgPackagePage + context.Metadata.Id;
                     using (var httpResponse = _httpClient.GetAsync(packagePage).Result)
                     {
                         if (!httpResponse.IsSuccessStatusCode)
                         {
-                            logger.LogWarning($"Unable to read content from {packagePage}. Response code {httpResponse.StatusCode}.");
-                            yield return PackageIssueFactory.IdDoesNotExist(package.Id);
+                            context.Logger.LogWarning($"Unable to read content from {packagePage}. Response code {httpResponse.StatusCode}.");
+                            yield return PackageIssueFactory.IdDoesNotExist(context.Metadata.Id);
                         }
                         else
                         {
@@ -69,7 +68,7 @@ namespace NuGetPackageVerifier.Rules
 
                 if (!AllowedOwners.Intersect(owners, StringComparer.OrdinalIgnoreCase).Any())
                 {
-                    yield return PackageIssueFactory.IdIsNotOwned(package.Id, AllowedOwners);
+                    yield return PackageIssueFactory.IdIsNotOwned(context.Metadata.Id, AllowedOwners);
                 }
             }
         }

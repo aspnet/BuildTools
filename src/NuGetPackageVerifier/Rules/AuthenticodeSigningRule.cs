@@ -12,16 +12,13 @@ namespace NuGetPackageVerifier.Rules
 {
     public class AuthenticodeSigningRule : IPackageVerifierRule
     {
-        public IEnumerable<PackageVerifierIssue> Validate(
-            FileInfo nupkgFile,
-            IPackageMetadata package,
-            IPackageVerifierLogger logger)
+        public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
             var extractPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             try
             {
-                UnzipPackage(nupkgFile, extractPath);
-                using (var reader = new PackageArchiveReader(nupkgFile.FullName))
+                UnzipPackage(context.PackageFileInfo, extractPath);
+                using (var reader = new PackageArchiveReader(context.PackageFileInfo.FullName))
                 {
                     foreach (var current in reader.GetFiles())
                     {
@@ -39,7 +36,7 @@ namespace NuGetPackageVerifier.Rules
                                 realAssemblyPath = pathOfFileToScan.Replace("+", "%2B").Replace("#", "%23");
                                 if (!File.Exists(realAssemblyPath))
                                 {
-                                    logger.LogError(
+                                    context.Logger.LogError(
                                         "The assembly '{0}' in this package can't be found (a bug in this tool, most likely).",
                                         current);
 
@@ -58,7 +55,7 @@ namespace NuGetPackageVerifier.Rules
             }
             finally
             {
-                CleanUpFolder(extractPath, logger);
+                CleanUpFolder(extractPath, context.Logger);
             }
 
             yield break;

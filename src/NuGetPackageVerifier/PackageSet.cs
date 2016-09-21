@@ -12,6 +12,6 @@ namespace NuGetPackageVerifier
 
         // List of packages(key), each with a set of rules to ignore(key), each with a set of instances(key),
         // each of which has a justification(value)
-        public IDictionary<string, IDictionary<string, IDictionary<string, string>>> Packages { get; set; }
+        public IDictionary<string, PackageVerifierOptions> Packages { get; set; }
     }
 }

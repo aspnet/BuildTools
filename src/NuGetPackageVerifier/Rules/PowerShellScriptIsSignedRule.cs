@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using NuGetPackageVerifier.Logging;
 using NuGet.Packaging;
 
 namespace NuGetPackageVerifier.Rules
@@ -20,12 +19,9 @@ namespace NuGetPackageVerifier.Rules
             ".ps1xml"
         };
 
-        public IEnumerable<PackageVerifierIssue> Validate(
-            FileInfo nupkgFile,
-            IPackageMetadata package,
-            IPackageVerifierLogger logger)
+        public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
-            using (var reader = new PackageArchiveReader(nupkgFile.FullName))
+            using (var reader = new PackageArchiveReader(context.PackageFileInfo.FullName))
             {
                 foreach (var current in reader.GetFiles())
                 {

@@ -2,35 +2,30 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.IO;
 using NuGet.Packaging;
 using NuGet.Packaging.Core;
-using NuGetPackageVerifier.Logging;
 
 namespace NuGetPackageVerifier.Rules
 {
     public class SatellitePackageRule : IPackageVerifierRule
     {
-        public IEnumerable<PackageVerifierIssue> Validate(
-            FileInfo nupkgFile,
-            IPackageMetadata package,
-            IPackageVerifierLogger logger)
+        public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
-            using (var reader = new PackageArchiveReader(nupkgFile.FullName))
+            using (var reader = new PackageArchiveReader(context.PackageFileInfo.FullName))
             {
                 PackageIdentity identity;
                 string packageLanguage;
                 if (PackageHelper.IsSatellitePackage(reader, out identity, out packageLanguage))
                 {
-                    if (package.Summary.Contains("{"))
+                    if (context.Metadata.Summary.Contains("{"))
                     {
                         yield return PackageIssueFactory.Satellite_PackageSummaryNotLocalized();
                     }
-                    if (package.Title.Contains("{"))
+                    if (context.Metadata.Title.Contains("{"))
                     {
                         yield return PackageIssueFactory.Satellite_PackageTitleNotLocalized();
                     }
-                    if (package.Description.Contains("{"))
+                    if (context.Metadata.Description.Contains("{"))
                     {
                         yield return PackageIssueFactory.Satellite_PackageDescriptionNotLocalized();
                     }

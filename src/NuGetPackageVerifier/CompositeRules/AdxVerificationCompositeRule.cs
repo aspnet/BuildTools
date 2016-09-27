@@ -9,21 +9,7 @@ namespace NuGetPackageVerifier.Rules
     {
         IPackageVerifierRule[] _rules = new IPackageVerifierRule[]
         {
-            new AssemblyHasCommitHashAttributeRule(),
-            new AssemblyHasCompanyAttributeRule(),
-            new AssemblyHasCopyrightAttributeRule(),
-            new AssemblyHasCorrectBuildConfigurationRule(),
-            new AssemblyHasCorrectJsonNetVersionRule(),
-            new AssemblyHasDocumentFileRule(),
-            new AssemblyHasNeutralResourcesLanguageAttributeRule(),
-            new AssemblyHasProductAttributeRule(),
-            new AssemblyHasServicingAttributeRule(),
-            new AssemblyHasVersionAttributesRule(),
-            new AssemblyStrongNameRule(),
-            new PackageAuthorRule(),
-            new PackageTypesRule(),
-            new SatellitePackageRule(),
-            new StrictSemanticVersionValidationRule(),
+            new DefaultCompositeRule()
         };
 
         public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)

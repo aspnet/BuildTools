@@ -9,10 +9,8 @@ namespace NuGetPackageVerifier.Rules
     {
         IPackageVerifierRule[] _rules = new IPackageVerifierRule[]
         {
-            new AssemblyHasCommitHashAttributeRule(),
             new AssemblyHasCompanyAttributeRule(),
             new AssemblyHasCopyrightAttributeRule(),
-            new AssemblyHasCorrectBuildConfigurationRule(),
             new AssemblyHasCorrectJsonNetVersionRule(),
             new AssemblyHasDocumentFileRule(),
             new AssemblyHasDescriptionAttributeRule(),

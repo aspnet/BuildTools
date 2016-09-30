@@ -330,10 +330,10 @@ namespace NuGetPackageVerifier
                         }
 
                         IDictionary<string, string> packageRuleInfo;
-                        if (!options.NoWarn.TryGetValue(issueToReport.PackageIssue.IssueId, out packageRuleInfo))
+                        if (!options.Exclusions.TryGetValue(issueToReport.PackageIssue.IssueId, out packageRuleInfo))
                         {
                             packageRuleInfo = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-                            options.NoWarn.Add(issueToReport.PackageIssue.IssueId, packageRuleInfo);
+                            options.Exclusions.Add(issueToReport.PackageIssue.IssueId, packageRuleInfo);
                         }
                         if (packageRuleInfo.ContainsKey(issueToReport.PackageIssue.Instance ?? "*"))
                         {
@@ -369,7 +369,7 @@ namespace NuGetPackageVerifier
                     {
                         continue;
                     }
-                    foreach (var ruleIgnoreData in packageIgnoreData.Value.NoWarn)
+                    foreach (var ruleIgnoreData in packageIgnoreData.Value.Exclusions)
                     {
                         var issueId = ruleIgnoreData.Key;
                         foreach (var instanceIgnoreData in ruleIgnoreData.Value)

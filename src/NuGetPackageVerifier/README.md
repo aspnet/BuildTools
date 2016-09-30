@@ -10,8 +10,10 @@ NuGetPackageVerifier.json schema
         "rules": [ "$ruleNameToRun$" ],
         "packages": {
             "$packageId$": {
-                "nowarn": {
-                    "$warningId$": "$justification$"
+                "exclusions": {
+                    "$ISSUE_ID$": {
+                        "$file$": "$justification$"
+                    }
                 },
                 "packageTypes": [ "$packageType$" ] /* Optional. For validating http://docs.nuget.org/create/package-types */
             }

@@ -11,7 +11,7 @@ namespace NuGetPackageVerifier
         // ignored warnings (with a justification)
         // key = issueid
         // values = <filename, justification>
-        public IDictionary<string, IDictionary<string, string>> NoWarn { get; set; }
+        public IDictionary<string, IDictionary<string, string>> Exclusions { get; set; }
             = new Dictionary<string, IDictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
 
         public IList<string> PackageTypes { get; set; }

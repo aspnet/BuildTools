@@ -121,7 +121,7 @@ namespace DependenciesPackager
             var processInfo = new ProcessStartInfo(_exePath, _arguments);
             foreach (var variable in _environment)
             {
-                processInfo.Environment.Add(variable.Key, variable.Value);
+                processInfo.Environment[variable.Key] = variable.Value;
             }
 
             processInfo.WorkingDirectory = _workingDirectory;

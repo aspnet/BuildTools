@@ -195,7 +195,11 @@ namespace SplitPackages
         private IEnumerable<PackageInformation> GetPackagesForOptimizedCache(ClassificationResult optimizedCacheClassification)
         {
             var packages = optimizedCacheClassification.GetPackagesForValue("include");
-            return packages.Where(p => Frameworks.ClassifyFramework(p.SupportedFrameworks).IsNetCoreApp10);
+            return packages.Where(p =>
+            {
+                var classification = Frameworks.ClassifyFramework(p.SupportedFrameworks);
+                return classification.IsAll || classification.IsNetCoreApp10;
+            });
         }
 
         private string GetFinalVersion(string version)

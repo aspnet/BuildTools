@@ -179,6 +179,8 @@ namespace ApiCheck
                 }
             }
 
+            var logger = CreateLogger();
+
             var resolvedPackagesFolder = packagesFolder.Value() ??
                 $"{Environment.ExpandEnvironmentVariables("%userprofile%")}/.nuget/packages";
 
@@ -226,7 +228,17 @@ namespace ApiCheck
                 breakingChangeTypes,
                 breakingChangeHandlers);
 
-            var difference = comparer.GetDifferences();
+            var differences = comparer.GetDifferences();
+            foreach (var difference in differences)
+            {
+                logger.LogInformation($@"Old: {difference.OldItem.Id}
+New: {difference.NewItem.Id}");
+            }
+
+            if (differences.Count > 0)
+            {
+                return Error;
+            }
 
             return Ok;
         }

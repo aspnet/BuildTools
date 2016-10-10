@@ -23,7 +23,7 @@ namespace ApiCheck
                 string packagesFolder)
         {
             var ctx = CreateProjectContext(framework, lockFile, packagesFolder);
-            var exporter = ctx.CreateExporter("Pranav");
+            var exporter = ctx.CreateExporter("ApiCheck");
             var dependencies = exporter.GetDependencies().ToArray();
 
 #if NETCOREAPP1_0

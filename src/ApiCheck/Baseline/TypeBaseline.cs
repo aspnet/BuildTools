@@ -150,10 +150,9 @@ namespace ApiCheck.Baseline
                 typeName = $"{name}<{string.Join(", ", type.GetGenericArguments().Select(ga => GetTypeNameFor(ga.GetTypeInfo())))}>";
             }
 
-            if (type.IsPointer)
-            {
-                typeName = typeName.TrimEnd('&');
-            }
+            // Parameters passed by reference through out or ref modifiers have an & at the end of their
+            // name to indicate they are pointers to a given type.
+            typeName = typeName.TrimEnd('&');
 
             return typeName;
         }

@@ -281,6 +281,12 @@ namespace Scenarios
             return 1.0M;
         }
 
+        public void MethodWithParametersInDifferentDirections(string inParameter, out bool outParameter, ref int refParameter)
+        {
+            outParameter = false;
+            refParameter = 0;
+        }
+
         public void VoidReturningMethodWithParamsArgument(params string[] stringParams)
         {
         }
@@ -355,5 +361,29 @@ namespace Scenarios
         FirstValue,
         ExplicitValue = 5,
         ValueAfterExplicit
+    }
+
+    public class ClassWithConstructors
+    {
+        // Parameterless
+        public ClassWithConstructors()
+        {
+        }
+
+        // Different visibility and a parameter
+        public ClassWithConstructors(bool parameter)
+        {
+        }
+
+        public ClassWithConstructors(string parameter = "default", params int[] values)
+        {
+        }
+    }
+
+    public class ClassWithoutImplicitParameterlessConstructor
+    {
+        public ClassWithoutImplicitParameterlessConstructor(string parameter)
+        {
+        }
     }
 }

@@ -1019,6 +1019,59 @@ namespace ApiCheck.Test
             var thirdValue = Assert.Single(type.Members, m => m.Id == "ValueAfterExplicit = 6");
         }
 
+        [Fact]
+        public void DetectsConstructors()
+        {
+            // Arrange
+            var generator = CreateGenerator(V1Assembly);
+
+            // Act
+            var report = generator.GenerateBaseline();
+
+            // Assert
+            Assert.NotNull(report);
+            Assert.NotNull(report.Types);
+
+            var type = Assert.Single(report.Types, t => t.Id == "public class Scenarios.ClassWithConstructors");
+            var firstValue = Assert.Single(type.Members, m => m.Id == "public .ctor()");
+            var secondValue = Assert.Single(type.Members, m => m.Id == "public .ctor(System.Boolean parameter)");
+            var thirdValue = Assert.Single(type.Members, m => m.Id == "public .ctor(System.String parameter = \"default\", params System.Int32[] values)");
+        }
+
+        [Fact]
+        public void DetectsExplicitConstructorWithParameters()
+        {
+            // Arrange
+            var generator = CreateGenerator(V1Assembly);
+
+            // Act
+            var report = generator.GenerateBaseline();
+
+            // Assert
+            Assert.NotNull(report);
+            Assert.NotNull(report.Types);
+
+            var type = Assert.Single(report.Types, t => t.Id == "public class Scenarios.ClassWithoutImplicitParameterlessConstructor");
+            var secondValue = Assert.Single(type.Members, m => m.Id == "public .ctor(System.String parameter)");
+        }
+
+        [Fact]
+        public void DetectsMethodParameterDirections()
+        {
+            // Arrange
+            var generator = CreateGenerator(V1Assembly);
+
+            // Act
+            var report = generator.GenerateBaseline();
+
+            // Assert
+            Assert.NotNull(report);
+            Assert.NotNull(report.Types);
+
+            var type = Assert.Single(report.Types, t => t.Id == "public class Scenarios.MethodTypesClass");
+            var secondValue = Assert.Single(type.Members, m => m.Id == "public System.Void MethodWithParametersInDifferentDirections(System.String inParameter, out System.Boolean outParameter, ref System.Int32 refParameter)");
+        }
+
         private BaselineGenerator CreateGenerator(Assembly assembly)
         {
             return new BaselineGenerator(assembly, Enumerable.Empty<Func<TypeInfo, bool>>());

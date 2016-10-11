@@ -78,8 +78,11 @@ namespace ApiCheck.Baseline
                 case BaselineKind.Class:
                     yield return "class";
                     break;
-                default:
+                case BaselineKind.Enumeration:
+                    yield return "enum";
                     break;
+                default:
+                    throw new InvalidOperationException("Invalid kind");
             }
 
             yield return Name;

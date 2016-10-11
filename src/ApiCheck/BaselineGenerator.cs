@@ -56,7 +56,10 @@ namespace ApiCheck
 
             typeBaseline.Name = TypeBaseline.GetTypeNameFor(type);
 
-            typeBaseline.Kind = type.IsInterface ? BaselineKind.Interface : type.IsValueType ? BaselineKind.Struct : BaselineKind.Class;
+            typeBaseline.Kind = type.IsInterface ? BaselineKind.Interface :
+                !type.IsValueType ? BaselineKind.Class :
+                type.IsEnum ? BaselineKind.Enumeration :
+                BaselineKind.Struct;
 
             typeBaseline.Visibility = type.IsPublic || type.IsNestedPublic ? BaselineVisibility.Public :
                 type.IsNestedFamORAssem ? BaselineVisibility.ProtectedInternal :
@@ -70,9 +73,14 @@ namespace ApiCheck
 
             typeBaseline.Sealed = type.IsSealed;
 
-            if (type.BaseType != null && type.BaseType != typeof(object) && type.BaseType != typeof(ValueType))
+            if (type.BaseType != null &&
+                type.BaseType != typeof(object) &&
+                type.BaseType != typeof(ValueType) &&
+                !(type.IsEnum && type.GetEnumUnderlyingType() == typeof(int)))
             {
-                typeBaseline.BaseType = TypeBaseline.GetTypeNameFor(type.BaseType.GetTypeInfo());
+                typeBaseline.BaseType = !type.IsEnum ?
+                    TypeBaseline.GetTypeNameFor(type.BaseType.GetTypeInfo()) :
+                    TypeBaseline.GetTypeNameFor(type.GetEnumUnderlyingType().GetTypeInfo());
             }
 
             if (type.ImplementedInterfaces?.Count() > 0)
@@ -204,6 +212,12 @@ namespace ApiCheck
                     return methodBaseline;
                 case MemberTypes.Field:
                     var field = (FieldInfo)member;
+                    if (type.IsEnum && !field.IsLiteral)
+                    {
+                        // Skip storage for enumerations.
+                        return null;
+                    }
+
                     var fieldBaseline = new MemberBaseline();
 
                     fieldBaseline.Visibility = field.IsPublic ? BaselineVisibility.Public :
@@ -211,13 +225,25 @@ namespace ApiCheck
                         field.IsFamily ? BaselineVisibility.Protected :
                         field.IsPrivate ? BaselineVisibility.Private : BaselineVisibility.Internal;
 
-                    fieldBaseline.Constant = field.IsLiteral;
-                    fieldBaseline.Static = field.IsStatic;
-                    fieldBaseline.ReadOnly = field.IsInitOnly;
                     fieldBaseline.Kind = MemberBaselineKind.Field;
-
                     fieldBaseline.Name = field.Name;
-                    fieldBaseline.ReturnType = TypeBaseline.GetTypeNameFor(field.FieldType.GetTypeInfo());
+
+                    if (type.IsEnum || field.IsLiteral)
+                    {
+                        fieldBaseline.Literal = FormatLiteralValue(field.GetRawConstantValue(), field.FieldType);
+                    }
+
+                    if (type.IsEnum)
+                    {
+                        fieldBaseline.Visibility = null;
+                    }
+                    else
+                    {
+                        fieldBaseline.Constant = field.IsLiteral;
+                        fieldBaseline.Static = field.IsStatic;
+                        fieldBaseline.ReadOnly = field.IsInitOnly;
+                        fieldBaseline.ReturnType = TypeBaseline.GetTypeNameFor(field.FieldType.GetTypeInfo());
+                    }
 
                     return fieldBaseline;
                 case MemberTypes.Event:
@@ -300,48 +326,53 @@ namespace ApiCheck
                 Direction = parameter.ParameterType.IsByRef && parameter.IsOut ? BaselineParameterDirection.Out :
                     parameter.ParameterType.IsByRef && !parameter.IsOut ? BaselineParameterDirection.Ref :
                     BaselineParameterDirection.In,
-                DefaultValue = parameter.HasDefaultValue ? FormatDefaultValue(parameter) : null,
+                DefaultValue = parameter.HasDefaultValue ? FormatLiteralValue(parameter) : null,
                 IsParams = parameter.GetCustomAttribute<ParamArrayAttribute>() != null
             };
         }
 
-        private static string FormatDefaultValue(ParameterInfo parameter)
+        private static string FormatLiteralValue(ParameterInfo parameter)
         {
-            if (parameter.RawDefaultValue == null)
+            return FormatLiteralValue(parameter.RawDefaultValue, parameter.ParameterType);
+        }
+
+        private static string FormatLiteralValue(object rawDefaultValue, Type elementType)
+        {
+            if (rawDefaultValue == null)
             {
-                var parameterTypeInfo = parameter.ParameterType.GetTypeInfo();
-                if (parameterTypeInfo.IsValueType)
+                var elementTypeInfo = elementType.GetTypeInfo();
+                if (elementTypeInfo.IsValueType)
                 {
-                    return $"default({TypeBaseline.GetTypeNameFor(parameterTypeInfo)})";
+                    return $"default({TypeBaseline.GetTypeNameFor(elementTypeInfo)})";
                 }
 
                 return "null";
             }
 
-            if (parameter.ParameterType == typeof(string))
+            if (elementType == typeof(string))
             {
-                return $"\"{parameter.RawDefaultValue}\"";
+                return $"\"{rawDefaultValue}\"";
             }
 
-            if (parameter.ParameterType == typeof(char))
+            if (elementType == typeof(char))
             {
-                return $"'{parameter.RawDefaultValue}'";
+                return $"'{rawDefaultValue}'";
             }
 
-            if (parameter.ParameterType == typeof(bool) ||
-                parameter.ParameterType == typeof(byte) ||
-                parameter.ParameterType == typeof(sbyte) ||
-                parameter.ParameterType == typeof(short) ||
-                parameter.ParameterType == typeof(ushort) ||
-                parameter.ParameterType == typeof(int) ||
-                parameter.ParameterType == typeof(uint) ||
-                parameter.ParameterType == typeof(long) ||
-                parameter.ParameterType == typeof(ulong) ||
-                parameter.ParameterType == typeof(double) ||
-                parameter.ParameterType == typeof(float) ||
-                parameter.ParameterType == typeof(decimal))
+            if (rawDefaultValue.GetType() == typeof(bool) ||
+                rawDefaultValue.GetType() == typeof(byte) ||
+                rawDefaultValue.GetType() == typeof(sbyte) ||
+                rawDefaultValue.GetType() == typeof(short) ||
+                rawDefaultValue.GetType() == typeof(ushort) ||
+                rawDefaultValue.GetType() == typeof(int) ||
+                rawDefaultValue.GetType() == typeof(uint) ||
+                rawDefaultValue.GetType() == typeof(long) ||
+                rawDefaultValue.GetType() == typeof(ulong) ||
+                rawDefaultValue.GetType() == typeof(double) ||
+                rawDefaultValue.GetType() == typeof(float) ||
+                rawDefaultValue.GetType() == typeof(decimal))
             {
-                return parameter.RawDefaultValue.ToString();
+                return rawDefaultValue.ToString();
             }
 
             throw new InvalidOperationException("Unsupported default value type");

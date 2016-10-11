@@ -343,4 +343,17 @@ namespace Scenarios
         public string GetAndSetProperty { get; set; }
         public event Action<int> IntEvent;
     }
+
+    public enum CanonicalEnumeration
+    {
+        FirstValue,
+        SecondValue
+    }
+
+    public enum LongEnumeration : long
+    {
+        FirstValue,
+        ExplicitValue = 5,
+        ValueAfterExplicit
+    }
 }

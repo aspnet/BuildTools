@@ -893,7 +893,7 @@ namespace ApiCheck.Test
             Assert.NotNull(report.Types);
 
             var type = Assert.Single(report.Types, t => t.Id == "public class Scenarios.ClassWithFields");
-            var member = Assert.Single(type.Members, m => m.Id == "public const System.Char ConstantField");
+            var member = Assert.Single(type.Members, m => m.Id == "public const System.Char ConstantField = 'c'");
         }
 
         [Fact]
@@ -964,6 +964,59 @@ namespace ApiCheck.Test
             var type = Assert.Single(report.Types, t => t.Id == "public class Scenarios.ClassWithPropertiesAndEvents");
             var getter = Assert.Single(type.Members, m => m.Id == "public System.Void add_IntEvent(System.Action<System.Int32> value)");
             var setter = Assert.Single(type.Members, m => m.Id == "public System.Void remove_IntEvent(System.Action<System.Int32> value)");
+        }
+
+        [Fact]
+        public void DetectsEnumerations()
+        {
+            // Arrange
+            var generator = CreateGenerator(V1Assembly);
+
+            // Act
+            var report = generator.GenerateBaseline();
+
+            // Assert
+            Assert.NotNull(report);
+            Assert.NotNull(report.Types);
+
+            var type = Assert.Single(report.Types, t => t.Id == "public enum Scenarios.CanonicalEnumeration");
+        }
+
+        [Fact]
+        public void DetectsEnumerationsValues()
+        {
+            // Arrange
+            var generator = CreateGenerator(V1Assembly);
+
+            // Act
+            var report = generator.GenerateBaseline();
+
+            // Assert
+            Assert.NotNull(report);
+            Assert.NotNull(report.Types);
+
+            var type = Assert.Single(report.Types, t => t.Id == "public enum Scenarios.CanonicalEnumeration");
+            var firstValue = Assert.Single(type.Members, m => m.Id == "FirstValue = 0");
+            var secondValue = Assert.Single(type.Members, m => m.Id == "SecondValue = 1");
+        }
+
+        [Fact]
+        public void DetectsEnumerationsWithDifferentSizes()
+        {
+            // Arrange
+            var generator = CreateGenerator(V1Assembly);
+
+            // Act
+            var report = generator.GenerateBaseline();
+
+            // Assert
+            Assert.NotNull(report);
+            Assert.NotNull(report.Types);
+
+            var type = Assert.Single(report.Types, t => t.Id == "public enum Scenarios.LongEnumeration : System.Int64");
+            var firstValue = Assert.Single(type.Members, m => m.Id == "FirstValue = 0");
+            var secondValue = Assert.Single(type.Members, m => m.Id == "ExplicitValue = 5");
+            var thirdValue = Assert.Single(type.Members, m => m.Id == "ValueAfterExplicit = 6");
         }
 
         private BaselineGenerator CreateGenerator(Assembly assembly)

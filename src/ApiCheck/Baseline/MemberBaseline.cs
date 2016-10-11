@@ -17,7 +17,7 @@ namespace ApiCheck.Baseline
 
         private IEnumerable<string> GetComponents()
         {
-            if (ExplicitInterface == null)
+            if (ExplicitInterface == null && Visibility != null)
             {
                 switch (Visibility)
                 {
@@ -103,6 +103,12 @@ namespace ApiCheck.Baseline
             else
             {
                 yield return Name;
+
+                if (Literal != null)
+                {
+                    yield return "=";
+                    yield return Literal;
+                }
             }
         }
 
@@ -144,9 +150,10 @@ namespace ApiCheck.Baseline
         public bool ReadOnly { get; set; }
         public string ExplicitInterface { get; set; }
         public string ImplementedInterface { get; set; }
-        public BaselineVisibility Visibility { get; set; }
+        public BaselineVisibility? Visibility { get; set; }
         public IList<GenericConstraintBaseline> GenericConstraints { get; } = new List<GenericConstraintBaseline>();
         public bool Constant { get; set; }
+        public string Literal { get; set; }
 
         public static string GetMemberNameFor(MethodBase member)
         {

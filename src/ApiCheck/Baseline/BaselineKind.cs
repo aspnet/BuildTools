@@ -8,6 +8,7 @@ namespace ApiCheck.Baseline
     {
         Struct,
         Interface,
-        Class
+        Class,
+        Enumeration
     }
 }

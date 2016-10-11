@@ -27,13 +27,13 @@ namespace ApiCheck.Test
             var v2Baseline = CreateBaselineDocument(V2Assembly);
             var exceptions = CreateDefault();
 
-            var comparer = new BaselineComparer(v1Baseline, v2Baseline, BreakingChangeTypes.All, exceptions);
+            var comparer = new BaselineComparer(v1Baseline, v2Baseline, exceptions);
 
             // Act
             var changes = comparer.GetDifferences();
 
             // Assert
-            var change = Assert.Single(changes, bc => bc.OldItem.Id == "public class ComparisonScenarios.PublicToInternalClass");
+            var change = Assert.Single(changes, bc => bc.Item.Id == "public class ComparisonScenarios.PublicToInternalClass");
         }
 
         [Fact]
@@ -44,13 +44,13 @@ namespace ApiCheck.Test
             var v2Baseline = CreateBaselineDocument(V2Assembly);
             var exceptions = CreateDefault();
 
-            var comparer = new BaselineComparer(v1Baseline, v2Baseline, BreakingChangeTypes.All, exceptions);
+            var comparer = new BaselineComparer(v1Baseline, v2Baseline, exceptions);
 
             // Act
             var changes = comparer.GetDifferences();
 
             // Assert
-            var change = Assert.Single(changes, bc => bc.OldItem.Id == "public interface ComparisonScenarios.TypeToRename");
+            var change = Assert.Single(changes, bc => bc.Item.Id == "public interface ComparisonScenarios.TypeToRename");
         }
 
         [Fact]
@@ -61,13 +61,13 @@ namespace ApiCheck.Test
             var v2Baseline = CreateBaselineDocument(V2Assembly);
             var exceptions = CreateDefault();
 
-            var comparer = new BaselineComparer(v1Baseline, v2Baseline, BreakingChangeTypes.All, exceptions);
+            var comparer = new BaselineComparer(v1Baseline, v2Baseline, exceptions);
 
             // Act
             var changes = comparer.GetDifferences();
 
             // Assert
-            var change = Assert.Single(changes, bc => bc.OldItem.Id == "public struct ComparisonScenarios.StructToMakeGeneric");
+            var change = Assert.Single(changes, bc => bc.Item.Id == "public struct ComparisonScenarios.StructToMakeGeneric");
         }
 
         [Fact]
@@ -78,13 +78,13 @@ namespace ApiCheck.Test
             var v2Baseline = CreateBaselineDocument(V2Assembly);
             var exceptions = CreateDefault();
 
-            var comparer = new BaselineComparer(v1Baseline, v2Baseline, BreakingChangeTypes.All, exceptions);
+            var comparer = new BaselineComparer(v1Baseline, v2Baseline, exceptions);
 
             // Act
             var changes = comparer.GetDifferences();
 
             // Assert
-            var change = Assert.Single(changes, bc => bc.OldItem.Id == "public class ComparisonScenarios.ClassToChangeNamespaces");
+            var change = Assert.Single(changes, bc => bc.Item.Id == "public class ComparisonScenarios.ClassToChangeNamespaces");
         }
 
         [Fact]
@@ -95,13 +95,13 @@ namespace ApiCheck.Test
             var v2Baseline = CreateBaselineDocument(V2Assembly);
             var exceptions = CreateDefault();
 
-            var comparer = new BaselineComparer(v1Baseline, v2Baseline, BreakingChangeTypes.All, exceptions);
+            var comparer = new BaselineComparer(v1Baseline, v2Baseline, exceptions);
 
             // Act
             var changes = comparer.GetDifferences();
 
             // Assert
-            var change = Assert.Single(changes, bc => bc.OldItem.Id == "public class ComparisonScenarios.ClassToNest");
+            var change = Assert.Single(changes, bc => bc.Item.Id == "public class ComparisonScenarios.ClassToNest");
         }
 
         [Fact]
@@ -112,13 +112,13 @@ namespace ApiCheck.Test
             var v2Baseline = CreateBaselineDocument(V2Assembly);
             var exceptions = CreateDefault();
 
-            var comparer = new BaselineComparer(v1Baseline, v2Baseline, BreakingChangeTypes.All, exceptions);
+            var comparer = new BaselineComparer(v1Baseline, v2Baseline, exceptions);
 
             // Act
             var changes = comparer.GetDifferences();
 
             // Assert
-            var change = Assert.Single(changes, bc => bc.OldItem.Id == "public class ComparisonScenarios.ClassToUnnestContainer+ClassToUnnest");
+            var change = Assert.Single(changes, bc => bc.Item.Id == "public class ComparisonScenarios.ClassToUnnestContainer+ClassToUnnest");
         }
 
         [Fact]
@@ -129,14 +129,13 @@ namespace ApiCheck.Test
             var v2Baseline = CreateBaselineDocument(V2Assembly);
             var exceptions = CreateDefault();
 
-            var comparer = new BaselineComparer(v1Baseline, v2Baseline, BreakingChangeTypes.All, exceptions);
+            var comparer = new BaselineComparer(v1Baseline, v2Baseline, exceptions);
 
             // Act
             var changes = comparer.GetDifferences();
 
             // Assert
-            var change = Assert.Single(changes, bc => bc.OldItem.Id == "public class ComparisonScenarios.GenericTypeWithConstraintsToBeAdded<TToConstrain>");
-            Assert.Equal("public class ComparisonScenarios.GenericTypeWithConstraintsToBeAdded<TToConstrain> where TToConstrain : System.Collections.Generic.IEnumerable<TToConstrain>, new()", change.NewItem.Id);
+            var change = Assert.Single(changes, bc => bc.Item.Id == "public class ComparisonScenarios.GenericTypeWithConstraintsToBeAdded<TToConstrain>");
         }
 
         [Fact]
@@ -147,23 +146,18 @@ namespace ApiCheck.Test
             var v2Baseline = CreateBaselineDocument(V2Assembly);
             var exceptions = CreateDefault();
 
-            var comparer = new BaselineComparer(v1Baseline, v2Baseline, BreakingChangeTypes.All, exceptions);
+            var comparer = new BaselineComparer(v1Baseline, v2Baseline, exceptions);
 
             // Act
             var changes = comparer.GetDifferences();
 
             // Assert
-            var change = Assert.Single(changes, bc => bc.OldItem.Id == "public System.Void MethodToAddParameters()");
-            Assert.Equal("public System.Void MethodToAddParameters(System.Int32 addedParameter)", change.NewItem.Id);
+            var change = Assert.Single(changes, bc => bc.Item.Id == "public System.Void MethodToAddParameters()");
         }
 
-        private static IList<Func<BreakingChangeContext, bool>> CreateDefault(params Func<BreakingChangeContext, bool>[] additionalHandlers)
+        private static IList<Func<BreakingChangeCandidateContext, bool>> CreateDefault(params Func<BreakingChangeCandidateContext, bool>[] additionalHandlers)
         {
-            return new List<Func<BreakingChangeContext, bool>>() {
-                    BreakingChangeHandlers.FindTypeUsingFullName,
-                    BreakingChangeHandlers.FindMemberUsingName
-                }
-            .Concat(additionalHandlers).ToList();
+            return new List<Func<BreakingChangeCandidateContext, bool>>().Concat(additionalHandlers).ToList();
         }
 
         private BaselineDocument CreateBaselineDocument(Assembly assembly, IEnumerable<Func<TypeInfo, bool>> additionalFilters = null)

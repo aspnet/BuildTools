@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using ApiCheck.Baseline;
-using Microsoft.Extensions.CommandLineUtils;
 
 namespace ApiCheck
 {
@@ -11,18 +8,15 @@ namespace ApiCheck
     {
         private readonly BaselineDocument _newBaseline;
         private readonly BaselineDocument _oldBaseline;
-        private readonly BreakingChangeTypes _breakingChangeType;
-        private readonly IEnumerable<Func<BreakingChangeContext, bool>> _breakingChangeHandlers;
+        private readonly IEnumerable<Func<BreakingChangeCandidateContext, bool>> _breakingChangeHandlers;
 
         public BaselineComparer(
             BaselineDocument oldBaseline,
             BaselineDocument newBaseline,
-            BreakingChangeTypes breakingChangeLevel,
-            IEnumerable<Func<BreakingChangeContext, bool>> breakingChangeHandlers)
+            IEnumerable<Func<BreakingChangeCandidateContext, bool>> breakingChangeHandlers)
         {
             _oldBaseline = oldBaseline;
             _newBaseline = newBaseline;
-            _breakingChangeType = breakingChangeLevel;
             _breakingChangeHandlers = breakingChangeHandlers;
         }
 
@@ -34,6 +28,10 @@ namespace ApiCheck
                 var newType = GetNewTypeOrAddBreakingChange(type, breakingChanges);
                 if (newType == null)
                 {
+                    foreach (var member in type.Members)
+                    {
+                        breakingChanges.Add(new BreakingChange(member));
+                    }
                     continue;
                 }
 
@@ -42,7 +40,7 @@ namespace ApiCheck
                     var newMember = newType.FindMember(member.Id);
                     if (newMember == null)
                     {
-                        var ctx = new BreakingChangeContext
+                        var ctx = new BreakingChangeCandidateContext
                         {
                             NewBaseline = _newBaseline,
                             OldBaseline = _oldBaseline,
@@ -52,9 +50,9 @@ namespace ApiCheck
                         };
 
                         var isException = HandlePotentialBreakingChange(ctx);
-                        if (!isException || !ValidBreakingChange(ctx))
+                        if (!isException)
                         {
-                            breakingChanges.Add(new BreakingChange(ctx.OldMember, ctx.NewMember, ctx.BreakType));
+                            breakingChanges.Add(new BreakingChange(ctx.NewMember, type.Id));
                         }
                     }
                 }
@@ -63,46 +61,12 @@ namespace ApiCheck
             return breakingChanges;
         }
 
-        private bool ValidBreakingChange(BreakingChangeContext ctx)
-        {
-            // The change was contextualized as a non breaking change.
-            if (ctx.BreakType == BreakingChangeTypes.None)
-            {
-                return true;
-            }
-
-            // We are looking for any type of breaking change, so no
-            // breaking change is valid.
-            if (_breakingChangeType == BreakingChangeTypes.All)
-            {
-                return false;
-            }
-
-            // Undefined means no exception contextualized the change
-            // so we identify it as a breaking change.
-            if (ctx.BreakType == BreakingChangeTypes.Undefined)
-            {
-                return false;
-            }
-
-            // The change was marked as source and binary breaking
-            // change or is of the same type of breaking change we are
-            // looking for.
-            if (ctx.BreakType == BreakingChangeTypes.All ||
-                ctx.BreakType == _breakingChangeType)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
         private TypeBaseline GetNewTypeOrAddBreakingChange(TypeBaseline type, IList<BreakingChange> breakingChanges)
         {
             var newType = _newBaseline.FindType(type.Id);
             if (newType == null)
             {
-                var ctx = new BreakingChangeContext
+                var ctx = new BreakingChangeCandidateContext
                 {
                     NewBaseline = _newBaseline,
                     OldBaseline = _oldBaseline,
@@ -110,20 +74,20 @@ namespace ApiCheck
                 };
 
                 var isException = HandlePotentialBreakingChange(ctx);
-                if (isException || ValidBreakingChange(ctx))
+                if (isException)
                 {
                     newType = ctx.NewType;
                 }
                 else
                 {
-                    breakingChanges.Add(new BreakingChange(type, ctx.NewType, ctx.BreakType));
+                    breakingChanges.Add(new BreakingChange(ctx.NewType, type.Id));
                 }
             }
 
             return newType;
         }
 
-        private bool HandlePotentialBreakingChange(BreakingChangeContext ctx)
+        private bool HandlePotentialBreakingChange(BreakingChangeCandidateContext ctx)
         {
             var isException = false;
             foreach (var handler in _breakingChangeHandlers)

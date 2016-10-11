@@ -8,15 +8,18 @@ namespace ApiCheck
 {
     public class BreakingChange
     {
-        public BreakingChange(BaselineItem oldItem, BaselineItem newItem, BreakingChangeTypes level)
+        public BreakingChange(BaselineItem oldItem, string context = null)
         {
-            OldItem = oldItem;
-            NewItem = newItem ?? new BaselineItem("Element not found");
-            Level = level;
+            Context = context;
+            Item = oldItem;
         }
+        public string Context { get; }
 
-        public BaselineItem OldItem { get; set; }
-        public BaselineItem NewItem { get; set; }
-        public BreakingChangeTypes Level { get; set; }
+        public BaselineItem Item { get; }
+
+        public override string ToString()
+        {
+            return $"{Context}: {Item.Id}";
+        }
     }
 }

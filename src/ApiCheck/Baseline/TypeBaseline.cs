@@ -22,8 +22,11 @@ namespace ApiCheck.Baseline
         public bool Sealed { get; set; }
 
         public string BaseType { get; set; }
+
         public IList<string> ImplementedInterfaces { get; } = new List<string>();
+
         public IList<MemberBaseline> Members { get; set; } = new List<MemberBaseline>();
+
         public IList<GenericConstraintBaseline> GenericConstraints { get; } = new List<GenericConstraintBaseline>();
 
         private IEnumerable<string> GetMembers()
@@ -140,7 +143,8 @@ namespace ApiCheck.Baseline
 
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
-                typeName = $"{GetTypeNameFor(type.GetGenericArguments().Single().GetTypeInfo())}?";
+                var underlyingTypeName = GetTypeNameFor(type.GetGenericArguments().Single().GetTypeInfo());
+                typeName = underlyingTypeName + "?";
             }
 
             if (type.IsGenericType)

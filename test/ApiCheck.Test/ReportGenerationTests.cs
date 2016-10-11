@@ -88,7 +88,7 @@ namespace ApiCheck.Test
         }
 
         [Fact]
-        public void DetectsMultipleLevelInterface()
+        public void DetectsInterfacesThatImplicitlyImplementOtherInterfaces()
         {
             // Arrange
             var generator = CreateGenerator(V1Assembly);

@@ -25,9 +25,7 @@ namespace ApiCheck.Test
             // Arrange
             var v1Baseline = CreateBaselineDocument(V1Assembly);
             var v2Baseline = CreateBaselineDocument(V2Assembly);
-            var exceptions = CreateDefault();
-
-            var comparer = new BaselineComparer(v1Baseline, v2Baseline, exceptions);
+            var comparer = new BaselineComparer(v1Baseline, v2Baseline);
 
             // Act
             var changes = comparer.GetDifferences();
@@ -42,9 +40,7 @@ namespace ApiCheck.Test
             // Arrange
             var v1Baseline = CreateBaselineDocument(V1Assembly);
             var v2Baseline = CreateBaselineDocument(V2Assembly);
-            var exceptions = CreateDefault();
-
-            var comparer = new BaselineComparer(v1Baseline, v2Baseline, exceptions);
+            var comparer = new BaselineComparer(v1Baseline, v2Baseline);
 
             // Act
             var changes = comparer.GetDifferences();
@@ -59,9 +55,7 @@ namespace ApiCheck.Test
             // Arrange
             var v1Baseline = CreateBaselineDocument(V1Assembly);
             var v2Baseline = CreateBaselineDocument(V2Assembly);
-            var exceptions = CreateDefault();
-
-            var comparer = new BaselineComparer(v1Baseline, v2Baseline, exceptions);
+            var comparer = new BaselineComparer(v1Baseline, v2Baseline);
 
             // Act
             var changes = comparer.GetDifferences();
@@ -76,9 +70,7 @@ namespace ApiCheck.Test
             // Arrange
             var v1Baseline = CreateBaselineDocument(V1Assembly);
             var v2Baseline = CreateBaselineDocument(V2Assembly);
-            var exceptions = CreateDefault();
-
-            var comparer = new BaselineComparer(v1Baseline, v2Baseline, exceptions);
+            var comparer = new BaselineComparer(v1Baseline, v2Baseline);
 
             // Act
             var changes = comparer.GetDifferences();
@@ -93,9 +85,7 @@ namespace ApiCheck.Test
             // Arrange
             var v1Baseline = CreateBaselineDocument(V1Assembly);
             var v2Baseline = CreateBaselineDocument(V2Assembly);
-            var exceptions = CreateDefault();
-
-            var comparer = new BaselineComparer(v1Baseline, v2Baseline, exceptions);
+            var comparer = new BaselineComparer(v1Baseline, v2Baseline);
 
             // Act
             var changes = comparer.GetDifferences();
@@ -110,9 +100,7 @@ namespace ApiCheck.Test
             // Arrange
             var v1Baseline = CreateBaselineDocument(V1Assembly);
             var v2Baseline = CreateBaselineDocument(V2Assembly);
-            var exceptions = CreateDefault();
-
-            var comparer = new BaselineComparer(v1Baseline, v2Baseline, exceptions);
+            var comparer = new BaselineComparer(v1Baseline, v2Baseline);
 
             // Act
             var changes = comparer.GetDifferences();
@@ -127,9 +115,7 @@ namespace ApiCheck.Test
             // Arrange
             var v1Baseline = CreateBaselineDocument(V1Assembly);
             var v2Baseline = CreateBaselineDocument(V2Assembly);
-            var exceptions = CreateDefault();
-
-            var comparer = new BaselineComparer(v1Baseline, v2Baseline, exceptions);
+            var comparer = new BaselineComparer(v1Baseline, v2Baseline);
 
             // Act
             var changes = comparer.GetDifferences();
@@ -144,20 +130,13 @@ namespace ApiCheck.Test
             // Arrange
             var v1Baseline = CreateBaselineDocument(V1Assembly);
             var v2Baseline = CreateBaselineDocument(V2Assembly);
-            var exceptions = CreateDefault();
-
-            var comparer = new BaselineComparer(v1Baseline, v2Baseline, exceptions);
+            var comparer = new BaselineComparer(v1Baseline, v2Baseline);
 
             // Act
             var changes = comparer.GetDifferences();
 
             // Assert
             var change = Assert.Single(changes, bc => bc.Item.Id == "public System.Void MethodToAddParameters()");
-        }
-
-        private static IList<Func<BreakingChangeCandidateContext, bool>> CreateDefault(params Func<BreakingChangeCandidateContext, bool>[] additionalHandlers)
-        {
-            return new List<Func<BreakingChangeCandidateContext, bool>>().Concat(additionalHandlers).ToList();
         }
 
         private BaselineDocument CreateBaselineDocument(Assembly assembly, IEnumerable<Func<TypeInfo, bool>> additionalFilters = null)

@@ -194,8 +194,7 @@ namespace ApiCheck
 
             var comparer = new BaselineComparer(
                 oldBaseline,
-                newBaseline,
-                new List<Func<BreakingChangeCandidateContext, bool>>());
+                newBaseline);
 
             var differences = comparer.GetDifferences();
             foreach (var difference in differences)

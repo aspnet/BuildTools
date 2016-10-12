@@ -2,11 +2,11 @@
 
 namespace ApiCheck.Baseline
 {
-    public class ParameterBaseline : BaselineItem
+    public class ParameterDescriptor : ApiElement
     {
         public string Name { get; set; }
         public string Type { get; set; }
-        public BaselineParameterDirection Direction { get; set; }
+        public ParameterDirection Direction { get; set; }
         public string DefaultValue { get; set; }
         public bool IsParams { get; set; }
 
@@ -22,12 +22,12 @@ namespace ApiCheck.Baseline
         {
             switch (Direction)
             {
-                case BaselineParameterDirection.In:
+                case ParameterDirection.In:
                     break;
-                case BaselineParameterDirection.Out:
+                case ParameterDirection.Out:
                     yield return "out";
                     break;
-                case BaselineParameterDirection.Ref:
+                case ParameterDirection.Ref:
                     yield return "ref";
                     break;
                 default:

@@ -5,15 +5,15 @@ using System.Reflection;
 
 namespace ApiCheck.Baseline
 {
-    public class TypeBaseline : BaselineItem
+    public class TypeDescriptor : ApiElement
     {
         public override string Id => string.Join(" ", GetMembers());
 
         public string Name { get; set; }
 
-        public BaselineVisibility Visibility { get; set; }
+        public ApiElementVisibility Visibility { get; set; }
 
-        public BaselineKind Kind { get; set; }
+        public TypeKind Kind { get; set; }
 
         public bool Abstract { get; set; }
 
@@ -25,28 +25,28 @@ namespace ApiCheck.Baseline
 
         public IList<string> ImplementedInterfaces { get; } = new List<string>();
 
-        public IList<MemberBaseline> Members { get; set; } = new List<MemberBaseline>();
+        public IList<MemberDescriptor> Members { get; set; } = new List<MemberDescriptor>();
 
-        public IList<GenericConstraintBaseline> GenericConstraints { get; } = new List<GenericConstraintBaseline>();
+        public IList<GenericConstraintDescriptor> GenericConstraints { get; } = new List<GenericConstraintDescriptor>();
 
         private IEnumerable<string> GetMembers()
         {
             switch (Visibility)
             {
-                case BaselineVisibility.Public:
+                case ApiElementVisibility.Public:
                     yield return "public";
                     break;
-                case BaselineVisibility.Protected:
+                case ApiElementVisibility.Protected:
                     yield return "protected";
                     break;
-                case BaselineVisibility.Internal:
+                case ApiElementVisibility.Internal:
                     yield return "internal";
                     break;
-                case BaselineVisibility.ProtectedInternal:
+                case ApiElementVisibility.ProtectedInternal:
                     yield return "protected";
                     yield return "internal";
                     break;
-                case BaselineVisibility.Private:
+                case ApiElementVisibility.Private:
                     yield return "private";
                     break;
                 default:
@@ -57,7 +57,7 @@ namespace ApiCheck.Baseline
             {
                 yield return "static";
             }
-            else if (Kind == BaselineKind.Class)
+            else if (Kind == TypeKind.Class)
             {
                 if (Abstract)
                 {
@@ -72,16 +72,16 @@ namespace ApiCheck.Baseline
 
             switch (Kind)
             {
-                case BaselineKind.Struct:
+                case TypeKind.Struct:
                     yield return "struct";
                     break;
-                case BaselineKind.Interface:
+                case TypeKind.Interface:
                     yield return "interface";
                     break;
-                case BaselineKind.Class:
+                case TypeKind.Class:
                     yield return "class";
                     break;
-                case BaselineKind.Enumeration:
+                case TypeKind.Enumeration:
                     yield return "enum";
                     break;
                 default:
@@ -103,7 +103,7 @@ namespace ApiCheck.Baseline
             }
         }
 
-        public MemberBaseline FindMember(string id)
+        public MemberDescriptor FindMember(string id)
         {
             foreach (var member in Members)
             {

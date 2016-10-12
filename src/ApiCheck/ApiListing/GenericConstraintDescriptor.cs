@@ -2,7 +2,7 @@
 
 namespace ApiCheck.Baseline
 {
-    public class GenericConstraintBaseline : BaselineItem
+    public class GenericConstraintDescriptor : ApiElement
     {
         public override string Id => string.Join(" ", ParameterName, ":", GetConstraints());
 

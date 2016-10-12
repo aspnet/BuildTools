@@ -34,11 +34,11 @@ namespace ApiCheck
             return JObject.FromObject(baselineDocument);
         }
 
-        public BaselineDocument GenerateBaseline()
+        public ApiListing GenerateBaseline()
         {
             var types = _assembly.DefinedTypes;
 
-            var document = new BaselineDocument();
+            var document = new ApiListing();
             document.AssemblyIdentity = _assembly.GetName().ToString();
 
             foreach (var type in _assembly.DefinedTypes.Where(type => _filters.All(filter => filter(type))))
@@ -50,24 +50,24 @@ namespace ApiCheck
             return document;
         }
 
-        private TypeBaseline GenerateTypeBaseline(TypeInfo type)
+        private TypeDescriptor GenerateTypeBaseline(TypeInfo type)
         {
-            var typeBaseline = new TypeBaseline();
+            var typeBaseline = new TypeDescriptor();
 
-            typeBaseline.Name = TypeBaseline.GetTypeNameFor(type);
+            typeBaseline.Name = TypeDescriptor.GetTypeNameFor(type);
 
-            typeBaseline.Kind = type.IsInterface ? BaselineKind.Interface :
-                !type.IsValueType ? BaselineKind.Class :
-                type.IsEnum ? BaselineKind.Enumeration :
-                BaselineKind.Struct;
+            typeBaseline.Kind = type.IsInterface ? TypeKind.Interface :
+                !type.IsValueType ? TypeKind.Class :
+                type.IsEnum ? TypeKind.Enumeration :
+                TypeKind.Struct;
 
-            typeBaseline.Visibility = type.IsPublic || type.IsNestedPublic ? BaselineVisibility.Public :
-                type.IsNestedFamORAssem ? BaselineVisibility.ProtectedInternal :
-                type.IsNestedFamily ? BaselineVisibility.Protected :
-                type.IsNestedPrivate ? BaselineVisibility.Private :
-                BaselineVisibility.Internal;
+            typeBaseline.Visibility = type.IsPublic || type.IsNestedPublic ? ApiElementVisibility.Public :
+                type.IsNestedFamORAssem ? ApiElementVisibility.ProtectedInternal :
+                type.IsNestedFamily ? ApiElementVisibility.Protected :
+                type.IsNestedPrivate ? ApiElementVisibility.Private :
+                ApiElementVisibility.Internal;
 
-            typeBaseline.Static = typeBaseline.Kind == BaselineKind.Class && type.IsSealed && type.IsAbstract;
+            typeBaseline.Static = typeBaseline.Kind == TypeKind.Class && type.IsSealed && type.IsAbstract;
 
             typeBaseline.Abstract = type.IsAbstract;
 
@@ -79,14 +79,14 @@ namespace ApiCheck
                 !(type.IsEnum && type.GetEnumUnderlyingType() == typeof(int)))
             {
                 typeBaseline.BaseType = !type.IsEnum ?
-                    TypeBaseline.GetTypeNameFor(type.BaseType.GetTypeInfo()) :
-                    TypeBaseline.GetTypeNameFor(type.GetEnumUnderlyingType().GetTypeInfo());
+                    TypeDescriptor.GetTypeNameFor(type.BaseType.GetTypeInfo()) :
+                    TypeDescriptor.GetTypeNameFor(type.GetEnumUnderlyingType().GetTypeInfo());
             }
 
             if (type.ImplementedInterfaces?.Count() > 0)
             {
-                var interfaces = TypeBaseline.GetImplementedInterfacesFor(type);
-                foreach (var @interface in interfaces.Select(i => TypeBaseline.GetTypeNameFor(i)))
+                var interfaces = TypeDescriptor.GetImplementedInterfacesFor(type);
+                foreach (var @interface in interfaces.Select(i => TypeDescriptor.GetTypeNameFor(i)))
                 {
                     typeBaseline.ImplementedInterfaces.Add(@interface);
                 }
@@ -115,22 +115,22 @@ namespace ApiCheck
             return typeBaseline;
         }
 
-        private static IEnumerable<GenericConstraintBaseline> GetGenericConstraintsFor(IEnumerable<TypeInfo> genericArguments)
+        private static IEnumerable<GenericConstraintDescriptor> GetGenericConstraintsFor(IEnumerable<TypeInfo> genericArguments)
         {
             foreach (var typeArgument in genericArguments)
             {
-                var constraintBaseline = new GenericConstraintBaseline();
+                var constraintBaseline = new GenericConstraintDescriptor();
 
                 if (typeArgument.BaseType != null &&
                     typeArgument.BaseType != typeof(object)
                     && typeArgument.BaseType != typeof(ValueType))
                 {
-                    constraintBaseline.BaseTypeOrInterfaces.Add(TypeBaseline.GetTypeNameFor(typeArgument.BaseType.GetTypeInfo()));
+                    constraintBaseline.BaseTypeOrInterfaces.Add(TypeDescriptor.GetTypeNameFor(typeArgument.BaseType.GetTypeInfo()));
                 }
 
-                foreach (var interfaceType in TypeBaseline.GetImplementedInterfacesFor(typeArgument))
+                foreach (var interfaceType in TypeDescriptor.GetImplementedInterfacesFor(typeArgument))
                 {
-                    constraintBaseline.BaseTypeOrInterfaces.Add(TypeBaseline.GetTypeNameFor(interfaceType));
+                    constraintBaseline.BaseTypeOrInterfaces.Add(TypeDescriptor.GetTypeNameFor(interfaceType));
                 }
 
                 constraintBaseline.ParameterName = typeArgument.Name;
@@ -145,20 +145,20 @@ namespace ApiCheck
             }
         }
 
-        private MemberBaseline GenerateMemberBaseline(TypeInfo type, MemberInfo member)
+        private MemberDescriptor GenerateMemberBaseline(TypeInfo type, MemberInfo member)
         {
             switch (member.MemberType)
             {
                 case MemberTypes.Constructor:
                     var ctor = (ConstructorInfo)member;
-                    var constructorBaseline = new MemberBaseline();
-                    constructorBaseline.Kind = MemberBaselineKind.Constructor;
-                    constructorBaseline.Visibility = ctor.IsPublic ? BaselineVisibility.Public :
-                        ctor.IsFamilyOrAssembly ? BaselineVisibility.ProtectedInternal :
-                        ctor.IsFamily ? BaselineVisibility.Protected :
-                        ctor.IsPrivate ? BaselineVisibility.Private : BaselineVisibility.Internal;
+                    var constructorBaseline = new MemberDescriptor();
+                    constructorBaseline.Kind = MemberKind.Constructor;
+                    constructorBaseline.Visibility = ctor.IsPublic ? ApiElementVisibility.Public :
+                        ctor.IsFamilyOrAssembly ? ApiElementVisibility.ProtectedInternal :
+                        ctor.IsFamily ? ApiElementVisibility.Protected :
+                        ctor.IsPrivate ? ApiElementVisibility.Private : ApiElementVisibility.Internal;
 
-                    constructorBaseline.Name = MemberBaseline.GetMemberNameFor(ctor);
+                    constructorBaseline.Name = MemberDescriptor.GetMemberNameFor(ctor);
                     foreach (var parameter in ctor.GetParameters())
                     {
                         var parameterBaseline = GenerateParameterBaseline(parameter);
@@ -169,18 +169,18 @@ namespace ApiCheck
                 case MemberTypes.Method:
                     var name = member.Name;
                     var method = (MethodInfo)member;
-                    var methodBaseline = new MemberBaseline();
+                    var methodBaseline = new MemberDescriptor();
 
-                    methodBaseline.Kind = MemberBaselineKind.Method;
+                    methodBaseline.Kind = MemberKind.Method;
 
-                    methodBaseline.Visibility = method.IsPublic ? BaselineVisibility.Public :
-                        method.IsFamilyOrAssembly ? BaselineVisibility.ProtectedInternal :
-                        method.IsFamily ? BaselineVisibility.Protected :
-                        method.IsPrivate ? BaselineVisibility.Private : BaselineVisibility.Internal;
+                    methodBaseline.Visibility = method.IsPublic ? ApiElementVisibility.Public :
+                        method.IsFamilyOrAssembly ? ApiElementVisibility.ProtectedInternal :
+                        method.IsFamily ? ApiElementVisibility.Protected :
+                        method.IsPrivate ? ApiElementVisibility.Private : ApiElementVisibility.Internal;
 
                     methodBaseline.ExplicitInterface = GetInterfaceImplementation(method, explicitImplementation: true);
                     methodBaseline.ImplementedInterface = methodBaseline.ExplicitInterface ?? GetInterfaceImplementation(method, explicitImplementation: false);
-                    methodBaseline.Name = MemberBaseline.GetMemberNameFor(method);
+                    methodBaseline.Name = MemberDescriptor.GetMemberNameFor(method);
 
                     if (method.IsGenericMethod)
                     {
@@ -207,7 +207,7 @@ namespace ApiCheck
                         methodBaseline.Parameters.Add(parameterBaseline);
                     }
 
-                    methodBaseline.ReturnType = TypeBaseline.GetTypeNameFor(method.ReturnType.GetTypeInfo());
+                    methodBaseline.ReturnType = TypeDescriptor.GetTypeNameFor(method.ReturnType.GetTypeInfo());
 
                     return methodBaseline;
                 case MemberTypes.Field:
@@ -218,14 +218,14 @@ namespace ApiCheck
                         return null;
                     }
 
-                    var fieldBaseline = new MemberBaseline();
+                    var fieldBaseline = new MemberDescriptor();
 
-                    fieldBaseline.Visibility = field.IsPublic ? BaselineVisibility.Public :
-                        field.IsFamilyOrAssembly ? BaselineVisibility.ProtectedInternal :
-                        field.IsFamily ? BaselineVisibility.Protected :
-                        field.IsPrivate ? BaselineVisibility.Private : BaselineVisibility.Internal;
+                    fieldBaseline.Visibility = field.IsPublic ? ApiElementVisibility.Public :
+                        field.IsFamilyOrAssembly ? ApiElementVisibility.ProtectedInternal :
+                        field.IsFamily ? ApiElementVisibility.Protected :
+                        field.IsPrivate ? ApiElementVisibility.Private : ApiElementVisibility.Internal;
 
-                    fieldBaseline.Kind = MemberBaselineKind.Field;
+                    fieldBaseline.Kind = MemberKind.Field;
                     fieldBaseline.Name = field.Name;
 
                     if (type.IsEnum || field.IsLiteral)
@@ -242,7 +242,7 @@ namespace ApiCheck
                         fieldBaseline.Constant = field.IsLiteral;
                         fieldBaseline.Static = field.IsStatic;
                         fieldBaseline.ReadOnly = field.IsInitOnly;
-                        fieldBaseline.ReturnType = TypeBaseline.GetTypeNameFor(field.FieldType.GetTypeInfo());
+                        fieldBaseline.ReturnType = TypeDescriptor.GetTypeNameFor(field.FieldType.GetTypeInfo());
                     }
 
                     return fieldBaseline;
@@ -263,9 +263,9 @@ namespace ApiCheck
             }
         }
 
-        public static BaselineDocument LoadFrom(string path)
+        public static ApiListing LoadFrom(string path)
         {
-            return JsonConvert.DeserializeObject<BaselineDocument>(File.ReadAllText(path));
+            return JsonConvert.DeserializeObject<ApiListing>(File.ReadAllText(path));
         }
 
         private string GetInterfaceImplementation(MethodInfo method, bool explicitImplementation)
@@ -277,7 +277,7 @@ namespace ApiCheck
                 if (map.TargetMethods.Any(m => m.Equals(method)))
                 {
                     return !explicitImplementation || (method.IsPrivate && method.IsFinal) ?
-                        TypeBaseline.GetTypeNameFor(interfaceImplementation.GetTypeInfo()) :
+                        TypeDescriptor.GetTypeNameFor(interfaceImplementation.GetTypeInfo()) :
                         null;
                 }
             }
@@ -317,15 +317,15 @@ namespace ApiCheck
             return true;
         }
 
-        private ParameterBaseline GenerateParameterBaseline(ParameterInfo parameter)
+        private ParameterDescriptor GenerateParameterBaseline(ParameterInfo parameter)
         {
-            return new ParameterBaseline
+            return new ParameterDescriptor
             {
                 Name = parameter.Name,
-                Type = TypeBaseline.GetTypeNameFor(parameter.ParameterType.GetTypeInfo()),
-                Direction = parameter.ParameterType.IsByRef && parameter.IsOut ? BaselineParameterDirection.Out :
-                    parameter.ParameterType.IsByRef && !parameter.IsOut ? BaselineParameterDirection.Ref :
-                    BaselineParameterDirection.In,
+                Type = TypeDescriptor.GetTypeNameFor(parameter.ParameterType.GetTypeInfo()),
+                Direction = parameter.ParameterType.IsByRef && parameter.IsOut ? ParameterDirection.Out :
+                    parameter.ParameterType.IsByRef && !parameter.IsOut ? ParameterDirection.Ref :
+                    ParameterDirection.In,
                 DefaultValue = parameter.HasDefaultValue ? FormatLiteralValue(parameter) : null,
                 IsParams = parameter.GetCustomAttribute<ParamArrayAttribute>() != null
             };
@@ -343,7 +343,7 @@ namespace ApiCheck
                 var elementTypeInfo = elementType.GetTypeInfo();
                 if (elementTypeInfo.IsValueType)
                 {
-                    return $"default({TypeBaseline.GetTypeNameFor(elementTypeInfo)})";
+                    return $"default({TypeDescriptor.GetTypeNameFor(elementTypeInfo)})";
                 }
 
                 return "null";

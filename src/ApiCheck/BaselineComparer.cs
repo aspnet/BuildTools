@@ -6,12 +6,12 @@ namespace ApiCheck
 {
     public class BaselineComparer
     {
-        private readonly BaselineDocument _newBaseline;
-        private readonly BaselineDocument _oldBaseline;
+        private readonly ApiListing _newBaseline;
+        private readonly ApiListing _oldBaseline;
 
         public BaselineComparer(
-            BaselineDocument oldBaseline,
-            BaselineDocument newBaseline)
+            ApiListing oldBaseline,
+            ApiListing newBaseline)
         {
             _oldBaseline = oldBaseline;
             _newBaseline = newBaseline;

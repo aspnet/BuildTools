@@ -164,14 +164,14 @@ namespace ApiCheck
                 resolvedPackagesFolder);
 
             var newBaselineFilters = new List<Func<TypeInfo, bool>>();
-            var oldBaselineFilters = new List<Func<TypeBaseline, bool>>();
+            var oldBaselineFilters = new List<Func<TypeDescriptor, bool>>();
             if (publicOnly.HasValue())
             {
                 newBaselineFilters.Add(t => t.IsPublic || t.IsNestedPublic || t.IsNestedFamily);
                 oldBaselineFilters.Add(t =>
-                    t.Visibility == BaselineVisibility.Public ||
-                    t.Visibility == BaselineVisibility.Protected ||
-                    t.Visibility == BaselineVisibility.ProtectedInternal);
+                    t.Visibility == ApiElementVisibility.Public ||
+                    t.Visibility == ApiElementVisibility.Protected ||
+                    t.Visibility == ApiElementVisibility.ProtectedInternal);
             }
 
             if (excludeInternalNamespace.HasValue())

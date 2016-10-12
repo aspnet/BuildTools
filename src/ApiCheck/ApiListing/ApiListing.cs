@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 namespace ApiCheck.Baseline
 {
-    public class BaselineDocument
+    public class ApiListing
     {
         public string AssemblyIdentity { get; set; }
-        public IList<TypeBaseline> Types { get; } = new List<TypeBaseline>();
+        public IList<TypeDescriptor> Types { get; } = new List<TypeDescriptor>();
 
-        public TypeBaseline FindType(string id)
+        public TypeDescriptor FindType(string id)
         {
             foreach (var type in Types)
             {

@@ -1,6 +1,6 @@
 ﻿namespace ApiCheck.Baseline
 {
-    public enum BaselineParameterDirection
+    public enum ParameterDirection
     {
         In,
         Out,

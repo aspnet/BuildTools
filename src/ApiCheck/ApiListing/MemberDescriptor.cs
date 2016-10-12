@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ApiCheck.Baseline
 {
-    public class MemberBaseline : BaselineItem
+    public class MemberDescriptor : ApiElement
     {
         public override string Id
         {
@@ -21,20 +21,20 @@ namespace ApiCheck.Baseline
             {
                 switch (Visibility)
                 {
-                    case BaselineVisibility.Public:
+                    case ApiElementVisibility.Public:
                         yield return "public";
                         break;
-                    case BaselineVisibility.Protected:
+                    case ApiElementVisibility.Protected:
                         yield return "protected";
                         break;
-                    case BaselineVisibility.Internal:
+                    case ApiElementVisibility.Internal:
                         yield return "internal";
                         break;
-                    case BaselineVisibility.ProtectedInternal:
+                    case ApiElementVisibility.ProtectedInternal:
                         yield return "protected";
                         yield return "internal";
                         break;
-                    case BaselineVisibility.Private:
+                    case ApiElementVisibility.Private:
                         yield return "private";
                         break;
                     default:
@@ -89,7 +89,7 @@ namespace ApiCheck.Baseline
                 yield return ReturnType;
             }
 
-            if (Kind != MemberBaselineKind.Field)
+            if (Kind != MemberKind.Field)
             {
                 var name = ExplicitInterface != null ? $"{ExplicitInterface}.{Name}" : Name;
                 yield return GetParametersComponent(Name);
@@ -136,9 +136,9 @@ namespace ApiCheck.Baseline
             return builder.ToString();
         }
 
-        public MemberBaselineKind Kind { get; set; }
+        public MemberKind Kind { get; set; }
         public string Name { get; set; }
-        public IList<ParameterBaseline> Parameters { get; set; } = new List<ParameterBaseline>();
+        public IList<ParameterDescriptor> Parameters { get; set; } = new List<ParameterDescriptor>();
         public string ReturnType { get; set; }
         public bool Sealed { get; set; }
         public bool Static { get; set; }
@@ -150,8 +150,8 @@ namespace ApiCheck.Baseline
         public bool ReadOnly { get; set; }
         public string ExplicitInterface { get; set; }
         public string ImplementedInterface { get; set; }
-        public BaselineVisibility? Visibility { get; set; }
-        public IList<GenericConstraintBaseline> GenericConstraints { get; } = new List<GenericConstraintBaseline>();
+        public ApiElementVisibility? Visibility { get; set; }
+        public IList<GenericConstraintDescriptor> GenericConstraints { get; } = new List<GenericConstraintDescriptor>();
         public bool Constant { get; set; }
         public string Literal { get; set; }
 
@@ -162,7 +162,7 @@ namespace ApiCheck.Baseline
                 return member.Name;
             }
 
-            var genericParameters = string.Join(", ", member.GetGenericArguments().Select(ga => TypeBaseline.GetTypeNameFor(ga.GetTypeInfo())));
+            var genericParameters = string.Join(", ", member.GetGenericArguments().Select(ga => TypeDescriptor.GetTypeNameFor(ga.GetTypeInfo())));
 
             return $"{member.Name}<{genericParameters}>";
         }

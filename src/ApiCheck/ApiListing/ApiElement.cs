@@ -3,13 +3,13 @@
 namespace ApiCheck.Baseline
 {
     [DebuggerDisplay("{Id,nq}")]
-    public class BaselineItem
+    public class ApiElement
     {
-        protected BaselineItem()
+        protected ApiElement()
         {
         }
 
-        public BaselineItem(string id)
+        public ApiElement(string id)
         {
             Id = id;
         }

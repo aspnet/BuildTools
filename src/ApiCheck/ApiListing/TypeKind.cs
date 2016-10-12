@@ -4,10 +4,11 @@ using Newtonsoft.Json.Converters;
 namespace ApiCheck.Baseline
 {
     [JsonConverter(typeof(StringEnumConverter))]
-    public enum MemberBaselineKind
+    public enum TypeKind
     {
-        Constructor,
-        Method,
-        Field
+        Struct,
+        Interface,
+        Class,
+        Enumeration
     }
 }

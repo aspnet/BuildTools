@@ -139,7 +139,7 @@ namespace ApiCheck.Test
             var change = Assert.Single(changes, bc => bc.Item.Id == "public System.Void MethodToAddParameters()");
         }
 
-        private BaselineDocument CreateBaselineDocument(Assembly assembly, IEnumerable<Func<TypeInfo, bool>> additionalFilters = null)
+        private ApiListing CreateBaselineDocument(Assembly assembly, IEnumerable<Func<TypeInfo, bool>> additionalFilters = null)
         {
             additionalFilters = additionalFilters ?? Enumerable.Empty<Func<TypeInfo, bool>>();
             var generator = new BaselineGenerator(assembly, TypeFilters.Concat(additionalFilters));

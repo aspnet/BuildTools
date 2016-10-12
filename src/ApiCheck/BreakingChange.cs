@@ -8,14 +8,14 @@ namespace ApiCheck
 {
     public class BreakingChange
     {
-        public BreakingChange(BaselineItem oldItem, string context = null)
+        public BreakingChange(ApiElement oldItem, string context = null)
         {
             Context = context;
             Item = oldItem;
         }
         public string Context { get; }
 
-        public BaselineItem Item { get; }
+        public ApiElement Item { get; }
 
         public override string ToString()
         {

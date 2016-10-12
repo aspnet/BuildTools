@@ -4,12 +4,10 @@ using Newtonsoft.Json.Converters;
 namespace ApiCheck.Baseline
 {
     [JsonConverter(typeof(StringEnumConverter))]
-    public enum BaselineVisibility
+    public enum MemberKind
     {
-        Public,
-        Protected,
-        Internal,
-        ProtectedInternal,
-        Private
+        Constructor,
+        Method,
+        Field
     }
 }

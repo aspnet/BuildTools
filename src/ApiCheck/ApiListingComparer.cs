@@ -4,12 +4,12 @@ using ApiCheck.Baseline;
 
 namespace ApiCheck
 {
-    public class BaselineComparer
+    public class ApiListingComparer
     {
         private readonly ApiListing _newBaseline;
         private readonly ApiListing _oldBaseline;
 
-        public BaselineComparer(
+        public ApiListingComparer(
             ApiListing oldBaseline,
             ApiListing newBaseline)
         {

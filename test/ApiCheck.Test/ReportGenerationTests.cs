@@ -1072,9 +1072,9 @@ namespace ApiCheck.Test
             var secondValue = Assert.Single(type.Members, m => m.Id == "public System.Void MethodWithParametersInDifferentDirections(System.String inParameter, out System.Boolean outParameter, ref System.Int32 refParameter)");
         }
 
-        private BaselineGenerator CreateGenerator(Assembly assembly)
+        private ApiListingGenerator CreateGenerator(Assembly assembly)
         {
-            return new BaselineGenerator(assembly, Enumerable.Empty<Func<TypeInfo, bool>>());
+            return new ApiListingGenerator(assembly, Enumerable.Empty<Func<TypeInfo, bool>>());
         }
     }
 }

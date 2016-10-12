@@ -25,7 +25,7 @@ namespace ApiCheck.Test
             // Arrange
             var v1Baseline = CreateBaselineDocument(V1Assembly);
             var v2Baseline = CreateBaselineDocument(V2Assembly);
-            var comparer = new BaselineComparer(v1Baseline, v2Baseline);
+            var comparer = new ApiListingComparer(v1Baseline, v2Baseline);
 
             // Act
             var changes = comparer.GetDifferences();
@@ -40,7 +40,7 @@ namespace ApiCheck.Test
             // Arrange
             var v1Baseline = CreateBaselineDocument(V1Assembly);
             var v2Baseline = CreateBaselineDocument(V2Assembly);
-            var comparer = new BaselineComparer(v1Baseline, v2Baseline);
+            var comparer = new ApiListingComparer(v1Baseline, v2Baseline);
 
             // Act
             var changes = comparer.GetDifferences();
@@ -55,7 +55,7 @@ namespace ApiCheck.Test
             // Arrange
             var v1Baseline = CreateBaselineDocument(V1Assembly);
             var v2Baseline = CreateBaselineDocument(V2Assembly);
-            var comparer = new BaselineComparer(v1Baseline, v2Baseline);
+            var comparer = new ApiListingComparer(v1Baseline, v2Baseline);
 
             // Act
             var changes = comparer.GetDifferences();
@@ -70,7 +70,7 @@ namespace ApiCheck.Test
             // Arrange
             var v1Baseline = CreateBaselineDocument(V1Assembly);
             var v2Baseline = CreateBaselineDocument(V2Assembly);
-            var comparer = new BaselineComparer(v1Baseline, v2Baseline);
+            var comparer = new ApiListingComparer(v1Baseline, v2Baseline);
 
             // Act
             var changes = comparer.GetDifferences();
@@ -85,7 +85,7 @@ namespace ApiCheck.Test
             // Arrange
             var v1Baseline = CreateBaselineDocument(V1Assembly);
             var v2Baseline = CreateBaselineDocument(V2Assembly);
-            var comparer = new BaselineComparer(v1Baseline, v2Baseline);
+            var comparer = new ApiListingComparer(v1Baseline, v2Baseline);
 
             // Act
             var changes = comparer.GetDifferences();
@@ -100,7 +100,7 @@ namespace ApiCheck.Test
             // Arrange
             var v1Baseline = CreateBaselineDocument(V1Assembly);
             var v2Baseline = CreateBaselineDocument(V2Assembly);
-            var comparer = new BaselineComparer(v1Baseline, v2Baseline);
+            var comparer = new ApiListingComparer(v1Baseline, v2Baseline);
 
             // Act
             var changes = comparer.GetDifferences();
@@ -115,7 +115,7 @@ namespace ApiCheck.Test
             // Arrange
             var v1Baseline = CreateBaselineDocument(V1Assembly);
             var v2Baseline = CreateBaselineDocument(V2Assembly);
-            var comparer = new BaselineComparer(v1Baseline, v2Baseline);
+            var comparer = new ApiListingComparer(v1Baseline, v2Baseline);
 
             // Act
             var changes = comparer.GetDifferences();
@@ -130,7 +130,7 @@ namespace ApiCheck.Test
             // Arrange
             var v1Baseline = CreateBaselineDocument(V1Assembly);
             var v2Baseline = CreateBaselineDocument(V2Assembly);
-            var comparer = new BaselineComparer(v1Baseline, v2Baseline);
+            var comparer = new ApiListingComparer(v1Baseline, v2Baseline);
 
             // Act
             var changes = comparer.GetDifferences();
@@ -142,7 +142,7 @@ namespace ApiCheck.Test
         private ApiListing CreateBaselineDocument(Assembly assembly, IEnumerable<Func<TypeInfo, bool>> additionalFilters = null)
         {
             additionalFilters = additionalFilters ?? Enumerable.Empty<Func<TypeInfo, bool>>();
-            var generator = new BaselineGenerator(assembly, TypeFilters.Concat(additionalFilters));
+            var generator = new ApiListingGenerator(assembly, TypeFilters.Concat(additionalFilters));
 
             return generator.GenerateBaseline();
         }

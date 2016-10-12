@@ -108,7 +108,7 @@ namespace ApiCheck
                 filters.Add(t => !t.Namespace.EndsWith("Internal"));
             }
 
-            var report = BaselineGenerator.GenerateBaselineReport(assembly, filters);
+            var report = ApiListingGenerator.GenerateBaselineReport(assembly, filters);
             using (var writer = new JsonTextWriter(File.CreateText(output.Value())))
             {
                 writer.Formatting = Formatting.Indented;
@@ -180,7 +180,7 @@ namespace ApiCheck
                 oldBaselineFilters.Add(t => !t.Name.Contains(".Internal"));
             }
 
-            var oldBaseline = BaselineGenerator.LoadFrom(baselinePathOption.Value());
+            var oldBaseline = ApiListingGenerator.LoadFrom(baselinePathOption.Value());
             foreach (var type in oldBaseline.Types)
             {
                 if (oldBaselineFilters.Any(filter => filter(type)))
@@ -189,10 +189,10 @@ namespace ApiCheck
                 }
             }
 
-            var generator = new BaselineGenerator(assembly, newBaselineFilters);
+            var generator = new ApiListingGenerator(assembly, newBaselineFilters);
             var newBaseline = generator.GenerateBaseline();
 
-            var comparer = new BaselineComparer(
+            var comparer = new ApiListingComparer(
                 oldBaseline,
                 newBaseline);
 

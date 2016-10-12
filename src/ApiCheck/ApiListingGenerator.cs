@@ -10,7 +10,7 @@ using Newtonsoft.Json.Linq;
 
 namespace ApiCheck
 {
-    public class BaselineGenerator
+    public class ApiListingGenerator
     {
         private const BindingFlags SearchFlags = BindingFlags.Public |
             BindingFlags.NonPublic |
@@ -21,7 +21,7 @@ namespace ApiCheck
         private readonly Assembly _assembly;
         private readonly IEnumerable<Func<TypeInfo, bool>> _filters;
 
-        public BaselineGenerator(Assembly assembly, IEnumerable<Func<TypeInfo, bool>> filters)
+        public ApiListingGenerator(Assembly assembly, IEnumerable<Func<TypeInfo, bool>> filters)
         {
             _assembly = assembly;
             _filters = filters;
@@ -29,7 +29,7 @@ namespace ApiCheck
 
         public static JObject GenerateBaselineReport(Assembly assembly, IEnumerable<Func<TypeInfo, bool>> filters = null)
         {
-            var generator = new BaselineGenerator(assembly, filters ?? Enumerable.Empty<Func<TypeInfo, bool>>());
+            var generator = new ApiListingGenerator(assembly, filters ?? Enumerable.Empty<Func<TypeInfo, bool>>());
             var baselineDocument = generator.GenerateBaseline();
             return JObject.FromObject(baselineDocument);
         }

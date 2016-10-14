@@ -227,7 +227,7 @@ namespace SplitPackages
 
             var hardcodedDependencies = new[]
             {
-                new PackageInformation(null, "Microsoft.NetCore.App", "1.0.0", new[] { Frameworks.NetCoreApp10 })
+                new PackageInformation(null, "Microsoft.NetCore.App", "1.1.0", new[] { Frameworks.NetCoreApp10 })
             };
 
             builder.AddFramework(Frameworks.NetCoreApp10);

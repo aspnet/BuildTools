@@ -51,7 +51,7 @@ namespace ApiCheck.Test
         }
 
         [Fact]
-        public void Compare_Detects_TypeGenericityChanges()
+        public void Compare_Detects_TypeGenericArityChanges()
         {
             // Arrange
             var v1ApiListing = CreateApiListingDocument(V1Assembly);

@@ -7,7 +7,7 @@ using Xunit;
 
 namespace ApiCheck.Test
 {
-    public class ReportGenerationTests
+    public class ApiListingGenerationTests
     {
         public Assembly V1Assembly => typeof(ApiCheckApiListingV1).GetTypeInfo().Assembly;
         public Assembly V2Assembly => typeof(ApiCheckApiListingV2).GetTypeInfo().Assembly;

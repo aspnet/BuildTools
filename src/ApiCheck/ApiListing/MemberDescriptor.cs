@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace ApiCheck.Baseline
+namespace ApiCheck.Description
 {
     public class MemberDescriptor : ApiElement
     {

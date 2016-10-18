@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace ApiCheck.Baseline
+namespace ApiCheck.Description
 {
     public class TypeDescriptor : ApiElement
     {
-        public override string Id => string.Join(" ", GetMembers());
+        public override string Id => string.Join(" ", GetSignatureComponents());
 
         public string Name { get; set; }
 
@@ -29,7 +29,7 @@ namespace ApiCheck.Baseline
 
         public IList<GenericConstraintDescriptor> GenericConstraints { get; } = new List<GenericConstraintDescriptor>();
 
-        private IEnumerable<string> GetMembers()
+        private IEnumerable<string> GetSignatureComponents()
         {
             switch (Visibility)
             {
@@ -152,6 +152,12 @@ namespace ApiCheck.Baseline
                 var name = type.GetGenericTypeDefinition().FullName;
                 name = name.Substring(0, name.IndexOf('`'));
                 typeName = $"{name}<{string.Join(", ", type.GetGenericArguments().Select(ga => GetTypeNameFor(ga.GetTypeInfo())))}>";
+            }
+
+            if (type.IsArray)
+            {
+                var name = GetTypeNameFor(type.GetElementType().GetTypeInfo());
+                typeName = $"{name}[]";
             }
 
             // Parameters passed by reference through out or ref modifiers have an & at the end of their

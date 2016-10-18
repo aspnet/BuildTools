@@ -1,28 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
-using ApiCheck.Baseline;
+using ApiCheck.Description;
 
 namespace ApiCheck
 {
     public class ApiListingComparer
     {
-        private readonly ApiListing _newBaseline;
-        private readonly ApiListing _oldBaseline;
+        private readonly ApiListing _newApiListing;
+        private readonly ApiListing _oldApiListing;
 
         public ApiListingComparer(
-            ApiListing oldBaseline,
-            ApiListing newBaseline)
+            ApiListing oldApiListing,
+            ApiListing newApiListing)
         {
-            _oldBaseline = oldBaseline;
-            _newBaseline = newBaseline;
+            _oldApiListing = oldApiListing;
+            _newApiListing = newApiListing;
         }
 
         public IList<BreakingChange> GetDifferences()
         {
             var breakingChanges = new List<BreakingChange>();
-            foreach (var type in _oldBaseline.Types)
+            foreach (var type in _oldApiListing.Types)
             {
-                var newType = _newBaseline.FindType(type.Id);
+                var newType = _newApiListing.FindType(type.Id);
                 if (newType == null)
                 {
                     breakingChanges.Add(new BreakingChange(type));

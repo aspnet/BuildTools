@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Scenarios
 {
-    public class ApiCheckBaselineV1
+    public class ApiCheckApiListingV1
     {
     }
     public class BasicClass
@@ -18,7 +19,8 @@ namespace Scenarios
     {
     }
 
-    public struct BasicStruct {
+    public struct BasicStruct
+    {
     }
 
     public interface IBasicInterface
@@ -304,6 +306,10 @@ namespace Scenarios
         {
             return default(TClassType);
         }
+
+        public void MethodWithArrayParameter(Expression<Func<int, bool>>[] arrayExpression)
+        {
+        }
     }
 
     public class GenericClassForGenericMethods<TFirst, TSecond>
@@ -385,5 +391,12 @@ namespace Scenarios
         public ClassWithoutImplicitParameterlessConstructor(string parameter)
         {
         }
+    }
+}
+
+namespace Scenarios.Internal
+{
+    public class ExcludedType
+    {
     }
 }

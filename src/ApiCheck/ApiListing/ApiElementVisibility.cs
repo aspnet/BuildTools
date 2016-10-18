@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace ApiCheck.Baseline
+namespace ApiCheck.Description
 {
     [JsonConverter(typeof(StringEnumConverter))]
     public enum ApiElementVisibility

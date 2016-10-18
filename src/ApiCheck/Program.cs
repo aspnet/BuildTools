@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using ApiCheck.Baseline;
+using ApiCheck.Description;
 using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -22,33 +22,37 @@ namespace ApiCheck
 
             var generateCommand = app.Command("generate", (c) =>
             {
-                var assemblyPathOption = c.Option("-a|--assembly", "Path to the assembly to generate the baseline for", CommandOptionType.SingleValue);
+                var assemblyPathOption = c.Option("-a|--assembly", "Path to the assembly to generate the ApiListing for", CommandOptionType.SingleValue);
+                var projectDirectory = c.Option("-pd|--project-directory", "Path to the project.json directory", CommandOptionType.SingleValue);
                 var lockFile = c.Option("-l|--lock", "Path to the lock file with the assembly dependencies", CommandOptionType.SingleValue);
                 var nugetPackages = c.Option("-p|--packages", "Path to the nuget packages folder on the machine", CommandOptionType.SingleValue);
                 var framework = c.Option("-f|--framework", "netcoreapp1.0 or net452", CommandOptionType.SingleValue);
+                var configuration = c.Option("-c|--configuration", "Debug or Release", CommandOptionType.SingleValue);
                 var publicOnly = c.Option("-po|--public-only", "Report only types visible outside of the assembly", CommandOptionType.NoValue);
                 var noPublicInternal = c.Option("-epi|--exclude-public-internal", "Exclude types on the .Internal namespace from the generated report", CommandOptionType.NoValue);
-                var outputPath = c.Option("-o|--out", "Output path for the generated baseline file", CommandOptionType.SingleValue);
+                var outputPath = c.Option("-o|--out", "Output path for the generated ApiListing file", CommandOptionType.SingleValue);
 
                 c.HelpOption("-h|--help");
 
-                c.OnExecute(() => OnGenerate(c, assemblyPathOption, lockFile, nugetPackages, framework, publicOnly, noPublicInternal, outputPath));
+                c.OnExecute(() => OnGenerate(c, assemblyPathOption, projectDirectory, lockFile, nugetPackages, framework, configuration, publicOnly, noPublicInternal, outputPath));
             });
 
             var compareCommand = app.Command("compare", (c) =>
             {
-                var baselinePathOption = c.Option("-b|--baseline", "Path to the baseline file to use as reference.", CommandOptionType.SingleValue);
-                var assemblyPathOption = c.Option("-a|--assembly", "Path to the assembly to generate the baseline for", CommandOptionType.SingleValue);
+                var ApiListingPathOption = c.Option("-b|--ApiListing", "Path to the ApiListing file to use as reference.", CommandOptionType.SingleValue);
+                var assemblyPathOption = c.Option("-a|--assembly", "Path to the assembly to generate the ApiListing for", CommandOptionType.SingleValue);
+                var projectDirectory = c.Option("-pd|--project-directory", "Path to the project.json directory", CommandOptionType.SingleValue);
                 var lockFile = c.Option("-l|--lock", "Path to the lock file with the assembly dependencies", CommandOptionType.SingleValue);
                 var nugetPackages = c.Option("-p|--packages", "Path to the nuget packages folder on the machine", CommandOptionType.SingleValue);
                 var framework = c.Option("-f|--framework", "netcoreapp1.0 or net452", CommandOptionType.SingleValue);
+                var configuration = c.Option("-c|--configuration", "Debug or Release", CommandOptionType.SingleValue);
                 var publicOnly = c.Option("-po|--public-only", "Report only types visible outside of the assembly", CommandOptionType.NoValue);
                 var noPublicInternal = c.Option("-epi|--exclude-public-internal", "Exclude types on the .Internal namespace from the generated report", CommandOptionType.NoValue);
-                var outputPath = c.Option("-o|--out", "Output path for the generated baseline file", CommandOptionType.SingleValue);
+                var outputPath = c.Option("-o|--out", "Output path for the generated ApiListing file", CommandOptionType.SingleValue);
 
                 c.HelpOption("-h|--help");
 
-                c.OnExecute(() => OnCompare(c, baselinePathOption, assemblyPathOption, lockFile, nugetPackages, framework, publicOnly, noPublicInternal, outputPath));
+                c.OnExecute(() => OnCompare(c, ApiListingPathOption, assemblyPathOption, projectDirectory, lockFile, nugetPackages, framework, configuration, publicOnly, noPublicInternal, outputPath));
             });
 
             app.HelpOption("-h|--help");
@@ -65,20 +69,29 @@ namespace ApiCheck
         private static int OnGenerate(
             CommandLineApplication command,
             CommandOption assemblyPath,
+            CommandOption projectDirectory,
             CommandOption lockFile,
             CommandOption packagesFolder,
             CommandOption framework,
+            CommandOption configuration,
             CommandOption publicOnly,
             CommandOption excludeInternalNamespace,
             CommandOption output)
         {
-            if (!assemblyPath.HasValue() || !lockFile.HasValue() || !framework.HasValue() || !output.HasValue())
+            if (!assemblyPath.HasValue() || !lockFile.HasValue() || !framework.HasValue() ||
+                !output.HasValue() || !projectDirectory.HasValue() || !configuration.HasValue())
             {
                 command.ShowHelp();
                 return Error;
             }
 
             if (framework.Value() != "netcoreapp1.0" && framework.Value() != "net452")
+            {
+                command.ShowHelp();
+                return Error;
+            }
+
+            if (configuration.Value() != "Debug" && configuration.Value() != "Release")
             {
                 command.ShowHelp();
                 return Error;
@@ -93,22 +106,24 @@ namespace ApiCheck
 
             var assembly = AssemblyLoader.LoadAssembly(
                 assemblyPath.Value(),
+                projectDirectory.Value(),
                 lockFile.Value(),
                 resolvedFramework,
+                configuration.Value(),
                 resolvedPackagesFolder);
 
-            var filters = new List<Func<TypeInfo, bool>>();
+            var filters = new List<Func<MemberInfo, bool>>();
             if (publicOnly.HasValue())
             {
-                filters.Add(t => t.IsPublic || t.IsNestedPublic || t.IsNestedFamily);
+                filters.Add(ApiListingFilters.NonExportedMembers);
             }
 
             if (excludeInternalNamespace.HasValue())
             {
-                filters.Add(t => !t.Namespace.EndsWith("Internal"));
+                filters.Add(ApiListingFilters.InternalNamespaceTypes);
             }
 
-            var report = ApiListingGenerator.GenerateBaselineReport(assembly, filters);
+            var report = ApiListingGenerator.GenerateApiListingReport(assembly, filters);
             using (var writer = new JsonTextWriter(File.CreateText(output.Value())))
             {
                 writer.Formatting = Formatting.Indented;
@@ -123,26 +138,36 @@ namespace ApiCheck
 
         private static int OnCompare(
             CommandLineApplication command,
-            CommandOption baselinePathOption,
+            CommandOption ApiListingPathOption,
             CommandOption assemblyPath,
+            CommandOption projectDirectory,
             CommandOption lockFile,
             CommandOption packagesFolder,
             CommandOption framework,
+            CommandOption configuration,
             CommandOption publicOnly,
             CommandOption excludeInternalNamespace,
             CommandOption output)
         {
-            if (!baselinePathOption.HasValue() ||
+            if (!ApiListingPathOption.HasValue() ||
                 !assemblyPath.HasValue() ||
                 !lockFile.HasValue() ||
                 !framework.HasValue() ||
-                !output.HasValue())
+                !output.HasValue() ||
+                !projectDirectory.HasValue() ||
+                !configuration.HasValue())
             {
                 command.ShowHelp();
                 return Error;
             }
 
             if (framework.Value() != "netcoreapp1.0" && framework.Value() != "net452")
+            {
+                command.ShowHelp();
+                return Error;
+            }
+
+            if (configuration.Value() != "Debug" && configuration.Value() != "Release")
             {
                 command.ShowHelp();
                 return Error;
@@ -159,42 +184,32 @@ namespace ApiCheck
 
             var assembly = AssemblyLoader.LoadAssembly(
                 assemblyPath.Value(),
+                projectDirectory.Value(),
                 lockFile.Value(),
                 resolvedFramework,
+                configuration.Value(),
                 resolvedPackagesFolder);
 
-            var newBaselineFilters = new List<Func<TypeInfo, bool>>();
-            var oldBaselineFilters = new List<Func<TypeDescriptor, bool>>();
+            var newApiListingFilters = new List<Func<MemberInfo, bool>>();
+            var oldApiListingFilters = new List<Func<ApiElement, bool>>();
             if (publicOnly.HasValue())
             {
-                newBaselineFilters.Add(t => t.IsPublic || t.IsNestedPublic || t.IsNestedFamily);
-                oldBaselineFilters.Add(t =>
-                    t.Visibility == ApiElementVisibility.Public ||
-                    t.Visibility == ApiElementVisibility.Protected ||
-                    t.Visibility == ApiElementVisibility.ProtectedInternal);
+                newApiListingFilters.Add(ApiListingFilters.NonExportedMembers);
+                oldApiListingFilters.Add(ApiListingFilters.NonExportedMembers);
             }
 
             if (excludeInternalNamespace.HasValue())
             {
-                newBaselineFilters.Add(t => !t.Namespace.EndsWith(".Internal"));
-                oldBaselineFilters.Add(t => !t.Name.Contains(".Internal"));
+                newApiListingFilters.Add(ApiListingFilters.InternalNamespaceTypes);
+                oldApiListingFilters.Add(ApiListingFilters.InternalNamespaceTypes);
             }
 
-            var oldBaseline = ApiListingGenerator.LoadFrom(baselinePathOption.Value());
-            foreach (var type in oldBaseline.Types)
-            {
-                if (oldBaselineFilters.Any(filter => filter(type)))
-                {
-                    oldBaseline.Types.Remove(type);
-                }
-            }
+            var oldApiListing = ApiListingGenerator.LoadFrom(File.ReadAllText(ApiListingPathOption.Value()), oldApiListingFilters);
 
-            var generator = new ApiListingGenerator(assembly, newBaselineFilters);
-            var newBaseline = generator.GenerateBaseline();
+            var generator = new ApiListingGenerator(assembly, newApiListingFilters);
+            var newApiListing = generator.GenerateApiListing();
 
-            var comparer = new ApiListingComparer(
-                oldBaseline,
-                newBaseline);
+            var comparer = new ApiListingComparer(oldApiListing, newApiListing);
 
             var differences = comparer.GetDifferences();
             foreach (var difference in differences)

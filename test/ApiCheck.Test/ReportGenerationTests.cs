@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Linq;
 using System.Reflection;
-using ApiCheckBaseline.V2;
+using ApiCheck.Description;
+using ApiCheckApiListing.V2;
 using Scenarios;
 using Xunit;
 
@@ -9,8 +9,8 @@ namespace ApiCheck.Test
 {
     public class ReportGenerationTests
     {
-        public Assembly V1Assembly => typeof(ApiCheckBaselineV1).GetTypeInfo().Assembly;
-        public Assembly V2Assembly => typeof(ApiCheckBaselineV2).GetTypeInfo().Assembly;
+        public Assembly V1Assembly => typeof(ApiCheckApiListingV1).GetTypeInfo().Assembly;
+        public Assembly V2Assembly => typeof(ApiCheckApiListingV2).GetTypeInfo().Assembly;
 
         [Fact]
         public void DetectsClasses()
@@ -19,7 +19,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -34,7 +34,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -49,7 +49,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -64,7 +64,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -79,7 +79,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -94,7 +94,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -109,7 +109,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -124,7 +124,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -139,7 +139,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -155,7 +155,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -171,7 +171,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -187,7 +187,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -203,7 +203,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -237,7 +237,7 @@ namespace ApiCheck.Test
                 "System.Threading.CancellationToken cancellation = default(System.Threading.CancellationToken)");
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -253,7 +253,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -269,7 +269,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -285,7 +285,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -300,7 +300,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -315,7 +315,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -330,7 +330,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -345,7 +345,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -360,7 +360,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -375,7 +375,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -390,7 +390,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -405,7 +405,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -421,7 +421,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -437,7 +437,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -453,7 +453,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -469,7 +469,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -485,7 +485,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -500,7 +500,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -516,7 +516,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -532,7 +532,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -547,7 +547,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -563,7 +563,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -579,7 +579,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -595,7 +595,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -611,7 +611,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -626,7 +626,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -641,7 +641,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -656,7 +656,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -671,7 +671,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -686,7 +686,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -701,7 +701,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -717,7 +717,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -733,7 +733,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -750,7 +750,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -767,7 +767,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -784,7 +784,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -801,7 +801,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -818,7 +818,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -835,7 +835,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -852,7 +852,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -869,7 +869,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -886,7 +886,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -903,7 +903,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -920,7 +920,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -937,7 +937,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -955,7 +955,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -973,7 +973,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -989,7 +989,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -1007,7 +1007,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -1026,7 +1026,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -1045,7 +1045,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -1062,7 +1062,7 @@ namespace ApiCheck.Test
             var generator = CreateGenerator(V1Assembly);
 
             // Act
-            var report = generator.GenerateBaseline();
+            var report = generator.GenerateApiListing();
 
             // Assert
             Assert.NotNull(report);
@@ -1072,9 +1072,198 @@ namespace ApiCheck.Test
             var secondValue = Assert.Single(type.Members, m => m.Id == "public System.Void MethodWithParametersInDifferentDirections(System.String inParameter, out System.Boolean outParameter, ref System.Int32 refParameter)");
         }
 
-        private ApiListingGenerator CreateGenerator(Assembly assembly)
+        [Fact]
+        public void DetectsArrayParameters()
         {
-            return new ApiListingGenerator(assembly, Enumerable.Empty<Func<TypeInfo, bool>>());
+            // Arrange
+            var generator = CreateGenerator(V1Assembly);
+
+            // Act
+            var report = generator.GenerateApiListing();
+
+            // Assert
+            Assert.NotNull(report);
+            Assert.NotNull(report.Types);
+
+            var type = Assert.Single(report.Types, t => t.Id == "public class Scenarios.MethodTypesClass");
+            var secondValue = Assert.Single(type.Members, m => m.Id == "public System.Void MethodWithArrayParameter(System.Linq.Expressions.Expression<System.Func<System.Int32, System.Boolean>>[] arrayExpression)");
+        }
+
+        [Fact]
+        public void FiltersNonPublicOrProtectedElements()
+        {
+            // Arrange
+            var generator = CreateGenerator(V1Assembly, ApiListingFilters.NonExportedMembers);
+
+            // Act
+            var report = generator.GenerateApiListing();
+
+            // Assert
+            Assert.NotNull(report);
+            Assert.NotNull(report.Types);
+            foreach (var type in report.Types)
+            {
+                var typeVisibility = type.Visibility;
+                Assert.True(typeVisibility == ApiElementVisibility.Public ||
+                    typeVisibility == ApiElementVisibility.Protected ||
+                    typeVisibility == ApiElementVisibility.ProtectedInternal);
+                Assert.NotNull(type.Members);
+
+                foreach (var member in type.Members)
+                {
+                    var memberVisibility = member.Visibility;
+                    Assert.True(memberVisibility == null ||
+                        memberVisibility == ApiElementVisibility.Public ||
+                        memberVisibility == ApiElementVisibility.Protected ||
+                        memberVisibility == ApiElementVisibility.ProtectedInternal);
+                }
+            }
+        }
+
+        [Fact]
+        public void FiltersMembersOnTheInternalNamespace()
+        {
+            // Arrange
+            var generator = CreateGenerator(V1Assembly, ApiListingFilters.InternalNamespaceTypes);
+
+            // Act
+            var report = generator.GenerateApiListing();
+
+            // Assert
+            Assert.NotNull(report);
+            Assert.NotNull(report.Types);
+            Assert.DoesNotContain(report.Types, type => type.Name == "Scenarios.Internal.ExcludedType");
+        }
+
+        [Fact]
+        public void LoadFromFiltersNonPublicOrProtectedElements()
+        {
+            // Arrange
+            var serialized = @"{
+  ""AssemblyIdentity"": ""Test"",
+  ""Types"": [
+    {
+      ""Name"": ""Scenarios.InternalClass"",
+      ""Visibility"": ""Internal"",
+      ""Members"": [
+        {
+          ""Name"": ""InternalMethod"",
+          ""Visibility"": ""Internal""
+        },
+        {
+          ""Name"": ""PrivateMethod"",
+          ""Visibility"": ""Private""
+        },
+      ]
+    },
+    {
+      ""Name"": ""Scenarios.PublicClass+PrivateNestedClass"",
+      ""Visibility"": ""Private"",
+      ""Members"": [
+        {
+          ""Name"": ""InternalMethod"",
+          ""Visibility"": ""Internal""
+        },
+        {
+          ""Name"": ""PrivateMethod"",
+          ""Visibility"": ""Private""
+        },
+      ]
+    },
+    {
+      ""Name"": ""Scenarios.PublicClass+ProtectedClass"",
+      ""Visibility"": ""Protected"",
+      ""Members"": [
+        {
+          ""Name"": ""InternalMethod"",
+          ""Visibility"": ""Internal""
+        },
+        {
+          ""Name"": ""PrivateMethod"",
+          ""Visibility"": ""Private""
+        },
+      ]
+    },
+    {
+      ""Name"": ""Scenarios.PublicClass"",
+      ""Visibility"": ""Public"",
+      ""Members"": [
+        {
+          ""Name"": ""InternalMethod"",
+          ""Visibility"": ""Internal""
+        },
+        {
+          ""Name"": ""PrivateMethod"",
+          ""Visibility"": ""Private""
+        },
+        {
+          ""Name"": ""ProtectedMethod"",
+          ""Visibility"": ""Protected""
+        },
+        {
+          ""Name"": ""PublicMethod"",
+          ""Visibility"": ""Public""
+        },
+        {
+          ""Name"": ""ProtectedInternalMethod"",
+          ""Visibility"": ""ProtectedInternal""
+        },
+      ]
+    }
+  ]
+}";
+
+            // Act
+            var report = ApiListingGenerator.LoadFrom(serialized, new Func<ApiElement, bool>[] { ApiListingFilters.NonExportedMembers });
+
+            // Assert
+            Assert.NotNull(report);
+            Assert.NotNull(report.Types);
+            foreach (var type in report.Types)
+            {
+                var typeVisibility = type.Visibility;
+                Assert.True(typeVisibility == ApiElementVisibility.Public ||
+                    typeVisibility == ApiElementVisibility.Protected ||
+                    typeVisibility == ApiElementVisibility.ProtectedInternal);
+                Assert.NotNull(type.Members);
+
+                foreach (var member in type.Members)
+                {
+                    var memberVisibility = member.Visibility;
+                    Assert.True(memberVisibility == null ||
+                        memberVisibility == ApiElementVisibility.Public ||
+                        memberVisibility == ApiElementVisibility.Protected ||
+                        memberVisibility == ApiElementVisibility.ProtectedInternal);
+                }
+            }
+        }
+
+        [Fact]
+        public void LoadFromFiltersMembersOnTheInternalNamespace()
+        {
+            // Arrange
+            var serialized = @"{
+  ""AssemblyIdentity"": ""Test"",
+  ""Types"": [
+    {
+      ""Name"": ""Scenarios.Internal.ExcludedType""
+    }
+  ]
+}";
+
+            // Act
+            var report = ApiListingGenerator.LoadFrom(serialized, new Func<ApiElement, bool>[] { ApiListingFilters.InternalNamespaceTypes });
+
+            // Assert
+            Assert.NotNull(report);
+            Assert.NotNull(report.Types);
+            Assert.Empty(report.Types);
+        }
+
+        private ApiListingGenerator CreateGenerator(Assembly assembly, params Func<MemberInfo, bool>[] filters)
+        {
+            filters = filters ?? new Func<MemberInfo, bool>[] { };
+            return new ApiListingGenerator(assembly, filters);
         }
     }
 }

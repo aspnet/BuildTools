@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ApiCheck.Baseline;
+using ApiCheck.Description;
 
 namespace ApiCheck
 {

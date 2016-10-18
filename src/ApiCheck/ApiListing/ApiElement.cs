@@ -1,19 +1,10 @@
 ﻿using System.Diagnostics;
 
-namespace ApiCheck.Baseline
+namespace ApiCheck.Description
 {
     [DebuggerDisplay("{Id,nq}")]
     public class ApiElement
     {
-        protected ApiElement()
-        {
-        }
-
-        public ApiElement(string id)
-        {
-            Id = id;
-        }
-
         public virtual string Id { get; }
     }
 }

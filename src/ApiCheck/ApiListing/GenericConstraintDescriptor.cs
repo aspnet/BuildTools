@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 
-namespace ApiCheck.Baseline
+namespace ApiCheck.Description
 {
     public class GenericConstraintDescriptor : ApiElement
     {
-        public override string Id => string.Join(" ", ParameterName, ":", GetConstraints());
+        public override string Id => ParameterName + " : " + GetConstraints();
 
         private string GetConstraints()
         {
@@ -31,9 +31,9 @@ namespace ApiCheck.Baseline
             return string.Join(", ", constraints);
         }
 
-        public bool New { get; internal set; }
-        public bool Class { get; internal set; }
-        public bool Struct { get; internal set; }
+        public bool New { get; set; }
+        public bool Class { get; set; }
+        public bool Struct { get; set; }
         public string ParameterName { get; set; }
         public IList<string> BaseTypeOrInterfaces { get; } = new List<string>();
     }

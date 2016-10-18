@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ApiCheck.Baseline
+namespace ApiCheck.Description
 {
     public class ParameterDescriptor : ApiElement
     {

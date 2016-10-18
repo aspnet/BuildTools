@@ -18,12 +18,14 @@ namespace ApiCheck
 
         public static Assembly LoadAssembly(
                 string assemblyPath,
+                string projectDirectory,
                 string lockFile,
                 NuGetFramework framework,
+                string configuration,
                 string packagesFolder)
         {
-            var ctx = CreateProjectContext(framework, lockFile, packagesFolder);
-            var exporter = ctx.CreateExporter("ApiCheck");
+            var ctx = CreateProjectContext(framework, projectDirectory, lockFile, packagesFolder);
+            var exporter = ctx.CreateExporter(configuration);
             var dependencies = exporter.GetDependencies().ToArray();
 
 #if NETCOREAPP1_0
@@ -41,7 +43,7 @@ namespace ApiCheck
         {
             foreach (var library in _libraries)
             {
-                var runtimeGroup = library.RuntimeAssemblyGroups.First(rg => rg.Runtime == "");
+                var runtimeGroup = library.RuntimeAssemblyGroups.FirstOrDefault(rg => rg.Runtime == "");
                 if (runtimeGroup == null)
                 {
                     continue;
@@ -63,11 +65,12 @@ namespace ApiCheck
             return null;
         }
 
-        private static ProjectContext CreateProjectContext(NuGetFramework framework, string lockFilePath, string packagesFolder)
+        private static ProjectContext CreateProjectContext(NuGetFramework framework, string projectDirectory, string lockFilePath, string packagesFolder)
         {
             var lockFile = LockFileReader.Read(lockFilePath, designTime: false);
-            var compatibleTarget = lockFile.Targets.Single(t => IsCompatible(FrameworkConstants.CommonFrameworks.NetCoreApp10, t.TargetFramework));
+            var compatibleTarget = lockFile.Targets.Single(t => t.TargetFramework.Framework == framework.Framework);
             var builder = new ProjectContextBuilder()
+                .WithProjectDirectory(projectDirectory)
                 .WithPackagesDirectory(packagesFolder)
                 .WithLockFile(lockFile)
                 .WithTargetFramework(compatibleTarget.TargetFramework);

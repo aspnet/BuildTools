@@ -2,20 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using ApiCheck.Baseline;
-using ApiCheckBaseline.V2;
+using ApiCheck.Description;
+using ApiCheckApiListing.V2;
 using Scenarios;
 using Xunit;
 
 namespace ApiCheck.Test
 {
-    public class BaselineComparerTests
+    public class ApiListingComparerTests
     {
-        public Assembly V1Assembly => typeof(ApiCheckBaselineV1).GetTypeInfo().Assembly;
-        public Assembly V2Assembly => typeof(ApiCheckBaselineV2).GetTypeInfo().Assembly;
+        public Assembly V1Assembly => typeof(ApiCheckApiListingV1).GetTypeInfo().Assembly;
+        public Assembly V2Assembly => typeof(ApiCheckApiListingV2).GetTypeInfo().Assembly;
 
-        public IEnumerable<Func<TypeInfo, bool>> TypeFilters => new Func<TypeInfo, bool>[]{
-            ti => !ti.Namespace.Equals("Scenarios")
+        public IEnumerable<Func<MemberInfo, bool>> TestFilters => new Func<MemberInfo, bool>[]
+        {
+            ti => ti is TypeInfo && !((TypeInfo)ti).Namespace.StartsWith("ComparisonScenarios")
         };
 
 
@@ -23,9 +24,9 @@ namespace ApiCheck.Test
         public void Compare_Detects_ChangesInTypeVisibility()
         {
             // Arrange
-            var v1Baseline = CreateBaselineDocument(V1Assembly);
-            var v2Baseline = CreateBaselineDocument(V2Assembly);
-            var comparer = new ApiListingComparer(v1Baseline, v2Baseline);
+            var v1ApiListing = CreateApiListingDocument(V1Assembly);
+            var v2ApiListing = CreateApiListingDocument(V2Assembly);
+            var comparer = new ApiListingComparer(v1ApiListing, v2ApiListing);
 
             // Act
             var changes = comparer.GetDifferences();
@@ -38,9 +39,9 @@ namespace ApiCheck.Test
         public void Compare_Detects_TypeRenames()
         {
             // Arrange
-            var v1Baseline = CreateBaselineDocument(V1Assembly);
-            var v2Baseline = CreateBaselineDocument(V2Assembly);
-            var comparer = new ApiListingComparer(v1Baseline, v2Baseline);
+            var v1ApiListing = CreateApiListingDocument(V1Assembly);
+            var v2ApiListing = CreateApiListingDocument(V2Assembly);
+            var comparer = new ApiListingComparer(v1ApiListing, v2ApiListing);
 
             // Act
             var changes = comparer.GetDifferences();
@@ -53,9 +54,9 @@ namespace ApiCheck.Test
         public void Compare_Detects_TypeGenericityChanges()
         {
             // Arrange
-            var v1Baseline = CreateBaselineDocument(V1Assembly);
-            var v2Baseline = CreateBaselineDocument(V2Assembly);
-            var comparer = new ApiListingComparer(v1Baseline, v2Baseline);
+            var v1ApiListing = CreateApiListingDocument(V1Assembly);
+            var v2ApiListing = CreateApiListingDocument(V2Assembly);
+            var comparer = new ApiListingComparer(v1ApiListing, v2ApiListing);
 
             // Act
             var changes = comparer.GetDifferences();
@@ -68,9 +69,9 @@ namespace ApiCheck.Test
         public void Compare_Detects_NamespaceChanges()
         {
             // Arrange
-            var v1Baseline = CreateBaselineDocument(V1Assembly);
-            var v2Baseline = CreateBaselineDocument(V2Assembly);
-            var comparer = new ApiListingComparer(v1Baseline, v2Baseline);
+            var v1ApiListing = CreateApiListingDocument(V1Assembly);
+            var v2ApiListing = CreateApiListingDocument(V2Assembly);
+            var comparer = new ApiListingComparer(v1ApiListing, v2ApiListing);
 
             // Act
             var changes = comparer.GetDifferences();
@@ -83,9 +84,9 @@ namespace ApiCheck.Test
         public void Compare_Detects_ClassBeingNested()
         {
             // Arrange
-            var v1Baseline = CreateBaselineDocument(V1Assembly);
-            var v2Baseline = CreateBaselineDocument(V2Assembly);
-            var comparer = new ApiListingComparer(v1Baseline, v2Baseline);
+            var v1ApiListing = CreateApiListingDocument(V1Assembly);
+            var v2ApiListing = CreateApiListingDocument(V2Assembly);
+            var comparer = new ApiListingComparer(v1ApiListing, v2ApiListing);
 
             // Act
             var changes = comparer.GetDifferences();
@@ -98,9 +99,9 @@ namespace ApiCheck.Test
         public void Compare_Detects_ClassBeingUnnested()
         {
             // Arrange
-            var v1Baseline = CreateBaselineDocument(V1Assembly);
-            var v2Baseline = CreateBaselineDocument(V2Assembly);
-            var comparer = new ApiListingComparer(v1Baseline, v2Baseline);
+            var v1ApiListing = CreateApiListingDocument(V1Assembly);
+            var v2ApiListing = CreateApiListingDocument(V2Assembly);
+            var comparer = new ApiListingComparer(v1ApiListing, v2ApiListing);
 
             // Act
             var changes = comparer.GetDifferences();
@@ -113,9 +114,9 @@ namespace ApiCheck.Test
         public void Compare_Detects_GenericTypeConstraintsBeingAdded()
         {
             // Arrange
-            var v1Baseline = CreateBaselineDocument(V1Assembly);
-            var v2Baseline = CreateBaselineDocument(V2Assembly);
-            var comparer = new ApiListingComparer(v1Baseline, v2Baseline);
+            var v1ApiListing = CreateApiListingDocument(V1Assembly);
+            var v2ApiListing = CreateApiListingDocument(V2Assembly);
+            var comparer = new ApiListingComparer(v1ApiListing, v2ApiListing);
 
             // Act
             var changes = comparer.GetDifferences();
@@ -128,9 +129,9 @@ namespace ApiCheck.Test
         public void Compare_Detects_MethodParametersBeingAdded()
         {
             // Arrange
-            var v1Baseline = CreateBaselineDocument(V1Assembly);
-            var v2Baseline = CreateBaselineDocument(V2Assembly);
-            var comparer = new ApiListingComparer(v1Baseline, v2Baseline);
+            var v1ApiListing = CreateApiListingDocument(V1Assembly);
+            var v2ApiListing = CreateApiListingDocument(V2Assembly);
+            var comparer = new ApiListingComparer(v1ApiListing, v2ApiListing);
 
             // Act
             var changes = comparer.GetDifferences();
@@ -139,12 +140,12 @@ namespace ApiCheck.Test
             var change = Assert.Single(changes, bc => bc.Item.Id == "public System.Void MethodToAddParameters()");
         }
 
-        private ApiListing CreateBaselineDocument(Assembly assembly, IEnumerable<Func<TypeInfo, bool>> additionalFilters = null)
+        private ApiListing CreateApiListingDocument(Assembly assembly, IEnumerable<Func<MemberInfo, bool>> additionalFilters = null)
         {
-            additionalFilters = additionalFilters ?? Enumerable.Empty<Func<TypeInfo, bool>>();
-            var generator = new ApiListingGenerator(assembly, TypeFilters.Concat(additionalFilters));
+            additionalFilters = additionalFilters ?? Enumerable.Empty<Func<MemberInfo, bool>>();
+            var generator = new ApiListingGenerator(assembly, TestFilters.Concat(additionalFilters));
 
-            return generator.GenerateBaseline();
+            return generator.GenerateApiListing();
         }
     }
 }

@@ -4,6 +4,7 @@
 #if NETCOREAPP1_0
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime;
@@ -16,8 +17,8 @@ namespace ApiCheck
     {
         private AssemblyLoadContext _loadContext;
 
-        public CoreClrAssemblyLoader(LibraryExport[] exports)
-            : base(exports)
+        public CoreClrAssemblyLoader(LibraryExport[] exports, string runtime, string outputPath)
+            : base(exports, runtime, outputPath)
         {
             _loadContext = new ApiCheckLoadContext(FindAssemblyPath);
         }
@@ -43,7 +44,19 @@ namespace ApiCheck
 
             protected override Assembly Load(AssemblyName assemblyName)
             {
-                var path = _finder(assemblyName);
+                try
+                {
+                    var assembly = Default.LoadFromAssemblyName(assemblyName);
+                    if (assembly != null)
+                    {
+                        return assembly;
+                    }
+                }
+                catch (FileNotFoundException)
+                {
+                }
+
+                string path = _finder(assemblyName);
                 if (path != null)
                 {
                     return LoadFromAssemblyPath(path);

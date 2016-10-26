@@ -22,7 +22,12 @@ namespace ApiCheck
 
         public override string ToString()
         {
-            return $"{Context}: {Item.Id}";
+            if (Context == null)
+            {
+                return Item.Id;
+            }
+
+            return $"{Context} => {Item.Id}";
         }
     }
 }

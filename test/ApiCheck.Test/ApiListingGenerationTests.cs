@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using ApiCheck.Description;
 using ApiCheckApiListing.V2;
@@ -177,11 +178,11 @@ namespace ApiCheck.Test
             Assert.NotNull(report);
             Assert.NotNull(report.Types);
             var type = Assert.Single(report.Types, t => t.Id == "public class Scenarios.MethodTypesClass");
-            var method = Assert.Single(type.Members, m => m.Id == "protected internal System.String ProtectedInternalStringReturningMethodWithStringParameter(System.String stringParameter)");
+            Assert.False(type.Members.Any(m => m.Id == "protected internal System.String ProtectedInternalStringReturningMethodWithStringParameter(System.String stringParameter)"));
         }
 
         [Fact]
-        public void InternalClassReturningMethodWithOptionalStringParameter()
+        public void PublicClassReturningMethodWithOptionalStringParameter()
         {
             // Arrange
             var generator = CreateGenerator(V1Assembly);
@@ -193,7 +194,7 @@ namespace ApiCheck.Test
             Assert.NotNull(report);
             Assert.NotNull(report.Types);
             var type = Assert.Single(report.Types, t => t.Id == "public class Scenarios.MethodTypesClass");
-            var method = Assert.Single(type.Members, m => m.Id == "internal Scenarios.MethodTypesClass InternalClassReturningMethodWithOptionalStringParameter(System.String defaultParameter = \"hello\")");
+            var method = Assert.Single(type.Members, m => m.Id == "public Scenarios.MethodTypesClass PublicClassReturningMethodWithOptionalStringParameter(System.String defaultParameter = \"hello\")");
         }
 
         [Fact]
@@ -209,7 +210,7 @@ namespace ApiCheck.Test
             Assert.NotNull(report);
             Assert.NotNull(report.Types);
             var type = Assert.Single(report.Types, t => t.Id == "public class Scenarios.MethodTypesClass");
-            var method = Assert.Single(type.Members, m => m.Id == "private System.Boolean PrivateBoolReturningMethodWithOptionalCharParameter(System.Char charParameter = 'c')");
+            Assert.False(type.Members.Any(m => m.Id == "private System.Boolean PrivateBoolReturningMethodWithOptionalCharParameter(System.Char charParameter = 'c')"));
         }
 
         [Fact]
@@ -320,7 +321,7 @@ namespace ApiCheck.Test
             // Assert
             Assert.NotNull(report);
             Assert.NotNull(report.Types);
-            var type = Assert.Single(report.Types, t => t.Id == "protected internal class Scenarios.NestedTypesClass+ProtectedInternalNestedClass");
+            Assert.Single(report.Types, t => t.Id == "protected class Scenarios.NestedTypesClass+ProtectedInternalNestedClass");
         }
 
         [Fact]
@@ -335,7 +336,7 @@ namespace ApiCheck.Test
             // Assert
             Assert.NotNull(report);
             Assert.NotNull(report.Types);
-            var type = Assert.Single(report.Types, t => t.Id == "internal class Scenarios.NestedTypesClass+InternalNestedClass");
+            Assert.False(report.Types.Any(t => t.Id == "internal class Scenarios.NestedTypesClass+InternalNestedClass"));
         }
 
         [Fact]
@@ -350,7 +351,7 @@ namespace ApiCheck.Test
             // Assert
             Assert.NotNull(report);
             Assert.NotNull(report.Types);
-            var type = Assert.Single(report.Types, t => t.Id == "private class Scenarios.NestedTypesClass+PrivateNestedClass");
+            Assert.False(report.Types.Any(t => t.Id == "private class Scenarios.NestedTypesClass+PrivateNestedClass"));
         }
 
         [Fact]
@@ -569,7 +570,7 @@ namespace ApiCheck.Test
             Assert.NotNull(report);
             Assert.NotNull(report.Types);
             var type = Assert.Single(report.Types, t => t.Id == "public class Scenarios.ExplicitImplementationClass : Scenarios.IInterfaceForExplicitImplementation");
-            var method = Assert.Single(type.Members, m => m.Id == "System.Void Scenarios.IInterfaceForExplicitImplementation.ExplicitImplementationMethod()");
+            Assert.False(type.Members.Any(m => m.Id == "System.Void Scenarios.IInterfaceForExplicitImplementation.ExplicitImplementationMethod()"));
         }
 
         [Fact]
@@ -585,7 +586,7 @@ namespace ApiCheck.Test
             Assert.NotNull(report);
             Assert.NotNull(report.Types);
             var type = Assert.Single(report.Types, t => t.Id == "public class Scenarios.ClassDerivingClassReimplementingInterface : Scenarios.OriginalClassImplementingInterface, Scenarios.IBasicInterfaceForInterfaceReimplementation");
-            var method = Assert.Single(type.Members, m => m.Id == "System.Void Scenarios.IBasicInterfaceForInterfaceReimplementation.A()");
+            Assert.False(type.Members.Any(m => m.Id == "System.Void Scenarios.IBasicInterfaceForInterfaceReimplementation.A()"));
         }
 
         [Fact]
@@ -1093,7 +1094,7 @@ namespace ApiCheck.Test
         public void FiltersNonPublicOrProtectedElements()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly, ApiListingFilters.NonExportedMembers);
+            var generator = CreateGenerator(V1Assembly);
 
             // Act
             var report = generator.GenerateApiListing();
@@ -1105,8 +1106,7 @@ namespace ApiCheck.Test
             {
                 var typeVisibility = type.Visibility;
                 Assert.True(typeVisibility == ApiElementVisibility.Public ||
-                    typeVisibility == ApiElementVisibility.Protected ||
-                    typeVisibility == ApiElementVisibility.ProtectedInternal);
+                    typeVisibility == ApiElementVisibility.Protected);
                 Assert.NotNull(type.Members);
 
                 foreach (var member in type.Members)
@@ -1114,8 +1114,7 @@ namespace ApiCheck.Test
                     var memberVisibility = member.Visibility;
                     Assert.True(memberVisibility == null ||
                         memberVisibility == ApiElementVisibility.Public ||
-                        memberVisibility == ApiElementVisibility.Protected ||
-                        memberVisibility == ApiElementVisibility.ProtectedInternal);
+                        memberVisibility == ApiElementVisibility.Protected);
                 }
             }
         }
@@ -1133,109 +1132,6 @@ namespace ApiCheck.Test
             Assert.NotNull(report);
             Assert.NotNull(report.Types);
             Assert.DoesNotContain(report.Types, type => type.Name == "Scenarios.Internal.ExcludedType");
-        }
-
-        [Fact]
-        public void LoadFromFiltersNonPublicOrProtectedElements()
-        {
-            // Arrange
-            var serialized = @"{
-  ""AssemblyIdentity"": ""Test"",
-  ""Types"": [
-    {
-      ""Name"": ""Scenarios.InternalClass"",
-      ""Visibility"": ""Internal"",
-      ""Members"": [
-        {
-          ""Name"": ""InternalMethod"",
-          ""Visibility"": ""Internal""
-        },
-        {
-          ""Name"": ""PrivateMethod"",
-          ""Visibility"": ""Private""
-        },
-      ]
-    },
-    {
-      ""Name"": ""Scenarios.PublicClass+PrivateNestedClass"",
-      ""Visibility"": ""Private"",
-      ""Members"": [
-        {
-          ""Name"": ""InternalMethod"",
-          ""Visibility"": ""Internal""
-        },
-        {
-          ""Name"": ""PrivateMethod"",
-          ""Visibility"": ""Private""
-        },
-      ]
-    },
-    {
-      ""Name"": ""Scenarios.PublicClass+ProtectedClass"",
-      ""Visibility"": ""Protected"",
-      ""Members"": [
-        {
-          ""Name"": ""InternalMethod"",
-          ""Visibility"": ""Internal""
-        },
-        {
-          ""Name"": ""PrivateMethod"",
-          ""Visibility"": ""Private""
-        },
-      ]
-    },
-    {
-      ""Name"": ""Scenarios.PublicClass"",
-      ""Visibility"": ""Public"",
-      ""Members"": [
-        {
-          ""Name"": ""InternalMethod"",
-          ""Visibility"": ""Internal""
-        },
-        {
-          ""Name"": ""PrivateMethod"",
-          ""Visibility"": ""Private""
-        },
-        {
-          ""Name"": ""ProtectedMethod"",
-          ""Visibility"": ""Protected""
-        },
-        {
-          ""Name"": ""PublicMethod"",
-          ""Visibility"": ""Public""
-        },
-        {
-          ""Name"": ""ProtectedInternalMethod"",
-          ""Visibility"": ""ProtectedInternal""
-        },
-      ]
-    }
-  ]
-}";
-
-            // Act
-            var report = ApiListingGenerator.LoadFrom(serialized, new Func<ApiElement, bool>[] { ApiListingFilters.NonExportedMembers });
-
-            // Assert
-            Assert.NotNull(report);
-            Assert.NotNull(report.Types);
-            foreach (var type in report.Types)
-            {
-                var typeVisibility = type.Visibility;
-                Assert.True(typeVisibility == ApiElementVisibility.Public ||
-                    typeVisibility == ApiElementVisibility.Protected ||
-                    typeVisibility == ApiElementVisibility.ProtectedInternal);
-                Assert.NotNull(type.Members);
-
-                foreach (var member in type.Members)
-                {
-                    var memberVisibility = member.Visibility;
-                    Assert.True(memberVisibility == null ||
-                        memberVisibility == ApiElementVisibility.Public ||
-                        memberVisibility == ApiElementVisibility.Protected ||
-                        memberVisibility == ApiElementVisibility.ProtectedInternal);
-                }
-            }
         }
 
         [Fact]

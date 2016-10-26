@@ -254,7 +254,7 @@ namespace Scenarios
             return null;
         }
 
-        internal MethodTypesClass InternalClassReturningMethodWithOptionalStringParameter(string defaultParameter = "hello")
+        public MethodTypesClass PublicClassReturningMethodWithOptionalStringParameter(string defaultParameter = "hello")
         {
             return null;
         }

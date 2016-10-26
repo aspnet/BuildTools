@@ -32,7 +32,7 @@ namespace ApiCheck
 
                     foreach (var member in type.Members)
                     {
-                        breakingChanges.Add(new BreakingChange(member));
+                        breakingChanges.Add(new BreakingChange(member, type.Id));
                     }
                     continue;
                 }

@@ -42,16 +42,6 @@ namespace ApiCheck.Description
                 case ApiElementVisibility.Protected:
                     yield return "protected";
                     break;
-                case ApiElementVisibility.Internal:
-                    yield return "internal";
-                    break;
-                case ApiElementVisibility.ProtectedInternal:
-                    yield return "protected";
-                    yield return "internal";
-                    break;
-                case ApiElementVisibility.Private:
-                    yield return "private";
-                    break;
                 default:
                     break;
             }
@@ -137,7 +127,7 @@ namespace ApiCheck.Description
 
         public static string GetTypeNameFor(TypeInfo type)
         {
-            string typeName = type.FullName;
+            string typeName = type.FullName ?? type.Name;
 
             if (type.IsGenericParameter)
             {

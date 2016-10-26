@@ -30,16 +30,6 @@ namespace ApiCheck.Description
                     case ApiElementVisibility.Protected:
                         yield return "protected";
                         break;
-                    case ApiElementVisibility.Internal:
-                        yield return "internal";
-                        break;
-                    case ApiElementVisibility.ProtectedInternal:
-                        yield return "protected";
-                        yield return "internal";
-                        break;
-                    case ApiElementVisibility.Private:
-                        yield return "private";
-                        break;
                     default:
                         break;
                 }

@@ -14,8 +14,8 @@ namespace ApiCheck
 {
     public class FullFrameworkAssemblyLoader : AssemblyLoader
     {
-        public FullFrameworkAssemblyLoader(LibraryExport[] exports)
-            : base(exports)
+        public FullFrameworkAssemblyLoader(LibraryExport[] exports, string runtime, string compilationOputputPath)
+            : base(exports,runtime,compilationOputputPath)
         {
             AppDomain.CurrentDomain.AssemblyResolve += Resolver;
         }

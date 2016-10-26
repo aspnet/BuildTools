@@ -39,21 +39,24 @@ namespace ApiCheck
 
         public ApiListing GenerateApiListing()
         {
-            var types = _assembly.DefinedTypes;
+            var types = GetPublicOrProtectedTypes(_assembly.DefinedTypes);
 
             var document = new ApiListing();
             document.AssemblyIdentity = _assembly.GetName().ToString();
 
             foreach (var type in _assembly.DefinedTypes.Where(type => _filters.All(filter => !filter(type))))
             {
-                var ApiListingType = GeneratetypeDescriptor(type);
+                var ApiListingType = GenerateTypeDescriptor(type);
                 document.Types.Add(ApiListingType);
             }
 
             return document;
         }
 
-        private TypeDescriptor GeneratetypeDescriptor(TypeInfo type)
+        private IEnumerable<TypeInfo> GetPublicOrProtectedTypes(IEnumerable<TypeInfo> definedTypes) =>
+            definedTypes.Where(t => t.IsPublic || t.IsNestedPublic || t.IsNestedFamORAssem);
+
+        private TypeDescriptor GenerateTypeDescriptor(TypeInfo type)
         {
             var typeDescriptor = new TypeDescriptor();
 
@@ -64,11 +67,9 @@ namespace ApiCheck
                 type.IsEnum ? TypeKind.Enumeration :
                 TypeKind.Struct;
 
-            typeDescriptor.Visibility = type.IsPublic || type.IsNestedPublic ? ApiElementVisibility.Public :
-                type.IsNestedFamORAssem ? ApiElementVisibility.ProtectedInternal :
-                type.IsNestedFamily ? ApiElementVisibility.Protected :
-                type.IsNestedPrivate ? ApiElementVisibility.Private :
-                ApiElementVisibility.Internal;
+            // At this point we've filtered away any non public or protected member, 
+            // so we only need to check if something is public
+            typeDescriptor.Visibility = type.IsPublic || type.IsNestedPublic ? ApiElementVisibility.Public : ApiElementVisibility.Protected;
 
             typeDescriptor.Static = typeDescriptor.Kind == TypeKind.Class && type.IsSealed && type.IsAbstract;
 
@@ -159,12 +160,14 @@ namespace ApiCheck
             {
                 case MemberTypes.Constructor:
                     var ctor = (ConstructorInfo)member;
+                    if (!ctor.IsPublic && !ctor.IsFamily && !ctor.IsFamilyOrAssembly)
+                    {
+                        return null;
+                    }
+
                     var constructorDescriptor = new MemberDescriptor();
                     constructorDescriptor.Kind = MemberKind.Constructor;
-                    constructorDescriptor.Visibility = ctor.IsPublic ? ApiElementVisibility.Public :
-                        ctor.IsFamilyOrAssembly ? ApiElementVisibility.ProtectedInternal :
-                        ctor.IsFamily ? ApiElementVisibility.Protected :
-                        ctor.IsPrivate ? ApiElementVisibility.Private : ApiElementVisibility.Internal;
+                    constructorDescriptor.Visibility = ctor.IsPublic ? ApiElementVisibility.Public : ApiElementVisibility.Protected;
 
                     constructorDescriptor.Name = MemberDescriptor.GetMemberNameFor(ctor);
                     foreach (var parameter in ctor.GetParameters())
@@ -177,14 +180,16 @@ namespace ApiCheck
                 case MemberTypes.Method:
                     var name = member.Name;
                     var method = (MethodInfo)member;
+                    if (!method.IsPublic && !method.IsFamily && !method.IsFamilyOrAssembly)
+                    {
+                        return null;
+                    }
+
                     var methodDescriptor = new MemberDescriptor();
 
                     methodDescriptor.Kind = MemberKind.Method;
 
-                    methodDescriptor.Visibility = method.IsPublic ? ApiElementVisibility.Public :
-                        method.IsFamilyOrAssembly ? ApiElementVisibility.ProtectedInternal :
-                        method.IsFamily ? ApiElementVisibility.Protected :
-                        method.IsPrivate ? ApiElementVisibility.Private : ApiElementVisibility.Internal;
+                    methodDescriptor.Visibility = method.IsPublic ? ApiElementVisibility.Public : ApiElementVisibility.Protected;
 
                     if (!type.IsInterface)
                     {
@@ -224,6 +229,11 @@ namespace ApiCheck
                     return methodDescriptor;
                 case MemberTypes.Field:
                     var field = (FieldInfo)member;
+                    if (!field.IsPublic && !field.IsFamily && !field.IsFamilyOrAssembly)
+                    {
+                        return null;
+                    }
+
                     if (type.IsEnum && !field.IsLiteral)
                     {
                         // Skip storage for enumerations.
@@ -232,10 +242,7 @@ namespace ApiCheck
 
                     var fieldDescriptor = new MemberDescriptor();
 
-                    fieldDescriptor.Visibility = field.IsPublic ? ApiElementVisibility.Public :
-                        field.IsFamilyOrAssembly ? ApiElementVisibility.ProtectedInternal :
-                        field.IsFamily ? ApiElementVisibility.Protected :
-                        field.IsPrivate ? ApiElementVisibility.Private : ApiElementVisibility.Internal;
+                    fieldDescriptor.Visibility = field.IsPublic ? ApiElementVisibility.Public : ApiElementVisibility.Protected;
 
                     fieldDescriptor.Kind = MemberKind.Field;
                     fieldDescriptor.Name = field.Name;
@@ -275,8 +282,9 @@ namespace ApiCheck
             }
         }
 
-        public static ApiListing LoadFrom(string json, IEnumerable<Func<ApiElement, bool>> oldApiListingFilters)
+        public static ApiListing LoadFrom(string json, IEnumerable<Func<ApiElement, bool>> oldApiListingFilters = null)
         {
+            oldApiListingFilters = oldApiListingFilters ?? Enumerable.Empty<Func<ApiElement, bool>>();
             var oldApiListing = JsonConvert.DeserializeObject<ApiListing>(json);
             foreach (var type in oldApiListing.Types.ToArray())
             {

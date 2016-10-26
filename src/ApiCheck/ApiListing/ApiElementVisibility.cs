@@ -10,9 +10,6 @@ namespace ApiCheck.Description
     public enum ApiElementVisibility
     {
         Public,
-        Protected,
-        Internal,
-        ProtectedInternal,
-        Private
+        Protected
     }
 }

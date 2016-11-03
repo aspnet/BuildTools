@@ -202,7 +202,21 @@ namespace VersionTool
                         (!matchingOption.HasValue() ||
                             matchingOption.Values.Contains(dependency.Value.ToString())))
                     {
-                        dependency.Value.Replace(new JValue(versionArgument.Value));
+                        if (dependency.Value.Type == JTokenType.Object)
+                        {
+                            // { type: "build", "version": ".." }
+                            // { "target": "project" }
+                            // Update the former and skip the latter
+                            if (dependency.Value["version"] != null)
+                            {
+                                dependency.Value["version"] = new JValue(versionArgument.Value);
+                            }
+
+                        }
+                        else
+                        {
+                            dependency.Value.Replace(new JValue(versionArgument.Value));
+                        }
                         updated = true;
                     }
                 }

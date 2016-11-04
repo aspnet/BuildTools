@@ -1136,6 +1136,23 @@ namespace ApiCheck.Test
         }
 
         [Fact]
+        public void DetectsParametersWithGenericTypesCorrectly()
+        {
+            // Arrange
+            var generator = CreateGenerator(V1Assembly);
+
+            // Act
+            var report = generator.GenerateApiListing();
+
+            // Assert
+            Assert.NotNull(report);
+            Assert.NotNull(report.Types);
+
+            var type = Assert.Single(report.Types, t => t.Id == "public class Scenarios.MethodTypesClass");
+            var secondValue = Assert.Single(type.Members, m => m.Id == "public static System.Boolean TryParseList(System.Collections.Generic.IList<System.String> inputs, out System.Collections.Generic.IList<System.Int32> parsedValues)");
+        }
+
+        [Fact]
         public void FiltersNonPublicOrProtectedElements()
         {
             // Arrange

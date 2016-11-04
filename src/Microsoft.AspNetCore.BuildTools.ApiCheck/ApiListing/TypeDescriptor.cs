@@ -168,6 +168,11 @@ namespace ApiCheck.Description
                 typeName = $"{name}[]";
             }
 
+            if (type.IsByRef)
+            {
+                typeName = GetTypeNameFor(type.GetElementType().GetTypeInfo());
+            }
+
             // Parameters passed by reference through out or ref modifiers have an & at the end of their
             // name to indicate they are pointers to a given type.
             typeName = typeName.TrimEnd('&');

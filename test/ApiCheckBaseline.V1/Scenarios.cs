@@ -313,6 +313,12 @@ namespace Scenarios
         public void MethodWithArrayParameter(Expression<Func<int, bool>>[] arrayExpression)
         {
         }
+
+        public static bool TryParseList(IList<string> inputs, out IList<int> parsedValues)
+        {
+            parsedValues = null;
+            return false;
+        }
     }
 
     public class GenericClassForGenericMethods<TFirst, TSecond>

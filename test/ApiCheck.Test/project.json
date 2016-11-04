@@ -3,7 +3,7 @@
   "dependencies": {
     "xunit": "2.2.0-*",
     "dotnet-test-xunit": "2.2.0-*",
-    "ApiCheck": "1.0.0-*",
+    "Microsoft.AspNetCore.BuildTools.ApiCheck": "1.0.0-*",
     "ApiCheckBaseline.V1": "1.0.0-*",
     "ApiCheckBaseline.V2": "1.0.0-*"
   },

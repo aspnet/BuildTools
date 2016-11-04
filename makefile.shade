@@ -22,10 +22,10 @@ k-standard-goals
     var packagecacheUploaderPath = Path.Combine(BASE_DIR, "src", "PackageCacheUploader");
     Exec("dotnet", "publish " + packagecacheUploaderPath + " --no-build " + "--configuration " + configuration);
 
-    var apiCheckPath = Path.Combine(BASE_DIR, "src", "ApiCheck");
+    var apiCheckPath = Path.Combine(BASE_DIR, "src", "Microsoft.AspNetCore.BuildTools.ApiCheck");
     Exec("dotnet", "publish " + apiCheckPath + " --no-build " + "--configuration " + configuration);
 
-    foreach(var project in new[]{ "NuGetPackageVerifier", "SplitPackages", "DependenciesPackager", "PackageCacheUploader", "ApiCheck" })
+    foreach(var project in new[]{ "NuGetPackageVerifier", "SplitPackages", "DependenciesPackager", "PackageCacheUploader", "Microsoft.AspNetCore.BuildTools.ApiCheck" })
     {
       var outputDir = Path.Combine(TARGET_DIR, "build");
       var existingNupkg = Directory.EnumerateFiles(outputDir)
@@ -46,7 +46,7 @@ k-standard-goals
           basePath = Path.Combine(packagecacheUploaderPath, "bin", configuration, "netcoreapp1.0", "publish");
       }
 
-      if (project == "ApiCheck")
+      if (project == "Microsoft.AspNetCore.BuildTools.ApiCheck")
       {
           basePath = Path.Combine(apiCheckPath, "bin", configuration);
       }

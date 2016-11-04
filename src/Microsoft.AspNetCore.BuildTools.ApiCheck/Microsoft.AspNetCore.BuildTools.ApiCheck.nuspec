@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <metadata>
-    <id>ApiCheck</id>
+    <id>Microsoft.AspNetCore.BuildTools.ApiCheck</id>
     <version>0.0.0</version>
     <authors>Microsoft</authors>
     <description>Generates API baselines and detects breaking changes in APIs.</description>

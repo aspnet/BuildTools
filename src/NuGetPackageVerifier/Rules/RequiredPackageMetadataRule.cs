@@ -9,17 +9,17 @@ namespace NuGetPackageVerifier.Rules
     {
         public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
-            if (string.IsNullOrEmpty(context.Metadata.Summary))
+            if (string.IsNullOrEmpty(context.Metadata.Description))
             {
-                yield return PackageIssueFactory.RequiredSummary();
+                yield return PackageIssueFactory.RequiredDescription();
             }
             if (string.IsNullOrEmpty(context.Metadata.Tags))
             {
                 yield return PackageIssueFactory.RequiredTags();
             }
-            if (string.IsNullOrEmpty(context.Metadata.Title))
+            if (string.IsNullOrEmpty(context.Metadata.Id))
             {
-                yield return PackageIssueFactory.RequiredTitle();
+                yield return PackageIssueFactory.RequiredId();
             }
 
             yield break;

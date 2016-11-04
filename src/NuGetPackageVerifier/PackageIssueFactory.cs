@@ -197,14 +197,14 @@ namespace NuGetPackageVerifier
             return RequiredCore("NUSPEC_TAGS", "Tags", PackageIssueLevel.Warning);
         }
 
-        public static PackageVerifierIssue RequiredTitle()
+        public static PackageVerifierIssue RequiredId()
         {
-            return RequiredCore("NUSPEC_TITLE", "Title", PackageIssueLevel.Error);
+            return RequiredCore("NUSPEC_ID", "ID", PackageIssueLevel.Error);
         }
 
-        public static PackageVerifierIssue RequiredSummary()
+        public static PackageVerifierIssue RequiredDescription()
         {
-            return RequiredCore("NUSPEC_SUMMARY", "Summary", PackageIssueLevel.Warning);
+            return RequiredCore("NUSPEC_DESCRIPTION", "Description", PackageIssueLevel.Warning);
         }
 
         public static PackageVerifierIssue RequiredProjectUrl()

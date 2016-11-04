@@ -19,6 +19,7 @@ namespace NuGetPackageVerifier.Rules
             new AssemblyHasServicingAttributeRule(),
             new AssemblyHasVersionAttributesRule(),
             new AssemblyStrongNameRule(),
+            new RequiredPackageMetadataRule(),
             new SatellitePackageRule(),
             new StrictSemanticVersionValidationRule(),
         };

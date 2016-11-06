@@ -256,12 +256,15 @@ namespace VersionTool
             var frameworks = root.Property("frameworks")?.Value as JObject;
             if (frameworks != null)
             {
-                var frameworkDependencies = frameworks.Property("dependencies")?.Value as JObject;
-                if (frameworkDependencies != null)
+                foreach (var tfm in frameworks.Properties())
                 {
-                    foreach (var dependency in frameworkDependencies.Properties())
+                    var frameworkDependencies = (tfm?.Value as JObject)?.Property("dependencies")?.Value as JObject;
+                    if (frameworkDependencies != null)
                     {
-                        yield return dependency;
+                        foreach (var dependency in frameworkDependencies.Properties())
+                        {
+                            yield return dependency;
+                        }
                     }
                 }
             }

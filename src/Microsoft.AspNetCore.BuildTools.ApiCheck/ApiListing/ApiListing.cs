@@ -4,13 +4,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace ApiCheck.Description
 {
     public class ApiListing
     {
         public string AssemblyIdentity { get; set; }
+
         public IList<TypeDescriptor> Types { get; } = new List<TypeDescriptor>();
+
+        public IEnumerable<Func<MemberInfo, bool>> SourceFilters { get; set; }
 
         public TypeDescriptor FindType(string name)
         {

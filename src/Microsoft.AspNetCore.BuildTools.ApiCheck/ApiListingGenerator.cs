@@ -44,6 +44,7 @@ namespace ApiCheck
 
             var document = new ApiListing();
             document.AssemblyIdentity = _assembly.GetName().ToString();
+            document.SourceFilters = _filters;
 
             foreach (var type in types.Where(t => !_filters.Any(filter => filter(t))))
             {
@@ -52,6 +53,13 @@ namespace ApiCheck
             }
 
             return document;
+        }
+
+        public static TypeDescriptor GenerateTypeDescriptor(TypeInfo type, IEnumerable<Func<MemberInfo, bool>> filters = null)
+        {
+            filters = filters ?? Enumerable.Empty<Func<MemberInfo, bool>>();
+            var generator = new ApiListingGenerator(type.Assembly, filters);
+            return generator.GenerateTypeDescriptor(type);
         }
 
         private TypeDescriptor GenerateTypeDescriptor(TypeInfo type)
@@ -99,7 +107,7 @@ namespace ApiCheck
 
             if (type.IsGenericType)
             {
-                var constraints = GetGenericConstraintsFor(type.GetGenericArguments().Select(t => t.GetTypeInfo()));
+                var constraints = GetGenericConstraintsFor(type.GetGenericArguments().Select(t => t.GetTypeInfo()).ToArray());
                 foreach (var constraint in constraints)
                 {
                     typeDescriptor.GenericParameters.Add(constraint);
@@ -151,30 +159,38 @@ namespace ApiCheck
             return TypeKind.Unknown;
         }
 
-        private static IEnumerable<GenericParameterDescriptor> GetGenericConstraintsFor(IEnumerable<TypeInfo> genericArguments)
+        private static IEnumerable<GenericParameterDescriptor> GetGenericConstraintsFor(TypeInfo[] genericArguments)
         {
-            foreach (var typeArgument in genericArguments)
+            for (var i = 0; i < genericArguments.Length; i++)
             {
+                var typeArgument = genericArguments[i];
                 var constraintDescriptor = new GenericParameterDescriptor();
                 constraintDescriptor.Source = typeArgument;
 
-                if (typeArgument.BaseType != null &&
-                    typeArgument.BaseType != typeof(object)
-                    && typeArgument.BaseType != typeof(ValueType))
+                if (typeArgument.IsGenericParameter)
                 {
-                    constraintDescriptor.BaseTypeOrInterfaces.Add(TypeDescriptor.GetTypeNameFor(typeArgument.BaseType.GetTypeInfo()));
-                }
+                    if (typeArgument.BaseType != null &&
+                        typeArgument.BaseType != typeof(object)
+                        && typeArgument.BaseType != typeof(ValueType))
+                    {
+                        constraintDescriptor.BaseTypeOrInterfaces.Add(TypeDescriptor.GetTypeNameFor(typeArgument.BaseType.GetTypeInfo()));
+                    }
 
-                foreach (var interfaceType in TypeDescriptor.GetImplementedInterfacesFor(typeArgument))
+                    foreach (var interfaceType in TypeDescriptor.GetImplementedInterfacesFor(typeArgument))
+                    {
+                        constraintDescriptor.BaseTypeOrInterfaces.Add(TypeDescriptor.GetTypeNameFor(interfaceType));
+                    }
+
+                    constraintDescriptor.ParameterName = typeArgument.Name;
+                    constraintDescriptor.ParameterPosition = typeArgument.GenericParameterPosition;
+                    constraintDescriptor.New = (typeArgument.GenericParameterAttributes & GenericParameterAttributes.DefaultConstructorConstraint) == GenericParameterAttributes.DefaultConstructorConstraint;
+                    constraintDescriptor.Class = (typeArgument.GenericParameterAttributes & GenericParameterAttributes.ReferenceTypeConstraint) == GenericParameterAttributes.ReferenceTypeConstraint;
+                    constraintDescriptor.Struct = (typeArgument.GenericParameterAttributes & GenericParameterAttributes.NotNullableValueTypeConstraint) == GenericParameterAttributes.NotNullableValueTypeConstraint;
+                }
+                else
                 {
-                    constraintDescriptor.BaseTypeOrInterfaces.Add(TypeDescriptor.GetTypeNameFor(interfaceType));
+                    constraintDescriptor.ParameterName = TypeDescriptor.GetTypeNameFor(typeArgument);
                 }
-
-                constraintDescriptor.ParameterName = typeArgument.Name;
-                constraintDescriptor.ParameterPosition = typeArgument.GenericParameterPosition;
-                constraintDescriptor.New = (typeArgument.GenericParameterAttributes & GenericParameterAttributes.DefaultConstructorConstraint) == GenericParameterAttributes.DefaultConstructorConstraint;
-                constraintDescriptor.Class = (typeArgument.GenericParameterAttributes & GenericParameterAttributes.ReferenceTypeConstraint) == GenericParameterAttributes.ReferenceTypeConstraint;
-                constraintDescriptor.Struct = (typeArgument.GenericParameterAttributes & GenericParameterAttributes.NotNullableValueTypeConstraint) == GenericParameterAttributes.NotNullableValueTypeConstraint;
 
                 yield return constraintDescriptor;
             }
@@ -231,7 +247,7 @@ namespace ApiCheck
 
                     if (method.IsGenericMethod)
                     {
-                        var constraints = GetGenericConstraintsFor(method.GetGenericArguments().Select(t => t.GetTypeInfo()));
+                        var constraints = GetGenericConstraintsFor(method.GetGenericArguments().Select(t => t.GetTypeInfo()).ToArray());
                         foreach (var constraint in constraints)
                         {
                             methodDescriptor.GenericParameter.Add(constraint);

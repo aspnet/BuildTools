@@ -157,9 +157,37 @@ namespace ApiCheck.Description
 
             if (type.IsGenericType)
             {
-                var name = type.GetGenericTypeDefinition().FullName;
-                typeName = name.Substring(0, name.IndexOf('`'));
-                typeName = $"{typeName}<{string.Join(", ", type.GetGenericArguments().Select(ga => GetTypeNameFor(ga.GetTypeInfo())))}>";
+                if (type.DeclaringType == null || type.DeclaringType.GetTypeInfo() == type)
+                {
+                    var name = type.GetGenericTypeDefinition().FullName;
+                    typeName = name.Substring(0, name.IndexOf('`'));
+                    typeName = $"{typeName}<{string.Join(", ", type.GetGenericArguments().Select(ga => GetTypeNameFor(ga.GetTypeInfo())))}>";
+                }
+                else
+                {
+                    var container = type.DeclaringType.GetTypeInfo();
+                    var prefix = GetTypeNameFor(container);
+                    var name = type.GetGenericTypeDefinition().FullName;
+                    var currentTypeGenericArguments = type.GetGenericTypeDefinition().GetGenericArguments()
+                    .Where(p => !container.GetGenericArguments().Any(cp => cp.Name == p.Name))
+                    .Select(p => type.GetGenericArguments()[p.GenericParameterPosition])
+                    .ToArray();
+
+                    if (currentTypeGenericArguments.Length == 0)
+                    {
+                        var nestedClassSeparatorIndex = name.LastIndexOf("+");
+                        name = name.Substring(nestedClassSeparatorIndex + 1, name.Length - nestedClassSeparatorIndex - 1);
+                    }
+                    else
+                    {
+                        var lastGenericArityIndex = name.LastIndexOf('`');
+                        var nestedClassSeparatorIndex = name.LastIndexOf("+");
+                        name = name.Substring(nestedClassSeparatorIndex + 1, lastGenericArityIndex - nestedClassSeparatorIndex - 1);
+                        name = $"{name}<{string.Join(", ", currentTypeGenericArguments.Select(ga => GetTypeNameFor(ga.GetTypeInfo())))}>";
+                    }
+
+                    typeName = $"{prefix}+{name}";
+                }
             }
 
             if (type.IsArray)

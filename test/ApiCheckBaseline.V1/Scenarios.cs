@@ -454,6 +454,23 @@ namespace Scenarios
     {
         bool Accept();
     }
+
+    public class GenericsAndNestedTypes<T, K>
+    {
+        public class IntermediateNonGenericNestedClass
+        {
+            public class AnotherNestedGenericClass<V, W>
+            {
+                public interface ILeafGenericInterface<A,B>
+                {
+                    void GenericMethod<Z>();
+                    void NonGenericMethod<C>();
+
+                    ILeafGenericInterface<int, bool> MultipleLevelGenericReturnType(IntermediateNonGenericNestedClass intermediate, AnotherNestedGenericClass<bool, int> another);
+                }
+            }
+        }
+    }
 }
 
 namespace Scenarios.Internal

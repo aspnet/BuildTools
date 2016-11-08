@@ -100,10 +100,16 @@ namespace ApiCheck
                     }
                 }
 
-                candidate = candidate.BaseType == null ? null : newApiListing.FindType(candidate.BaseType);
+                candidate = candidate.BaseType == null ? null : FindOrGenerateDescriptorForBaseType(newApiListing, candidate);
             }
 
             return acceptable;
+        }
+
+        private static TypeDescriptor FindOrGenerateDescriptorForBaseType(ApiListing newApiListing, TypeDescriptor candidate)
+        {
+            return newApiListing.FindType(candidate.BaseType) ??
+                ApiListingGenerator.GenerateTypeDescriptor(candidate.Source.BaseType.GetTypeInfo(), newApiListing.SourceFilters);
         }
 
         private bool SameSignature(MemberDescriptor original, MemberDescriptor candidate)
@@ -190,7 +196,7 @@ namespace ApiCheck
                 case TypeKind.Class:
                     return ImplementsAllInterfaces(oldType, newType) &&
                         (!newType.Sealed || oldType.Sealed == newType.Sealed) &&
-                        (!newType.Abstract || oldType.Sealed == newType.Abstract) &&
+                        (!newType.Abstract || oldType.Abstract == newType.Abstract) &&
                         newType.Static == oldType.Static &&
                         (oldType.BaseType == null || newType.BaseType == oldType.BaseType);
                 case TypeKind.Interface:

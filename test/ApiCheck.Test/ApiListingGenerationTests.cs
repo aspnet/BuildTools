@@ -400,6 +400,37 @@ namespace ApiCheck.Test
         }
 
         [Fact]
+        public void DetectsGenericInterfaceNestedWithinGenericClass()
+        {
+            // Arrange
+            var generator = CreateGenerator(V1Assembly);
+
+            // Act
+            var report = generator.GenerateApiListing();
+
+            // Assert
+            Assert.NotNull(report);
+            Assert.NotNull(report.Types);
+            var type = Assert.Single(report.Types, t => t.Id == "public interface Scenarios.GenericsAndNestedTypes<T0, T1>+IntermediateNonGenericNestedClass+AnotherNestedGenericClass<T2, T3>+ILeafGenericInterface<T4, T5>");
+        }
+
+        [Fact]
+        public void DetectsInstantiatedNestedGenericsCorrectly()
+        {
+            // Arrange
+            var generator = CreateGenerator(V1Assembly);
+
+            // Act
+            var report = generator.GenerateApiListing();
+
+            // Assert
+            Assert.NotNull(report);
+            Assert.NotNull(report.Types);
+            var type = Assert.Single(report.Types, t => t.Id == "public interface Scenarios.GenericsAndNestedTypes<T0, T1>+IntermediateNonGenericNestedClass+AnotherNestedGenericClass<T2, T3>+ILeafGenericInterface<T4, T5>");
+            var method = Assert.Single(type.Members, m => m.Id == "Scenarios.GenericsAndNestedTypes<T0, T1>+IntermediateNonGenericNestedClass+AnotherNestedGenericClass<T2, T3>+ILeafGenericInterface<System.Int32, System.Boolean> MultipleLevelGenericReturnType(Scenarios.GenericsAndNestedTypes<T0, T1>+IntermediateNonGenericNestedClass intermediate, Scenarios.GenericsAndNestedTypes<T0, T1>+IntermediateNonGenericNestedClass+AnotherNestedGenericClass<System.Boolean, System.Int32> another)");
+        }
+
+        [Fact]
         public void DetectsAbstractVoidMethod()
         {
             // Arrange

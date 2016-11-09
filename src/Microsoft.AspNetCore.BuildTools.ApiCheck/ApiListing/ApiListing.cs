@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Newtonsoft.Json;
 
 namespace ApiCheck.Description
 {
@@ -14,6 +15,7 @@ namespace ApiCheck.Description
 
         public IList<TypeDescriptor> Types { get; } = new List<TypeDescriptor>();
 
+        [JsonIgnore]
         public IEnumerable<Func<MemberInfo, bool>> SourceFilters { get; set; }
 
         public TypeDescriptor FindType(string name)

@@ -53,22 +53,23 @@ namespace ApiCheck
             {
                 NativeLibraryExtensions = new string[0];
             }
-        }        
+        }
 
         public CoreClrAssemblyLoader(LibraryExport[] exports, string runtime, string outputPath)
         {
             _assemblyPaths = new Dictionary<AssemblyName, string>(AssemblyNameComparer.OrdinalIgnoreCase);
             _nativeLibraries = new Dictionary<string, string>();
-            IEnumerable<RuntimeFallbacks> rids = DependencyContext.Default?.RuntimeGraph ?? Enumerable.Empty<RuntimeFallbacks>();
+            var rids = DependencyContext.Default?.RuntimeGraph ?? Enumerable.Empty<RuntimeFallbacks>();
             var runtimeIdentifier = runtime;
             var fallbacks = rids.FirstOrDefault(r => r.Runtime.Equals(runtimeIdentifier));
 
             foreach (var export in exports)
             {
                 // Process managed assets
-                var group = string.IsNullOrEmpty(runtimeIdentifier) ?
-                    export.RuntimeAssemblyGroups.GetDefaultGroup() :
-                    GetGroup(export.RuntimeAssemblyGroups, runtimeIdentifier, fallbacks);
+                IDictionary<AssemblyName, string> assemblies;
+
+                var group = GetDefaultOrRuntimeSpecificGroup(runtimeIdentifier, fallbacks, export) ??
+                    GetGroupFromRuntimeFallbacks(export, rids);
                 if (group != null && group.Assets.Count > 0)
                 {
                     foreach (var asset in group.Assets)
@@ -76,23 +77,11 @@ namespace ApiCheck
                         _assemblyPaths[asset.GetAssemblyName()] = asset.ResolvedPath;
                     }
                 }
-                else
+                else if (TryResolveAssembliesFromPackage(export, rids, out assemblies))
                 {
-                    // Fallback to runtime specific assembly group.
-                    var candidateRids = RuntimeEnvironmentRidExtensions.GetAllCandidateRuntimeIdentifiers();
-                    foreach (var candidate in candidateRids)
+                    foreach (var assembly in assemblies)
                     {
-                        var candidateFallbacks = rids.FirstOrDefault(r => r.Runtime.Equals(candidate));
-
-                        var fallbackGroup = GetGroup(export.RuntimeAssemblyGroups, candidate, candidateFallbacks);
-                        if (fallbackGroup != null)
-                        {
-                            foreach (var asset in fallbackGroup.Assets)
-                            {
-                                _assemblyPaths[asset.GetAssemblyName()] = asset.ResolvedPath;
-                            }
-                            break;
-                        }
+                        _assemblyPaths[assembly.Key] = assembly.Value;
                     }
                 }
 
@@ -112,6 +101,98 @@ namespace ApiCheck
             _searchPath = outputPath;
 
             _loadContext = new ApiCheckLoadContext(FindAssemblyPath);
+        }
+
+        private bool TryResolveAssembliesFromPackage(
+            LibraryExport export,
+            IEnumerable<RuntimeFallbacks> rids,
+            out IDictionary<AssemblyName, string> assemblies)
+        {
+            assemblies = null;
+
+            var candidateRids = RuntimeEnvironmentRidExtensions.GetAllCandidateRuntimeIdentifiers();
+            foreach (var candidateRid in candidateRids)
+            {
+                var candidateFallbacks = rids.FirstOrDefault(r => r.Runtime.Equals(candidateRid));
+                var libraryDirectory = new DirectoryInfo(export.Library.Path);
+                var runtimesFolder = libraryDirectory.EnumerateDirectories("runtimes").FirstOrDefault();
+                if (runtimesFolder == null)
+                {
+                    return false;
+                }
+
+                var runtimeSpecificFolder = runtimesFolder.EnumerateDirectories()
+                    .FirstOrDefault(rd => rd.Name == candidateRid || candidateFallbacks.Fallbacks.Contains(rd.Name));
+                if (runtimeSpecificFolder == null)
+                {
+                    continue;
+                }
+
+                var libFolder = runtimeSpecificFolder.EnumerateDirectories("lib").FirstOrDefault();
+                if (libFolder == null)
+                {
+                    continue;
+                }
+
+                var frameworkFolder = libFolder.EnumerateDirectories()
+                    .FirstOrDefault(f => NuGetFramework.ParseFolder(f.Name).Framework.Equals(FrameworkConstants.CommonFrameworks.NetStandard.Framework) &&
+                    IsCompatible(NuGetFramework.ParseFolder(f.Name), export.Library.Framework));
+
+                if (frameworkFolder == null)
+                {
+                    continue;
+                }
+
+                var dlls = frameworkFolder.EnumerateFiles("*.dll").ToArray();
+                if (dlls.Length == 0)
+                {
+                    continue;
+                }
+
+                assemblies = new Dictionary<AssemblyName, string>();
+                foreach (var dll in dlls)
+                {
+                    var assemblyName = AssemblyLoadContext.GetAssemblyName(dll.FullName);
+                    assemblies.Add(assemblyName, dll.FullName);
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private static LibraryAssetGroup GetDefaultOrRuntimeSpecificGroup(string runtimeIdentifier, RuntimeFallbacks fallbacks, LibraryExport export)
+        {
+            var group = string.IsNullOrEmpty(runtimeIdentifier) ?
+                export.RuntimeAssemblyGroups.GetDefaultGroup() :
+                GetGroup(export.RuntimeAssemblyGroups, runtimeIdentifier, fallbacks);
+
+            if (group != null && group.Assets.Count > 0)
+            {
+                return group;
+            }
+
+            return null;
+        }
+
+        private LibraryAssetGroup GetGroupFromRuntimeFallbacks(LibraryExport export, IEnumerable<RuntimeFallbacks> rids)
+        {
+            LibraryAssetGroup group;
+            // Fallback to runtime specific assembly group.
+            var candidateRids = RuntimeEnvironmentRidExtensions.GetAllCandidateRuntimeIdentifiers();
+            foreach (var candidate in candidateRids)
+            {
+                var candidateFallbacks = rids.FirstOrDefault(r => r.Runtime.Equals(candidate));
+
+                group = GetGroup(export.RuntimeAssemblyGroups, candidate, candidateFallbacks);
+                if (group != null && group.Assets.Count > 0)
+                {
+                    return group;
+                }
+            }
+
+            return null;
         }
 
         public Assembly Load(string assemblyPath)

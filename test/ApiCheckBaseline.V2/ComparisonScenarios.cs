@@ -54,6 +54,27 @@ namespace ComparisonScenarios
     {
         int Property { get; set; }
     }
+
+    public interface IInterfaceToAddMembersTo
+    {
+        bool ExistingMember { get; set; }
+        int NewMember { get; set; }
+    }
+
+    public interface IInterfaceWithMembersThatWillGetRenamedRemovedAndAdded
+    {
+        void RenamedMember();
+        void AddedMember();
+    }
+
+    public interface IInterfaceWithSameNumberOfRemovedAndAddedMembers
+    {
+        void FirstUnchangedMember();
+        void SecondUnchangedMember();
+        void FirstAddedMember();
+        void SecondAddedMember();
+        void ThirdAddedMember();
+    }
 }
 
 namespace ComparisonScenarios.ChangedNamespace

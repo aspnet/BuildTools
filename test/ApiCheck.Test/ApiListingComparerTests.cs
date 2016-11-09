@@ -155,6 +155,88 @@ namespace ApiCheck.Test
             Assert.Null(changes.BreakingChanges.FirstOrDefault(bc => bc.Item.Id == "public ComparisonScenarios.TypeWithExtraInterface"));
         }
 
+        [Fact]
+        public void Compare_DetectsNewMembersBeingAddedToAnInterface()
+        {
+            // Arrange
+            var v1ApiListing = CreateApiListingDocument(V1Assembly);
+            var v2ApiListing = CreateApiListingDocument(V2Assembly);
+            var comparer = new ApiListingComparer(v1ApiListing, v2ApiListing);
+
+            // Act
+            var changes = comparer.GetDifferences();
+
+            // Assert
+            Assert.Single(changes.BreakingChanges, bc => bc.Item.Id == "public interface ComparisonScenarios.IInterfaceToAddMembersTo");
+        }
+
+        [Fact]
+        public void Compare_AllowsExclusionsOnNewInterfaceMembers()
+        {
+            // Arrange
+            var v1ApiListing = CreateApiListingDocument(V1Assembly);
+            var v2ApiListing = CreateApiListingDocument(V2Assembly);
+            var comparer = new ApiListingComparer(v1ApiListing, v2ApiListing, new[] {
+                new ApiChangeExclusion
+                {
+                    OldTypeId = "public interface ComparisonScenarios.IInterfaceToAddMembersTo",
+                    OldMemberId = null,
+                    NewTypeId = "public interface ComparisonScenarios.IInterfaceToAddMembersTo",
+                    NewMemberId = "System.Int32 get_NewMember()",
+                    Kind = ChangeKind.Addition
+                },
+                new ApiChangeExclusion
+                {
+                    OldTypeId = "public interface ComparisonScenarios.IInterfaceToAddMembersTo",
+                    OldMemberId = null,
+                    NewTypeId = "public interface ComparisonScenarios.IInterfaceToAddMembersTo",
+                    NewMemberId = "System.Void set_NewMember(System.Int32 value)",
+                    Kind = ChangeKind.Addition
+                }
+            });
+
+            // Act
+            var changes = comparer.GetDifferences();
+
+            // Assert
+            Assert.Null(changes.BreakingChanges.FirstOrDefault(bc => bc.Item.Id == "public interface ComparisonScenarios.IInterfaceToAddMembersTo"));
+        }
+
+        [Fact]
+        public void Compare_DetectsNewMembersInThePresenceOfRenamedAndRemovedMembers()
+        {
+            // Arrange
+            var v1ApiListing = CreateApiListingDocument(V1Assembly);
+            var v2ApiListing = CreateApiListingDocument(V2Assembly);
+            var comparer = new ApiListingComparer(v1ApiListing, v2ApiListing);
+
+            // Act
+            var changes = comparer.GetDifferences();
+
+            // Assert
+            Assert.Single(changes.BreakingChanges, bc => bc.Item.Id == "System.Void MemberToBeRenamed()");
+            Assert.Single(changes.BreakingChanges, bc => bc.Item.Id == "System.Void MemberToBeRemoved()");
+            Assert.Single(changes.BreakingChanges, bc => bc.Item.Id == "public interface ComparisonScenarios.IInterfaceToAddMembersTo");
+        }
+
+        [Fact]
+        public void Compare_DetectsNewMembersInThePresenceOfTheSameNumberOfRemovedAndAddedMembers()
+        {
+            // Arrange
+            var v1ApiListing = CreateApiListingDocument(V1Assembly);
+            var v2ApiListing = CreateApiListingDocument(V2Assembly);
+            var comparer = new ApiListingComparer(v1ApiListing, v2ApiListing);
+
+            // Act
+            var changes = comparer.GetDifferences();
+
+            // Assert
+            Assert.Single(changes.BreakingChanges, bc => bc.Item.Id == "System.Void FirstMemberToRemove()");
+            Assert.Single(changes.BreakingChanges, bc => bc.Item.Id == "System.Void SecondMemberToRemove()");
+            Assert.Single(changes.BreakingChanges, bc => bc.Item.Id == "System.Void ThirdMemberToRemove()");
+            Assert.Single(changes.BreakingChanges, bc => bc.Item.Id == "public interface ComparisonScenarios.IInterfaceWithSameNumberOfRemovedAndAddedMembers");
+        }
+
         private ApiListing CreateApiListingDocument(Assembly assembly, IEnumerable<Func<MemberInfo, bool>> additionalFilters = null)
         {
             additionalFilters = additionalFilters ?? Enumerable.Empty<Func<MemberInfo, bool>>();

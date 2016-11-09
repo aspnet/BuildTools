@@ -58,22 +58,47 @@ namespace ApiCheck
 
         private void CompareMembers(TypeDescriptor type, TypeDescriptor newType, List<ApiChangeExclusion> exclusions, List<BreakingChange> breakingChanges)
         {
+            var removedOrChanged = 0;
             foreach (var member in type.Members)
             {
                 var newMember = newType.FindMember(member.Id);
                 var isAcceptable = IsAcceptableMemberChange(_newApiListing, newType, member);
                 if (isAcceptable)
                 {
+                    if (newMember == null)
+                    {
+                        removedOrChanged++;
+                    }
+
                     continue;
                 }
 
                 if (newMember == null)
                 {
+                    removedOrChanged++;
                     var memberChange = FilterExclusions(type, member, exclusions);
                     if (memberChange != null)
                     {
                         breakingChanges.Add(memberChange);
                     }
+                }
+            }
+
+            if (type.Kind == TypeKind.Interface && type.Members.Count - removedOrChanged < newType.Members.Count)
+            {
+                var members = newType.Members.ToList();
+                foreach (var member in newType.Members)
+                {
+                    var change = FilterExclusions(type, null, exclusions);
+                    if (change == null)
+                    {
+                        members.Remove(member);
+                    }
+                }
+
+                if (type.Members.Count - removedOrChanged < members.Count)
+                {
+                    breakingChanges.Add(new BreakingChange(type, "New members were added to the following interface"));
                 }
             }
         }
@@ -286,7 +311,8 @@ namespace ApiCheck
             {
                 var element = _newApiListing.FindElement(exclusion.NewTypeId, exclusion.NewMemberId);
                 if (exclusion.Kind == ChangeKind.Removal && element == null ||
-                    exclusion.Kind == ChangeKind.Modification && element != null)
+                    exclusion.Kind == ChangeKind.Modification && element != null ||
+                    exclusion.Kind == ChangeKind.Addition && element != null)
                 {
                     exclusions.Remove(exclusion);
                     return null;

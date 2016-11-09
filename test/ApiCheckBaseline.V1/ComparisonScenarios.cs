@@ -52,4 +52,24 @@ namespace ComparisonScenarios
     public class TypeWithExtraInterface
     {
     }
+
+    public interface IInterfaceToAddMembersTo
+    {
+        bool ExistingMember { get; set; }
+    }
+
+    public interface IInterfaceWithMembersThatWillGetRenamedRemovedAndAdded
+    {
+        void MemberToBeRenamed();
+        void MemberToBeRemoved();
+    }
+
+    public interface IInterfaceWithSameNumberOfRemovedAndAddedMembers
+    {
+        void FirstMemberToRemove();
+        void SecondMemberToRemove();
+        void ThirdMemberToRemove();
+        void FirstUnchangedMember();
+        void SecondUnchangedMember();
+    }
 }

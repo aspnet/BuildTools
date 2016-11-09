@@ -114,6 +114,11 @@ namespace ApiCheck
             foreach (var candidateRid in candidateRids)
             {
                 var candidateFallbacks = rids.FirstOrDefault(r => r.Runtime.Equals(candidateRid));
+                if (!Directory.Exists(export.Library.Path))
+                {
+                    return false;
+                }
+
                 var libraryDirectory = new DirectoryInfo(export.Library.Path);
                 var runtimesFolder = libraryDirectory.EnumerateDirectories("runtimes").FirstOrDefault();
                 if (runtimesFolder == null)

@@ -38,7 +38,7 @@ k-standard-goals
 
       if (project == "DependenciesPackager")
       {
-          basePath = Path.Combine(dependenciesPackagerPath, "bin", configuration, "netcoreapp1.1", "publish");
+          basePath = Path.Combine(dependenciesPackagerPath, "bin", configuration, "netcoreapp1.0", "publish");
       }
 
       if (project == "PackageCacheUploader")

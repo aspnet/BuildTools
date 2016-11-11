@@ -123,8 +123,15 @@ namespace DependenciesPackager
             bool skip,
             ILogger logger)
         {
-            if (skip || !outputs.Any())
+            if (skip)
             {
+                logger.LogInformation("Skip zipping.");
+                return;
+            }
+
+            if (!outputs.Any())
+            {
+                logger.LogInformation("No outputs found. Skip zipping.");
                 return;
             }
 

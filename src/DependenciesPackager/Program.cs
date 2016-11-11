@@ -206,6 +206,7 @@ namespace DependenciesPackager
 
                         var outputContext = new OutputFilesContext(_destination.Value(), _version.Value(), runtime, restoreContext.RestoreFolder, project, _logger);
                         disposables.Add(outputContext);
+                        outputs.Add(outputContext);
 
                         crossgenContext.CollectPackages(runtime, restoreContext.RestoreFolder);
                         crossgenContext.PopulatePublishFolder();

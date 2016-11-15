@@ -142,9 +142,9 @@ namespace DependenciesPackager
                 var desp = (PackageDescription)entry.Library;
                 var hash = desp.PackageLibrary.Files.Single(file => file.EndsWith(".sha512"));
                 var desination = Path.Combine(outputPath,
-                    entry.Library.Identity.Name.ToLowerInvariant(),
-                    entry.Library.Identity.Version.ToNormalizedString().ToLowerInvariant(),
-                    hash.ToLowerInvariant());
+                    entry.Library.Identity.Name,
+                    entry.Library.Identity.Version.ToNormalizedString(),
+                    hash);
 
                 File.Copy(Path.Combine(entry.Library.Path, hash), desination, overwrite: true);
             }
@@ -188,8 +188,8 @@ namespace DependenciesPackager
             // https://github.com/NuGet/Home/issues/2522
             var subDirectoryPath = Path.Combine(
                 cacheBasePath,
-                package.Library.Identity.Name.ToLowerInvariant(),
-                package.Library.Identity.Version.ToNormalizedString().ToLowerInvariant(),
+                package.Library.Identity.Name,
+                package.Library.Identity.Version.ToNormalizedString(),
                 Path.GetDirectoryName(asset.RelativePath));
 
             _logger.LogInformation($"Creating sub directory on {subDirectoryPath}.");

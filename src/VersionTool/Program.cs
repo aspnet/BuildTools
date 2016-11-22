@@ -306,12 +306,12 @@ namespace VersionTool
             {
                 if (ContainsModifiedSrcProjectFile(repo.Path))
                 {
-                    Console.WriteLine($"{repo} contains updated packages.");
-
                     foreach (var package in EnumerateProjects(new[] { Path.Combine(repo.Path, "src") }))
                     {
                         if (packages.Any(p => p.Name == package.Name && p.CurrentVersion == p.NewVersion))
                         {
+                            Console.WriteLine($"{package.Name} contains modified src projects and has not been updated in this patch, updating version.");
+
                             var rule = GetRuleForPackage(package, rules);
 
                             if (rule == null)
@@ -375,7 +375,7 @@ namespace VersionTool
                     var parentRepo = repos.Find(r => r.Packages.Contains(packageDependency));
                     if (parentRepo != null)
                     {
-                        parentRepo.ChildDependencies.Add(repo);
+                        parentRepo.DependentRepos.Add(repo);
                     }
                 }
             }
@@ -397,7 +397,7 @@ namespace VersionTool
 
             visited.Add(repo);
 
-            foreach (var child in repo.ChildDependencies)
+            foreach (var child in repo.DependentRepos)
             {
                 child.Order = Math.Max(child.Order, repo.Order + 1);
 
@@ -496,13 +496,11 @@ namespace VersionTool
             }
 
             public string Name { get; }
-
             public string Path { get; }
 
             public HashSet<string> Packages = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             public HashSet<string> PackageDependencies = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-            public HashSet<Repository> ChildDependencies = new HashSet<Repository>();
+            public HashSet<Repository> DependentRepos = new HashSet<Repository>();
 
             public int Order { get; set; }
 

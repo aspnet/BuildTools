@@ -154,47 +154,50 @@ namespace NuGetPackageVerifier
 
                 var issueProcessor = new IssueProcessor(issuesToIgnore);
 
-                foreach (var packageInfo in packageSet.Value.Packages)
+                if (packageSet.Value.Packages != null)
                 {
-                    var packageId = packageInfo.Key;
-
-                    var packagesWithId = packages.Where(p => p.Key.Id.Equals(packageId));
-                    if (!packagesWithId.Any())
+                    foreach (var packageInfo in packageSet.Value.Packages)
                     {
-                        logger.LogError("Couldn't find package '{0}' in the repo", packageId);
-                        totalErrors++;
-                        continue;
-                    }
+                        var packageId = packageInfo.Key;
 
-                    foreach (var packagePair in packagesWithId)
-                    {
-                        var package = packagePair.Key;
-                        logger.LogInfo("Analyzing {0} ({1})", package.Id, package.Version);
-
-                        var context = new PackageAnalysisContext
+                        var packagesWithId = packages.Where(p => p.Key.Id.Equals(packageId));
+                        if (!packagesWithId.Any())
                         {
-                            PackageFileInfo = packagePair.Value,
-                            Metadata = package,
-                            Logger = logger,
-                            Options = packageInfo.Value
-                        };
+                            logger.LogError("Couldn't find package '{0}' in the repo", packageId);
+                            totalErrors++;
+                            continue;
+                        }
 
-                        var issues = analyzer.AnalyzePackage(context).ToList();
+                        foreach (var packagePair in packagesWithId)
+                        {
+                            var package = packagePair.Key;
+                            logger.LogInfo("Analyzing {0} ({1})", package.Id, package.Version);
 
-                        var packageErrorsAndWarnings = ProcessPackageIssues(
-                            ignoreAssistanceMode,
-                            logger,
-                            issueProcessor,
-                            ignoreAssistanceData,
-                            package,
-                            issues);
+                            var context = new PackageAnalysisContext
+                            {
+                                PackageFileInfo = packagePair.Value,
+                                Metadata = package,
+                                Logger = logger,
+                                Options = packageInfo.Value
+                            };
 
-                        totalErrors += packageErrorsAndWarnings.Item1;
-                        totalWarnings += packageErrorsAndWarnings.Item2;
+                            var issues = analyzer.AnalyzePackage(context).ToList();
 
-                        Console.WriteLine();
+                            var packageErrorsAndWarnings = ProcessPackageIssues(
+                                ignoreAssistanceMode,
+                                logger,
+                                issueProcessor,
+                                ignoreAssistanceData,
+                                package,
+                                issues);
 
-                        processedPackages.Add(package);
+                            totalErrors += packageErrorsAndWarnings.Item1;
+                            totalWarnings += packageErrorsAndWarnings.Item2;
+
+                            Console.WriteLine();
+
+                            processedPackages.Add(package);
+                        }
                     }
                 }
 
@@ -363,34 +366,37 @@ namespace NuGetPackageVerifier
             }
         }
 
-        private static IList<IssueIgnore> GetIgnoresFromFile(IDictionary<string, PackageVerifierOptions> ignoresInFile)
+        private static IEnumerable<IssueIgnore> GetIgnoresFromFile(IDictionary<string, PackageVerifierOptions> ignoresInFile)
         {
-            var issuesToIgnore = new List<IssueIgnore>();
-            if (ignoresInFile != null)
+            if (ignoresInFile == null)
             {
-                foreach (var packageIgnoreData in ignoresInFile)
-                {
-                    var packageId = packageIgnoreData.Key;
-                    if (packageIgnoreData.Value == null)
-                    {
-                        continue;
-                    }
-                    foreach (var ruleIgnoreData in packageIgnoreData.Value.Exclusions)
-                    {
-                        var issueId = ruleIgnoreData.Key;
-                        foreach (var instanceIgnoreData in ruleIgnoreData.Value)
-                        {
-                            var instance = instanceIgnoreData.Key;
-                            var justification = instanceIgnoreData.Value;
+                return Enumerable.Empty<IssueIgnore>();
+            }
 
-                            issuesToIgnore.Add(new IssueIgnore
-                            {
-                                PackageId = packageId,
-                                IssueId = issueId,
-                                Instance = instance,
-                                Justification = justification,
-                            });
-                        }
+            var issuesToIgnore = new List<IssueIgnore>();
+
+            foreach (var packageIgnoreData in ignoresInFile)
+            {
+                var packageId = packageIgnoreData.Key;
+                if (packageIgnoreData.Value == null)
+                {
+                    continue;
+                }
+                foreach (var ruleIgnoreData in packageIgnoreData.Value.Exclusions)
+                {
+                    var issueId = ruleIgnoreData.Key;
+                    foreach (var instanceIgnoreData in ruleIgnoreData.Value)
+                    {
+                        var instance = instanceIgnoreData.Key;
+                        var justification = instanceIgnoreData.Value;
+
+                        issuesToIgnore.Add(new IssueIgnore
+                        {
+                            PackageId = packageId,
+                            IssueId = issueId,
+                            Instance = instance,
+                            Justification = justification,
+                        });
                     }
                 }
             }

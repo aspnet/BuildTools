@@ -1,0 +1,13 @@
+﻿<Project ToolsVersion="15.0">
+  <PropertyGroup>
+    <RestoreSources>$(MSBuildThisFileDirectory)..\..\artifacts\build\</RestoreSources>
+    <TargetFramework>netcoreapp1.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="NuGetPackageVerifier" Version="1.0.1-*" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.Targets" />
+  <Target Name="Build">
+    <VerifyPackages ArtifactDirectory="..\..\artifacts\build" RuleFile="rule.json" />
+  </Target>
+</Project>

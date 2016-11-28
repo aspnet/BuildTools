@@ -1,0 +1,14 @@
+{
+  "buildOptions": {
+    "warningsAsErrors": true,
+    "copyToOutput": "build/**/*.targets"
+  },
+  "dependencies": {
+    "Microsoft.Build.Framework": "15.1.0-preview-000370-00",
+    "Microsoft.Build.Tasks.Core": "15.1.0-preview-000370-00",
+    "Microsoft.Build.Utilities.Core": "15.1.0-preview-000370-00"
+  },
+  "frameworks": {
+    "netstandard1.6": {}
+  }
+}

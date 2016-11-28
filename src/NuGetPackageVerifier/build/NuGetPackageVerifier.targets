@@ -1,0 +1,4 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)..\tools\netstandard1.6\NuGetPackageVerifier.Task.dll"
+               TaskName="NuGetPackagerVerifier.VerifyPackages" />
+</Project>

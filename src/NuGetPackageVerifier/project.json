@@ -5,6 +5,9 @@
     "emitEntryPoint": true,
     "embed": [ "already-owned-packages.txt" ]
   },
+  "publishOptions": {
+    "include": "build/*.targets"
+  },
   "dependencies": {
     "HtmlAgilityPack": "1.4.9",
     "Newtonsoft.Json": "9.0.1",

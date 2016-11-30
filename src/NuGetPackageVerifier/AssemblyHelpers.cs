@@ -3,7 +3,7 @@
 
 using System;
 using System.IO;
-using System.Reflection;
+using System.Runtime.Loader;
 
 namespace NuGetPackageVerifier
 {
@@ -14,7 +14,7 @@ namespace NuGetPackageVerifier
             // From http://msdn.microsoft.com/en-us/library/ms173100.aspx
             try
             {
-                var testAssembly = AssemblyName.GetAssemblyName(assemblyPath);
+                var testAssembly = AssemblyLoadContext.GetAssemblyName(assemblyPath);
                 return true;
             }
             catch (FileNotFoundException)

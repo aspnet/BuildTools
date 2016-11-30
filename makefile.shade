@@ -34,7 +34,7 @@ k-standard-goals
 
       var version = Path.GetFileNameWithoutExtension(existingNupkg).Substring(project.Length + 1);
       var nuspecPath = Path.Combine("src", project, project + ".nuspec");
-      var basePath = Path.Combine(outputDir, project, configuration, "net451", "win7-x64");
+      var basePath = Path.Combine(outputDir, project, configuration);
 
       if (project == "DependenciesPackager")
       {

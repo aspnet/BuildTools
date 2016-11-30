@@ -93,7 +93,8 @@ namespace NuGetPackageVerifier
         {
             var fileInfo = new WinTrustFileInfo()
             {
-                cbStruct = (uint)Marshal.SizeOf(typeof(WinTrustFileInfo)),
+                cbStruct = (uint)Marshal.SizeOf<WinTrustFileInfo>(),
+
                 pcwszFilePath = Path.GetFullPath(path),
                 hFile = IntPtr.Zero,
                 pgKnownSubject = IntPtr.Zero
@@ -101,7 +102,7 @@ namespace NuGetPackageVerifier
 
             var data = new WinTrustData()
             {
-                cbStruct = (uint)Marshal.SizeOf(typeof(WinTrustData)),
+                cbStruct = (uint)Marshal.SizeOf<WinTrustData>(),
                 dwProvFlags = Convert.ToUInt32(Provider.WTD_SAFER_FLAG),
                 dwStateAction = Convert.ToUInt32(StateAction.WTD_STATEACTION_IGNORE),
                 dwUIChoice = Convert.ToUInt32(UIChoice.WTD_UI_NONE),
@@ -109,7 +110,7 @@ namespace NuGetPackageVerifier
                 dwUnionChoice = Convert.ToUInt32(UnionChoice.WTD_CHOICE_FILE),
                 fdwRevocationChecks = Convert.ToUInt32(RevocationChecks.WTD_REVOKE_NONE),
                 hWVTStateData = IntPtr.Zero,
-                pFile = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(WinTrustFileInfo))),
+                pFile = Marshal.AllocHGlobal(Marshal.SizeOf<WinTrustFileInfo>()),
                 pPolicyCallbackData = IntPtr.Zero,
                 pSIPClientData = IntPtr.Zero,
                 pwszURLReference = IntPtr.Zero
@@ -118,8 +119,8 @@ namespace NuGetPackageVerifier
             // TODO: Potential memory leak. Need to invetigate
             Marshal.StructureToPtr(fileInfo, data.pFile, false);
 
-            var pGuid = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(Guid)));
-            var pData = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(WinTrustData)));
+            var pGuid = Marshal.AllocHGlobal(Marshal.SizeOf<Guid>());
+            var pData = Marshal.AllocHGlobal(Marshal.SizeOf<WinTrustData>());
             Marshal.StructureToPtr(data, pData, true);
             Marshal.StructureToPtr(new Guid(WINTRUST_ACTION_GENERIC_VERIFY_V2), pGuid, true);
 

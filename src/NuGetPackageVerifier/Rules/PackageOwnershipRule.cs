@@ -7,6 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
@@ -94,14 +95,15 @@ namespace NuGetPackageVerifier.Rules
             var html = new HtmlDocument();
             html.LoadHtml(content);
 
-            return html.DocumentNode.SelectNodes("//span[contains(@class,'owner-name')]")
-                    .Select(node => node.InnerText)
-                    .ToArray();
+            return html.DocumentNode.Descendants("span")
+                .Where(d => d.Attributes.Contains("class") && d.Attributes["class"].Value.Contains("owner-name"))
+                .Select(node => node.InnerText)
+                .ToArray();
         }
 
         private static IList<string> GetOwnedPackages()
         {
-            var assembly = typeof(PackageOwnershipRule).Assembly;
+            var assembly = typeof(PackageOwnershipRule).GetTypeInfo().Assembly;
             using (var stream = assembly.GetManifestResourceStream("NuGetPackageVerifier.already-owned-packages.txt"))
             using (var reader = new StreamReader(stream))
             {

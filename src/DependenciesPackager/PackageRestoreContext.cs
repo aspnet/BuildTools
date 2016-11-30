@@ -38,48 +38,7 @@ namespace DependenciesPackager
 
         public bool Quiet { get; set; }
 
-        public bool RestoreAndRemoveUnecessaryFiles()
-        {
-            if (RunDotnetRestore() != 0)
-            {
-                return false;
-            }
-
-            RemoveUnnecessaryRestoredFiles();
-            return true;
-        }
-
-        public void Dispose()
-        {
-            if (Directory.Exists(RestoreFolder))
-            {
-                Directory.Delete(RestoreFolder, recursive: true);
-            }
-        }
-
-        private void RemoveUnnecessaryRestoredFiles()
-        {
-            var files = Directory.GetFiles(RestoreFolder, "*", SearchOption.AllDirectories);
-            var dlls = Directory.GetFiles(RestoreFolder, "*.dll", SearchOption.AllDirectories);
-            var signatures = Directory.GetFiles(RestoreFolder, "*.sha512", SearchOption.AllDirectories);
-            var crossgen = CrossGenTool.FindAllCrossGen(RestoreFolder);
-            var clrjit = CrossGenTool.FindAllClrJIT(RestoreFolder);
-
-            _logger.LogInformation($@"Dlls in restored packages:
-{string.Join($"    {Environment.NewLine}", dlls)}");
-
-            _logger.LogInformation($@"Signature files in restored packages:
-{string.Join($"    {Environment.NewLine}", signatures)}");
-
-            var filesToRemove = files.Except(dlls.Concat(signatures).Concat(crossgen).Concat(clrjit));
-            foreach (var file in filesToRemove)
-            {
-                _logger.LogInformation($"Removing file '{file}.");
-                File.Delete(file);
-            }
-        }
-
-        private int RunDotnetRestore()
+        public bool Restore()
         {
             var buffer = new StringBuilder();
             buffer.AppendLine("Restore packages");
@@ -105,11 +64,21 @@ namespace DependenciesPackager
                 arguments += " --verbosity Verbose";
             }
 
-            return new ProcessRunner(_dotnetSdkPath, arguments)
+            var exitCode = new ProcessRunner(_dotnetSdkPath, arguments)
                 .AddEnvironmentVariable("NUGET_XMLDOC_MODE", "Skip")
                 .WriteOutputToConsole()
                 .WriteOutputToConsole()
                 .Run();
+
+            return exitCode == 0;
+        }
+
+        public void Dispose()
+        {
+            if (Directory.Exists(RestoreFolder))
+            {
+                Directory.Delete(RestoreFolder, recursive: true);
+            }
         }
     }
 }

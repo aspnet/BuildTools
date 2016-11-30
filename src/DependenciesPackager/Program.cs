@@ -35,6 +35,7 @@ namespace DependenciesPackager
         private readonly CommandOption _keepTemporaryFiles;
         private readonly CommandOption _quiet;
         private readonly CommandOption _skipZip;
+        private readonly CommandOption _exclusionsFile;
 
         public Program(
             CommandLineApplication app,
@@ -48,7 +49,8 @@ namespace DependenciesPackager
             CommandOption runtimes,
             CommandOption prefix,
             CommandOption keepTemporaryFiles,
-            CommandOption skipZip)
+            CommandOption skipZip,
+            CommandOption exclusionsFile)
         {
             _app = app;
             _projectJson = projectJson;
@@ -62,6 +64,7 @@ namespace DependenciesPackager
             _keepTemporaryFiles = keepTemporaryFiles;
             _quiet = quiet;
             _skipZip = skipZip;
+            _exclusionsFile = exclusionsFile;
 
             // set up logger
             _logger = new LoggerFactory()
@@ -133,6 +136,12 @@ namespace DependenciesPackager
                 "Avoids zipping the packages cache",
                 CommandOptionType.NoValue);
 
+            var exclusionFile = app.Option(
+                "--exclusion-file",
+                "File with dll names that can fail to crossgen",
+                CommandOptionType.SingleValue);
+
+
             var program = new Program(
                 app,
                 projectJson,
@@ -145,7 +154,8 @@ namespace DependenciesPackager
                 runtimes,
                 prefix,
                 keepTemporaryFiles,
-                skipZip);
+                skipZip,
+                exclusionFile);
 
             app.OnExecute(new Func<int>(program.Execute));
 
@@ -182,13 +192,12 @@ namespace DependenciesPackager
                 {
                     Quiet = _quiet.HasValue()
                 };
+                disposables.Add(restoreContext);
 
-                if (restoreContext.RestoreAndRemoveUnecessaryFiles())
+                if (!restoreContext.Restore())
                 {
                     _logger.LogWarning("Error restoring nuget packages into destination folder");
                 }
-
-                disposables.Add(restoreContext);
 
                 var project = ProjectReader.GetProject(_projectJson.Value());
                 var outputs = new List<OutputFilesContext>();
@@ -199,26 +208,27 @@ namespace DependenciesPackager
                     {
                         _logger.LogInformation($"Performing crossgen on {framework.GetShortFolderName()} for runtime {runtime}.");
 
-                        var projectContext = CreateProjectContext(project, framework, runtime, restoreContext.RestoreFolder);
-
-                        var crossgenContext = new CrossgenContext(projectContext, _destination.Value(), _logger);
-                        disposables.Add(crossgenContext);
-
                         var outputContext = new OutputFilesContext(_destination.Value(), _version.Value(), runtime, restoreContext.RestoreFolder, project, _logger);
                         disposables.Add(outputContext);
                         outputs.Add(outputContext);
 
-                        crossgenContext.CollectPackages(runtime, restoreContext.RestoreFolder);
-                        crossgenContext.PopulatePublishFolder();
+                        var projectContext = CreateProjectContext(project, framework, runtime, restoreContext.RestoreFolder);
+
+                        var crossgenContext = new CrossgenContext(projectContext, _destination.Value(), _logger, _exclusionsFile.Value());
+
+                        crossgenContext.CollectAssets(runtime, restoreContext.RestoreFolder);
+                        crossgenContext.CreateResponseFile();
                         crossgenContext.FetchCrossgenTools(runtime);
                         crossgenContext.FetchJitTools(runtime, restoreContext.RestoreFolder);
                         crossgenContext.Crossgen(outputContext.OutputPath);
-                        crossgenContext.PrintCrossgenOutput();
-                        crossgenContext.CopyPackageSignatures(outputContext.OutputPath);
+                        crossgenContext.WriteCrossgenOutput();
+                        outputContext.PrintStatistics();
 
-                        outputContext.CompareOutputToRestore();
-                        outputContext.RemoveExtraOutputFiles();
-                        outputContext.PrintDiagnostics();
+                        if (!crossgenContext.AllPackagesSuccessfullyCrossgened())
+                        {
+                            crossgenContext.PrintFailedCrossgenedPackages();
+                            return Error;
+                        }
                     }
                 }
 

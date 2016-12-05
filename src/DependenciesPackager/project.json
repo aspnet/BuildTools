@@ -2,10 +2,7 @@
   "version": "1.0.1-*",
   "description": "Creates a zip package with the expanded version of our nuget packages that can be used as a local cache",
   "buildOptions": {
-    "emitEntryPoint": true,
-    "copyToOutput": [
-      "exclusions.txt"
-    ]
+    "emitEntryPoint": true
   },
   "dependencies": {
     "Microsoft.Extensions.CommandLineUtils": "1.0.0-*",

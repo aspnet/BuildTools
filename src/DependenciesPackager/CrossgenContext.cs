@@ -181,7 +181,18 @@ namespace DependenciesPackager
             }
 
             var jitExecutable = CrossGenTool.GetCrossGenTool(runtime).ClrJit;
-            var jitExecutablePath = Directory.GetFiles(jitPackagePath, jitExecutable, SearchOption.AllDirectories).SingleOrDefault();
+            string jitExecutablePath;
+            try
+            {
+                jitExecutablePath = Directory
+                    .GetFiles(jitPackagePath, jitExecutable, SearchOption.AllDirectories)
+                    .SingleOrDefault();
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogError(0, ex, "Found multiple versions of the cross gen tool in {0}", jitPackagePath);
+                throw;
+            }
 
             if (jitExecutablePath == null)
             {
@@ -379,11 +390,11 @@ namespace DependenciesPackager
             _responseFilePath = Path.Combine(_destinationFolder, "aspnet-crossgen.rsp");
             var lines = new List<string>();
             lines.Add("/Platform_Assemblies_Paths");
-            lines.Add("\"" + string.Join(";", _referenceAssemblyPaths) + "\"");
+            lines.Add("\"" + string.Join(Path.PathSeparator.ToString(), _referenceAssemblyPaths) + "\"");
             lines.Add("/App_paths");
             lines.Add(
                 "\"" +
-                string.Join(";", _packagesToCrossGen.SelectMany(e => e.Assets.Select(a => GetCleanedUpDirectoryPath(a)))) +
+                string.Join(Path.PathSeparator.ToString(), _packagesToCrossGen.SelectMany(e => e.Assets.Select(a => GetCleanedUpDirectoryPath(a)))) +
                 "\"");
             lines.Add("/ReadyToRun");
             File.WriteAllLines(_responseFilePath, lines);

@@ -36,6 +36,7 @@ namespace DependenciesPackager
         private readonly CommandOption _quiet;
         private readonly CommandOption _skipZip;
         private readonly CommandOption _exclusionsFile;
+        private readonly CommandOption _preserveCasing;
 
         public Program(
             CommandLineApplication app,
@@ -50,7 +51,8 @@ namespace DependenciesPackager
             CommandOption prefix,
             CommandOption keepTemporaryFiles,
             CommandOption skipZip,
-            CommandOption exclusionsFile)
+            CommandOption exclusionsFile,
+            CommandOption preserveCasing)
         {
             _app = app;
             _projectJson = projectJson;
@@ -65,6 +67,7 @@ namespace DependenciesPackager
             _quiet = quiet;
             _skipZip = skipZip;
             _exclusionsFile = exclusionsFile;
+            _preserveCasing = preserveCasing;
 
             // set up logger
             _logger = new LoggerFactory()
@@ -141,6 +144,10 @@ namespace DependenciesPackager
                 "File with dll names that can fail to crossgen",
                 CommandOptionType.SingleValue);
 
+            var preserveCasing = app.Option(
+                "--preserve-casing",
+                "Preserve casing in package ID. Required for legacy projects (project.json/NUGet 3.4)",
+                CommandOptionType.NoValue);
 
             var program = new Program(
                 app,
@@ -155,7 +162,8 @@ namespace DependenciesPackager
                 prefix,
                 keepTemporaryFiles,
                 skipZip,
-                exclusionFile);
+                exclusionFile,
+                preserveCasing);
 
             app.OnExecute(new Func<int>(program.Execute));
 
@@ -215,6 +223,11 @@ namespace DependenciesPackager
                         var projectContext = CreateProjectContext(project, framework, runtime, restoreContext.RestoreFolder);
 
                         var crossgenContext = new CrossgenContext(projectContext, _destination.Value(), _logger, _exclusionsFile.Value());
+
+                        if (_preserveCasing.HasValue())
+                        {
+                            crossgenContext.PreserveOriginalPackageCasing();
+                        }
 
                         crossgenContext.CollectAssets(runtime, restoreContext.RestoreFolder);
                         crossgenContext.CreateResponseFile();

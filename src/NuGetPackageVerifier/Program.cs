@@ -22,9 +22,17 @@ namespace NuGetPackageVerifier
         public static int Main(string[] args)
         {
             // TODO: Show extraneous packages, exclusions, etc.
+            var ignoreAssistanceMode = IgnoreAssistanceMode.None;
 
             // TODO: Get this from the command line
-            var ignoreAssistanceMode = IgnoreAssistanceMode.ShowAll;
+            var hideInfoLogs = true;
+
+            if (args.Length > 0 && string.Equals("--verbose", args[0], StringComparison.OrdinalIgnoreCase))
+            {
+                hideInfoLogs = false;
+                ignoreAssistanceMode = IgnoreAssistanceMode.ShowAll;
+                args = args.Skip(1).ToArray();
+            }
 
             if (args.Length < 1 || args.Length > 2)
             {
@@ -37,11 +45,11 @@ namespace NuGetPackageVerifier
             IPackageVerifierLogger logger;
             if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("TEAMCITY_VERSION")))
             {
-                logger = new TeamCityLogger();
+                logger = new TeamCityLogger(hideInfoLogs);
             }
             else
             {
-                logger = new PackageVerifierLogger();
+                logger = new PackageVerifierLogger(hideInfoLogs);
             }
 
             IDictionary<string, PackageSet> packageSets = null;
@@ -65,7 +73,7 @@ namespace NuGetPackageVerifier
                         MissingMemberHandling = MissingMemberHandling.Error
                     });
 
-                logger.LogInfo("Read {0} package set(s) from {1}", packageSets.Count, packagesToScanJsonFilePath);
+                logger.LogNormal("Read {0} package set(s) from {1}", packageSets.Count, packagesToScanJsonFilePath);
             }
 
             var totalTimeStopWatch = Stopwatch.StartNew();
@@ -105,7 +113,7 @@ namespace NuGetPackageVerifier
                 return new PackageBuilder(reader.GetNuspec(), basePath: null);
             });
 
-            logger.LogInfo("Found {0} packages in {1}", nupkgs.Count(), nupkgsPath);
+            logger.LogNormal("Found {0} packages in {1}", nupkgs.Count(), nupkgsPath);
 
             var processedPackages = new HashSet<IPackageMetadata>();
 
@@ -261,7 +269,7 @@ namespace NuGetPackageVerifier
                 Console.WriteLine();
             }
 
-            var errorLevel = LogLevel.Info;
+            var errorLevel = LogLevel.Normal;
             if (totalWarnings > 0)
             {
                 errorLevel = LogLevel.Warning;
@@ -276,9 +284,7 @@ namespace NuGetPackageVerifier
                 totalErrors, totalWarnings);
 
             totalTimeStopWatch.Stop();
-            logger.LogInfo("Total took {0}ms", totalTimeStopWatch.ElapsedMilliseconds);
-
-            //Console.ReadLine();
+            logger.LogNormal("Total took {0}ms", totalTimeStopWatch.ElapsedMilliseconds);
 
             return (totalErrors + totalWarnings > 0) ? ReturnErrorsOrWarnings : ReturnOk;
         }

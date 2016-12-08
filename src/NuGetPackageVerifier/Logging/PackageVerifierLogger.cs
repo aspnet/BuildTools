@@ -7,8 +7,20 @@ namespace NuGetPackageVerifier.Logging
 {
     public class PackageVerifierLogger : IPackageVerifierLogger
     {
+        private readonly bool _hideInfoLogs;
+
+        public PackageVerifierLogger(bool hideInfoLogs)
+        {
+            _hideInfoLogs = hideInfoLogs;
+        }
+
         public void Log(LogLevel logLevel, string message)
         {
+            if (_hideInfoLogs && logLevel == LogLevel.Info)
+            {
+                return;
+            }
+
             var output = Console.Out;
             ConsoleColor foreColor;
             switch (logLevel)
@@ -22,9 +34,11 @@ namespace NuGetPackageVerifier.Logging
                     foreColor = ConsoleColor.Yellow;
                     break;
 
-                default:
-                case LogLevel.Info:
+                case LogLevel.Normal:
                     foreColor = ConsoleColor.Gray;
+                    break;
+                default:
+                    foreColor = ConsoleColor.White;
                     break;
             }
 

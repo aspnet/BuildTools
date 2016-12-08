@@ -6,6 +6,7 @@ namespace NuGetPackageVerifier.Logging
     public enum LogLevel
     {
         Info,
+        Normal,
         Warning,
         Error,
     }

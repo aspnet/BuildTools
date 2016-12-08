@@ -24,5 +24,10 @@ namespace NuGetPackageVerifier.Logging
         {
             logger.Log(LogLevel.Info, message, args);
         }
+
+        public static void LogNormal(this IPackageVerifierLogger logger, string message, params object[] args)
+        {
+            logger.Log(LogLevel.Normal, message, args);
+        }
     }
 }

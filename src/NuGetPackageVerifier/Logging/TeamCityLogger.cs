@@ -7,8 +7,20 @@ namespace NuGetPackageVerifier.Logging
 {
     public class TeamCityLogger : IPackageVerifierLogger
     {
+        private readonly bool _hideInfoLogs;
+
+        public TeamCityLogger(bool hideInfoLogs)
+        {
+            _hideInfoLogs = hideInfoLogs;
+        }
+
         public void Log(LogLevel logLevel, string message)
         {
+            if (_hideInfoLogs && logLevel == LogLevel.Info)
+            {
+                return;
+            }
+
             string status;
             switch (logLevel)
             {
@@ -18,8 +30,11 @@ namespace NuGetPackageVerifier.Logging
                 case LogLevel.Warning:
                     status = "WARNING";
                     break;
-                default:
+                case LogLevel.Normal:
                     status = "NORMAL";
+                    break;
+                default:
+                    status = "INFORMATION";
                     break;
             }
 

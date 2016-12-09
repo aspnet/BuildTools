@@ -35,11 +35,13 @@ namespace NuGetPackageVerifier.Rules
 
                             if (AssemblyHelpers.IsAssemblyManaged(assemblyPath))
                             {
-                                var assemblyDefinition = AssemblyDefinition.ReadAssembly(assemblyPath);
+                                using (var assembly = AssemblyDefinition.ReadAssembly(assemblyPath))
+                                {
 
-                                var asmAttrs = assemblyDefinition.CustomAttributes;
+                                    var asmAttrs = assembly.CustomAttributes;
 
-                                return ValidateAttribute(currentFile, asmAttrs);
+                                    return ValidateAttribute(currentFile, asmAttrs);
+                                }
                             }
                         }
                         finally

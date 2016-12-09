@@ -14,6 +14,7 @@ namespace DependenciesPackager
     {
         private readonly ProjectContext _context;
         private readonly ILogger _logger;
+        private bool _preservePackageCasing;
 
         private IEnumerable<LibraryExport> _exports = Enumerable.Empty<LibraryExport>();
         private IEnumerable<PackageEntry> _packagesToCrossGen = Enumerable.Empty<PackageEntry>();
@@ -33,6 +34,17 @@ namespace DependenciesPackager
             _logger = logger;
             _destinationFolder = destinationFolder;
             _exclusionsFile = exclusionsFile;
+        }
+
+        /// <summary>
+        /// Creates the package cache with the original casing of the package names.
+        /// This is required for projects created using project.json tooling and NuGet 3.4.
+        /// MSBuild and NuGet 4 .ToLower() the package ID.
+        /// This only affects package caches on case-sensitive file systems.
+        /// </summary>
+        public void PreserveOriginalPackageCasing()
+        {
+            _preservePackageCasing = true;
         }
 
         public void CollectAssets(string runtime, string restoreFolder)
@@ -355,9 +367,11 @@ namespace DependenciesPackager
         {
             var hash = entry.Library.PackageLibrary.Files.Single(file => file.EndsWith(".sha512"));
             var desination = Path.Combine(outputPath,
-                entry.Library.Identity.Name.ToLowerInvariant(),
-                entry.Library.Identity.Version.ToNormalizedString().ToLowerInvariant(),
-                hash.ToLowerInvariant());
+                GetPackageId(entry.Library),
+                GetPackageVersion(entry.Library),
+                _preservePackageCasing
+                    ? hash
+                    : hash.ToLowerInvariant());
 
             File.Copy(Path.Combine(entry.Library.Path, hash), desination, overwrite: true);
         }
@@ -366,10 +380,20 @@ namespace DependenciesPackager
         {
             var subDirectoryPath = Path.Combine(
                 outputPath,
-                package.Library.Identity.Name.ToLowerInvariant(),
-                package.Library.Identity.Version.ToNormalizedString().ToLowerInvariant());
+                GetPackageId(package.Library),
+                GetPackageVersion(package.Library));
             return Directory.CreateDirectory(subDirectoryPath);
         }
+
+        private string GetPackageId(PackageDescription library)
+            => _preservePackageCasing
+                ? library.Identity.Name
+                : library.Identity.Name.ToLowerInvariant();
+
+        private string GetPackageVersion(PackageDescription library)
+            => _preservePackageCasing
+                ? library.Identity.Version.ToNormalizedString()
+                : library.Identity.Version.ToNormalizedString().ToLowerInvariant();
 
         private DirectoryInfo CreateAssetSubDirectory(string cacheBasePath, PackageEntry package, LibraryAsset asset)
         {
@@ -378,8 +402,8 @@ namespace DependenciesPackager
             // https://github.com/NuGet/Home/issues/2522
             var subDirectoryPath = Path.Combine(
                 cacheBasePath,
-                package.Library.Identity.Name.ToLowerInvariant(),
-                package.Library.Identity.Version.ToNormalizedString().ToLowerInvariant(),
+                GetPackageId(package.Library),
+                GetPackageVersion(package.Library),
                 Path.GetDirectoryName(asset.RelativePath));
 
             return Directory.CreateDirectory(subDirectoryPath);

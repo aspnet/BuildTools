@@ -2,8 +2,11 @@
 <package>
   <metadata>
     <id>NuGetPackageVerifier</id>
-    <version>0.0.0</version>
+    <version>$version$</version>
     <authors>Microsoft</authors>
     <description>Verifies Asp.Net Core packages.</description>
   </metadata>
+  <files>
+    <file src="netcoreapp1.0\" target="/" />
+  </files>
 </package>

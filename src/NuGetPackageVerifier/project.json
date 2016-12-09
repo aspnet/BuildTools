@@ -12,13 +12,13 @@
     "Mono.Cecil": "0.10.0-beta1-v2"
   },
   "frameworks": {
-    "netcoreapp1.1": {
+    "netcoreapp1.0": {
       "dependencies": {
         "Microsoft.NETCore.App": {
           "version": "1.0.0",
           "type": "platform"
         },
-        "System.Runtime.Loader": "4.3.0"
+        "System.Runtime.Loader": "4.0.0"
       },
       "imports": [ "portable-net45+wp8" ]
     }

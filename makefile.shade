@@ -14,43 +14,47 @@ k-standard-goals
 
 #nuget-pack target='package'
   @{
-    var configuration = Environment.GetEnvironmentVariable("Configuration") ?? "Debug";
-
-    var dependenciesPackagerPath = Path.Combine(BASE_DIR, "src", "DependenciesPackager");
-    Exec("dotnet", "publish " + dependenciesPackagerPath + " --no-build " + "--configuration " + configuration);
-
-    var packagecacheUploaderPath = Path.Combine(BASE_DIR, "src", "PackageCacheUploader");
-    Exec("dotnet", "publish " + packagecacheUploaderPath + " --no-build " + "--configuration " + configuration);
-
-    var apiCheckPath = Path.Combine(BASE_DIR, "src", "Microsoft.AspNetCore.BuildTools.ApiCheck");
-    Exec("dotnet", "publish " + apiCheckPath + " --no-build " + "--configuration " + configuration);
-
-    foreach(var project in new[]{ "NuGetPackageVerifier", "SplitPackages", "DependenciesPackager", "PackageCacheUploader", "Microsoft.AspNetCore.BuildTools.ApiCheck" })
+    var configuration = E("Configuration");
+    var projects = new Dictionary<string, string[]>
     {
-      var outputDir = Path.Combine(TARGET_DIR, "build");
-      var existingNupkg = Directory.EnumerateFiles(outputDir)
-        .Select(p => Path.GetFileName(p))
-        .First(fn => fn.StartsWith(project) && fn.EndsWith(".nupkg"));
+      { "Microsoft.AspNetCore.BuildTools.ApiCheck", new [] { "net451", "netcoreapp1.0" } },
+      { "PackageCacheUploader", new [] { "netcoreapp1.0" } },
+      { "DependenciesPackager", new [] { "netcoreapp1.0" } },
+      { "NuGetPackageVerifier", new [] { "netcoreapp1.0" } },
+      { "SplitPackages", new [] { "net451" } },
+    };
 
-      var version = Path.GetFileNameWithoutExtension(existingNupkg).Substring(project.Length + 1);
-      var nuspecPath = Path.Combine("src", project, project + ".nuspec");
-      var basePath = Path.Combine(outputDir, project, configuration);
+    var outputDir = Path.Combine(TARGET_DIR, "build");
+    var nugetPath = E("KOREBUILD_NUGET_EXE") ?? ".build/NuGet.exe";
+    var publishDir = Path.Combine(TARGET_DIR, "publish");
 
-      if (project == "DependenciesPackager")
-      {
-          basePath = Path.Combine(dependenciesPackagerPath, "bin", configuration, "netcoreapp1.0", "publish");
+    foreach (var item in projects)
+    {
+        var projectName = item.Key;
+        var basePath = Path.Combine(publishDir, projectName);
+        foreach (var tfm in item.Value)
+        {
+            Exec("dotnet", "publish src/" + projectName
+                + " --no-build"
+                + " --framework " + tfm
+                + " --configuration " + configuration
+                + " --output \"" + Path.Combine(basePath, tfm) + "\"");
+        }
+
+        var nuspecPath = Path.Combine("src", projectName, projectName + ".nuspec");
+        var existingNupkg = Directory.EnumerateFiles(outputDir)
+            .Select(p => Path.GetFileName(p))
+            .First(fn => fn.StartsWith(projectName) && fn.EndsWith(".nupkg"));
+        var version = Path.GetFileNameWithoutExtension(existingNupkg).Substring(projectName.Length + 1);
+
+        NugetPack(nugetPath,
+          nuspecPath,
+          outputDir,
+          version,
+          "-Verbosity Detailed -NoPack -BasePath \"" + basePath + "\""
+          + " -Properties configuration=" + configuration);
       }
-
-      if (project == "PackageCacheUploader")
-      {
-          basePath = Path.Combine(packagecacheUploaderPath, "bin", configuration, "netcoreapp1.0", "publish");
-      }
-
-      if (project == "Microsoft.AspNetCore.BuildTools.ApiCheck")
-      {
-          basePath = Path.Combine(apiCheckPath, "bin", configuration);
-      }
-
-      Exec(".build/NuGet.exe", "pack -nopack " + nuspecPath + " -version " + version + " -base " + basePath + " -out " + outputDir);
-    }
   }
+
+macro name='NugetPack' nugetPath='string' nuspecFile='string' outputDir='string' packageVersion='string' extra='string'
+    nuget-pack

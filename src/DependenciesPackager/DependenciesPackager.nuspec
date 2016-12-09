@@ -2,8 +2,11 @@
 <package>
   <metadata>
     <id>DependenciesPackager</id>
-    <version>0.0.0</version>
+    <version>$version$</version>
     <authors>Microsoft</authors>
     <description>Packages ASP.NET Core dlls into a native optimized cache for improved runtime performance.</description>
   </metadata>
+  <files>
+    <file src="netcoreapp1.0\" target="/" />
+  </files>
 </package>

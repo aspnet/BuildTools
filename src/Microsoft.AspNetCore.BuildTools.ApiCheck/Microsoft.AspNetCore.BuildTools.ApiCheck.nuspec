@@ -2,12 +2,11 @@
 <package>
   <metadata>
     <id>Microsoft.AspNetCore.BuildTools.ApiCheck</id>
-    <version>0.0.0</version>
+    <version>$version$</version>
     <authors>Microsoft</authors>
     <description>Generates API baselines and detects breaking changes in APIs.</description>
   </metadata>
   <files>
-    <file src="netcoreapp1.0\publish\" target="tools\netcoreapp1.0\" />
-    <file src="net451\win7-x64\publish\" target="tools\net451\" />
+    <file src=".\" target="tools/" />
   </files>
 </package>

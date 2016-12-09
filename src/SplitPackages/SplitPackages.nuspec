@@ -2,8 +2,11 @@
 <package>
   <metadata>
     <id>SplitPackages</id>
-    <version>0.0.0</version>
+    <version>$version$</version>
     <authors>Microsoft</authors>
     <description>Splits Asp.Net Core packages.</description>
   </metadata>
+  <files>
+    <file src="net451\" target="/" />
+  </files>
 </package>

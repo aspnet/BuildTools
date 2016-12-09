@@ -210,16 +210,16 @@ namespace NuGetPackageVerifier
                 }
             }
 
-            var unprocessedPackages = packages.Keys.Except(processedPackages);
+            var unlistedPackages = packages.Keys.Except(processedPackages);
 
-            if (unprocessedPackages.Any())
+            if (unlistedPackages.Any())
             {
-                logger.LogWarning(
-                    "Found {0} unprocessed packages. Every package in the repo should be listed in exactly " +
+                logger.LogNormal(
+                    "Found {0} unlisted packages. Every package in the repo should be listed in exactly " +
                     "one package set. Running default or all rules on unlisted packages.",
-                    unprocessedPackages.Count());
+                    unlistedPackages.Count());
 
-                // For unprocessed packages we run the rules from 'Default' package set if present
+                // For unlisted packages we run the rules from 'Default' package set if present
                 // or we run all rules (because we have no idea what exactly to run)
                 var analyzer = new PackageAnalyzer();
                 foreach (var ruleInstance in defaultRuleSet ?? allRules.Values)
@@ -229,14 +229,14 @@ namespace NuGetPackageVerifier
 
                 var issueProcessor = new IssueProcessor(issuesToIgnore: null);
 
-                foreach (var unprocessedPackage in unprocessedPackages)
+                foreach (var unlistedPackage in unlistedPackages)
                 {
-                    logger.LogInfo("Analyzing {0} ({1})", unprocessedPackage.Id, unprocessedPackage.Version);
+                    logger.LogInfo("Analyzing {0} ({1})", unlistedPackage.Id, unlistedPackage.Version);
 
                     var context = new PackageAnalysisContext
                     {
-                        PackageFileInfo = packages[unprocessedPackage],
-                        Metadata = unprocessedPackage,
+                        PackageFileInfo = packages[unlistedPackage],
+                        Metadata = unlistedPackage,
                         Logger = logger
                     };
 
@@ -247,7 +247,7 @@ namespace NuGetPackageVerifier
                         logger,
                         issueProcessor,
                         ignoreAssistanceData,
-                        unprocessedPackage,
+                        unlistedPackage,
                         issues);
 
                     totalErrors += packageErrorsAndWarnings.Item1;

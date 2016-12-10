@@ -27,7 +27,7 @@ namespace NuGetPackagerVerifier
         {
             if (string.IsNullOrEmpty(RuleFile) || !File.Exists(RuleFile))
             {
-                Log.LogError("RuleFile '{RuleFile}' does not exist");
+                Log.LogError($"RuleFile '{RuleFile}' does not exist");
                 return false;
             }
 
@@ -36,7 +36,7 @@ namespace NuGetPackagerVerifier
 
             if (string.IsNullOrEmpty(ArtifactDirectory) || !Directory.Exists(ArtifactDirectory))
             {
-                Log.LogError("ArtifactDirectory '{ArtifactDirectory}' does not exist");
+                Log.LogError($"ArtifactDirectory '{ArtifactDirectory}' does not exist");
                 return false;
             }
 

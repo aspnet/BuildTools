@@ -21,7 +21,7 @@ k-standard-goals
       { "PackageCacheUploader", new [] { "netcoreapp1.0" } },
       { "DependenciesPackager", new [] { "netcoreapp1.0" } },
       { "NuGetPackageVerifier", new [] { "netcoreapp1.0" } },
-      { "SplitPackages", new [] { "net451" } },
+      { "SplitPackages", new [] { "net451" } }
     };
 
     var outputDir = Path.Combine(TARGET_DIR, "build");
@@ -34,8 +34,7 @@ k-standard-goals
         var basePath = Path.Combine(publishDir, projectName);
         foreach (var tfm in item.Value)
         {
-            Exec("dotnet", "publish src/" + projectName
-                + " --no-build"
+            Exec("dotnet", "publish src/" + projectName + "/" + projectName + ".csproj"
                 + " --framework " + tfm
                 + " --configuration " + configuration
                 + " --output \"" + Path.Combine(basePath, tfm) + "\"");

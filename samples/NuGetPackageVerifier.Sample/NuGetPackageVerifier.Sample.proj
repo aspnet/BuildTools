@@ -4,7 +4,7 @@
     <TargetFramework>netcoreapp1.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="NuGetPackageVerifier" Version="1.0.1-*" />
+    <PackageReference Include="NuGetPackageVerifier" Version="1.0.2-*" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.Targets" />
   <Target Name="Build">

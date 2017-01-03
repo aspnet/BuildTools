@@ -253,8 +253,6 @@ namespace NuGetPackageVerifier
 
                     totalErrors += packageErrorsAndWarnings.Item1;
                     totalWarnings += packageErrorsAndWarnings.Item2;
-
-                    Console.WriteLine();
                 }
             }
 

@@ -10,7 +10,7 @@ namespace NuGetPackageVerifier.Rules
         IPackageVerifierRule[] _rules = new IPackageVerifierRule[]
         {
             new AssemblyHasCommitHashAttributeRule(),
-            new AssemblyIsBuiltInReleaseConfigurationRule(),
+            // new AssemblyIsBuiltInReleaseConfigurationRule(),
             new AuthenticodeSigningRule(),
             new PowerShellScriptIsSignedRule(),
             new RequiredNuSpecInfoRule(),

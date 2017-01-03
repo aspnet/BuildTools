@@ -9,7 +9,7 @@ using Mono.Collections.Generic;
 
 namespace NuGetPackageVerifier.Rules
 {
-    public class AssemblyIsBuiltInReleaseConfiguraitonRule : AssemblyHasAttributeRuleBase
+    public class AssemblyIsBuiltInReleaseConfigurationRule : AssemblyHasAttributeRuleBase
     {
         public override IEnumerable<PackageVerifierIssue> ValidateAttribute(string currentFilePath, Collection<CustomAttribute> assemblyAttributes)
         {

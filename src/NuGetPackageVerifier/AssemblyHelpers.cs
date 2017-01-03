@@ -14,7 +14,7 @@ namespace NuGetPackageVerifier
             // From http://msdn.microsoft.com/en-us/library/ms173100.aspx
             try
             {
-                var testAssembly = AssemblyLoadContext.GetAssemblyName(assemblyPath);
+                AssemblyLoadContext.GetAssemblyName(assemblyPath);
                 return true;
             }
             catch (FileNotFoundException)

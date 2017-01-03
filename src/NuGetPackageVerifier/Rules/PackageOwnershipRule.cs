@@ -35,7 +35,7 @@ namespace NuGetPackageVerifier.Rules
                 yield break;
             }
 
-            context.Logger.LogInfo($"Looking up ownership for package {context.Metadata.Id}. Add this package to the owned-packages.txt list if it's owned.");
+            context.Logger.LogWarning($"Looking up ownership for package {context.Metadata.Id}. Add this package to the owned-packages.txt list if it's owned.");
 
             var url = string.Format(CultureInfo.InvariantCulture, NuGetV3Endpoint, context.Metadata.Id);
             var result = GetPackageSearchResultAsync(context.Logger, url).Result;
@@ -51,7 +51,7 @@ namespace NuGetPackageVerifier.Rules
                 if (owners.Length == 0)
                 {
                     // The API result can sometimes be empty and not contain any owner data.
-                    var packagePage = NuGetOrgPackagePage + context.Metadata.Id;
+                    var packagePage = NuGetOrgPackagePage + context.Metadata.Id + "/0.0.1-alpha";
                     using (var httpResponse = _httpClient.GetAsync(packagePage).Result)
                     {
                         if (!httpResponse.IsSuccessStatusCode)

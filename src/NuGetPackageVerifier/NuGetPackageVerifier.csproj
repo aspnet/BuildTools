@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+
+  <Import Project="..\..\build\common.props" />
+
+  <PropertyGroup>
+    <Description>Verifies Asp.Net Core NuGet packages.</Description>
+    <VersionPrefix>1.0.2</VersionPrefix>
+    <TargetFramework>netcoreapp1.0</TargetFramework>
+    <AssemblyName>NuGetPackageVerifier</AssemblyName>
+    <OutputType>exe</OutputType>
+    <PackageTargetFallback>$(PackageTargetFallback);portable-net45+wp8</PackageTargetFallback>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="**\*.cs" />
+    <EmbeddedResource Include="**\*.resx" />
+    <EmbeddedResource Include="already-owned-packages.txt" />
+    <Content Include="build\*.targets">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HtmlAgilityPack" Version="1.4.9" />
+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+    <PackageReference Include="NuGet.Packaging" Version="4.0.0-rc-2048" />
+    <PackageReference Include="Mono.Cecil" Version="0.10.0-beta1-v2" />
+    <PackageReference Include="Microsoft.NETCore.App" Version="1.0.0" />
+    <PackageReference Include="System.Runtime.Loader" Version="4.0.0" />
+  </ItemGroup>
+
+</Project>

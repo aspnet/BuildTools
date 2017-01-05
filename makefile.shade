@@ -34,8 +34,7 @@ k-standard-goals
         var basePath = Path.Combine(publishDir, projectName);
         foreach (var tfm in item.Value)
         {
-            Exec("dotnet", "publish src/" + projectName
-                + " --no-build"
+            Exec("dotnet", "publish src/" + projectName + "/" + projectName + ".csproj"
                 + " --framework " + tfm
                 + " --configuration " + configuration
                 + " --output \"" + Path.Combine(basePath, tfm) + "\"");

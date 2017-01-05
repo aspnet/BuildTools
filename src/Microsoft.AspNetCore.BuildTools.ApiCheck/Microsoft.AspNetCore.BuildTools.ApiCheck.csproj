@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
   <Import Project="..\..\build\common.props" />
   <PropertyGroup>
-    <VersionPrefix>1.0.1</VersionPrefix>
     <TargetFrameworks>netcoreapp1.0;net451</TargetFrameworks>
     <RuntimeIdentifier Condition=" '$(TargetFramework)'!='netcoreapp1.0' ">win7-x64</RuntimeIdentifier>
     <Platform>AnyCPU</Platform>

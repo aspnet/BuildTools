@@ -7,6 +7,6 @@
     <description>Upload package cache to Azure Storage</description>
   </metadata>
   <files>
-    <file src="netcoreapp1.0\" target="/" />
+    <file src="netcoreapp1.0\" target="tools/netcoreapp1.0/" />
   </files>
 </package>

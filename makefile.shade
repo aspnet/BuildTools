@@ -21,7 +21,7 @@ k-standard-goals
       { "PackageCacheUploader", new [] { "netcoreapp1.0" } },
       { "DependenciesPackager", new [] { "netcoreapp1.0" } },
       { "NuGetPackageVerifier", new [] { "netcoreapp1.0" } },
-      { "SplitPackages", new [] { "net451" } },
+      { "SplitPackages", new [] { "netcoreapp1.0" } },
     };
 
     var outputDir = Path.Combine(TARGET_DIR, "build");

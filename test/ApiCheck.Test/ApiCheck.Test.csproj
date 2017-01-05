@@ -1,28 +1,31 @@
 <Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+
   <Import Project="..\..\build\common.props" />
+
   <PropertyGroup>
     <TargetFrameworks>netcoreapp1.0;net452</TargetFrameworks>
     <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == '' AND '$(TargetFramework)'!='netcoreapp1.0'">win7-x64</RuntimeIdentifier>
   </PropertyGroup>
+
   <ItemGroup>
     <Compile Include="**\*.cs" />
     <EmbeddedResource Include="**\*.resx" />
   </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\Microsoft.AspNetCore.BuildTools.ApiCheck\Microsoft.AspNetCore.BuildTools.ApiCheck.csproj" />
     <ProjectReference Include="..\ApiCheckBaseline.V1\ApiCheckBaseline.V1.csproj" />
     <ProjectReference Include="..\ApiCheckBaseline.V2\ApiCheckBaseline.V2.csproj" />
   </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0-preview-20161123-03" />
     <PackageReference Include="xunit" Version="2.2.0-beta4-build3444" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0-beta4-build1194" />
   </ItemGroup>
+
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
     <PackageReference Include="Microsoft.NETCore.App" Version="1.0.0" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
+
 </Project>

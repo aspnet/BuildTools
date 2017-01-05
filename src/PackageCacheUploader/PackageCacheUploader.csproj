@@ -7,7 +7,7 @@
     <VersionPrefix>1.0.1</VersionPrefix>
     <TargetFramework>netcoreapp1.0</TargetFramework>
     <OutputType>exe</OutputType>
-    <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">$(PackageTargetFallback);portable-win8+net45</PackageTargetFallback>
+    <PackageTargetFallback>$(PackageTargetFallback);portable-win8+net45</PackageTargetFallback>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,9 +20,6 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="1.0.0" />
     <PackageReference Include="WindowsAzure.Storage" Version="7.2.1" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
     <PackageReference Include="System.Diagnostics.Process" Version="4.1.0" />
     <PackageReference Include="Microsoft.NETCore.App" Version="1.0.0" />
   </ItemGroup>

@@ -259,5 +259,20 @@ namespace NuGetPackageVerifier
         {
             return new PackageVerifierIssue("PACKAGE_OWNERSHIP", id, $"The id '{id}' is not owned by one of {string.Join(", ", allowedOwners)}.", PackageIssueLevel.Error);
         }
+
+        public static PackageVerifierIssue DependencyVersionHasUpperBound(string id, string dependencyId)
+        {
+            return new PackageVerifierIssue("PACKAGE_DEPENDENCY", id, $"The version range of package dependency '{dependencyId}' for package '{id}' has an upper bound.", PackageIssueLevel.Warning);
+        }
+
+        public static PackageVerifierIssue DependencyVersionDoesNotHaveLowerBound(string id, string dependencyId)
+        {
+            return new PackageVerifierIssue("PACKAGE_DEPENDENCY", id, $"The version range of package dependency '{dependencyId}' for package '{id}' does not have a lower bound.", PackageIssueLevel.Warning);
+        }
+
+        public static PackageVerifierIssue DependencyVersionIsPrereleaseForRTMPackage(string id, string dependencyId)
+        {
+            return new PackageVerifierIssue("PACKAGE_DEPENDENCY", id, $"The package dependency'{dependencyId}' for package '{id}' is a prerelease package version.", PackageIssueLevel.Error);
+        }
     }
 }

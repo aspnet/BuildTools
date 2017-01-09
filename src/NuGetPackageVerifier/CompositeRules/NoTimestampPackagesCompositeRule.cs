@@ -5,11 +5,11 @@ using System.Collections.Generic;
 
 namespace NuGetPackageVerifier.Rules
 {
-    public class PackageDependenciesCompositeRule : IPackageVerifierRule
+    public class NoTimestampPackagesCompositeRule : IPackageVerifierRule
     {
-        IPackageVerifierRule[] _rules = new IPackageVerifierRule[]
+        private IPackageVerifierRule[] _rules = new IPackageVerifierRule[]
         {
-            new DependenciesVersionRule()
+            new PrereleaseDependenciesVersionRule()
         };
 
 

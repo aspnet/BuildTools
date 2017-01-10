@@ -74,6 +74,7 @@ Microsoft.AspNetCore.ResponseCompression
 Microsoft.AspNetCore.Rewrite
 Microsoft.AspNetCore.Routing
 Microsoft.AspNetCore.Routing.Abstractions
+Microsoft.AspNetCore.Server.HttpSys
 Microsoft.AspNetCore.Server.IISIntegration
 Microsoft.AspNetCore.Server.IISIntegration.Tools
 Microsoft.AspNetCore.Server.Kestrel

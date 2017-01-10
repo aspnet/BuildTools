@@ -1,16 +1,17 @@
 <Project>
   <Import Project="..\version.props" />
-  <Import Project="..\.build\common.props" Condition="Exists('..\.build\common.props')" />
+
+  <PropertyGroup>
+    <!-- these imports substitute for a package reference to Internal.AspNetCore.Sdk -->
+    <_AspNetToolsSdkPath>$([MSBuild]::GetDirectoryNameOfFileAbove($(MsBuildThisFileDirectory), NuGet.config))\src\Internal.AspNetCore.Sdk</_AspNetToolsSdkPath>
+    <CustomBeforeMicrosoftCommonProps>$(_AspNetToolsSdkPath)\build\Internal.AspNetCore.Sdk.props</CustomBeforeMicrosoftCommonProps>
+    <CustomAfterMicrosoftCommonTargets>$(_AspNetToolsSdkPath)\build\Internal.AspNetCore.Sdk.targets</CustomAfterMicrosoftCommonTargets>
+    <CustomAfterMicrosoftCommonCrossTargetingTargets>$(_AspNetToolsSdkPath)\buildCrossTargeting\Internal.AspNetCore.Sdk.targets</CustomAfterMicrosoftCommonCrossTargetingTargets>
+  </PropertyGroup>
 
   <PropertyGroup>
     <RepositoryUrl>https://github.com/aspnet/BuildTools</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
-  <Target Name="EnsureInitialized"
-          BeforeTargets="Build"
-          Condition="!Exists('$(MSBuildThisFileDirectory)..\.build\common.props')">
-    <Error File="$(MSBuildProjectFile)"
-           Text="Project has not been initialized. Run 'build initialize' in the solution directory." />
-  </Target>
 </Project>

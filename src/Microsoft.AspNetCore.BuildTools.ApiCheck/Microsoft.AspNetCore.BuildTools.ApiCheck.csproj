@@ -1,5 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+
   <Import Project="..\..\build\common.props" />
+
   <PropertyGroup>
     <VersionPrefix>1.0.1</VersionPrefix>
     <TargetFrameworks>netcoreapp1.0;net451</TargetFrameworks>
@@ -7,17 +9,21 @@
     <Platform>AnyCPU</Platform>
     <OutputType>exe</OutputType>
   </PropertyGroup>
+
   <ItemGroup>
     <Compile Include="**\*.cs" />
     <EmbeddedResource Include="**\*.resx" />
   </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.DotNet.ProjectModel" Version="1.0.0-rc3-003121" />
     <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
   </ItemGroup>
+
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
     <PackageReference Include="Microsoft.NETCore.App" Version="1.0.0" />
     <PackageReference Include="System.Runtime.Loader" Version="4.0.0" />
   </ItemGroup>
+
 </Project>

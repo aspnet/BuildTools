@@ -1,0 +1,31 @@
+<!--
+WARNING: These targets are intended for building Microsoft's ASP.NET Core repos, and is not intended
+for use outside of Microsoft.
+
+Usage: This file needs to be imported into the 'outer build'.
+
+For multi-targeting projects, this will be imported from buildMultiTargeting/Internal.AspNetCore.Sdk.targets.
+For single-tfm projects, this will be imported from build/Internal.AspNetCore.Sdk.targets.
+
+-->
+<Project ToolsVersion="15.0">
+  <!-- version options -->
+  <PropertyGroup>
+    <!--
+      Create second-based build number for local builds.
+      635556672000000000 is Jan 1, 2015.
+    -->
+    <_SecondBasedTimeStamp>$([System.DateTime]::UtcNow.Subtract($([System.DateTime]::FromBinary(635556672000000000))).TotalSeconds.ToString("F0"))</_SecondBasedTimeStamp>
+    <_SecondBasedTimeStamp>t$([System.Int64]::Parse($(_SecondBasedTimeStamp)).ToString("x9"))</_SecondBasedTimeStamp>
+
+    <!-- for aspnet CI -->
+    <!-- TODO can be removed when we retire project.json from all repos -->
+    <BuildNumber Condition="'$(BuildNumber)'==''">$(KOREBUILD_BUILD_NUMBER)</BuildNumber>
+
+    <!-- fallback build number if not set by KoreBuild-->
+    <BuildNumber Condition="'$(BuildNumber)'==''">$(_SecondBasedTimeStamp)</BuildNumber>
+    <VersionSuffix Condition="'$(VersionSuffix)'!='' AND '$(BuildNumber)' != ''">$(VersionSuffix)-$(BuildNumber)</VersionSuffix>
+    <VersionSuffix Condition="'$(VersionSuffix)'==''">$(BuildNumber)</VersionSuffix>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,9 @@
+<!--
+WARNING: These targets are intended for building Microsoft's ASP.NET Core repos, and is not intended
+for use outside of Microsoft.
+-->
+<Project ToolsVersion="15.0">
+
+  <Import Project="$(MSBuildThisFileDirectory)..\targets\Common.props" Condition="'$(TargetFrameworks)'==''" />
+
+</Project>

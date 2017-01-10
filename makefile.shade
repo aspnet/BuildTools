@@ -5,12 +5,22 @@ var AUTHORS='Microsoft Open Technologies, Inc.'
 
 default BASE_DIR='${Directory.GetCurrentDirectory()}'
 default TARGET_DIR='${Path.Combine(BASE_DIR, "artifacts")}'
+default BUILD_DIR='${Path.Combine(TARGET_DIR, "build")}'
 
 use-standard-lifecycle
 k-standard-goals
 
 #xml-docs-test .clean .build-compile description='Check generated XML documentation files for errors' target='test'
   k-xml-docs-test
+
+#pack-sdk target='package'
+    @{
+        var buildNumber = E("BuildNumber") ?? BuildNumber;
+        NugetPack(E("KOREBUILD_NUGET_EXE") ?? ".build/NuGet.exe",
+            "src/Internal.AspNetCore.Sdk/Internal.AspNetCore.Sdk.nuspec",
+            BUILD_DIR,
+            "-Verbosity Detailed -Properties versionsuffix=alpha-" + buildNumber);
+    }
 
 #nuget-pack target='package'
   @{
@@ -24,7 +34,6 @@ k-standard-goals
       { "SplitPackages", new [] { "net451" } },
     };
 
-    var outputDir = Path.Combine(TARGET_DIR, "build");
     var nugetPath = E("KOREBUILD_NUGET_EXE") ?? ".build/NuGet.exe";
     var publishDir = Path.Combine(TARGET_DIR, "publish");
 
@@ -41,19 +50,22 @@ k-standard-goals
         }
 
         var nuspecPath = Path.Combine("src", projectName, projectName + ".nuspec");
-        var existingNupkg = Directory.EnumerateFiles(outputDir)
+        var existingNupkg = Directory.EnumerateFiles(BUILD_DIR)
             .Select(p => Path.GetFileName(p))
             .First(fn => fn.StartsWith(projectName) && fn.EndsWith(".nupkg"));
         var version = Path.GetFileNameWithoutExtension(existingNupkg).Substring(projectName.Length + 1);
 
         NugetPack(nugetPath,
           nuspecPath,
-          outputDir,
+          BUILD_DIR,
           version,
           "-Verbosity Detailed -NoPack -BasePath \"" + basePath + "\""
           + " -Properties configuration=" + configuration);
       }
   }
+
+macro name='NugetPack' nugetPath='string' nuspecFile='string' outputDir='string' extra='string'
+    nuget-pack
 
 macro name='NugetPack' nugetPath='string' nuspecFile='string' outputDir='string' packageVersion='string' extra='string'
     nuget-pack

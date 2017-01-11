@@ -14,7 +14,7 @@ for use outside of Microsoft.
 
     <!-- workaround https://github.com/NuGet/Home/issues/4063 -->
     <!-- workaround https://github.com/NuGet/Home/issues/3953 -->
-    <Target Name="ResolveActualPackageVersions"
+    <Target Name="ResolveActualPackageVersionsInner"
             BeforeTargets="GenerateNuSpec"
             DependsOnTargets="ResolvePackageDependenciesDesignTime">
 

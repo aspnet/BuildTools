@@ -5,6 +5,6 @@ for use outside of Microsoft.
 <Project ToolsVersion="15.0">
 
   <Import Project="$(MSBuildThisFileDirectory)Workarounds.targets" />
-  <Import Project="$(MSBuildThisFileDirectory)..\targets\BuildNumber.targets" Condition="'$(TargetFrameworks)'==''" />
+  <Import Project="$(MSBuildThisFileDirectory)..\targets\BuildNumber.targets" />
 
 </Project>

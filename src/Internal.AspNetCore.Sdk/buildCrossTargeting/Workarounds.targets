@@ -5,7 +5,7 @@ for use outside of Microsoft.
 <Project>
     <!-- workaround https://github.com/NuGet/Home/issues/4063 -->
     <!-- workaround https://github.com/NuGet/Home/issues/3953 -->
-    <Target Name="ResolveActualPackageVersions" BeforeTargets="GenerateNuspec">
+    <Target Name="ResolveActualPackageVersionsOuter" BeforeTargets="GenerateNuspec">
         <ItemGroup>
             <_TargetFramework Include="$(TargetFrameworks)" />
         </ItemGroup>

@@ -28,4 +28,8 @@ For single-tfm projects, this will be imported from build/Internal.AspNetCore.Sd
     <VersionSuffix Condition="'$(VersionSuffix)'==''">$(BuildNumber)</VersionSuffix>
   </PropertyGroup>
 
+  <Target Name="ShowBuildVersion" BeforeTargets="PrepareForBuild">
+    <Message Text="Build version: $(AssemblyName)/$(TargetFramework)/$(Version)" Importance="normal" />
+  </Target>
+
 </Project>

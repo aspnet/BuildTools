@@ -22,7 +22,7 @@ k-standard-goals
             "-Verbosity Detailed -Properties versionsuffix=alpha-" + buildNumber);
     }
 
-#nuget-pack target='package'
+#pack-nuspecs target='package'
   @{
     var configuration = E("Configuration");
     var projects = new Dictionary<string, string[]>

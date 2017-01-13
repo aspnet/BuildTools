@@ -15,12 +15,12 @@ namespace NuGetPackageVerifier.Rules
                 {
                     if (packageDependency.VersionRange.HasUpperBound)
                     {
-                        yield return PackageIssueFactory.DependencyVersionHasUpperBound(context.Metadata.Id, packageDependency.Id);
+                        yield return PackageIssueFactory.DependencyVersionHasUpperBound(context.Metadata.Id, packageDependency.Id, dependencyGroup.TargetFramework);
                     }
 
                     if (!packageDependency.VersionRange.HasLowerBound)
                     {
-                        yield return PackageIssueFactory.DependencyVersionDoesNotHaveLowerBound(context.Metadata.Id, packageDependency.Id);
+                        yield return PackageIssueFactory.DependencyVersionDoesNotHaveLowerBound(context.Metadata.Id, packageDependency.Id, dependencyGroup.TargetFramework);
                     }
                 }
             }

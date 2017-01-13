@@ -21,7 +21,12 @@ namespace NuGetPackageVerifier.Rules
                     var minVersion = packageDependency.VersionRange.MinVersion;
                     if (minVersion != null && minVersion.IsPrerelease)
                     {
-                        yield return PackageIssueFactory.DependencyVersionIsPrereleaseForRTMPackage(context.Metadata.Id, context.Metadata.Version, packageDependency.Id, packageDependency.VersionRange.MinVersion);
+                        yield return PackageIssueFactory.DependencyVersionIsPrereleaseForRTMPackage(
+                            context.Metadata.Id,
+                            context.Metadata.Version,
+                            packageDependency.Id,
+                            packageDependency.VersionRange.MinVersion,
+                            dependencyGroup.TargetFramework);
                     }
                 }
             }

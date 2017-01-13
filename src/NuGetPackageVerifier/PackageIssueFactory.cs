@@ -3,6 +3,7 @@
 
 using System.Reflection;
 using NuGet.Versioning;
+using NuGet.Frameworks;
 
 namespace NuGetPackageVerifier
 {
@@ -270,9 +271,9 @@ namespace NuGetPackageVerifier
             return new PackageVerifierIssue("PACKAGE_DEPENDENCY_VERSION_LOWER_BOUND", id, $"The version range of package dependency '{dependencyId}' for package '{id}' does not have a lower bound.", PackageIssueLevel.Warning);
         }
 
-        public static PackageVerifierIssue DependencyVersionIsPrereleaseForRTMPackage(string id, NuGetVersion version, string dependencyId, NuGetVersion dependencyVersion)
+        public static PackageVerifierIssue DependencyVersionIsPrereleaseForRTMPackage(string id, NuGetVersion version, string dependencyId, NuGetVersion dependencyVersion, NuGetFramework TFM)
         {
-            return new PackageVerifierIssue("PACKAGE_DEPENDENCY_PRERELEASE", id, $"The RTM package '{id}' {version} cannot depend on a pre-release package '{dependencyId}' {dependencyVersion}.", PackageIssueLevel.Error);
+            return new PackageVerifierIssue("PACKAGE_DEPENDENCY_PRERELEASE", id, $"The RTM package '{id}' {version} cannot depend on a pre-release package '{dependencyId}' {dependencyVersion}. Target Framework: '{TFM}'", PackageIssueLevel.Error);
         }
     }
 }

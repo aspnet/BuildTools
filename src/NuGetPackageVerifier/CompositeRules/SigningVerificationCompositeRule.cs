@@ -16,7 +16,7 @@ namespace NuGetPackageVerifier.Rules
             new RequiredNuSpecInfoRule(),
             new PackageOwnershipRule(),
             new DefaultCompositeRule(),
-            new PrereleaseDependenciesVersionRule()
+            new PrereleaseDependenciesVersionRule(),
         };
 
         public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)

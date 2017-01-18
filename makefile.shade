@@ -13,15 +13,6 @@ k-standard-goals
 #xml-docs-test .clean .build-compile description='Check generated XML documentation files for errors' target='test'
   k-xml-docs-test
 
-#pack-sdk target='package'
-    @{
-        var buildNumber = E("BuildNumber") ?? BuildNumber;
-        NugetPack(E("KOREBUILD_NUGET_EXE") ?? ".build/NuGet.exe",
-            "src/Internal.AspNetCore.Sdk/Internal.AspNetCore.Sdk.nuspec",
-            BUILD_DIR,
-            "-Verbosity Detailed -Properties versionsuffix=alpha-" + buildNumber);
-    }
-
 #pack-nuspecs target='package'
   @{
     var configuration = E("Configuration");

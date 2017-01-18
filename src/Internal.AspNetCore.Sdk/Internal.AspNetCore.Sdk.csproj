@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+
+  <Import Project="..\..\build\common.props" />
+
+  <PropertyGroup>
+    <VersionPrefix>1.0.1</VersionPrefix>
+    <TargetFramework>netstandard1.0</TargetFramework>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <Serviceable>false</Serviceable>
+    <Description>Build targets and extensions to Microsoft.NET.Sdk. This package is intended for Microsoft use only.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="**\*.targets;**\*.props" Exclude="$(DefaultItemExcludes)" PackagePath="%(Identity)" />
+    <PackageReference Include="NETStandard.Library" Version="1.6.1" PrivateAssets="All" />
+  </ItemGroup>
+
+</Project>

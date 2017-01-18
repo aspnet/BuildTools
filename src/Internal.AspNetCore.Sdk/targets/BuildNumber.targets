@@ -18,10 +18,6 @@ For single-tfm projects, this will be imported from build/Internal.AspNetCore.Sd
     <_SecondBasedTimeStamp>$([System.DateTime]::UtcNow.Subtract($([System.DateTime]::FromBinary(635556672000000000))).TotalSeconds.ToString("F0"))</_SecondBasedTimeStamp>
     <_SecondBasedTimeStamp>t$([System.Int64]::Parse($(_SecondBasedTimeStamp)).ToString("x9"))</_SecondBasedTimeStamp>
 
-    <!-- for aspnet CI -->
-    <!-- TODO can be removed when we retire project.json from all repos -->
-    <BuildNumber Condition="'$(BuildNumber)'==''">$(KOREBUILD_BUILD_NUMBER)</BuildNumber>
-
     <!-- fallback build number if not set by KoreBuild-->
     <BuildNumber Condition="'$(BuildNumber)'==''">$(_SecondBasedTimeStamp)</BuildNumber>
     <VersionSuffix Condition="'$(VersionSuffix)'!='' AND '$(BuildNumber)' != ''">$(VersionSuffix)-$(BuildNumber)</VersionSuffix>

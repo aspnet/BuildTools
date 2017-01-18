@@ -4,5 +4,4 @@ for use outside of Microsoft.
 -->
 <Project ToolsVersion="15.0">
   <Import Project="$(MSBuildThisFileDirectory)..\targets\BuildNumber.targets" />
-  <Import Project="$(MSBuildThisFileDirectory)GenerateAssemblyInfo.targets" />
 </Project>

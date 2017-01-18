@@ -16,9 +16,14 @@ for use outside of Microsoft.
             <Output TaskParameter="TargetOutputs" ItemName="_DependenciesDesignTime" />
         </MSBuild>
 
+        <PropertyGroup>
+          <_P2PVersion>$(Version)</_P2PVersion>
+          <_P2PVersion Condition="'$(PackageVersion)'!=''">$(PackageVersion)</_P2PVersion>
+        </PropertyGroup>
+
         <ItemGroup>
             <_ProjectReferences Update="@(_ProjectReferences)" Condition="'%(PackageVersion)'==''">
-                <PackageVersion>$(Version)</PackageVersion>
+                <PackageVersion>$(_P2PVersion)</PackageVersion>
             </_ProjectReferences>
 
             <_FloatingVersions Include="@(_PackageReferences)" Condition="$([System.String]::new('%(Version)').EndsWith('*'))" />

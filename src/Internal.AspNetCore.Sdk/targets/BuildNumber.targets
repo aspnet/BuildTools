@@ -25,7 +25,7 @@ For single-tfm projects, this will be imported from build/Internal.AspNetCore.Sd
     <!-- fallback build number if not set by KoreBuild-->
     <BuildNumber Condition="'$(BuildNumber)'==''">$(_SecondBasedTimeStamp)</BuildNumber>
     <VersionSuffix Condition="'$(VersionSuffix)'!='' AND '$(BuildNumber)' != ''">$(VersionSuffix)-$(BuildNumber)</VersionSuffix>
-    <VersionSuffix Condition="'$(VersionSuffix)'==''">$(BuildNumber)</VersionSuffix>
+    <VersionSuffix Condition="'$(VersionSuffix)'=='' AND '$(PackageVersion)'==''">$(BuildNumber)</VersionSuffix>
   </PropertyGroup>
 
   <Target Name="ShowBuildVersion" BeforeTargets="PrepareForBuild">

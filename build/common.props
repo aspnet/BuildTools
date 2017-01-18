@@ -15,4 +15,21 @@
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
   </PropertyGroup>
 
+  <!-- workaround https://github.com/NuGet/Home/issues/3953 -->
+  <!-- version options -->
+  <PropertyGroup>
+    <!--
+      Create second-based build number for local builds.
+      635556672000000000 is Jan 1, 2015.
+    -->
+    <_SecondBasedTimeStamp>$([System.DateTime]::UtcNow.Subtract($([System.DateTime]::FromBinary(635556672000000000))).TotalSeconds.ToString("F0"))</_SecondBasedTimeStamp>
+    <_SecondBasedTimeStamp>t$([System.Int64]::Parse($(_SecondBasedTimeStamp)).ToString("x9"))</_SecondBasedTimeStamp>
+
+    <!-- fallback build number if not set by KoreBuild-->
+    <BuildNumber Condition="'$(BuildNumber)'==''">$(_SecondBasedTimeStamp)</BuildNumber>
+    <VersionSuffix Condition="'$(VersionSuffix)'!='' AND '$(BuildNumber)' != ''">$(VersionSuffix)-$(BuildNumber)</VersionSuffix>
+    <VersionSuffix Condition="'$(VersionSuffix)'=='' AND '$(PackageVersion)'==''">$(BuildNumber)</VersionSuffix>
+  </PropertyGroup>
+  <!-- end workaround -->
+
 </Project>

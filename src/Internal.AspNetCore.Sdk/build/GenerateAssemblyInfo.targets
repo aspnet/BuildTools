@@ -26,7 +26,7 @@ Generates assembly attributes for ASP.NET Core binaries
       <_InternalAspNetCoreAttributes Remove="@(_InternalAspNetCoreAttributes)" />
       <_InternalAspNetCoreAttributes Include="System.Reflection.AssemblyMetadata" Condition="'$(Serviceable)'!='false'">
         <_Parameter1>Serviceable</_Parameter1>
-        <_Parameter2>true</_Parameter2>
+        <_Parameter2>True</_Parameter2>
       </_InternalAspNetCoreAttributes>
       <!-- TODO embed commit hash -->
     </ItemGroup>

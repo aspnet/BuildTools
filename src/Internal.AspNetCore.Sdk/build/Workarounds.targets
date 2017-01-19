@@ -1,0 +1,35 @@
+<!--
+WARNING: These targets are intended for building Microsoft's ASP.NET Core repos, and is not intended
+for use outside of Microsoft.
+
+This file is dedicated to working around issues in Microsoft.NET.Sdk
+-->
+<Project ToolsVersion="15.0">
+  <!-- workaround https://github.com/dotnet/sdk/issues/686 -->
+  <Target Name="SetRuntimeFrameworkVersionToPackageVersion"
+          Condition="'$(OutputType)'=='Exe' AND '$(TargetFrameworkIdentifier)'=='.NETCoreApp'"
+          DependsOnTargets="_DefaultMicrosoftNETPlatformLibrary"
+          BeforeTargets="GenerateBuildRuntimeConfigurationFiles">
+
+      <ResolvePackageDependencies
+        ProjectPath="$(MSBuildProjectFullPath)"
+        ProjectAssetsFile="$(ProjectAssetsFile)"
+        ProjectLanguage="$(Language)">
+
+        <Output TaskParameter="PackageDefinitions" ItemName="_PackageDefinitions" />
+      </ResolvePackageDependencies>
+
+      <ItemGroup>
+        <_FilteredDefinitions Remove="@(_FilteredDefinitions)" />
+        <_FilteredDefinitions Include="@(_PackageDefinitions)" Condition="'%(_PackageDefinitions.Name)'=='$(MicrosoftNETPlatformLibrary)'" />
+      </ItemGroup>
+
+      <PropertyGroup Condition="'@(_FilteredDefinitions->Count())' == 1">
+        <_ResolvedNetCoreAppVersion>@(_FilteredDefinitions -> '%(Version)')</_ResolvedNetCoreAppVersion>
+        <RuntimeFrameworkVersion Condition="'$(_ResolvedNetCoreAppVersion)'!=''">$(_ResolvedNetCoreAppVersion)</RuntimeFrameworkVersion>
+      </PropertyGroup>
+
+      <Message Importance="normal" Text="[$(TargetFramework)] resolved RuntimeFrameworkVersion to '$(RuntimeFrameworkVersion)'" />
+  </Target>
+  <!-- end workaround -->
+</Project>

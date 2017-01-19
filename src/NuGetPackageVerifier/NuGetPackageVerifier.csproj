@@ -12,8 +12,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="**\*.cs" />
-    <EmbeddedResource Include="**\*.resx" />
     <EmbeddedResource Include="already-owned-packages.txt" />
     <Content Include="build\*.targets">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

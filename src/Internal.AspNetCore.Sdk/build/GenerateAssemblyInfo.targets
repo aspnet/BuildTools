@@ -10,7 +10,7 @@
 ********************************************************************************************
 Target: GenerateInternalAspNetCoreAttributes
 
-Generates an assembly attributes for ASP.NET Core binaries
+Generates assembly attributes for ASP.NET Core binaries
 ********************************************************************************************
 -->
   <Target Name="GenerateInternalAspNetCoreAttributes"

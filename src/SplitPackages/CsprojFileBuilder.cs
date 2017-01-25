@@ -114,11 +114,10 @@ namespace SplitPackages
         public void Execute()
         {
             var document = new XDocument();
-            var dependenciesDictionary = CreateDependenciesDictionary(_dependencies);
-            var packageDependencies = CreatePackageReferenceList(dependenciesDictionary);
             var root = new XElement("Project", new XAttribute("Sdk", "Microsoft.NET.Sdk"), new XAttribute("ToolsVersion", "15.0"));
-            var propertyGroup = new XElement("PropertyGroup");
-            propertyGroup.Add(new XElement("TargetFrameworks", string.Join(";", _frameworks.Select(i => Frameworks.GetMoniker(i.Name)))));
+            var projectDefinitionPropertyGroup = new XElement("PropertyGroup");
+            var frameworksNames = string.Join(";", _frameworks.Select(i => Frameworks.GetMoniker(i.Name)));
+            projectDefinitionPropertyGroup.Add(new XElement("TargetFrameworks", frameworksNames));
 
             foreach (var framework in _frameworks)
             {
@@ -126,34 +125,42 @@ namespace SplitPackages
                 if (!monikerName.StartsWith("netcoreapp"))
                 {
                     var runtimes = Runtime.AllRuntimes.ToList();
-                    if (runtimes != null && runtimes.Count != 0)
+                    if (runtimes?.Count != 0)
                     {
-                        propertyGroup.Add(new XElement("RuntimeIdentifiers", new XAttribute("Condition", $" '$(TargetFramework)' == '{monikerName}'"), string.Join(";", runtimes.Select(i => i.Name))));
+                        var runtimesNames = string.Join(";", runtimes.Select(i => i.Name));
+                        projectDefinitionPropertyGroup.Add(
+                            new XElement("RuntimeIdentifiers",
+                            new XAttribute("Condition", $" '$(TargetFramework)' == '{monikerName}'"),
+                            runtimesNames));
                     }
                 }
 
-                var frameworkDependencies = CreateFrameworksDictionary(framework.Dependencies);
                 var imports = framework.Imports;
-
-                if (imports != null && imports.Count != 0)
+                if (imports?.Count != 0)
                 {
-                    propertyGroup.Add(new XElement("PackageTargetFallback", new XAttribute("Condition", $" '$(TargetFramework)' == '{monikerName}'"), $"$(PackageTargetFallback);{string.Join(";", imports.Select(i => Frameworks.GetMoniker(i)))}"));
+                    var importNames = string.Join(";", imports.Select(i => Frameworks.GetMoniker(i)));
+                    projectDefinitionPropertyGroup.Add(
+                        new XElement("PackageTargetFallback",
+                        new XAttribute("Condition", $" '$(TargetFramework)' == '{monikerName}'"),
+                        $"$(PackageTargetFallback);{importNames}"));
                 }
-
             }
 
-            root.Add(propertyGroup);
+            root.Add(projectDefinitionPropertyGroup);
+            var dependenciesDictionary = CreateDependenciesDictionary(_dependencies);
+            var packageDependencies = CreatePackageReferenceList(dependenciesDictionary);
             root.Add(new XElement("ItemGroup", packageDependencies));
+
             foreach (var framework in _frameworks)
             {
-                var itemGroup = new XElement("ItemGroup");
                 var frameworkDependencies = CreateFrameworksDictionary(framework.Dependencies);
-                var monikerName = Frameworks.GetMoniker(framework.Name);
-                if (frameworkDependencies != null && frameworkDependencies.Count != 0)
+                if (frameworkDependencies?.Count != 0)
                 {
+                    var itemGroup = new XElement("ItemGroup");
+                    var monikerName = Frameworks.GetMoniker(framework.Name);
                     itemGroup.Add(new XAttribute("Condition", $" '$(TargetFramework)' == '{monikerName}'"), frameworkDependencies);
+                    root.Add(itemGroup);
                 }
-                root.Add(itemGroup);
             }
 
             document.Add(root);

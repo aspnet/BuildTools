@@ -55,6 +55,7 @@ Microsoft.AspNetCore.Mvc.Formatters.Xml
 Microsoft.AspNetCore.Mvc.Localization
 Microsoft.AspNetCore.Mvc.Razor
 Microsoft.AspNetCore.Mvc.Razor.Host
+Microsoft.AspNetCore.Mvc.Razor.ViewCompilation
 Microsoft.AspNetCore.Mvc.Razor.ViewCompilation.Design
 Microsoft.AspNetCore.Mvc.Razor.ViewCompilation.Tools
 Microsoft.AspNetCore.Mvc.RazorPages
@@ -93,6 +94,9 @@ Microsoft.AspNetCore.WebSockets
 Microsoft.AspNetCore.WebSockets.Protocol
 Microsoft.AspNetCore.WebSockets.Server
 Microsoft.AspNetCore.WebUtilities
+Microsoft.CodeAnalysis.Razor
+Microsoft.CodeAnalysis.Razor.Workspaces
+Microsoft.CodeAnalysis.Remote.Razor
 Microsoft.Data.Sqlite
 Microsoft.DotNet.Watcher.Core
 Microsoft.DotNet.Watcher.Tools
@@ -166,7 +170,9 @@ Microsoft.VisualStudio.Web.BrowserLink
 Microsoft.VisualStudio.Web.BrowserLink.Loader
 Microsoft.VisualStudio.Web.CodeGeneration
 Microsoft.VisualStudio.Web.CodeGeneration.Core
+Microsoft.VisualStudio.Web.CodeGeneration.Design
 Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore
+Microsoft.VisualStudio.Web.CodeGeneration.Msbuild
 Microsoft.VisualStudio.Web.CodeGeneration.Templating
 Microsoft.VisualStudio.Web.CodeGeneration.Tools
 Microsoft.VisualStudio.Web.CodeGeneration.Utils

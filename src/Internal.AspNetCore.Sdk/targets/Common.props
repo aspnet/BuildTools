@@ -21,7 +21,7 @@ Usage: this should be imported once via NuGet at the top of the file.
   <!-- common build options -->
   <PropertyGroup>
     <!-- make disabling warnings opt-out -->
-    <WarningsAsErrors Condition="'$(WarningsAsErrors)'==''">true</WarningsAsErrors>
+    <TreatWarningsAsErrors Condition="'$(TreatWarningsAsErrors)'==''">true</TreatWarningsAsErrors>
   </PropertyGroup>
 
 </Project>

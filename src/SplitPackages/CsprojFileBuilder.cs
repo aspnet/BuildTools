@@ -146,6 +146,7 @@ namespace SplitPackages
                 }
             }
 
+            projectDefinitionPropertyGroup.Add(new XElement("DisableImplicitFrameworkReferences", true));
             root.Add(projectDefinitionPropertyGroup);
             var dependenciesDictionary = CreateDependenciesDictionary(_dependencies);
             var packageDependencies = CreatePackageReferenceList(dependenciesDictionary);

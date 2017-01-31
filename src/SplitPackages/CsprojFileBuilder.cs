@@ -114,7 +114,7 @@ namespace SplitPackages
         public void Execute()
         {
             var document = new XDocument();
-            var root = new XElement("Project", new XAttribute("Sdk", "Microsoft.NET.Sdk"), new XAttribute("ToolsVersion", "15.0"));
+            var root = new XElement("Project", new XAttribute("Sdk", "Microsoft.NET.Sdk"));
             var projectDefinitionPropertyGroup = new XElement("PropertyGroup");
             var frameworksNames = string.Join(";", _frameworks.Select(i => Frameworks.GetMoniker(i.Name)));
             projectDefinitionPropertyGroup.Add(new XElement("TargetFrameworks", frameworksNames));

@@ -1,0 +1,19 @@
+<!--
+WARNING: These targets are intended for building Microsoft's ASP.NET Core repos, and is not intended
+for use outside of Microsoft.
+
+Usage: This file needs to be imported into the 'outer build'.
+
+For multi-targeting projects, this will be imported from buildMultiTargeting/Internal.AspNetCore.Sdk.targets.
+For single-tfm projects, this will be imported from build/Internal.AspNetCore.Sdk.targets.
+
+-->
+<Project ToolsVersion="15.0">
+  <!-- version options -->
+  <!-- TODO determine build number here instead of inside individual repos when https://github.com/NuGet/Home/issues/3953 is resolved-->
+
+  <Target Name="ShowBuildVersion" BeforeTargets="PrepareForBuild">
+    <Message Text="Build version: $(AssemblyName)/$(TargetFramework)/$(Version)" Importance="normal" />
+  </Target>
+
+</Project>

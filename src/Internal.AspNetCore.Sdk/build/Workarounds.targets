@@ -4,7 +4,7 @@ for use outside of Microsoft.
 
 This file is dedicated to working around issues in Microsoft.NET.Sdk
 -->
-<Project ToolsVersion="15.0">
+<Project>
   <!-- workaround https://github.com/dotnet/sdk/issues/686 -->
   <Target Name="SetRuntimeFrameworkVersionToPackageVersion"
           Condition="'$(OutputType)'=='Exe' AND '$(TargetFrameworkIdentifier)'=='.NETCoreApp'"

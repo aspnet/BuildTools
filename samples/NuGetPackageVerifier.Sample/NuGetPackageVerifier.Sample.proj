@@ -1,4 +1,4 @@
-﻿<Project ToolsVersion="15.0">
+﻿<Project>
   <PropertyGroup>
     <RestoreSources>$(MSBuildThisFileDirectory)..\..\artifacts\build\</RestoreSources>
     <TargetFramework>netcoreapp1.0</TargetFramework>

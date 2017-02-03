@@ -275,5 +275,17 @@ namespace NuGetPackageVerifier
         {
             return new PackageVerifierIssue("PACKAGE_DEPENDENCY_PRERELEASE", id, $"The RTM package '{id}' {version} cannot depend on a pre-release package '{dependencyId}' {dependencyVersion}. Target Framework: '{TFM}'.", PackageIssueLevel.Error);
         }
+
+        public static PackageVerifierIssue DotNetCliToolMissingPrefercliRuntime()
+            => new PackageVerifierIssue("DOTNETCLITOOL_PREFERCLIRUNTIME", "DotnetCliTool package should contain a 'prefercliruntime' file", PackageIssueLevel.Warning);
+
+        public static PackageVerifierIssue DotNetCliToolMissingRuntimeConfig()
+            => new PackageVerifierIssue("DOTNETCLITOOL_MISSING_RUNTIMECONFIG", "DotnetCliTool package must contain runtimeconfig.json file.", PackageIssueLevel.Error);
+
+        public static PackageVerifierIssue DotNetCliToolMissingDotnetAssembly()
+            => new PackageVerifierIssue("DOTNETCLITOOL_MISSING_EXECUTABLE", "DotnetCliTool package must contain assembly that starts with 'dotnet-'", PackageIssueLevel.Error);
+
+        public static PackageVerifierIssue DotNetCliToolMustTargetFramework(NuGetFramework framework)
+            => new PackageVerifierIssue("DOTNETCLITOOL_FRAMEWORK", $"DotnetCliTool package must target {framework}", PackageIssueLevel.Error);
     }
 }

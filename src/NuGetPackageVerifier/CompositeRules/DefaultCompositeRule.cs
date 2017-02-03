@@ -23,6 +23,7 @@ namespace NuGetPackageVerifier.Rules
             new SatellitePackageRule(),
             new StrictSemanticVersionValidationRule(),
             new DependenciesVersionRangeBoundsRule(),
+            new DotNetCliToolPackageRule(),
         };
 
         public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)

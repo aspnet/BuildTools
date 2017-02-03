@@ -14,6 +14,11 @@ namespace NuGetPackageVerifier.Rules
     {
         public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
+            if (context.Metadata.PackageTypes.Any(p => p == PackageType.DotnetCliTool))
+            {
+                yield break;
+            }
+
             using (var reader = new PackageArchiveReader(context.PackageFileInfo.FullName))
             {
                 PackageIdentity identity;

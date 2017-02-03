@@ -34,10 +34,9 @@ namespace NuGetPackageVerifier
                 args = args.Skip(1).ToArray();
             }
 
-            if (args.Length < 1 || args.Length > 2)
+            if (args.Length < 1 || args.Length > 2 || args.Any(a => a == "--help"))
             {
                 Console.WriteLine(@"USAGE: nugetverify c:\path\to\packages [c:\path\to\packages-to-scan.json]");
-                Console.ReadLine();
 
                 return ReturnBadArgs;
             }
@@ -74,6 +73,10 @@ namespace NuGetPackageVerifier
                     });
 
                 logger.LogNormal("Read {0} package set(s) from {1}", packageSets.Count, packagesToScanJsonFilePath);
+            }
+            else
+            {
+                packageSets = new Dictionary<string, PackageSet>();
             }
 
             var totalTimeStopWatch = Stopwatch.StartNew();

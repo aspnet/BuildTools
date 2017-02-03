@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Newtonsoft.Json;
 using NuGet.Packaging;
 using NuGetPackageVerifier.Logging;
-using NuGetPackageVerifier.Rules;
 
 namespace NuGetPackageVerifier
 {
@@ -81,30 +81,16 @@ namespace NuGetPackageVerifier
 
             var totalTimeStopWatch = Stopwatch.StartNew();
 
-            // TODO: Look this up using reflection or something
-            var allRules = new IPackageVerifierRule[] {
-                new AssemblyHasCommitHashAttributeRule(),
-                new AssemblyHasCompanyAttributeRule(),
-                new AssemblyHasCopyrightAttributeRule(),
-                new AssemblyHasCorrectJsonNetVersionRule(),
-                new AssemblyHasDescriptionAttributeRule(),
-                new AssemblyHasDocumentFileRule(),
-                new AssemblyHasNeutralResourcesLanguageAttributeRule(),
-                new AssemblyHasProductAttributeRule(),
-                new AssemblyHasServicingAttributeRule(),
-                new AssemblyHasVersionAttributesRule(),
-                new AssemblyStrongNameRule(),
-                new AuthenticodeSigningRule(),
-                new PowerShellScriptIsSignedRule(),
-                new RequiredPackageMetadataRule(),
-                new SatellitePackageRule(),
-                new StrictSemanticVersionValidationRule(),
-                //Composite rules
-                new AdxVerificationCompositeRule(),
-                new DefaultCompositeRule(),
-                new NonAdxVerificationCompositeRule(),
-                new SigningVerificationCompositeRule(),
-            }.ToDictionary(t => t.GetType().Name, t => t);
+            var allRules = typeof(Program)
+                    .GetTypeInfo()
+                    .Assembly
+                    .GetTypes()
+                    .Where(t =>
+                        typeof(IPackageVerifierRule).IsAssignableFrom(t)
+                        && !t.GetTypeInfo().IsAbstract)
+                    .ToDictionary(
+                        t => t.Name,
+                        t => (IPackageVerifierRule)Activator.CreateInstance(t));
 
             var nupkgsPath = args[0];
             var dirInfo = new DirectoryInfo(nupkgsPath);

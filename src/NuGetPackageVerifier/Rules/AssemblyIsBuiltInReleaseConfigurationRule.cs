@@ -6,11 +6,20 @@ using System.Diagnostics;
 using System.Linq;
 using Mono.Cecil;
 using Mono.Collections.Generic;
+using NuGetPackageVerifier.Logging;
 
 namespace NuGetPackageVerifier.Rules
 {
     public class AssemblyIsBuiltInReleaseConfigurationRule : AssemblyHasAttributeRuleBase
     {
+        // TODO remove
+        public override IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
+        {
+            // todo remove "Cecil throws ArgumentException when evaluating constructor arguments"
+            context.Logger.Log(LogLevel.Info, $"{nameof(AssemblyIsBuiltInReleaseConfigurationRule)} skipped");
+            return Enumerable.Empty<PackageVerifierIssue>();
+        }
+
         public override IEnumerable<PackageVerifierIssue> ValidateAttribute(string currentFilePath, Collection<CustomAttribute> assemblyAttributes)
         {
             if (!HasReleaseConfiguration(assemblyAttributes))

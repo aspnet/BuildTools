@@ -12,7 +12,7 @@ namespace NuGetPackageVerifier.Rules
 {
     public abstract class AssemblyHasAttributeRuleBase : IPackageVerifierRule
     {
-        public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
+        public virtual IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
             using (var reader = new PackageArchiveReader(context.PackageFileInfo.FullName))
             {

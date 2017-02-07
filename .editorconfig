@@ -9,12 +9,12 @@ root = true
 indent_style = space
 charset = utf-8
 trim_trailing_whitespace = true
+insert_final_newline = true
 
 [*.{cs}]
 indent_size = 4
 
-; All XML-based file formats
-[*.{config,csproj,nuspec,props,resx,targets,xml}]
+[*.{xml,config,*proj,nuspec,props,resx,targets}]
 indent_size = 2
 
 [*.{json}]

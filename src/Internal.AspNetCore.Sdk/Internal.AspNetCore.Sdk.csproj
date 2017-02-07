@@ -12,6 +12,16 @@
 
   <ItemGroup>
     <Content Include="**\*.targets;**\*.props" Exclude="$(DefaultItemExcludes)" PackagePath="%(Identity)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Internal.AspNetCore.BuildTools.Tasks\Internal.AspNetCore.BuildTools.Tasks.csproj">
+      <!-- Setting to 'None' ensures the generated nuspec will include the build targets from this project -->
+      <PrivateAssets>None</PrivateAssets>
+    </ProjectReference>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="NETStandard.Library" Version="1.6.1" PrivateAssets="All" />
   </ItemGroup>
 

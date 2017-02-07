@@ -35,6 +35,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageCacheUploader", "src
 EndProject
 Project("{13B669BE-BB05-4DDF-9536-439F39A36129}") = "Internal.AspNetCore.Sdk", "src\Internal.AspNetCore.Sdk\Internal.AspNetCore.Sdk.csproj", "{F0E4CF2B-29B9-432B-BF27-195996CA24FD}"
 EndProject
+Project("{13B669BE-BB05-4DDF-9536-439F39A36129}") = "Internal.AspNetCore.BuildTools.Tasks", "src\Internal.AspNetCore.BuildTools.Tasks\Internal.AspNetCore.BuildTools.Tasks.csproj", "{6A631446-BBDD-4743-B576-7F9793B6BE45}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -189,6 +191,18 @@ Global
 		{F0E4CF2B-29B9-432B-BF27-195996CA24FD}.Release|x64.Build.0 = Release|x64
 		{F0E4CF2B-29B9-432B-BF27-195996CA24FD}.Release|x86.ActiveCfg = Release|x86
 		{F0E4CF2B-29B9-432B-BF27-195996CA24FD}.Release|x86.Build.0 = Release|x86
+		{6A631446-BBDD-4743-B576-7F9793B6BE45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A631446-BBDD-4743-B576-7F9793B6BE45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A631446-BBDD-4743-B576-7F9793B6BE45}.Debug|x64.ActiveCfg = Debug|x64
+		{6A631446-BBDD-4743-B576-7F9793B6BE45}.Debug|x64.Build.0 = Debug|x64
+		{6A631446-BBDD-4743-B576-7F9793B6BE45}.Debug|x86.ActiveCfg = Debug|x86
+		{6A631446-BBDD-4743-B576-7F9793B6BE45}.Debug|x86.Build.0 = Debug|x86
+		{6A631446-BBDD-4743-B576-7F9793B6BE45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A631446-BBDD-4743-B576-7F9793B6BE45}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A631446-BBDD-4743-B576-7F9793B6BE45}.Release|x64.ActiveCfg = Release|x64
+		{6A631446-BBDD-4743-B576-7F9793B6BE45}.Release|x64.Build.0 = Release|x64
+		{6A631446-BBDD-4743-B576-7F9793B6BE45}.Release|x86.ActiveCfg = Release|x86
+		{6A631446-BBDD-4743-B576-7F9793B6BE45}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -206,5 +220,6 @@ Global
 		{EF38C1CA-8A2E-4C8E-B478-7072C0140514} = {A4F4353B-C3D2-40B0-909A-5B48A748EA76}
 		{EBC0BF3F-14B4-4595-980D-D4D738043D59} = {A4F4353B-C3D2-40B0-909A-5B48A748EA76}
 		{F0E4CF2B-29B9-432B-BF27-195996CA24FD} = {A4F4353B-C3D2-40B0-909A-5B48A748EA76}
+		{6A631446-BBDD-4743-B576-7F9793B6BE45} = {A4F4353B-C3D2-40B0-909A-5B48A748EA76}
 	EndGlobalSection
 EndGlobal

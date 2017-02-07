@@ -1,0 +1,8 @@
+﻿<Project>
+  <PropertyGroup>
+    <_BuildToolsAssemblyTfm Condition="'$(MSBuildRuntimeType)' == 'Core'">netstandard1.3</_BuildToolsAssemblyTfm>
+    <_BuildToolsAssemblyTfm Condition="'$(MSBuildRuntimeType)' != 'Core'">net46</_BuildToolsAssemblyTfm>
+  </PropertyGroup>
+  <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)..\tools\$(_BuildToolsAssemblyTfm)\Internal.AspNetCore.BuildTools.Tasks.dll"
+             TaskName="Microsoft.AspNetCore.BuildTools.GetGitCommitInfo" />
+</Project>

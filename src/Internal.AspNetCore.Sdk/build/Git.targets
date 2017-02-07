@@ -1,0 +1,63 @@
+﻿<Project>
+
+  <PropertyGroup>
+    <GenerateCommitHashAttribute Condition="'$(GenerateCommitHashAttribute)'==''">true</GenerateCommitHashAttribute>
+    <GeneratedCommitHashAttributeFile Condition="'$(GeneratedCommitHashAttributeFile)'==''">$(IntermediateOutputPath)$(AssemblyName).CommitHash$(DefaultLanguageSourceExtension)</GeneratedCommitHashAttributeFile>
+  </PropertyGroup>
+
+  <Target Name="ResolveCommitHash" Condition="'$(CommitHash)'==''">
+    <GetGitCommitInfo WorkingDirectory="$(MSBuildProjectDirectory)" ContinueOnError="WarnAndContinue">
+      <Output TaskParameter="CommitHash" PropertyName="CommitHash" />
+    </GetGitCommitInfo>
+  </Target>
+
+<!--
+********************************************************************************************
+Target: GenerateCommitHashAttribute
+Generates an assembly attribute with commit hash
+********************************************************************************************
+-->
+  <Target Name="GenerateCommitHashAttribute"
+          BeforeTargets="CoreCompile"
+          DependsOnTargets="ResolveCommitHash;PrepareForBuild;GenerateIntermediateCommitHash;CoreGenerateCommitHashAttribute"
+          Condition="'$(GenerateCommitHashAttribute)'=='true' and '$(DesignTimeBuild)'!='true'" >
+    <Warning Text="Property 'CommitHash' was not set"
+             Condition="'$(CommitHash)'==''" />
+  </Target>
+
+  <Target Name="GenerateIntermediateCommitHash" Condition="'$(CommitHash)' != ''">
+    <PropertyGroup>
+      <!-- shorten to help avoid max path length issues -->
+      <IntermediateCommitHash>$(IntermediateOutputPath)$(CommitHash.Substring(0, 10)).commit</IntermediateCommitHash>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_OldCommitFiles Include="$(IntermediateOutputPath)*.commit" Exclude="$(IntermediateCommitHash)" />
+    </ItemGroup>
+
+    <Delete Files="@(_OldCommitFiles)" />
+    <Touch Files="$(IntermediateCommitHash)" AlwaysCreate="true" Condition="!Exists('$(IntermediateCommitHash)')" />
+  </Target>
+
+  <Target Name="CoreGenerateCommitHashAttribute"
+          Condition="'$(CommitHash)'!='' and '$(GenerateCommitHashAttribute)'=='true'"
+          Inputs="$(IntermediateCommitHash)"
+          Outputs="$(GeneratedCommitHashAttributeFile)">
+
+    <ItemGroup>
+      <_CustomAttributes Remove="@(_CustomAttributes)" />
+      <_CustomAttributes Include="System.Reflection.AssemblyMetadataAttribute">
+        <_Parameter1>CommitHash</_Parameter1>
+        <_Parameter2>$(CommitHash)</_Parameter2>
+      </_CustomAttributes>
+    </ItemGroup>
+
+    <WriteCodeFragment AssemblyAttributes="@(_CustomAttributes)" Language="$(Language)" OutputFile="$(GeneratedCommitHashAttributeFile)">
+      <Output TaskParameter="OutputFile" ItemName="Compile" />
+      <Output TaskParameter="OutputFile" ItemName="FileWrites" />
+    </WriteCodeFragment>
+
+    <Message Importance="normal" Text="Generated commit hash attribute file $(GeneratedCommitHashAttributeFile)" />
+  </Target>
+
+</Project>

@@ -4,18 +4,16 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.6</TargetFramework>
-    <WarningsAsErrors>true</WarningsAsErrors>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <AssemblyName>NuGetPackageVerifier.Task</AssemblyName>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="build\**\*.targets">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Content Include="build\**\*.targets" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NETStandard.Library" Version="1.6.0" />
     <PackageReference Include="Microsoft.Build.Framework" Version="15.1.0-*" />
     <PackageReference Include="Microsoft.Build.Tasks.Core" Version="15.1.0-*" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.1.0-*" />

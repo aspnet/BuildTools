@@ -39,12 +39,12 @@ namespace NuGetPackageVerifier
                 PackageIssueLevel.Error);
         }
 
-        public static PackageVerifierIssue AssemblyVersionDoesNotMatchPackageVersion(Version assemblyVersion, Version packageVersion, string packageId)
+        public static PackageVerifierIssue AssemblyVersionDoesNotMatchPackageVersion(string currentFilePath, Version assemblyVersion, Version packageVersion, string packageId)
         {
             return new PackageVerifierIssue(
-                "ASSEMBLY_VERSION",
-                packageId,
-                $"The assembly version '{assemblyVersion}' does not match '{packageVersion}' for package {packageId}.",
+                "ASSEMBLY_VERSION_MISMATCH",
+                currentFilePath,
+                $"The assembly version '{assemblyVersion}' does not match the package version '{packageVersion}' for package {packageId}.",
                 PackageIssueLevel.Warning);
         }
 

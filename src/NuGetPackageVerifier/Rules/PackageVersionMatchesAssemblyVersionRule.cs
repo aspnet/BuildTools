@@ -9,10 +9,10 @@ using Mono.Cecil;
 
 namespace NuGetPackageVerifier.Rules
 {
-    public class PackageVersionMatchesAssemblyVersionRule : AssemblyHasAttributeRuleBase, IPackageVerifierRule
+    public class PackageVersionMatchesAssemblyVersionRule : AssemblyHasAttributeRuleBase
     {
-        private static Version _packageVersion;
-        private static string _packageId;
+        private Version _packageVersion;
+        private string _packageId;
 
         public override IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
@@ -24,13 +24,20 @@ namespace NuGetPackageVerifier.Rules
         public override IEnumerable<PackageVerifierIssue> ValidateAttribute(string currentFilePath,
             Mono.Collections.Generic.Collection<CustomAttribute> assemblyAttributes)
         {
-            var assemblyVersion = assemblyAttributes.SingleOrDefault(a => a.AttributeType.FullName ==
-            (typeof(AssemblyInformationalVersionAttribute).FullName ?? typeof(AssemblyVersionAttribute).FullName))
-            .AttributeType.Module.Assembly.Name.Version;
+            var assemblyVersion = assemblyAttributes.SingleOrDefault(a =>
+            a.AttributeType.FullName.Equals(
+                (typeof(AssemblyInformationalVersionAttribute).FullName
+                ?? typeof(AssemblyVersionAttribute).FullName), StringComparison.Ordinal))
+                .AttributeType.Module.Assembly.Name.Version;
 
-            if (_packageVersion != assemblyVersion)
+            if (assemblyVersion == null)
             {
-                yield return PackageIssueFactory.AssemblyVersionDoesNotMatchPackageVersion(assemblyVersion, _packageVersion, _packageId);
+                yield return null;
+            }
+
+            if (!_packageVersion.Equals(assemblyVersion))
+            {
+                yield return PackageIssueFactory.AssemblyVersionDoesNotMatchPackageVersion(currentFilePath, assemblyVersion, _packageVersion, _packageId);
             }
         }
     }

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Reflection;
 using NuGet.Frameworks;
 using NuGet.Versioning;
@@ -36,6 +37,15 @@ namespace NuGetPackageVerifier
                     @"The managed assembly '{0}' in this package is missing the '[assembly: AssemblyMetadata(""Serviceable"", ""True"")]' attribute.",
                     assemblyPath),
                 PackageIssueLevel.Error);
+        }
+
+        public static PackageVerifierIssue AssemblyVersionDoesNotMatchPackageVersion(string assemblyPath, Version assemblyVersion, Version packageVersion, string packageId)
+        {
+            return new PackageVerifierIssue(
+                "ASSEMBLY_VERSION_MISMATCH",
+                assemblyPath,
+                $"The managed assembly version '{assemblyVersion}' does not match the package version '{packageVersion}' for package {packageId}.",
+                PackageIssueLevel.Warning);
         }
 
         public static PackageVerifierIssue AssemblyMissingHashAttribute(string assemblyPath)

@@ -24,6 +24,7 @@ namespace NuGetPackageVerifier.Rules
             new StrictSemanticVersionValidationRule(),
             new DependenciesVersionRangeBoundsRule(),
             new DotNetCliToolPackageRule(),
+            new PackageVersionMatchesAssemblyVersionRule(),
         };
 
         public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)

@@ -26,9 +26,9 @@ namespace NuGetPackageVerifier.Rules
         {
             var versionAttribute = assemblyAttributes.SingleOrDefault(a =>
                 a.AttributeType.FullName.Equals(
-                typeof(AssemblyInformationalVersionAttribute).FullName ??
-                typeof(AssemblyVersionAttribute).FullName,
-                StringComparison.Ordinal));
+                    typeof(AssemblyInformationalVersionAttribute).FullName ??
+                    typeof(AssemblyVersionAttribute).FullName,
+                    StringComparison.Ordinal));
 
             if (versionAttribute == null)
             {

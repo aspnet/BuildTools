@@ -24,17 +24,18 @@ namespace NuGetPackageVerifier.Rules
         public override IEnumerable<PackageVerifierIssue> ValidateAttribute(string currentFilePath,
             Mono.Collections.Generic.Collection<CustomAttribute> assemblyAttributes)
         {
-            var assemblyVersion = assemblyAttributes.SingleOrDefault(a =>
-            a.AttributeType.FullName.Equals(
-                (typeof(AssemblyInformationalVersionAttribute).FullName
-                ?? typeof(AssemblyVersionAttribute).FullName), StringComparison.Ordinal))
-                .AttributeType.Module.Assembly.Name.Version;
+            var versionAttribute = assemblyAttributes.SingleOrDefault(a =>
+                a.AttributeType.FullName.Equals(
+                typeof(AssemblyInformationalVersionAttribute).FullName ??
+                typeof(AssemblyVersionAttribute).FullName,
+                StringComparison.Ordinal));
 
-            if (assemblyVersion == null)
+            if (versionAttribute == null)
             {
-                yield return null;
+                yield break;
             }
 
+            var assemblyVersion = versionAttribute.AttributeType.Module.Assembly.Name.Version;
             if (!_packageVersion.Equals(assemblyVersion))
             {
                 yield return PackageIssueFactory.AssemblyVersionDoesNotMatchPackageVersion(currentFilePath, assemblyVersion, _packageVersion, _packageId);

@@ -8,8 +8,8 @@
   <Target Name="ResolveCommitHash" Condition="'$(CommitHash)'==''">
 
     <PropertyGroup>
-      <CommitHash>$(APPVEYOR_REPO_COMMIT)</CommitHash>
-      <CommitHash>$(TRAVIS_COMMIT)</CommitHash>
+      <CommitHash Condition="'$(APPVEYOR_REPO_COMMIT)' != ''">$(APPVEYOR_REPO_COMMIT)</CommitHash>
+      <CommitHash Condition="'$(TRAVIS_COMMIT)' != ''">$(TRAVIS_COMMIT)</CommitHash>
     </PropertyGroup>
 
     <GetGitCommitInfo WorkingDirectory="$(MSBuildProjectDirectory)"

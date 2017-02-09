@@ -6,7 +6,15 @@
   </PropertyGroup>
 
   <Target Name="ResolveCommitHash" Condition="'$(CommitHash)'==''">
-    <GetGitCommitInfo WorkingDirectory="$(MSBuildProjectDirectory)" ContinueOnError="WarnAndContinue">
+
+    <PropertyGroup>
+      <CommitHash>$(APPVEYOR_REPO_COMMIT)</CommitHash>
+      <CommitHash>$(TRAVIS_COMMIT)</CommitHash>
+    </PropertyGroup>
+
+    <GetGitCommitInfo WorkingDirectory="$(MSBuildProjectDirectory)"
+                      Condition="'$(CommitHash)' == ''"
+                      ContinueOnError="WarnAndContinue">
       <Output TaskParameter="CommitHash" PropertyName="CommitHash" />
     </GetGitCommitInfo>
   </Target>

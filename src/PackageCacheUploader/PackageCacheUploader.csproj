@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <Import Project="..\..\build\common.props" />
 
@@ -18,5 +18,18 @@
     <PackageReference Include="System.Diagnostics.Process" Version="4.1.0" />
     <PackageReference Include="Microsoft.NETCore.App" Version="1.0.0" />
   </ItemGroup>
+
+   <!-- packaging settings -->
+  <PropertyGroup>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <NuspecFile>$(MSBuildThisFileDirectory)$(MSBuildProjectName).nuspec</NuspecFile>
+  </PropertyGroup>
+
+  <Target Name="SetPackageDependencies" BeforeTargets="GenerateNuspec" DependsOnTargets="Publish">
+    <PropertyGroup>
+      <NuspecProperties>version=$(PackageVersion)</NuspecProperties>
+      <NuspecBasePath>$(PublishDir)</NuspecBasePath>
+    </PropertyGroup>
+  </Target>
 
 </Project>

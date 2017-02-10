@@ -14,7 +14,7 @@ insert_final_newline = true
 [*.{cs}]
 indent_size = 4
 
-[*.{xml,config,*proj,nuspec,props,resx,targets}]
+[*.{xml,config,*proj,nuspec,props,resx,targets,yml}]
 indent_size = 2
 
 [*.{json}]

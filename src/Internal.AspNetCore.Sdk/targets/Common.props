@@ -5,7 +5,7 @@ for use outside of Microsoft.
 Usage: this should be imported once via NuGet at the top of the file.
 
 -->
-<Project ToolsVersion="15.0">
+<Project>
 
   <!-- common package options -->
   <PropertyGroup>

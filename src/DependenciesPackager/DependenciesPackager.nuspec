@@ -7,6 +7,6 @@
     <description>Packages ASP.NET Core dlls into a native optimized cache for improved runtime performance.</description>
   </metadata>
   <files>
-    <file src="netcoreapp1.0\" target="/" />
+    <file src=".\" target="/" />
   </files>
 </package>

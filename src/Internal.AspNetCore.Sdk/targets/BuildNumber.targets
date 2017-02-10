@@ -8,7 +8,7 @@ For multi-targeting projects, this will be imported from buildMultiTargeting/Int
 For single-tfm projects, this will be imported from build/Internal.AspNetCore.Sdk.targets.
 
 -->
-<Project ToolsVersion="15.0">
+<Project>
   <!-- version options -->
   <!-- TODO determine build number here instead of inside individual repos when https://github.com/NuGet/Home/issues/3953 is resolved-->
 

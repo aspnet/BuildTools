@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26116.0
+VisualStudioVersion = 15.0.26208.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A4F4353B-C3D2-40B0-909A-5B48A748EA76}"
 EndProject
@@ -12,6 +12,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{60A938B2-D95A-403C-AA7A-3683AD64DFA0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NuGetPackageVerifier", "src\NuGetPackageVerifier\NuGetPackageVerifier.csproj", "{657AFF5E-164E-493D-8501-8026B7C20808}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EF38C1CA-8A2E-4C8E-B478-7072C0140514} = {EF38C1CA-8A2E-4C8E-B478-7072C0140514}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SplitPackages", "src\SplitPackages\SplitPackages.csproj", "{C98F7832-85FB-451B-9152-87425ACF8EEB}"
 EndProject

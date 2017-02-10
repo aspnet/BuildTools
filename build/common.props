@@ -6,6 +6,7 @@
     <_AspNetToolsSdkPath>$([MSBuild]::GetDirectoryNameOfFileAbove($(MsBuildThisFileDirectory), NuGet.config))\src\Internal.AspNetCore.Sdk</_AspNetToolsSdkPath>
     <CustomAfterMicrosoftCommonTargets>$(_AspNetToolsSdkPath)\build\Internal.AspNetCore.Sdk.targets</CustomAfterMicrosoftCommonTargets>
     <CustomAfterMicrosoftCommonCrossTargetingTargets>$(_AspNetToolsSdkPath)\buildMultiTargeting\Internal.AspNetCore.Sdk.targets</CustomAfterMicrosoftCommonCrossTargetingTargets>
+    <GenerateCommitHashAttribute Condition="'$(CommitHash)'==''">false</GenerateCommitHashAttribute>
   </PropertyGroup>
 
   <Import Project="$(_AspNetToolsSdkPath)\build\Internal.AspNetCore.Sdk.props" />
@@ -16,13 +17,5 @@
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
     <VersionSuffix Condition="'$(VersionSuffix)'!='' AND '$(BuildNumber)' != ''">$(VersionSuffix)-$(BuildNumber)</VersionSuffix>
   </PropertyGroup>
-
-  <!-- resolve using git.exe because the GetGitCommitInfoTask can't be loaded before it is compiled -->
-  <!-- TODO set this in repo.targets so it applies to the entire build -->
-  <Target Name="ResolveCommitHashWithExe" Condition="'$(CommitHash)'==''" BeforeTargets="PrepareForBuild">
-    <Exec Command="git rev-parse HEAD" ConsoleToMSBuild="true" EchoOff="true" Condition="'$(CommitHash)'==''">
-      <Output TaskParameter="ConsoleOutput" PropertyName="CommitHash" />
-    </Exec>
-  </Target>
 
 </Project>

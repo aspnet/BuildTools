@@ -1,5 +1,6 @@
-<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\build\common.props" />
+
   <PropertyGroup>
     <Description>Copies NuGet packages form a given source folder into a specific set of folders based on a CSV file.</Description>
     <VersionPrefix>1.0.1</VersionPrefix>
@@ -8,9 +9,11 @@
     <DebugType>portable</DebugType>
     <OutputType>exe</OutputType>
   </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\PackageClassifier\PackageClassifier.csproj" />
   </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.0.0-*" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="1.0.0-*" />
@@ -18,8 +21,31 @@
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
     <PackageReference Include="NuGet.Client" Version="3.5.0-*" />
   </ItemGroup>
+
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
     <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.1.1-*" />
     <PackageReference Include="Microsoft.NETCore.App" Version="1.0.0-*" />
   </ItemGroup>
+
+   <!-- packaging settings -->
+  <PropertyGroup>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <NuspecFile>$(MSBuildThisFileDirectory)$(MSBuildProjectName).nuspec</NuspecFile>
+    <IntermediatePackDir>$(MSBuildThisFileDirectory)bin\$(Configuration)\publish\</IntermediatePackDir>
+    <PublishDir>$(IntermediatePackDir)$(TargetFramework)\</PublishDir>
+    <NuspecBasePath>$(IntermediatePackDir)</NuspecBasePath>
+  </PropertyGroup>
+
+  <Target Name="PublishAll">
+    <MSBuild Projects="$(MSBuildProjectFullPath)"
+             Targets="Publish"
+             Properties="TargetFramework=net451" />
+  </Target>
+
+  <Target Name="SetPackageDependencies" BeforeTargets="GenerateNuspec" DependsOnTargets="PublishAll">
+    <PropertyGroup>
+      <NuspecProperties>version=$(PackageVersion)</NuspecProperties>
+    </PropertyGroup>
+  </Target>
+
 </Project>

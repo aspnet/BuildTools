@@ -1,0 +1,17 @@
+<Project>
+
+  <!-- resolve using git.exe because the GetGitCommitInfoTask can't be loaded before it is compiled -->
+  <Target Name="ResolveCommitHashWithExe" Condition="'$(CommitHash)'==''" BeforeTargets="Compile">
+
+    <Exec Command="git rev-parse HEAD" ConsoleToMSBuild="true" EchoOff="true" Condition="'$(CommitHash)'==''">
+      <Output TaskParameter="ConsoleOutput" PropertyName="CommitHash" />
+    </Exec>
+
+    <ItemGroup>
+      <Solutions Update="@(Solutions)">
+        <AdditionalProperties>CommitHash=$(CommitHash)</AdditionalProperties>
+      </Solutions>
+    </ItemGroup>
+
+  </Target>
+</Project>

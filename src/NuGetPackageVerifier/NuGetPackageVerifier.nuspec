@@ -7,7 +7,7 @@
     <description>Verifies Asp.Net Core packages.</description>
   </metadata>
   <files>
-    <file src="netcoreapp1.0\" target="/" />
-    <file src="..\..\build\NuGetPackageVerifier.Task\$configuration$\netstandard1.6\NuGetPackageVerifier.Task.dll" target="tools/netstandard1.6/" />
+    <file src="$publishdir$" target="/" />
+    <file src="$taskbuilddir$\netstandard1.6\*.dll" target="tools/netstandard1.6/" />
   </files>
 </package>

@@ -12,13 +12,11 @@ namespace NuGetPackageVerifier.Rules
 {
     public class PackageVersionMatchesAssemblyVersionRule : AssemblyHasAttributeRuleBase
     {
-        private bool _isPrerelease;
         private NuGetVersion _packageVersion;
         private string _packageId;
 
         public override IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
-            _isPrerelease = context.Metadata.Version.IsPrerelease;
             _packageVersion = context.Metadata.Version;
             _packageId = context.Metadata.Id;
             return base.Validate(context);
@@ -27,34 +25,67 @@ namespace NuGetPackageVerifier.Rules
         public override IEnumerable<PackageVerifierIssue> ValidateAttribute(string currentFilePath,
             Mono.Collections.Generic.Collection<CustomAttribute> assemblyAttributes)
         {
-
-            var versionAttribute = assemblyAttributes.SingleOrDefault(a =>
+            var assemblyInformationalVersionAttribute = assemblyAttributes.SingleOrDefault(a =>
                 a.AttributeType.FullName.Equals(
                     typeof(AssemblyInformationalVersionAttribute).FullName,
                     StringComparison.Ordinal));
 
-            if (versionAttribute == null)
+            var assemblyInformationalNuGetVersion = new NuGetVersion(assemblyInformationalVersionAttribute.ConstructorArguments[0].Value.ToString());
+            if (!VersionEquals(_packageVersion, assemblyInformationalNuGetVersion))
             {
-                yield break;
+                yield return PackageIssueFactory.AssemblyInformationalVersionDoesNotMatchPackageVersion(
+                    currentFilePath,
+                    assemblyInformationalNuGetVersion,
+                    _packageVersion,
+                    _packageId);
             }
 
-            if (_isPrerelease)
+            var assemblyFileVersionAttribute = assemblyAttributes.SingleOrDefault(a =>
+                a.AttributeType.FullName.Equals(
+                    typeof(AssemblyFileVersionAttribute).FullName,
+                    StringComparison.Ordinal));
+
+            var assemblyFileNuGetVersion = new NuGetVersion(assemblyFileVersionAttribute.ConstructorArguments[0].Value.ToString());
+            if (!VersionEquals(_packageVersion, assemblyFileNuGetVersion))
             {
-                var assemblyVersion = versionAttribute.ConstructorArguments[0].Value.ToString();
-                if (!_packageVersion.ToString().Equals(assemblyVersion))
-                {
-                    yield return PackageIssueFactory.AssemblyVersionDoesNotMatchPackageVersion(currentFilePath, assemblyVersion, _packageVersion, _packageId);
-                }
+                yield return PackageIssueFactory.AssemblyFileVersionDoesNotMatchPackageVersion(
+                    currentFilePath,
+                    assemblyFileNuGetVersion,
+                    _packageVersion,
+                    _packageId);
             }
 
-            else
+            var assemblyVersion = assemblyInformationalVersionAttribute.AttributeType.Module.Assembly.Name.Version.ToString();
+            if (!_packageVersion.Version.ToString().Equals(assemblyVersion))
             {
-                var assemblyVersion = versionAttribute.AttributeType.Module.Assembly.Name.Version.ToString();
-                if (!_packageVersion.Version.ToString().Equals(assemblyVersion))
-                {
-                    yield return PackageIssueFactory.AssemblyVersionDoesNotMatchPackageVersion(currentFilePath, assemblyVersion, _packageVersion, _packageId);
-                }
+                yield return PackageIssueFactory.AssemblyVersionDoesNotMatchPackageVersion(
+                    currentFilePath,
+                    assemblyVersion,
+                    _packageVersion.Version,
+                    _packageId);
             }
+        }
+
+        private bool VersionEquals(NuGetVersion packageVersion, NuGetVersion assemblyNuGetVersion)
+        {
+            if (packageVersion == null)
+            {
+                throw new ArgumentNullException("packageVersion");
+            }
+
+            if (assemblyNuGetVersion == null)
+            {
+                throw new ArgumentNullException("assemblyNuGetVersion");
+            }
+
+            if (packageVersion.Major.Equals(assemblyNuGetVersion.Major) &&
+                packageVersion.Minor.Equals(assemblyNuGetVersion.Minor) &&
+                packageVersion.Patch.Equals(assemblyNuGetVersion.Patch))
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

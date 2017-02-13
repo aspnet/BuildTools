@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\build\common.props" />
+
+  <PropertyGroup>
+    <Description>Resolves the dependency graph for a given set of project dependencies and computes different subsets of the dependency graph</Description>
+    <VersionPrefix>1.0.1</VersionPrefix>
+    <TargetFrameworks>netstandard1.6;net451</TargetFrameworks>
+    <OutputType>library</OutputType>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <OutputType>library</OutputType>
+    <TargetFrameworks>netstandard1.6;net451</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+    <PackageReference Include="NuGet.ProjectModel" Version="4.0.0-rtm-*" />
+    <PackageReference Include="Microsoft.DotNet.PlatformAbstractions" Version="1.1.0" />
+  </ItemGroup>
+</Project>

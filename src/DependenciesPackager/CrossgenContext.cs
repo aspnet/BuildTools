@@ -1,26 +1,27 @@
-﻿using System;
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using Microsoft.Extensions.Logging;
+using NugetReferenceResolver;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.DotNet.ProjectModel;
-using Microsoft.DotNet.ProjectModel.Compilation;
-using Microsoft.Extensions.Logging;
 
 namespace DependenciesPackager
 {
     internal class CrossgenContext
     {
-        private readonly ProjectContext _context;
+        private readonly PackageGraph _graph;
         private readonly ILogger _logger;
         private bool _preservePackageCasing;
 
-        private IEnumerable<LibraryExport> _exports = Enumerable.Empty<LibraryExport>();
         private IEnumerable<PackageEntry> _packagesToCrossGen = Enumerable.Empty<PackageEntry>();
-        private IEnumerable<string> _referenceAssemblyPaths = Enumerable.Empty<string>();
+        private IEnumerable<PackageEntry> _referenceAssemblyPaths = Enumerable.Empty<PackageEntry>();
 
-        private IEnumerable<LibraryAsset> _crossGenAssets = Enumerable.Empty<LibraryAsset>();
+        public IEnumerable<PackageAssembly> _crossGenAssets;
         private string _clrJitPath;
         private string _crossgenExecutable;
 
@@ -28,9 +29,9 @@ namespace DependenciesPackager
         private string _responseFilePath;
         private readonly string _exclusionsFile;
 
-        public CrossgenContext(ProjectContext context, string destinationFolder, ILogger logger, string exclusionsFile)
+        public CrossgenContext(PackageGraph graph, string destinationFolder, ILogger logger, string exclusionsFile)
         {
-            _context = context;
+            _graph = graph;
             _logger = logger;
             _destinationFolder = destinationFolder;
             _exclusionsFile = exclusionsFile;
@@ -49,111 +50,43 @@ namespace DependenciesPackager
 
         public void CollectAssets(string runtime, string restoreFolder)
         {
-            var exporter = _context.CreateExporter("CACHE");
-            _exports = exporter.GetAllExports().ToArray();
+            var packagesToCrossgenGraph = _graph.WithoutPackage("Microsoft.NETCore.App");
+            _packagesToCrossGen =
+                packagesToCrossgenGraph.AllPackages.Values.Select(p => new PackageEntry
+                {
+                    Assets = p.Assemblies.ToArray(),
+                    Library = p
+                });
 
-            var netCoreApp = _exports
-                .Single(le => le.Library.Identity.Name.Equals("Microsoft.NetCore.App", StringComparison.OrdinalIgnoreCase));
-            var netCoreAppDependencies = new HashSet<LibraryExport>(
-                GetDependencies(netCoreApp, _exports));
-            var packagesToCrossGen = _exports.Except(netCoreAppDependencies);
+            var netCoreAppGraph = _graph.GetClosure("Microsoft.NETCore.App");
+            _referenceAssemblyPaths =
+                netCoreAppGraph.AllPackages.Values.Select(p => new PackageEntry
+                {
+                    Assets = p.Assemblies.ToArray(),
+                    Library = p
+                });
 
-            var crossGenPackage = _exports
-                .Single(le => le.Library.Identity.Name.Equals(
+            var packagesToCrossGen = packagesToCrossgenGraph.AllPackages;
+
+            var crossGenPackage = _graph.AllPackages
+                .Single(le => le.Key.Equals(
                     GetCrossGenPackageName(runtime),
                     StringComparison.OrdinalIgnoreCase));
 
-            _crossGenAssets = GetAssets(crossGenPackage, runtime);
-
-            var referenceAssembliesPath = new HashSet<string>();
-            foreach (var dependency in netCoreAppDependencies)
-            {
-                var assets = GetAssets(dependency, runtime);
-                if (assets == null)
-                {
-                    continue;
-                }
-
-                foreach (var asset in assets)
-                {
-                    referenceAssembliesPath.Add(GetCleanedUpDirectoryPath(asset));
-                }
-            }
-            _referenceAssemblyPaths = referenceAssembliesPath;
-
-            var result = new List<PackageEntry>();
-            foreach (var dependency in packagesToCrossGen)
-            {
-                var assets = GetAssets(dependency, runtime);
-                if (assets == null)
-                {
-                    continue;
-                }
-
-                result.Add(new PackageEntry
-                {
-                    Library = (PackageDescription)dependency.Library,
-                    Assets = assets
-                });
-            }
-            _packagesToCrossGen = result;
-        }
-
-        private static IEnumerable<LibraryExport> GetDependencies(LibraryExport dependency, IEnumerable<LibraryExport> allExports)
-        {
-            if (!dependency.Library.Dependencies.Any())
-            {
-                yield break;
-            }
-
-            foreach (var export in allExports)
-            {
-                if (dependency.Library.Dependencies
-                    .Any(d => d.Name.Equals(export.Library.Identity.Name, StringComparison.OrdinalIgnoreCase)))
-                {
-                    yield return export;
-                    foreach (var transitiveDependency in GetDependencies(export, allExports))
-                    {
-                        yield return transitiveDependency;
-                    }
-                }
-            }
-        }
-
-        private IReadOnlyList<LibraryAsset> GetAssets(LibraryExport dependency, string runtime)
-        {
-            if (dependency.Library?.Path == null)
-            {
-                return null;
-            }
-
-            var assemblyGroup =
-                dependency.RuntimeAssemblyGroups.SingleOrDefault(rg => rg.Runtime == runtime) ??
-                dependency.RuntimeAssemblyGroups.SingleOrDefault(rg => rg.Runtime == string.Empty);
-
-            var assets = assemblyGroup?.Assets;
-
-            if (assets?.Any() != true)
-            {
-                return null;
-            }
-
-            return assets;
+            _crossGenAssets = crossGenPackage.Value.Assemblies;
         }
 
         public void FetchCrossgenTools(string runtime)
         {
             var runtimePackageName = GetCrossGenPackageName(runtime);
-            var entry = _exports.SingleOrDefault(
-                p => p.Library.Identity.Name.Equals(runtimePackageName, StringComparison.OrdinalIgnoreCase));
 
-            if (entry == null)
+            if (!_graph.AllPackages.TryGetValue(runtimePackageName, out var entry))
             {
                 throw new InvalidOperationException($"Cannot find package {runtimePackageName}. It contains the crossgen tool.");
             }
 
             var executable = CrossGenTool.GetCrossGenTool(runtime).CrossGen;
-            var executablePath = Directory.GetFiles(entry.Library.Path, executable, SearchOption.AllDirectories).SingleOrDefault();
+            var executablePath = Directory.GetFiles(entry.Path, executable, SearchOption.AllDirectories).SingleOrDefault();
 
             if (executablePath == null)
             {
@@ -249,7 +182,7 @@ namespace DependenciesPackager
             });
         }
 
-        private CrossGenResult CrossgenAssembly(PackageEntry package, LibraryAsset asset, string targetPath)
+        private CrossGenResult CrossgenAssembly(PackageEntry package, PackageAssembly asset, string targetPath)
         {
             var assemblyPath = Path.GetFullPath(asset.ResolvedPath);
             var arguments = $"@\"{_responseFilePath}\" /JITPath \"{_clrJitPath}\" /in \"{assemblyPath}\" /out \"{targetPath}\"";
@@ -365,15 +298,15 @@ namespace DependenciesPackager
 
         private void CopyPackageSignature(PackageEntry entry, string outputPath)
         {
-            var hash = entry.Library.PackageLibrary.Files.Single(file => file.EndsWith(".sha512"));
-            var desination = Path.Combine(outputPath,
+            var hash = entry.Library.PackageHash;
+            var destination = Path.Combine(outputPath,
                 GetPackageId(entry.Library),
                 GetPackageVersion(entry.Library),
                 _preservePackageCasing
                     ? hash
                     : hash.ToLowerInvariant());
 
-            File.Copy(Path.Combine(entry.Library.Path, hash), desination, overwrite: true);
+            File.Copy(Path.Combine(entry.Library.Path, hash), destination, overwrite: true);
         }
 
         private DirectoryInfo CreatePackageSubDirectory(string outputPath, PackageEntry package)
@@ -385,17 +318,17 @@ namespace DependenciesPackager
             return Directory.CreateDirectory(subDirectoryPath);
         }
 
-        private string GetPackageId(PackageDescription library)
+        private string GetPackageId(Package library)
             => _preservePackageCasing
-                ? library.Identity.Name
-                : library.Identity.Name.ToLowerInvariant();
+                ? library.Name
+                : library.Name.ToLowerInvariant();
 
-        private string GetPackageVersion(PackageDescription library)
+        private string GetPackageVersion(Package library)
             => _preservePackageCasing
-                ? library.Identity.Version.ToNormalizedString()
-                : library.Identity.Version.ToNormalizedString().ToLowerInvariant();
+                ? library.Version
+                : library.Version.ToLowerInvariant();
 
-        private DirectoryInfo CreateAssetSubDirectory(string cacheBasePath, PackageEntry package, LibraryAsset asset)
+        private DirectoryInfo CreateAssetSubDirectory(string cacheBasePath, PackageEntry package, PackageAssembly asset)
         {
             // special treatment of the cases in the path to accommodating NuGet package search
             // https://github.com/aspnet/BuildTools/issues/94
@@ -414,7 +347,9 @@ namespace DependenciesPackager
             _responseFilePath = Path.Combine(_destinationFolder, "aspnet-crossgen.rsp");
             var lines = new List<string>();
             lines.Add("/Platform_Assemblies_Paths");
-            lines.Add("\"" + string.Join(Path.PathSeparator.ToString(), _referenceAssemblyPaths) + "\"");
+            lines.Add("\"" + string.Join(
+                Path.PathSeparator.ToString(),
+                _referenceAssemblyPaths.SelectMany(e => e.Assets.Select(a => GetCleanedUpDirectoryPath(a)))) + "\"");
             lines.Add("/App_paths");
             lines.Add(
                 "\"" +
@@ -424,7 +359,7 @@ namespace DependenciesPackager
             File.WriteAllLines(_responseFilePath, lines);
         }
 
-        private static string GetCleanedUpDirectoryPath(LibraryAsset asset) =>
+        private static string GetCleanedUpDirectoryPath(PackageAssembly asset) =>
             Path.GetDirectoryName(asset.ResolvedPath)
                 .TrimEnd(Path.DirectorySeparatorChar)
                 .TrimEnd(Path.AltDirectorySeparatorChar);

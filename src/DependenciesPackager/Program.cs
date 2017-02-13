@@ -1,15 +1,16 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using Microsoft.DotNet.ProjectModel;
-using Microsoft.DotNet.ProjectModel.Graph;
 using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Logging;
 using NuGet.Frameworks;
+using NuGet.ProjectModel;
+using NugetReferenceResolver;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
 
 namespace DependenciesPackager
 {
@@ -24,9 +25,8 @@ namespace DependenciesPackager
         private readonly ILogger _logger;
 
         private readonly CommandLineApplication _app;
-        private readonly CommandOption _projectJson;
+        private readonly CommandOption _projectCsproj;
         private readonly CommandOption _sourceFolders;
-        private readonly CommandOption _fallbackFeeds;
         private readonly CommandOption _destination;
         private readonly CommandOption _version;
         private readonly CommandOption _cliPath;
@@ -40,9 +40,8 @@ namespace DependenciesPackager
 
         public Program(
             CommandLineApplication app,
-            CommandOption projectJson,
+            CommandOption projectCsproj,
             CommandOption sourceFolders,
-            CommandOption fallbackFeeds,
             CommandOption destination,
             CommandOption packagesVersion,
             CommandOption cliPath,
@@ -55,9 +54,8 @@ namespace DependenciesPackager
             CommandOption preserveCasing)
         {
             _app = app;
-            _projectJson = projectJson;
+            _projectCsproj = projectCsproj;
             _sourceFolders = sourceFolders;
-            _fallbackFeeds = fallbackFeeds;
             _destination = destination;
             _version = packagesVersion;
             _cliPath = cliPath;
@@ -84,19 +82,14 @@ namespace DependenciesPackager
 
             app.HelpOption("-?|-h|--help");
 
-            var projectJson = app.Option(
+            var projectCsproj = app.Option(
                 "--project <PATH>",
-                "The path to the project.json file from which to perform dotnet restore",
+                "The path to the csproj file from which to perform dotnet restore",
                 CommandOptionType.SingleValue);
 
             var sourceFolders = app.Option(
                 "--sources <DIRS>",
                 "Path to the directories containing the nuget packages",
-                CommandOptionType.MultipleValue);
-
-            var fallbackFeeds = app.Option(
-                "--fallback <URLS>",
-                "The list of URLs to use as fallback feeds in case the package can't be found on the source folders",
                 CommandOptionType.MultipleValue);
 
             var destination = app.Option(
@@ -127,7 +120,7 @@ namespace DependenciesPackager
             var runtimes = app.Option(
                 "--runtime",
                 "The runtimes for which to generate the cache",
-                CommandOptionType.MultipleValue);
+                CommandOptionType.SingleValue);
 
             var prefix = app.Option(
                 "--prefix",
@@ -151,9 +144,8 @@ namespace DependenciesPackager
 
             var program = new Program(
                 app,
-                projectJson,
+                projectCsproj,
                 sourceFolders,
-                fallbackFeeds,
                 destination,
                 packagesVersion,
                 useCli,
@@ -174,7 +166,7 @@ namespace DependenciesPackager
         {
             try
             {
-                if (!_projectJson.HasValue() ||
+                if (!_projectCsproj.HasValue() ||
                     !_destination.HasValue() ||
                     !_optRuntime.HasValue() ||
                     !_version.HasValue())
@@ -191,11 +183,10 @@ namespace DependenciesPackager
                 var disposables = new List<IDisposable>();
 
                 var restoreContext = new PackageRestoreContext(
-                    _projectJson.Value(),
+                    _projectCsproj.Value(),
                     _destination.Value(),
                     _cliPath.HasValue() ? _cliPath.Value() : "dotnet",
                     _sourceFolders.HasValue() ? _sourceFolders.Values : Enumerable.Empty<string>(),
-                    _fallbackFeeds.HasValue() ? _fallbackFeeds.Values : Enumerable.Empty<string>(),
                     _logger)
                 {
                     Quiet = _quiet.HasValue()
@@ -207,7 +198,8 @@ namespace DependenciesPackager
                     _logger.LogWarning("Error restoring nuget packages into destination folder");
                 }
 
-                var project = ProjectReader.GetProject(_projectJson.Value());
+                var format = new LockFileFormat();
+                var graph = PackageGraph.Create(format.Read(GetAssetsFile()), "netcoreapp1.1");
                 var outputs = new List<OutputFilesContext>();
 
                 foreach (var framework in FrameworkConfigurations)
@@ -216,13 +208,11 @@ namespace DependenciesPackager
                     {
                         _logger.LogInformation($"Performing crossgen on {framework.GetShortFolderName()} for runtime {runtime}.");
 
-                        var outputContext = new OutputFilesContext(_destination.Value(), _version.Value(), runtime, restoreContext.RestoreFolder, project, _logger);
+                        var outputContext = new OutputFilesContext(_destination.Value(), _version.Value(), runtime, _logger);
                         disposables.Add(outputContext);
                         outputs.Add(outputContext);
 
-                        var projectContext = CreateProjectContext(project, framework, runtime, restoreContext.RestoreFolder);
-
-                        var crossgenContext = new CrossgenContext(projectContext, _destination.Value(), _logger, _exclusionsFile.Value());
+                        var crossgenContext = new CrossgenContext(graph, _destination.Value(), _logger, _exclusionsFile.Value());
 
                         if (_preserveCasing.HasValue())
                         {
@@ -259,6 +249,9 @@ namespace DependenciesPackager
             }
         }
 
+        private string GetAssetsFile() =>
+            Path.Combine(Path.GetDirectoryName(_projectCsproj.Value()), "obj", "project.assets.json");
+
         private void CleanupIntermediateFiles(IEnumerable<IDisposable> contexts)
         {
             if (_keepTemporaryFiles.HasValue())
@@ -282,14 +275,5 @@ namespace DependenciesPackager
                 }
             }
         }
-
-        private static ProjectContext CreateProjectContext(Project project, NuGetFramework framework, string runtime, string restoreFolder) =>
-            new ProjectContextBuilder()
-                .WithPackagesDirectory(restoreFolder)
-                .WithProject(project)
-                .WithLockFile(LockFileReader.Read(project.ProjectFilePath.Replace("project.json", "project.lock.json"), designTime: false))
-                .WithTargetFramework(framework)
-                .WithRuntimeIdentifiers(new[] { runtime })
-                .Build();
     }
 }

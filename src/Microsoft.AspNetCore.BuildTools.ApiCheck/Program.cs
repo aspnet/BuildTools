@@ -9,7 +9,6 @@ using System.Reflection;
 using ApiCheck.Description;
 using Microsoft.Extensions.CommandLineUtils;
 using Newtonsoft.Json;
-using NuGet.Frameworks;
 
 namespace ApiCheck
 {
@@ -27,15 +26,14 @@ namespace ApiCheck
                 var generateCommand = app.Command("generate", (c) =>
                 {
                     var assemblyPathOption = c.Option("-a|--assembly", "Path to the assembly to generate the ApiListing for", CommandOptionType.SingleValue);
-                    var projectJson = c.Option("-p|--project", "Path to the project.json file", CommandOptionType.SingleValue);
-                    var nugetPackages = c.Option("--packages", "Path to the nuget packages folder on the machine", CommandOptionType.SingleValue);
-                    var configuration = c.Option("-c|--configuration", "Debug or Release", CommandOptionType.SingleValue);
+                    var assetsJson = c.Option("-p|--project", "Path to the project.assets.json file", CommandOptionType.SingleValue);
+                    var framework = c.Option("-f|--framework", "The moniker for the framework the assembly to analize was compiled against.", CommandOptionType.SingleValue);
                     var noPublicInternal = c.Option("-epi|--exclude-public-internal", "Exclude types on the .Internal namespace from the generated report", CommandOptionType.NoValue);
                     var outputPath = c.Option("-o|--out", "Output path for the generated ApiListing file", CommandOptionType.SingleValue);
 
                     c.HelpOption("-h|--help");
 
-                    c.OnExecute(() => OnGenerate(c, assemblyPathOption, projectJson, nugetPackages, configuration, noPublicInternal, outputPath));
+                    c.OnExecute(() => OnGenerate(c, assemblyPathOption, assetsJson, framework, noPublicInternal, outputPath));
                 });
 
                 var compareCommand = app.Command("compare", (c) =>
@@ -43,14 +41,13 @@ namespace ApiCheck
                     var apiListingPathOption = c.Option("-b|--ApiListing", "Path to the API listing file to use as reference.", CommandOptionType.SingleValue);
                     var exclusionsPathOption = c.Option("-e|--exclusions", "Path to the exclusions file for the ApiListing", CommandOptionType.SingleValue);
                     var assemblyPathOption = c.Option("-a|--assembly", "Path to the assembly to generate the ApiListing for", CommandOptionType.SingleValue);
-                    var projectJson = c.Option("-p|--project", "Path to the project.json file", CommandOptionType.SingleValue);
-                    var nugetPackages = c.Option("--packages", "Path to the nuget packages folder on the machine", CommandOptionType.SingleValue);
-                    var configuration = c.Option("-c|--configuration", "Debug or Release", CommandOptionType.SingleValue);
+                    var assetsJson = c.Option("-p|--project", "Path to the project.assets.json file", CommandOptionType.SingleValue);
+                    var framework = c.Option("-f|--framework", "The moniker for the framework the assembly to analize was compiled against.", CommandOptionType.SingleValue);
                     var noPublicInternal = c.Option("-epi|--exclude-public-internal", "Exclude types on the .Internal namespace from the generated report", CommandOptionType.NoValue);
 
                     c.HelpOption("-h|--help");
 
-                    c.OnExecute(() => OnCompare(c, apiListingPathOption, exclusionsPathOption, assemblyPathOption, projectJson, nugetPackages, configuration, noPublicInternal));
+                    c.OnExecute(() => OnCompare(c, apiListingPathOption, exclusionsPathOption, assemblyPathOption, assetsJson, framework, noPublicInternal));
                 });
 
                 app.HelpOption("-h|--help");
@@ -91,32 +88,24 @@ namespace ApiCheck
         private static int OnGenerate(
             CommandLineApplication command,
             CommandOption assemblyPath,
-            CommandOption projectJson,
-            CommandOption packagesFolder,
-            CommandOption configuration,
+            CommandOption assetsJson,
+            CommandOption framework,
             CommandOption excludeInternalNamespace,
             CommandOption output)
         {
-            if (!assemblyPath.HasValue() || !output.HasValue() || !projectJson.HasValue() || !configuration.HasValue())
+            if (!assemblyPath.HasValue() ||
+                !output.HasValue() ||
+                !assetsJson.HasValue() ||
+                !framework.HasValue())
             {
                 command.ShowHelp();
                 return Error;
             }
-
-            if (configuration.Value() != "Debug" && configuration.Value() != "Release")
-            {
-                command.ShowHelp();
-                return Error;
-            }
-
-            var resolvedPackagesFolder = packagesFolder.Value() ??
-                $"{Environment.ExpandEnvironmentVariables("%userprofile%")}/.nuget/packages";
 
             var assembly = AssemblyLoader.LoadAssembly(
                 assemblyPath.Value(),
-                projectJson.Value(),
-                configuration.Value(),
-                resolvedPackagesFolder);
+                assetsJson.Value(),
+                framework.Value());
 
             var filters = new List<Func<MemberInfo, bool>>();
             if (excludeInternalNamespace.HasValue())
@@ -142,34 +131,23 @@ namespace ApiCheck
             CommandOption apiListingPathOption,
             CommandOption exclusionsPathOption,
             CommandOption assemblyPath,
-            CommandOption projectJson,
-            CommandOption packagesFolder,
-            CommandOption configuration,
+            CommandOption assetsJson,
+            CommandOption framework,
             CommandOption excludeInternalNamespace)
         {
             if (!apiListingPathOption.HasValue() ||
                 !assemblyPath.HasValue() ||
-                !projectJson.HasValue() ||
-                !configuration.HasValue())
+                !assetsJson.HasValue() || 
+                !framework.HasValue())
             {
                 command.ShowHelp();
                 return Error;
             }
-
-            if (configuration.Value() != "Debug" && configuration.Value() != "Release")
-            {
-                command.ShowHelp();
-                return Error;
-            }
-
-            var resolvedPackagesFolder = packagesFolder.Value() ??
-                $"{Environment.ExpandEnvironmentVariables("%userprofile%")}/.nuget/packages";
 
             var assembly = AssemblyLoader.LoadAssembly(
                 assemblyPath.Value(),
-                projectJson.Value(),
-                configuration.Value(),
-                resolvedPackagesFolder);
+                assetsJson.Value(),
+                framework.Value());
 
             var newApiListingFilters = new List<Func<MemberInfo, bool>>();
             var oldApiListingFilters = new List<Func<ApiElement, bool>>();

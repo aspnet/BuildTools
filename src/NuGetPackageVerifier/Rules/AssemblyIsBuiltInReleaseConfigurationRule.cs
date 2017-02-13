@@ -20,7 +20,7 @@ namespace NuGetPackageVerifier.Rules
             return Enumerable.Empty<PackageVerifierIssue>();
         }
 
-        public override IEnumerable<PackageVerifierIssue> ValidateAttribute(string currentFilePath, Collection<CustomAttribute> assemblyAttributes)
+        public override IEnumerable<PackageVerifierIssue> ValidateAttribute(string currentFilePath, AssemblyDefinition assembly, Collection<CustomAttribute> assemblyAttributes)
         {
             if (!HasReleaseConfiguration(assemblyAttributes))
             {

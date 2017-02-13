@@ -22,7 +22,9 @@ namespace NuGetPackageVerifier.Rules
             return base.Validate(context);
         }
 
-        public override IEnumerable<PackageVerifierIssue> ValidateAttribute(string currentFilePath,
+        public override IEnumerable<PackageVerifierIssue> ValidateAttribute(
+            string currentFilePath,
+            AssemblyDefinition assembly,
             Mono.Collections.Generic.Collection<CustomAttribute> assemblyAttributes)
         {
             var assemblyInformationalVersionAttribute = assemblyAttributes.SingleOrDefault(a =>
@@ -55,8 +57,8 @@ namespace NuGetPackageVerifier.Rules
                     _packageId);
             }
 
-            var assemblyVersion = assemblyInformationalVersionAttribute.AttributeType.Module.Assembly.Name.Version.ToString();
-            if (!_packageVersion.Version.ToString().Equals(assemblyVersion))
+            var assemblyVersion = assembly.Name.Version;
+            if (!_packageVersion.Version.Equals(assemblyVersion))
             {
                 yield return PackageIssueFactory.AssemblyVersionDoesNotMatchPackageVersion(
                     currentFilePath,
@@ -70,17 +72,18 @@ namespace NuGetPackageVerifier.Rules
         {
             if (packageVersion == null)
             {
-                throw new ArgumentNullException("packageVersion");
+                throw new ArgumentNullException(nameof(packageVersion));
             }
 
             if (assemblyNuGetVersion == null)
             {
-                throw new ArgumentNullException("assemblyNuGetVersion");
+                throw new ArgumentNullException(nameof(assemblyNuGetVersion));
             }
 
-            if (packageVersion.Major.Equals(assemblyNuGetVersion.Major) &&
-                packageVersion.Minor.Equals(assemblyNuGetVersion.Minor) &&
-                packageVersion.Patch.Equals(assemblyNuGetVersion.Patch))
+            // Pre-release and build metadata does not need to match
+            if (packageVersion.Major == assemblyNuGetVersion.Major &&
+                packageVersion.Minor == assemblyNuGetVersion.Minor &&
+                packageVersion.Patch == assemblyNuGetVersion.Patch)
             {
                 return true;
             }

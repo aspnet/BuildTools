@@ -12,6 +12,7 @@ namespace NuGetPackageVerifier.Rules
     {
         public override IEnumerable<PackageVerifierIssue> ValidateAttribute(
             string currentFilePath,
+            AssemblyDefinition assembly,
             Mono.Collections.Generic.Collection<CustomAttribute> assemblyAttributes)
         {
             if (!HasAttrWithArg(assemblyAttributes, typeof(AssemblyFileVersionAttribute).FullName))

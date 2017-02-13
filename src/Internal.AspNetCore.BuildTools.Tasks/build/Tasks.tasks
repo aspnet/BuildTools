@@ -1,8 +1,14 @@
 ﻿<Project>
+  
   <PropertyGroup>
     <_BuildToolsAssemblyTfm Condition="'$(MSBuildRuntimeType)' == 'Core'">netstandard1.3</_BuildToolsAssemblyTfm>
     <_BuildToolsAssemblyTfm Condition="'$(MSBuildRuntimeType)' != 'Core'">net46</_BuildToolsAssemblyTfm>
+    <_BuildToolsAssembly>$(MSBuildThisFileDirectory)..\tools\$(_BuildToolsAssemblyTfm)\Internal.AspNetCore.BuildTools.Tasks.dll</_BuildToolsAssembly>
   </PropertyGroup>
-  <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)..\tools\$(_BuildToolsAssemblyTfm)\Internal.AspNetCore.BuildTools.Tasks.dll"
-             TaskName="Microsoft.AspNetCore.BuildTools.GetGitCommitInfo" />
+
+  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.GetGitCommitInfo" AssemblyFile="$(_BuildToolsAssembly)" />
+  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.GetOSPlatform" AssemblyFile="$(_BuildToolsAssembly)" />
+  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.SetEnvironmentVariable" AssemblyFile="$(_BuildToolsAssembly)" />
+  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.WaitForDebugger" AssemblyFile="$(_BuildToolsAssembly)" />
+  
 </Project>

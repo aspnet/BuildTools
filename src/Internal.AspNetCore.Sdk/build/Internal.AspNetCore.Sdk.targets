@@ -6,5 +6,4 @@ for use outside of Microsoft.
   <Import Project="$(MSBuildThisFileDirectory)..\targets\BuildNumber.targets" />
   <Import Project="$(MSBuildThisFileDirectory)GenerateAssemblyInfo.targets" />
   <Import Project="$(MSBuildThisFileDirectory)Git.targets" />
-  <Import Project="$(MSBuildThisFileDirectory)Workarounds.targets" />
 </Project>

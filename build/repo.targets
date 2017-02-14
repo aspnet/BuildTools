@@ -12,6 +12,6 @@
         <AdditionalProperties>CommitHash=$(CommitHash)</AdditionalProperties>
       </Solutions>
     </ItemGroup>
-
   </Target>
+
 </Project>

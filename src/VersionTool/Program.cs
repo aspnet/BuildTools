@@ -59,7 +59,7 @@ namespace VersionTool
                 var pathOption = c.Option("-d|--directory", "Directory containing all repos", CommandOptionType.SingleValue);
                 var updatePatchConfigOption = c.Option("-u|--update-patchconfig", "Update patchconfig with all packages found and their current versions", CommandOptionType.NoValue);
                 var updatePackageOption = c.Option("-p|--update-package", "Update the given package before patch following the format <package>:<version>", CommandOptionType.MultipleValue);
-                var updateRepoOption = c.Option("-r|--update-repo", "Update the packages in the given repo before patch ", CommandOptionType.SingleValue);
+                var updateRepoOption = c.Option("-r|--update-repo", "Update the packages in the given repo before patch ", CommandOptionType.MultipleValue);
 
                 var patchConfig = c.Argument("patchConfig", "Path to the configuration file for patch update");
 

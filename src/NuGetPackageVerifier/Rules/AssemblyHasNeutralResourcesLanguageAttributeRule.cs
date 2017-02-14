@@ -13,6 +13,7 @@ namespace NuGetPackageVerifier.Rules
     {
         public override IEnumerable<PackageVerifierIssue> ValidateAttribute(
             string currentFilePath,
+            AssemblyDefinition assembly,
             Mono.Collections.Generic.Collection<CustomAttribute> assemblyAttributes)
         {
             if (!HasNeutralResourcesLanguageAttribute(assemblyAttributes))

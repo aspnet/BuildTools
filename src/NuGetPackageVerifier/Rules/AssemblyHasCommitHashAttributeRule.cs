@@ -14,6 +14,7 @@ namespace NuGetPackageVerifier.Rules
     {
         public override IEnumerable<PackageVerifierIssue> ValidateAttribute(
             string currentFilePath,
+            AssemblyDefinition assembly,
             Collection<CustomAttribute> assemblyAttributes)
         {
             var fileName = Path.GetFileNameWithoutExtension(currentFilePath);

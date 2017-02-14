@@ -40,7 +40,7 @@ namespace NuGetPackageVerifier.Rules
 
                                     var asmAttrs = assembly.CustomAttributes;
 
-                                    return ValidateAttribute(currentFile, asmAttrs);
+                                    return ValidateAttribute(currentFile, assembly, asmAttrs);
                                 }
                             }
                         }
@@ -60,6 +60,7 @@ namespace NuGetPackageVerifier.Rules
 
         public abstract IEnumerable<PackageVerifierIssue> ValidateAttribute(
             string currentFilePath,
+            AssemblyDefinition assembly,
             Mono.Collections.Generic.Collection<CustomAttribute> assemblyAttributes);
     }
 }

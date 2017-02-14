@@ -39,6 +39,24 @@ namespace NuGetPackageVerifier
                 PackageIssueLevel.Error);
         }
 
+        public static PackageVerifierIssue AssemblyInformationalVersionDoesNotMatchPackageVersion(string assemblyPath, NuGetVersion assemblyInformationalVersion, NuGetVersion packageVersion, string packageId)
+        {
+            return new PackageVerifierIssue(
+                "ASSEMBLY_INFORMATIONAL_VERSION_MISMATCH",
+                assemblyPath,
+                $"The managed assembly informational version '{assemblyInformationalVersion}' does not match the package version '{packageVersion}' for package {packageId}.",
+                PackageIssueLevel.Warning);
+        }
+
+        public static PackageVerifierIssue AssemblyFileVersionDoesNotMatchPackageVersion(string assemblyPath, NuGetVersion assemblyFileVersion, NuGetVersion packageVersion, string packageId)
+        {
+            return new PackageVerifierIssue(
+                "ASSEMBLY_FILE_VERSION_MISMATCH",
+                assemblyPath,
+                $"The managed assembly file version '{assemblyFileVersion}' does not match the package version '{packageVersion}' for package {packageId}.",
+                PackageIssueLevel.Warning);
+        }
+
         public static PackageVerifierIssue AssemblyVersionDoesNotMatchPackageVersion(string assemblyPath, Version assemblyVersion, Version packageVersion, string packageId)
         {
             return new PackageVerifierIssue(

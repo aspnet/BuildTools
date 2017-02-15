@@ -10,8 +10,8 @@ namespace Microsoft.AspNetCore.BuildTools
 {
     public class GetGitCommitInfo : Task
     {
-        private const string _headContentStart = "ref: refs/heads/";
-        private const int _shaLength = 40;
+        private const string HeadContentStart = "ref: refs/heads/";
+        private const int CommitShaLength = 40;
 
         /// <summary>
         /// A folder inside the git project. Does not need to be the top folder.
@@ -56,11 +56,11 @@ namespace Microsoft.AspNetCore.BuildTools
             }
 
             var content = File.ReadAllText(headFile).Trim();
-            if (content.StartsWith(_headContentStart))
+            if (content.StartsWith(HeadContentStart))
             {
                 return ResolveFromBranch(content);
             }
-            else if (content.Length == _shaLength)
+            else if (content.Length == CommitShaLength)
             {
                 return ResolveFromDetachedHead(content);
             }
@@ -71,7 +71,7 @@ namespace Microsoft.AspNetCore.BuildTools
 
         private bool ResolveFromBranch(string head)
         {
-            Branch = head.Substring(_headContentStart.Length);
+            Branch = head.Substring(HeadContentStart.Length);
 
             if (string.IsNullOrEmpty(Branch))
             {

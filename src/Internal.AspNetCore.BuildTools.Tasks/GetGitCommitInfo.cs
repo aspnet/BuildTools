@@ -10,6 +10,9 @@ namespace Microsoft.AspNetCore.BuildTools
 {
     public class GetGitCommitInfo : Task
     {
+        private const string _headContentStart = "ref: refs/heads/";
+        private const int _shaLength = 40;
+
         /// <summary>
         /// A folder inside the git project. Does not need to be the top folder.
         /// This task will search upwards for the .git folder.
@@ -53,14 +56,22 @@ namespace Microsoft.AspNetCore.BuildTools
             }
 
             var content = File.ReadAllText(headFile).Trim();
-            const string HeadContentStart = "ref: refs/heads/";
-            if (!content.StartsWith(HeadContentStart))
+            if (content.StartsWith(_headContentStart))
             {
-                Log.LogError("Unable to determine active git branch. '.git/HEAD' file in unexpected format: '{0}'", content);
-                return false;
+                return ResolveFromBranch(content);
+            }
+            else if (content.Length == _shaLength)
+            {
+                return ResolveFromDetachedHead(content);
             }
 
-            Branch = content.Substring(HeadContentStart.Length);
+            Log.LogError("Unable to determine active git branch. '.git/HEAD' file in unexpected format: '{0}'", content);
+            return false;
+        }
+
+        private bool ResolveFromBranch(string head)
+        {
+            Branch = head.Substring(_headContentStart.Length);
 
             if (string.IsNullOrEmpty(Branch))
             {
@@ -75,6 +86,13 @@ namespace Microsoft.AspNetCore.BuildTools
             }
 
             CommitHash = File.ReadAllText(branchFile).Trim();
+            return true;
+        }
+
+        private bool ResolveFromDetachedHead(string head)
+        {
+            CommitHash = head;
+            Log.LogWarning("The repo in '{0}' appears to be in detached HEAD mode. Unable to determine current git branch.", RepositoryRootPath);
             return true;
         }
 

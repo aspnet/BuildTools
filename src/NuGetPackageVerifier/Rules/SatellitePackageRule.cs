@@ -11,24 +11,21 @@ namespace NuGetPackageVerifier.Rules
     {
         public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
-            using (var reader = new PackageArchiveReader(context.PackageFileInfo.FullName))
+            PackageIdentity identity;
+            string packageLanguage;
+            if (PackageHelper.IsSatellitePackage(context.PackageReader, out identity, out packageLanguage))
             {
-                PackageIdentity identity;
-                string packageLanguage;
-                if (PackageHelper.IsSatellitePackage(reader, out identity, out packageLanguage))
+                if (context.Metadata.Summary.Contains("{"))
                 {
-                    if (context.Metadata.Summary.Contains("{"))
-                    {
-                        yield return PackageIssueFactory.Satellite_PackageSummaryNotLocalized();
-                    }
-                    if (context.Metadata.Title.Contains("{"))
-                    {
-                        yield return PackageIssueFactory.Satellite_PackageTitleNotLocalized();
-                    }
-                    if (context.Metadata.Description.Contains("{"))
-                    {
-                        yield return PackageIssueFactory.Satellite_PackageDescriptionNotLocalized();
-                    }
+                    yield return PackageIssueFactory.Satellite_PackageSummaryNotLocalized();
+                }
+                if (context.Metadata.Title.Contains("{"))
+                {
+                    yield return PackageIssueFactory.Satellite_PackageTitleNotLocalized();
+                }
+                if (context.Metadata.Description.Contains("{"))
+                {
+                    yield return PackageIssueFactory.Satellite_PackageDescriptionNotLocalized();
                 }
             }
 

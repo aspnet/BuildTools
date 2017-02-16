@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NuGet.Frameworks;
-using NuGet.Packaging;
 using NuGet.Packaging.Core;
 
 namespace NuGetPackageVerifier.Rules
@@ -21,40 +20,37 @@ namespace NuGetPackageVerifier.Rules
                 yield break;
             }
 
-            using (var reader = new PackageArchiveReader(context.PackageFileInfo.FullName))
+            var libItems = context.PackageReader.GetLibItems()
+                .Where(f => f.TargetFramework == _expectedFramework)
+                .FirstOrDefault();
+
+            if (libItems == null)
             {
-                var libItems = reader.GetLibItems()
-                    .Where(f => f.TargetFramework == _expectedFramework)
-                    .FirstOrDefault();
+                yield return PackageIssueFactory.DotNetCliToolMustTargetFramework(_expectedFramework);
+                yield break;
+            }
 
-                if (libItems == null)
+            var assembly = libItems.Items.Where(f =>
+                Path.GetFileName(f).StartsWith("dotnet-")
+                && Path.GetExtension(f) == ".dll");
+
+            if (!assembly.Any())
+            {
+                yield return PackageIssueFactory.DotNetCliToolMissingDotnetAssembly();
+            }
+
+            foreach (var tool in assembly)
+            {
+                var expected = Path.GetFileNameWithoutExtension(tool) + ".runtimeconfig.json";
+                if (!libItems.Items.Any(f => Path.GetFileName(f) == expected))
                 {
-                    yield return PackageIssueFactory.DotNetCliToolMustTargetFramework(_expectedFramework);
-                    yield break;
+                    yield return PackageIssueFactory.DotNetCliToolMissingRuntimeConfig();
                 }
+            }
 
-                var assembly = libItems.Items.Where(f =>
-                    Path.GetFileName(f).StartsWith("dotnet-")
-                    && Path.GetExtension(f) == ".dll");
-
-                if (!assembly.Any())
-                {
-                    yield return PackageIssueFactory.DotNetCliToolMissingDotnetAssembly();
-                }
-
-                foreach (var tool in assembly)
-                {
-                    var expected = Path.GetFileNameWithoutExtension(tool) + ".runtimeconfig.json";
-                    if (!libItems.Items.Any(f => Path.GetFileName(f) == expected))
-                    {
-                        yield return PackageIssueFactory.DotNetCliToolMissingRuntimeConfig();
-                    }
-                }
-
-                if (!reader.GetFiles().Any(f => f == "prefercliruntime"))
-                {
-                    yield return PackageIssueFactory.DotNetCliToolMissingPrefercliRuntime();
-                }
+            if (!context.PackageReader.GetFiles().Any(f => f == "prefercliruntime"))
+            {
+                yield return PackageIssueFactory.DotNetCliToolMissingPrefercliRuntime();
             }
         }
     }

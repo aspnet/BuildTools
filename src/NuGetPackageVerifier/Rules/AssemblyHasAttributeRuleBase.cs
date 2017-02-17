@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Mono.Cecil;
-using NuGet.Packaging;
 
 namespace NuGetPackageVerifier.Rules
 {
@@ -14,42 +13,39 @@ namespace NuGetPackageVerifier.Rules
     {
         public virtual IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
-            using (var reader = new PackageArchiveReader(context.PackageFileInfo.FullName))
+            foreach (var currentFile in context.PackageReader.GetFiles())
             {
-                foreach (var currentFile in reader.GetFiles())
+                var extension = Path.GetExtension(currentFile);
+                if (extension.Equals(".dll", StringComparison.OrdinalIgnoreCase) ||
+                    extension.Equals(".exe", StringComparison.OrdinalIgnoreCase))
                 {
-                    var extension = Path.GetExtension(currentFile);
-                    if (extension.Equals(".dll", StringComparison.OrdinalIgnoreCase) ||
-                        extension.Equals(".exe", StringComparison.OrdinalIgnoreCase))
+                    var assemblyPath = Path.ChangeExtension(
+                        Path.Combine(Path.GetTempPath(), Path.GetTempFileName()), extension);
+
+                    try
                     {
-                        var assemblyPath = Path.ChangeExtension(
-                            Path.Combine(Path.GetTempPath(), Path.GetTempFileName()), extension);
-
-                        try
+                        using (var packageFileStream = context.PackageReader.GetStream(currentFile))
+                        using (var fileStream = new FileStream(assemblyPath, FileMode.Create))
                         {
-                            using (var packageFileStream = reader.GetStream(currentFile))
-                            using (var fileStream = new FileStream(assemblyPath, FileMode.Create))
+                            packageFileStream.CopyTo(fileStream);
+                        }
+
+                        if (AssemblyHelpers.IsAssemblyManaged(assemblyPath))
+                        {
+                            using (var assembly = AssemblyDefinition.ReadAssembly(assemblyPath))
                             {
-                                packageFileStream.CopyTo(fileStream);
-                            }
 
-                            if (AssemblyHelpers.IsAssemblyManaged(assemblyPath))
-                            {
-                                using (var assembly = AssemblyDefinition.ReadAssembly(assemblyPath))
-                                {
+                                var asmAttrs = assembly.CustomAttributes;
 
-                                    var asmAttrs = assembly.CustomAttributes;
-
-                                    return ValidateAttribute(currentFile, assembly, asmAttrs);
-                                }
+                                return ValidateAttribute(currentFile, assembly, asmAttrs);
                             }
                         }
-                        finally
+                    }
+                    finally
+                    {
+                        if (File.Exists(assemblyPath))
                         {
-                            if (File.Exists(assemblyPath))
-                            {
-                                File.Delete(assemblyPath);
-                            }
+                            File.Delete(assemblyPath);
                         }
                     }
                 }

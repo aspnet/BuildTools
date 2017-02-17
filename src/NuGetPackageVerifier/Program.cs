@@ -162,15 +162,17 @@ namespace NuGetPackageVerifier
                             var package = packagePair.Key;
                             logger.LogInfo("Analyzing {0} ({1})", package.Id, package.Version);
 
-                            var context = new PackageAnalysisContext
+                            List<PackageVerifierIssue> issues;
+                            using (var context = new PackageAnalysisContext
                             {
                                 PackageFileInfo = packagePair.Value,
                                 Metadata = package,
                                 Logger = logger,
                                 Options = packageInfo.Value
-                            };
-
-                            var issues = analyzer.AnalyzePackage(context).ToList();
+                            })
+                            {
+                                issues = analyzer.AnalyzePackage(context).ToList();
+                            }
 
                             var packageErrorsAndWarnings = ProcessPackageIssues(
                                 ignoreAssistanceMode,
@@ -223,14 +225,16 @@ namespace NuGetPackageVerifier
                 {
                     logger.LogInfo("Analyzing {0} ({1})", unlistedPackage.Id, unlistedPackage.Version);
 
-                    var context = new PackageAnalysisContext
+                    List<PackageVerifierIssue> issues;
+                    using (var context = new PackageAnalysisContext
                     {
                         PackageFileInfo = packages[unlistedPackage],
                         Metadata = unlistedPackage,
                         Logger = logger
-                    };
-
-                    var issues = analyzer.AnalyzePackage(context).ToList();
+                    })
+                    {
+                        issues = analyzer.AnalyzePackage(context).ToList();
+                    }
 
                     var packageErrorsAndWarnings = ProcessPackageIssues(
                         ignoreAssistanceMode,

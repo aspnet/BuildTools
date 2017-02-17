@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using NuGetPackageVerifier.Logging;
-using NuGet.Packaging;
 
 namespace NuGetPackageVerifier.Rules
 {
@@ -18,37 +17,34 @@ namespace NuGetPackageVerifier.Rules
             try
             {
                 UnzipPackage(context.PackageFileInfo, extractPath);
-                using (var reader = new PackageArchiveReader(context.PackageFileInfo.FullName))
+                foreach (var current in context.PackageReader.GetFiles())
                 {
-                    foreach (var current in reader.GetFiles())
-                    {
-                        //string packagePath = package.FileSystem.Root + "\\" + Id + "." + Version + ".nupkg"
-                        var extension = Path.GetExtension(current);
+                    //string packagePath = package.FileSystem.Root + "\\" + Id + "." + Version + ".nupkg"
+                    var extension = Path.GetExtension(current);
 
-                        // TODO: Need to add more extensions?
-                        if (extension.Equals(".dll", StringComparison.OrdinalIgnoreCase) ||
-                            extension.Equals(".exe", StringComparison.OrdinalIgnoreCase))
+                    // TODO: Need to add more extensions?
+                    if (extension.Equals(".dll", StringComparison.OrdinalIgnoreCase) ||
+                        extension.Equals(".exe", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var pathOfFileToScan = Path.Combine(extractPath, current);
+                        var realAssemblyPath = pathOfFileToScan;
+                        if (!File.Exists(realAssemblyPath))
                         {
-                            var pathOfFileToScan = Path.Combine(extractPath, current);
-                            var realAssemblyPath = pathOfFileToScan;
+                            realAssemblyPath = pathOfFileToScan.Replace("+", "%2B").Replace("#", "%23");
                             if (!File.Exists(realAssemblyPath))
                             {
-                                realAssemblyPath = pathOfFileToScan.Replace("+", "%2B").Replace("#", "%23");
-                                if (!File.Exists(realAssemblyPath))
-                                {
-                                    context.Logger.LogError(
-                                        "The assembly '{0}' in this package can't be found (a bug in this tool, most likely).",
-                                        current);
+                                context.Logger.LogError(
+                                    "The assembly '{0}' in this package can't be found (a bug in this tool, most likely).",
+                                    current);
 
-                                    continue;
-                                }
+                                continue;
                             }
+                        }
 
-                            var isAuthenticodeSigned = WinTrust.IsAuthenticodeSigned(realAssemblyPath);
-                            if (!isAuthenticodeSigned)
-                            {
-                                yield return PackageIssueFactory.PEFileNotAuthenticodeSigned(current);
-                            }
+                        var isAuthenticodeSigned = WinTrust.IsAuthenticodeSigned(realAssemblyPath);
+                        if (!isAuthenticodeSigned)
+                        {
+                            yield return PackageIssueFactory.PEFileNotAuthenticodeSigned(current);
                         }
                     }
                 }

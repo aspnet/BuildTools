@@ -19,32 +19,29 @@ namespace NuGetPackageVerifier.Rules
                 yield break;
             }
 
-            using (var reader = new PackageArchiveReader(context.PackageFileInfo.FullName))
+            PackageIdentity identity;
+            string packageLanguage;
+            if (!PackageHelper.IsSatellitePackage(context.PackageReader, out identity, out packageLanguage))
             {
-                PackageIdentity identity;
-                string packageLanguage;
-                if (!PackageHelper.IsSatellitePackage(reader, out identity, out packageLanguage))
-                {
-                    var allXmlFiles =
-                        from item in reader.GetLibItems()
-                        from file in item.Items
-                        select file into path
-                        where path.EndsWith(".xml", StringComparison.OrdinalIgnoreCase)
-                        select path;
+                var allXmlFiles =
+                    from item in context.PackageReader.GetLibItems()
+                    from file in item.Items
+                    select file into path
+                    where path.EndsWith(".xml", StringComparison.OrdinalIgnoreCase)
+                    select path;
 
-                    foreach (var current in reader.GetLibItems())
+                foreach (var current in context.PackageReader.GetLibItems())
+                {
+                    foreach (var item in current.Items)
                     {
-                        foreach (var item in current.Items)
+                        var assemblyPath = item;
+                        // TODO: Does this need to check for just managed code?
+                        if (assemblyPath.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
                         {
-                            var assemblyPath = item;
-                            // TODO: Does this need to check for just managed code?
-                            if (assemblyPath.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
+                            var docFilePath = Path.ChangeExtension(assemblyPath, ".xml");
+                            if (!allXmlFiles.Contains(docFilePath, StringComparer.OrdinalIgnoreCase))
                             {
-                                var docFilePath = Path.ChangeExtension(assemblyPath, ".xml");
-                                if (!allXmlFiles.Contains(docFilePath, StringComparer.OrdinalIgnoreCase))
-                                {
-                                    yield return PackageIssueFactory.AssemblyHasNoDocFile(assemblyPath);
-                                }
+                                yield return PackageIssueFactory.AssemblyHasNoDocFile(assemblyPath);
                             }
                         }
                     }

@@ -25,6 +25,7 @@ namespace NuGetPackageVerifier.Rules
             new DependenciesVersionRangeBoundsRule(),
             new DotNetCliToolPackageRule(),
             new PackageVersionMatchesAssemblyVersionRule(),
+            new BuildItemsRule(),
         };
 
         public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)

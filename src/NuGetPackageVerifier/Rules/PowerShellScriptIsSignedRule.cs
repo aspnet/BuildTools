@@ -21,17 +21,14 @@ namespace NuGetPackageVerifier.Rules
 
         public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
-            using (var reader = new PackageArchiveReader(context.PackageFileInfo.FullName))
+            foreach (var current in context.PackageReader.GetFiles())
             {
-                foreach (var current in reader.GetFiles())
+                var extension = Path.GetExtension(current);
+                if (PowerShellExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase))
                 {
-                    var extension = Path.GetExtension(current);
-                    if (PowerShellExtensions.Contains(extension, StringComparer.OrdinalIgnoreCase))
+                    if (!VerifySigned(context.PackageReader, current))
                     {
-                        if (!VerifySigned(reader, current))
-                        {
-                            yield return PackageIssueFactory.PowerShellScriptNotSigned(current);
-                        }
+                        yield return PackageIssueFactory.PowerShellScriptNotSigned(current);
                     }
                 }
             }

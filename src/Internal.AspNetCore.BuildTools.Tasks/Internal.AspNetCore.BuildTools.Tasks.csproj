@@ -24,6 +24,11 @@
     <PackageReference Include="Microsoft.Build.Tasks.Core" Version="15.1.0-*" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.1.0-*" PrivateAssets="All" />
   </ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3' ">
+    <PackageReference Include="System.Xml.XmlDocument" Version="4.0.1" PrivateAssets="All" />
+    <PackageReference Include="System.Xml.XPath.XmlDocument" Version="4.0.1" PrivateAssets="All" />
+  </ItemGroup>
 
  <Target Name="SetPackageProperties" BeforeTargets="GenerateNuspec">
     <PropertyGroup>

@@ -1,5 +1,5 @@
 ﻿<Project>
-  
+
   <PropertyGroup>
     <_BuildToolsAssemblyTfm Condition="'$(MSBuildRuntimeType)' == 'Core'">netstandard1.3</_BuildToolsAssemblyTfm>
     <_BuildToolsAssemblyTfm Condition="'$(MSBuildRuntimeType)' != 'Core'">net46</_BuildToolsAssemblyTfm>
@@ -10,5 +10,8 @@
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.GetOSPlatform" AssemblyFile="$(_BuildToolsAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.SetEnvironmentVariable" AssemblyFile="$(_BuildToolsAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.WaitForDebugger" AssemblyFile="$(_BuildToolsAssembly)" />
-  
+
+  <!-- Note: use 'XmlPoke' where possible. We plan to remove this. See https://github.com/aspnet/BuildTools/issues/180 -->
+  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.XmlPoke2" AssemblyFile="$(_BuildToolsAssembly)" />
+
 </Project>

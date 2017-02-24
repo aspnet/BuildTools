@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.IO;
-using System.Linq;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
@@ -41,7 +40,7 @@ namespace Microsoft.AspNetCore.BuildTools
 
         public override bool Execute()
         {
-            RepositoryRootPath = GetRepositoryRoot(WorkingDirectory);
+            RepositoryRootPath = FileHelpers.EnsureTrailingSlash(GetRepositoryRoot(WorkingDirectory));
             if (RepositoryRootPath == null)
             {
                 Log.LogError("Could not find the git directory for '{0}'", WorkingDirectory);

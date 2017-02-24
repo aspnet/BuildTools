@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
   <metadata>
     <id>Internal.AspNetCore.BuildTools.Tasks</id>
@@ -13,7 +13,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\$configuration$\netstandard1.3\$assemblyname$.dll" target="tools\netstandard1.3\$assemblyname$.dll" />
+    <file src="bin\$configuration$\netstandard1.6\$assemblyname$.dll" target="tools\netstandard1.6\$assemblyname$.dll" />
     <file src="bin\$configuration$\net46\$assemblyname$.dll" target="tools\net46\$assemblyname$.dll" />
     <file src="build\*.tasks" target="build\" />
     <file src="build\*.props" target="build\" />

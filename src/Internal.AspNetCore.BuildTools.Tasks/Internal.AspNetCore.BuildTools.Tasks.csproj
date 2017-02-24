@@ -9,12 +9,12 @@
       The netstandard1.0 TFM doesn't actually compile tasks.
       It's just there so Internal.AspNetCore.Sdk gets a dependency to this project.
     -->
-    <TargetFrameworks>netstandard1.3;net46;netstandard1.0</TargetFrameworks>
+    <TargetFrameworks>netstandard1.6;net46;netstandard1.0</TargetFrameworks>
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
     <RootNamespace>Microsoft.AspNetCore.BuildTools</RootNamespace>
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <!-- don't try to compile the *.cs files on netstandard1.0 -->
-    <EnableDefaultItems Condition="'$(TargetFramework)' != 'netstandard1.3' AND '$(TargetFramework)' != 'net46'">false</EnableDefaultItems>
+    <EnableDefaultItems Condition="'$(TargetFramework)' != 'netstandard1.6' AND '$(TargetFramework)' != 'net46'">false</EnableDefaultItems>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,7 +27,7 @@
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.1.0-*" PrivateAssets="All" />
   </ItemGroup>
   
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3' ">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.6' ">
     <PackageReference Include="System.Xml.XmlDocument" Version="4.0.1" PrivateAssets="All" />
     <PackageReference Include="System.Xml.XPath.XmlDocument" Version="4.0.1" PrivateAssets="All" />
   </ItemGroup>

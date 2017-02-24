@@ -6,6 +6,7 @@
     <VersionPrefix>1.0.1</VersionPrefix>
     <TargetFramework>netstandard1.0</TargetFramework>
     <IncludeBuildOutput>false</IncludeBuildOutput>
+    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
     <Serviceable>false</Serviceable>
     <Description>Build targets and extensions to Microsoft.NET.Sdk. This package is intended for Microsoft use only.</Description>
   </PropertyGroup>

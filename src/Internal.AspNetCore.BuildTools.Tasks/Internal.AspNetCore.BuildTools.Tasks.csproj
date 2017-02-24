@@ -10,7 +10,9 @@
       It's just there so Internal.AspNetCore.Sdk gets a dependency to this project.
     -->
     <TargetFrameworks>netstandard1.3;net46;netstandard1.0</TargetFrameworks>
+    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
     <RootNamespace>Microsoft.AspNetCore.BuildTools</RootNamespace>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
     <!-- don't try to compile the *.cs files on netstandard1.0 -->
     <EnableDefaultItems Condition="'$(TargetFramework)' != 'netstandard1.3' AND '$(TargetFramework)' != 'net46'">false</EnableDefaultItems>
   </PropertyGroup>

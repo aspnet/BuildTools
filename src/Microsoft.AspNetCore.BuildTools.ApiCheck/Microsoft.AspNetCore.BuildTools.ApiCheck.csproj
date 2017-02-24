@@ -4,9 +4,7 @@
 
   <PropertyGroup>
     <VersionPrefix>1.0.1</VersionPrefix>
-    <TargetFrameworks>netcoreapp1.0;net451</TargetFrameworks>
-    <RuntimeIdentifier Condition=" '$(TargetFramework)'!='netcoreapp1.0' ">win7-x64</RuntimeIdentifier>
-    <Platform>AnyCPU</Platform>
+    <TargetFrameworks>netcoreapp1.0;net452</TargetFrameworks>
     <OutputType>exe</OutputType>
   </PropertyGroup>
 
@@ -17,7 +15,6 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
-    <PackageReference Include="Microsoft.NETCore.App" Version="1.0.0" />
     <PackageReference Include="System.Runtime.Loader" Version="4.0.0" />
   </ItemGroup>
 

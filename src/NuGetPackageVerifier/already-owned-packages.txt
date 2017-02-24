@@ -111,6 +111,7 @@ Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests
 Microsoft.EntityFrameworkCore.Relational.Specification.Tests
 Microsoft.EntityFrameworkCore.Specification.Tests
 Microsoft.EntityFrameworkCore.Sqlite
+Microsoft.EntityFrameworkCore.Sqlite.Core
 Microsoft.EntityFrameworkCore.Sqlite.Design
 Microsoft.EntityFrameworkCore.SqlServer
 Microsoft.EntityFrameworkCore.SqlServer.Design

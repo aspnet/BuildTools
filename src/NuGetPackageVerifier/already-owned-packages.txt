@@ -98,6 +98,7 @@ Microsoft.CodeAnalysis.Razor
 Microsoft.CodeAnalysis.Razor.Workspaces
 Microsoft.CodeAnalysis.Remote.Razor
 Microsoft.Data.Sqlite
+Microsoft.Data.Sqlite.Core
 Microsoft.DotNet.Watcher.Core
 Microsoft.DotNet.Watcher.Tools
 Microsoft.EntityFrameworkCore

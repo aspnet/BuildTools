@@ -129,6 +129,7 @@ Microsoft.Extensions.Configuration.Abstractions
 Microsoft.Extensions.Configuration.Binder
 Microsoft.Extensions.Configuration.CommandLine
 Microsoft.Extensions.Configuration.AzureKeyVault
+Microsoft.Extensions.Configuration.DockerSecrets
 Microsoft.Extensions.Configuration.EnvironmentVariables
 Microsoft.Extensions.Configuration.FileExtensions
 Microsoft.Extensions.Configuration.Ini

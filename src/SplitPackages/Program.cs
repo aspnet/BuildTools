@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -152,11 +152,11 @@ namespace SplitPackages
 
                 CopyPackages(arguments.DestinationFolder, categoryClassification);
 
-                CreateProjectJsonFiles(arguments.DestinationFolder, categoryClassification);
+                CreateCsprojFiles(arguments.DestinationFolder, categoryClassification);
 
                 var optimizedCacheClassification = classifier.GetClassification("OptimizedCache");
 
-                CreateProjectJsonFilesForOptimizedCache(arguments.DestinationFolder, optimizedCacheClassification);
+                CreateCsprojFilesForOptimizedCache(arguments.DestinationFolder, optimizedCacheClassification);
 
                 return Ok;
             }
@@ -168,26 +168,26 @@ namespace SplitPackages
             }
         }
 
-        private void CreateProjectJsonFilesForOptimizedCache(string destinationPath, ClassificationResult optimizedCacheClassification)
+        private void CreateCsprojFilesForOptimizedCache(string destinationPath, ClassificationResult optimizedCacheClassification)
         {
-            CreateProjectJsonFileWithTimeStamps(destinationPath, optimizedCacheClassification);
-            CreateProjectJsonFileWithoutTimeStamps(destinationPath, optimizedCacheClassification);
+            CreateCsprojFileWithTimeStamps(destinationPath, optimizedCacheClassification);
+            CreateCsprojFileWithoutTimeStamps(destinationPath, optimizedCacheClassification);
         }
 
-        private void CreateProjectJsonFileWithTimeStamps(string destinationPath, ClassificationResult optimizedCacheClassification)
+        private void CreateCsprojFileWithTimeStamps(string destinationPath, ClassificationResult optimizedCacheClassification)
         {
             var packages = GetPackagesForOptimizedCache(optimizedCacheClassification);
-            var builder = CreateBaseJsonFileBuilderForCache(destinationPath, "cache.project.json");
+            var builder = CreateBaseCsprojFileBuilderForCache(destinationPath, "cache.csproj");
             builder.AddDependencies(packages);
             builder.Execute();
         }
 
-        private void CreateProjectJsonFileWithoutTimeStamps(string destinationPath, ClassificationResult optimizedCacheClassification)
+        private void CreateCsprojFileWithoutTimeStamps(string destinationPath, ClassificationResult optimizedCacheClassification)
         {
             var packages = GetPackagesForOptimizedCache(optimizedCacheClassification);
             var correctedPackages = packages.Select(p => new PackageInformation(p.FullPath, p.Identity, GetFinalVersion(p.Version), p.SupportedFrameworks));
 
-            var builder = CreateBaseJsonFileBuilderForCache(destinationPath, "final.cache.project.json");
+            var builder = CreateBaseCsprojFileBuilderForCache(destinationPath, "final.cache.csproj");
             builder.AddDependencies(correctedPackages);
             builder.Execute();
         }
@@ -217,9 +217,9 @@ namespace SplitPackages
             }
         }
 
-        private ProjectJsonFileBuilder CreateBaseJsonFileBuilderForCache(string destinationPath, string projectName)
+        private CsprojFileBuilder CreateBaseCsprojFileBuilderForCache(string destinationPath, string projectName)
         {
-            var builder = new ProjectJsonFileBuilder(
+            var builder = new CsprojFileBuilder(
                 Path.Combine(destinationPath, projectName),
                 _whatIf.HasValue(),
                 _ignoreErrors.HasValue(),
@@ -257,43 +257,43 @@ namespace SplitPackages
             }
         }
 
-        private void CreateProjectJsonFiles(string destinationPath, ClassificationResult result)
+        private void CreateCsprojFiles(string destinationPath, ClassificationResult result)
         {
             foreach (var classification in result.ClassifiedPackages)
             {
-                CreateProjectJsonFile(Path.Combine(destinationPath, classification.Trait.Value, "noimports.project.json"), classification);
-                CreateProjectJsonFileWithImports(Path.Combine(destinationPath, classification.Trait.Value, "project.json"), classification);
+                CreateCsprojFile(Path.Combine(destinationPath, classification.Trait.Value, "noimports.csproj"), classification);
+                CreateCsprojFileWithImports(Path.Combine(destinationPath, classification.Trait.Value, "project.csproj"), classification);
             }
         }
 
-        private void CreateProjectJsonFile(string path, ClassifiedPackages packages)
+        private void CreateCsprojFile(string path, ClassifiedPackages packages)
         {
-            ProjectJsonFileBuilder jsonFileBuilder = CreateBaseJsonFileBuilder(path, packages);
-            jsonFileBuilder.Execute();
+            CsprojFileBuilder csprojFileBuilder = CreateBaseCsprojFileBuilder(path, packages);
+            csprojFileBuilder.Execute();
         }
 
-        private void CreateProjectJsonFileWithImports(string path, ClassifiedPackages packages)
+        private void CreateCsprojFileWithImports(string path, ClassifiedPackages packages)
         {
-            ProjectJsonFileBuilder jsonFileBuilder = CreateBaseJsonFileBuilder(path, packages);
+            CsprojFileBuilder csprojFileBuilder = CreateBaseCsprojFileBuilder(path, packages);
 
-            jsonFileBuilder.AddImports(Frameworks.NetCoreApp10, Frameworks.DnxCore50);
-            jsonFileBuilder.AddImports(Frameworks.NetCoreApp10, Frameworks.Dotnet56);
-            jsonFileBuilder.AddImports(Frameworks.NetCoreApp10, Frameworks.PortableNet451Win8);
-            jsonFileBuilder.Execute();
+            csprojFileBuilder.AddImports(Frameworks.NetCoreApp10, Frameworks.DnxCore50);
+            csprojFileBuilder.AddImports(Frameworks.NetCoreApp10, Frameworks.Dotnet56);
+            csprojFileBuilder.AddImports(Frameworks.NetCoreApp10, Frameworks.PortableNet451Win8);
+            csprojFileBuilder.Execute();
         }
 
-        private ProjectJsonFileBuilder CreateBaseJsonFileBuilder(string path, ClassifiedPackages packages)
+        private CsprojFileBuilder CreateBaseCsprojFileBuilder(string path, ClassifiedPackages packages)
         {
-            var jsonFileBuilder = new ProjectJsonFileBuilder(
+            var csprojFileBuilder = new CsprojFileBuilder(
                 path,
                 _whatIf.HasValue(),
                 _quiet.HasValue(),
                 Logger);
 
-            jsonFileBuilder.AddFramework(Frameworks.Net451);
-            jsonFileBuilder.AddFramework(Frameworks.NetCoreApp10);
-            jsonFileBuilder.AddDependencies(packages.Packages);
-            return jsonFileBuilder;
+            csprojFileBuilder.AddFramework(Frameworks.Net451);
+            csprojFileBuilder.AddFramework(Frameworks.NetCoreApp10);
+            csprojFileBuilder.AddDependencies(packages.Packages);
+            return csprojFileBuilder;
         }
 
         private ILogger CreateLogger()

@@ -1,25 +1,24 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using PackageClassifier;
 
 namespace SplitPackages
 {
-    public class ProjectJsonFileBuilder
+    public class CsprojFileBuilder
     {
         private readonly string _path;
         private readonly bool _whatIf;
         private readonly bool _quiet;
         private readonly ILogger _logger;
 
-        public ProjectJsonFileBuilder(
+        public CsprojFileBuilder(
             string path,
             bool whatIf,
             bool warningsAsErrors,
@@ -114,39 +113,87 @@ namespace SplitPackages
 
         public void Execute()
         {
-            var document = new JObject();
-            document["dependencies"] = JObject.FromObject(CreateDependenciesDictionary(_dependencies));
-            document["frameworks"] = JObject.FromObject(CreateFrameworksDictionary());
-            document["runtimes"] = JObject.FromObject(CreateRuntimesDictionary());
+            var document = new XDocument();
+            var root = new XElement("Project", new XAttribute("Sdk", "Microsoft.NET.Sdk"));
+            var projectDefinitionPropertyGroup = new XElement("PropertyGroup");
+            var frameworksNames = string.Join(";", _frameworks.Select(i => Frameworks.GetMoniker(i.Name)));
+            projectDefinitionPropertyGroup.Add(new XElement("TargetFrameworks", frameworksNames));
 
-            var writer = _whatIf ? StreamWriter.Null : File.CreateText(_path);
-            using (var jsonWriter = new JsonTextWriter(writer) { Formatting = Formatting.Indented })
+            foreach (var framework in _frameworks)
             {
-                _logger.LogInformation($"Writing project.json file to {_path}");
-                document.WriteTo(jsonWriter);
-
-                if (_whatIf)
+                var monikerName = Frameworks.GetMoniker(framework.Name);
+                if (!monikerName.StartsWith("netcoreapp"))
                 {
-                    _logger.LogInformation(document.ToString());
+                    var runtimes = Runtime.AllRuntimes.ToList();
+                    if (runtimes?.Count != 0)
+                    {
+                        var runtimesNames = string.Join(";", runtimes.Select(i => i.Name));
+                        projectDefinitionPropertyGroup.Add(
+                            new XElement("RuntimeIdentifiers",
+                            new XAttribute("Condition", $" '$(TargetFramework)' == '{monikerName}'"),
+                            runtimesNames));
+                    }
                 }
+
+                var imports = framework.Imports;
+                if (imports?.Count != 0)
+                {
+                    var importNames = string.Join(";", imports.Select(i => Frameworks.GetMoniker(i)));
+                    projectDefinitionPropertyGroup.Add(
+                        new XElement("PackageTargetFallback",
+                        new XAttribute("Condition", $" '$(TargetFramework)' == '{monikerName}'"),
+                        $"$(PackageTargetFallback);{importNames}"));
+                }
+            }
+
+            projectDefinitionPropertyGroup.Add(new XElement("DisableImplicitFrameworkReferences", true));
+            root.Add(projectDefinitionPropertyGroup);
+            var dependenciesDictionary = CreateDependenciesDictionary(_dependencies);
+            var packageDependencies = CreatePackageReferenceList(dependenciesDictionary);
+            root.Add(new XElement("ItemGroup", packageDependencies));
+
+            foreach (var framework in _frameworks)
+            {
+                var frameworkDependencies = CreateFrameworksDictionary(framework.Dependencies);
+                if (frameworkDependencies?.Count != 0)
+                {
+                    var itemGroup = new XElement("ItemGroup");
+                    var monikerName = Frameworks.GetMoniker(framework.Name);
+                    itemGroup.Add(new XAttribute("Condition", $" '$(TargetFramework)' == '{monikerName}'"), frameworkDependencies);
+                    root.Add(itemGroup);
+                }
+            }
+
+            document.Add(root);
+            var writer = _whatIf ? StreamWriter.Null : File.CreateText(_path);
+            _logger.LogInformation($"Writing csproj file to {_path}");
+            document.Save(writer);
+
+            if (_whatIf)
+            {
+                _logger.LogInformation(document.ToString());
             }
         }
 
-        private IDictionary<string, JObject> CreateRuntimesDictionary()
+        private IList<XElement> CreatePackageReferenceList(IDictionary<string, string> dependenciesDictionary)
         {
-            return Runtime.AllRuntimes.ToDictionary(r => r.Name, r => new JObject());
+            var packageReferenceList = new List<XElement>();
+            foreach (var packageReference in dependenciesDictionary)
+            {
+                var packageReferenceElement = new XElement("PackageReference");
+                packageReferenceElement.Add(new XAttribute("Include", packageReference.Key));
+                packageReferenceElement.Add(new XAttribute("Version", packageReference.Value));
+                packageReferenceList.Add(packageReferenceElement);
+            }
+
+            return packageReferenceList;
         }
 
-        private Dictionary<string, JObject> CreateFrameworksDictionary()
+        private IList<XElement> CreateFrameworksDictionary(IList<PackageInformation> dependencies)
         {
-            return _frameworks
-                .ToDictionary(
-                f => Frameworks.GetMoniker(f.Name),
-                f => new JObject()
-                {
-                    ["dependencies"] = JObject.FromObject(CreateDependenciesDictionary(f.Dependencies)),
-                    ["imports"] = new JArray(f.Imports.Select(i => Frameworks.GetMoniker(i)))
-                });
+            var dependenciesDictionary = CreateDependenciesDictionary(dependencies);
+            var packageDependencies = CreatePackageReferenceList(dependenciesDictionary);
+            return packageDependencies;
         }
 
         private IDictionary<string, string> CreateDependenciesDictionary(IList<PackageInformation> dependencies)

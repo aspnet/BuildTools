@@ -16,4 +16,9 @@ For single-tfm projects, this will be imported from build/Internal.AspNetCore.Sd
     <Message Text="Build version: $(AssemblyName)/$(TargetFramework)/$(Version)" Importance="normal" />
   </Target>
 
+  <!-- workaround https://github.com/NuGet/Home/issues/4726 -->
+  <PropertyGroup>
+    <IncludeSymbols Condition="'$(NuspecFile)'!=''">false</IncludeSymbols>
+  </PropertyGroup>
+
 </Project>

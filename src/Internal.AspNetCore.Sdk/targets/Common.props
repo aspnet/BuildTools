@@ -9,6 +9,7 @@ Usage: this should be imported once via NuGet at the top of the file.
 
   <!-- common package options -->
   <PropertyGroup>
+    <IncludeSymbols Condition="'$(IncludeSymbols)'==''">true</IncludeSymbols>
     <NeutralLanguage Condition="'$(NeutralLanguage)'==''">en-US</NeutralLanguage>
     <Company Condition="'$(Company)'==''">Microsoft Corporation.</Company>
     <Authors Condition="'$(Authors)'==''">Microsoft</Authors>

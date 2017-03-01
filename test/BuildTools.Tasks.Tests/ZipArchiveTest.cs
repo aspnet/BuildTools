@@ -1,0 +1,113 @@
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Microsoft.AspNetCore.BuildTools;
+using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
+using Xunit;
+
+using ZipArchiveStream = System.IO.Compression.ZipArchive;
+
+namespace BuildTools.Tasks.Tests
+{
+    public class ZipArchiveTest : IDisposable
+    {
+        private readonly string _tempDir;
+
+        public ZipArchiveTest()
+        {
+            _tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            Directory.CreateDirectory(_tempDir);
+        }
+
+        [Fact]
+        public void ZipsLinkItems()
+        {
+            var inputFile = Path.Combine(_tempDir, "..", Guid.NewGuid().ToString());
+            var dest = Path.Combine(_tempDir, "test.zip");
+            var linkItem = new TaskItem(inputFile);
+            linkItem.SetMetadata("Link", "temp/temp/temp/file.txt");
+            try
+            {
+                File.WriteAllText(inputFile, "");
+                var task = new ZipArchive
+                {
+                    SourceFiles = new[] { linkItem },
+                    WorkingDirectory = Path.Combine(_tempDir, "temp"),
+                    File = dest,
+                    BuildEngine = new MockEngine(),
+                };
+                Assert.True(task.Execute());
+
+                using (var fileStream = new FileStream(dest, FileMode.Open))
+                using (var zipStream = new ZipArchiveStream(fileStream))
+                {
+                    var entry = Assert.Single(zipStream.Entries);
+                    Assert.Equal("temp/temp/temp/file.txt", entry.FullName);
+                }
+            }
+            finally
+            {
+                File.Delete(inputFile);
+            }
+        }
+
+        [Fact]
+        public void CreatesZip()
+        {
+            var files = new[]
+            {
+                "a.txt",
+                "dir/b.txt",
+                @"dir\c.txt",
+            };
+
+            var dest = Path.Combine(_tempDir, "test.zip");
+            Assert.False(File.Exists(dest));
+
+            var task = new ZipArchive
+            {
+                SourceFiles = CreateItems(files).ToArray(),
+                WorkingDirectory = _tempDir,
+                File = dest,
+                Overwrite = true,
+                BuildEngine = new MockEngine(),
+            };
+
+            Assert.True(task.Execute());
+            Assert.True(File.Exists(dest));
+
+            using (var fileStream = new FileStream(dest, FileMode.Open))
+            using (var zipStream = new ZipArchiveStream(fileStream))
+            {
+                Assert.Equal(files.Length, zipStream.Entries.Count);
+                Assert.Collection(zipStream.Entries,
+                    a => Assert.Equal("a.txt", a.FullName),
+                    b => Assert.Equal("dir/b.txt", b.FullName),
+                    c => Assert.Equal($"dir{Path.DirectorySeparatorChar}c.txt", c.FullName));
+            }
+        }
+
+        private IEnumerable<ITaskItem> CreateItems(string[] files)
+        {
+            foreach (var file in files)
+            {
+                var path = Path.Combine(_tempDir, file);
+                Directory.CreateDirectory(Path.GetDirectoryName(path));
+                File.WriteAllText(path.Replace('\\', '/'), "");
+                // intentionally allow item spec to contain \ and /
+                // this tests that MSBuild normalizes before we create zip entries
+                yield return new TaskItem(path);
+            }
+        }
+
+        public void Dispose()
+        {
+            Directory.Delete(_tempDir, recursive: true);
+        }
+    }
+}

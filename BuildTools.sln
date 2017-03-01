@@ -1,12 +1,16 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26209.0
+VisualStudioVersion = 15.0.26228.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A4F4353B-C3D2-40B0-909A-5B48A748EA76}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BF3E9C90-F129-4CE6-8F3B-F96831E4429B}"
 	ProjectSection(SolutionItems) = preProject
+		build\common.props = build\common.props
+		build\dependencies.props = build\dependencies.props
 		global.json = global.json
+		build\repo.props = build\repo.props
+		build\repo.targets = build\repo.targets
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{60A938B2-D95A-403C-AA7A-3683AD64DFA0}"
@@ -36,6 +40,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Internal.AspNetCore.Sdk", "src\Internal.AspNetCore.Sdk\Internal.AspNetCore.Sdk.csproj", "{F0E4CF2B-29B9-432B-BF27-195996CA24FD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Internal.AspNetCore.BuildTools.Tasks", "src\Internal.AspNetCore.BuildTools.Tasks\Internal.AspNetCore.BuildTools.Tasks.csproj", "{6A631446-BBDD-4743-B576-7F9793B6BE45}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildTools.Tasks.Tests", "test\BuildTools.Tasks.Tests\BuildTools.Tasks.Tests.csproj", "{211858CA-6E82-4EFD-9960-8D023EEB789F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -95,6 +101,10 @@ Global
 		{6A631446-BBDD-4743-B576-7F9793B6BE45}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6A631446-BBDD-4743-B576-7F9793B6BE45}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6A631446-BBDD-4743-B576-7F9793B6BE45}.Release|Any CPU.Build.0 = Release|Any CPU
+		{211858CA-6E82-4EFD-9960-8D023EEB789F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{211858CA-6E82-4EFD-9960-8D023EEB789F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{211858CA-6E82-4EFD-9960-8D023EEB789F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{211858CA-6E82-4EFD-9960-8D023EEB789F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -113,5 +123,6 @@ Global
 		{EBC0BF3F-14B4-4595-980D-D4D738043D59} = {A4F4353B-C3D2-40B0-909A-5B48A748EA76}
 		{F0E4CF2B-29B9-432B-BF27-195996CA24FD} = {A4F4353B-C3D2-40B0-909A-5B48A748EA76}
 		{6A631446-BBDD-4743-B576-7F9793B6BE45} = {A4F4353B-C3D2-40B0-909A-5B48A748EA76}
+		{211858CA-6E82-4EFD-9960-8D023EEB789F} = {60A938B2-D95A-403C-AA7A-3683AD64DFA0}
 	EndGlobalSection
 EndGlobal

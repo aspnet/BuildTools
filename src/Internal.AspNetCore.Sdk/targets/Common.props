@@ -24,5 +24,11 @@ Usage: this should be imported once via NuGet at the top of the file.
     <!-- make disabling warnings opt-out -->
     <TreatWarningsAsErrors Condition="'$(TreatWarningsAsErrors)'==''">true</TreatWarningsAsErrors>
   </PropertyGroup>
+  
+  <!-- external package versions -->
+  <PropertyGroup>
+    <PackageVersionXunit>2.2.0-beta5-build3474</PackageVersionXunit>
+    <PackageVersionXunitVSRunner>2.2.0-beta5-build1225</PackageVersionXunitVSRunner>
+  </PropertyGroup>
 
 </Project>

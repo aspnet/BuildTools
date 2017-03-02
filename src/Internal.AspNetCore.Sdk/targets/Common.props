@@ -22,7 +22,7 @@ Usage: this should be imported once via NuGet at the top of the file.
   <!-- common build options -->
   <PropertyGroup>
     <!-- make disabling warnings opt-out -->
-    <TreatWarningsAsErrors Condition="'$(TreatWarningsAsErrors)'==''">true</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
 </Project>

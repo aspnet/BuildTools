@@ -9,14 +9,14 @@ Usage: this should be imported once via NuGet at the top of the file.
 
   <!-- common package options -->
   <PropertyGroup>
-    <IncludeSymbols Condition="'$(IncludeSymbols)'==''">true</IncludeSymbols>
-    <NeutralLanguage Condition="'$(NeutralLanguage)'==''">en-US</NeutralLanguage>
-    <Company Condition="'$(Company)'==''">Microsoft Corporation.</Company>
-    <Authors Condition="'$(Authors)'==''">Microsoft</Authors>
-    <Copyright Condition="'$(Copyright)'==''">© Microsoft Corporation. All rights reserved.</Copyright>
-    <ProjectUrl Condition="'$(ProjectUrl)'==''">https://asp.net</ProjectUrl>
-    <RequireLicenseAcceptance Condition="'$(RequireLicenseAcceptance)'==''">true</RequireLicenseAcceptance>
-    <Serviceable Condition="'$(Configuration)' == 'Release' AND '$(Serviceable)'==''">true</Serviceable>
+    <IncludeSymbols>true</IncludeSymbols>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <Company>Microsoft Corporation.</Company>
+    <Authors>Microsoft</Authors>
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+    <ProjectUrl>https://asp.net</ProjectUrl>
+    <RequireLicenseAcceptance>true</RequireLicenseAcceptance>
+    <Serviceable Condition="'$(Configuration)' == 'Release'">true</Serviceable>
   </PropertyGroup>
 
   <!-- common build options -->

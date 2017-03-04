@@ -1,35 +1,31 @@
-﻿using System;
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Reflection.PortableExecutable;
 using System.Text;
-using Microsoft.DotNet.ProjectModel;
-using Microsoft.Extensions.Logging;
 
 namespace DependenciesPackager
 {
     internal class OutputFilesContext : IDisposable
     {
         private const int CrossGenFlag = 4;
-        private readonly string _restoreFolder;
-        private readonly Project _project;
         private ILogger _logger;
 
         public OutputFilesContext(
             string destination,
             string version,
             string runtime,
-            string restoreFolder,
-            Project project,
             ILogger logger)
         {
             var architecture = runtime.Substring(runtime.LastIndexOf('-') + 1);
             OutputPath = Path.GetFullPath(Path.Combine(destination, version, architecture));
 
-            _restoreFolder = restoreFolder;
-            _project = project;
             _logger = logger;
         }
 

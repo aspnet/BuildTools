@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,7 +13,6 @@ namespace DependenciesPackager
     public class PackageRestoreContext : IDisposable
     {
         private static readonly string TempRestoreFolderName = "TempRestorePackages";
-        private readonly IEnumerable<string> _fallbackFeeds;
         private readonly IEnumerable<string> _sourceFolders;
         private readonly ILogger _logger;
         private readonly string _manifest;
@@ -21,13 +23,11 @@ namespace DependenciesPackager
             string destination,
             string dotnetSdkPath,
             IEnumerable<string> sourceFolders,
-            IEnumerable<string> fallbackFeeds,
             ILogger logger)
         {
             RestoreFolder = Path.GetFullPath(Path.Combine(destination, TempRestoreFolderName));
             _manifest = manifest;
             _sourceFolders = sourceFolders;
-            _fallbackFeeds = fallbackFeeds;
             _dotnetSdkPath = dotnetSdkPath ?? "dotnet";
 
             _logger = logger;
@@ -44,11 +44,9 @@ namespace DependenciesPackager
             buffer.AppendLine("Restore packages");
             buffer.AppendLine($"  restore folder: {RestoreFolder}");
             buffer.AppendLine($"  source folders: {string.Join(",", _sourceFolders)}");
-            buffer.AppendLine($"  fallback feeds: {string.Join(",", _fallbackFeeds)}");
             _logger.LogInformation(buffer.ToString());
 
             var sources = _sourceFolders.Any() ? string.Join(" ", _sourceFolders.Select(v => $"--source {v}")) : string.Empty;
-            var fallbackFeeds = _fallbackFeeds.Any() ? string.Join(" ", _fallbackFeeds.Select(v => $"--fallbacksource {v} ")) : string.Empty;
             var packages = $"--packages {RestoreFolder}";
 
             var arguments = string.Join(
@@ -56,12 +54,11 @@ namespace DependenciesPackager
                 "restore",
                 _manifest,
                 packages,
-                sources,
-                fallbackFeeds);
+                sources);
 
             if (!Quiet)
             {
-                arguments += " --verbosity Verbose";
+                arguments += " --verbosity Normal";
             }
 
             var exitCode = new ProcessRunner(_dotnetSdkPath, arguments)

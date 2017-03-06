@@ -5,12 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Collections;
 using Microsoft.Build.Framework;
+using Xunit;
 
 namespace BuildTools.Tasks.Tests
 {
     public class MockEngine : IBuildEngine5
     {
         public ICollection<BuildMessageEventArgs> Messages { get; } = new List<BuildMessageEventArgs>();
+        public ICollection<BuildWarningEventArgs> Warnings { get; } = new List<BuildWarningEventArgs>();
 
         public bool IsRunningMultipleNodes => false;
 
@@ -21,6 +23,19 @@ namespace BuildTools.Tasks.Tests
         public int ColumnNumberOfTaskNode => 0;
 
         public string ProjectFileOfTaskNode => "<test>";
+
+        public void LogMessageEvent(BuildMessageEventArgs e)
+            => Messages.Add(e);
+
+        public void LogWarningEvent(BuildWarningEventArgs e)
+            => Warnings.Add(e);
+
+        public void LogErrorEvent(BuildErrorEventArgs e)
+        {
+            Assert.False(true, e.Message);
+        }
+
+        #region NotImplemented
 
         public bool BuildProjectFile(string projectFileName, string[] targetNames, IDictionary globalProperties, IDictionary targetOutputs, string toolsVersion)
         {
@@ -52,20 +67,7 @@ namespace BuildTools.Tasks.Tests
             throw new NotImplementedException();
         }
 
-        public void LogErrorEvent(BuildErrorEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void LogMessageEvent(BuildMessageEventArgs e)
-            => Messages.Add(e);
-
         public void LogTelemetry(string eventName, IDictionary<string, string> properties)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void LogWarningEvent(BuildWarningEventArgs e)
         {
             throw new NotImplementedException();
         }
@@ -89,5 +91,6 @@ namespace BuildTools.Tasks.Tests
         {
             throw new NotImplementedException();
         }
+        #endregion
     }
 }

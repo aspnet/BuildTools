@@ -1,4 +1,4 @@
-<!--
+﻿<!--
 WARNING: These targets are intended for building Microsoft's ASP.NET Core repos, and is not intended
 for use outside of Microsoft.
 
@@ -9,16 +9,32 @@ For single-tfm projects, this will be imported from build/Internal.AspNetCore.Sd
 
 -->
 <Project>
-  <!-- version options -->
-  <!-- TODO determine build number here instead of inside individual repos when https://github.com/NuGet/Home/issues/3953 is resolved-->
-
-  <Target Name="ShowBuildVersion" BeforeTargets="PrepareForBuild">
-    <Message Text="Build version: $(AssemblyName)/$(TargetFramework)/$(Version)" Importance="normal" />
-  </Target>
 
   <!-- workaround https://github.com/NuGet/Home/issues/4726 -->
   <PropertyGroup>
     <IncludeSymbols Condition="'$(NuspecFile)'!=''">false</IncludeSymbols>
   </PropertyGroup>
+  
+  <Target Name="_ShowBuildVersion" BeforeTargets="PrepareForBuild">
+    <Message Text="Build version: $(AssemblyName)/$(TargetFramework)/$(Version)" Importance="normal" />
+  </Target>
+
+  <Target Name="_CoreGenerateCSharpForResources">
+    <RemoveDuplicates Inputs="@(EmbeddedResource)">
+      <Output TaskParameter="Filtered" ItemName="_ResxFiles"/>
+    </RemoveDuplicates>
+
+    <ItemGroup>
+      <_ResxFiles Update="@(_ResxFiles)" Condition="'%(_ResxFiles.GeneratedFileName)' == ''">
+        <GeneratedFileName>Properties\%(FileName).Designer.cs</GeneratedFileName>
+      </_ResxFiles>
+    </ItemGroup>
+
+    <Message Importance="high" Text="Found @(_ResxFiles ->Count()) resx file(s) in $(MSBuildProjectName)" />
+
+    <GenerateResxDesignerFiles ResourceFiles="@(_ResxFiles)">
+      <Output TaskParameter="FileWrites" ItemName="FileWrites" />
+    </GenerateResxDesignerFiles>
+  </Target>
 
 </Project>

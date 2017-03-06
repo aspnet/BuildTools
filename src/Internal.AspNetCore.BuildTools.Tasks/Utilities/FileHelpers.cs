@@ -3,7 +3,7 @@
 
 using System.IO;
 
-namespace Microsoft.AspNetCore.BuildTools
+namespace Microsoft.AspNetCore.BuildTools.Utilities
 {
     internal class FileHelpers
     {

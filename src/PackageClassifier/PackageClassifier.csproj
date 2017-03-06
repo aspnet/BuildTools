@@ -13,7 +13,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="1.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="1.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
-    <PackageReference Include="NuGet.Client" Version="3.5.0-*" />
+    <PackageReference Include="NuGet.Client" Version="$(NuGetPackagesVersion)" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">

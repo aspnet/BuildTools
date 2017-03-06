@@ -6,6 +6,7 @@
 using System;
 using System.Runtime.InteropServices;
 using System.IO;
+using Microsoft.AspNetCore.BuildTools.Utilities;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 

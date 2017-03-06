@@ -7,13 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Remove="Resources\Strings.resx" />
+    <Content Include="Resources\**\*" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(TestSdkVersion)" />
     <PackageReference Include="xunit" Version="$(XunitVersion)" />
     <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitVersion)" />
     <PackageReference Include="Microsoft.Build.Framework" Version="$(MsBuildPackageVersions)" />
     <PackageReference Include="Microsoft.Build.Tasks.Core" Version="$(MsBuildPackageVersions)" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="$(MsBuildPackageVersions)" />
-    <PackageReference Include="Microsoft.DotNet.Cli.Utils" Version="1.0.0-*" />
+    <PackageReference Include="Microsoft.DotNet.Cli.Utils" Version="1.0.0-rc4-004771" />
   </ItemGroup>
 
   <ItemGroup>

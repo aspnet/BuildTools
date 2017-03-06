@@ -1,4 +1,4 @@
-<!--
+﻿<!--
 WARNING: These targets are intended for building Microsoft's ASP.NET Core repos, and is not intended
 for use outside of Microsoft.
 
@@ -23,6 +23,11 @@ Usage: this should be imported once via NuGet at the top of the file.
   <PropertyGroup>
     <!-- make disabling warnings opt-out -->
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <!-- Detect this package inclusion. For use by other targets and properties. -->
+  <PropertyGroup>
+    <InternalAspNetCoreSdkImported>true</InternalAspNetCoreSdkImported>
   </PropertyGroup>
 
 </Project>

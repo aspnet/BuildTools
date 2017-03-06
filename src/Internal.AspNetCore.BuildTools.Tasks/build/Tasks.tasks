@@ -6,6 +6,7 @@
     <_BuildToolsAssembly>$(MSBuildThisFileDirectory)..\tools\$(_BuildToolsAssemblyTfm)\Internal.AspNetCore.BuildTools.Tasks.dll</_BuildToolsAssembly>
   </PropertyGroup>
 
+  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.GenerateResxDesignerFiles" AssemblyFile="$(_BuildToolsAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.GetGitCommitInfo" AssemblyFile="$(_BuildToolsAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.GetDotNetHost" AssemblyFile="$(_BuildToolsAssembly)"
              Condition="'$(MSBuildRuntimeType)' == 'Core'"/>

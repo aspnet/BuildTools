@@ -1,4 +1,4 @@
-<!--
+﻿<!--
 WARNING: These targets are intended for building Microsoft's ASP.NET Core repos, and is not intended
 for use outside of Microsoft.
 -->
@@ -6,4 +6,12 @@ for use outside of Microsoft.
   <Import Project="$(MSBuildThisFileDirectory)..\targets\Common.targets" />
   <Import Project="$(MSBuildThisFileDirectory)GenerateAssemblyInfo.targets" />
   <Import Project="$(MSBuildThisFileDirectory)Git.targets" />
+
+  <Target Name="Resx"
+          DependsOnTargets="PrepareResourceNames;_CoreGenerateCSharpForResources" />
+
+  <Target Name="_ResolveEmbeddedResources"
+          DependsOnTargets="PrepareResourceNames"
+          Returns="@(EmbeddedResource)" />
+
 </Project>

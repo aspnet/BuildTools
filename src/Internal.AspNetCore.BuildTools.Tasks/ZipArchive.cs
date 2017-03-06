@@ -3,6 +3,7 @@
 
 using System.IO;
 using System.IO.Compression;
+using Microsoft.AspNetCore.BuildTools.Utilities;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 

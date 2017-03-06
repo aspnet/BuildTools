@@ -15,7 +15,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
-    <PackageReference Include="NuGet.ProjectModel" Version="4.0.0-rtm-*" />
+    <PackageReference Include="NuGet.ProjectModel" Version="$(NuGetPackagesVersion)" />
     <PackageReference Include="Microsoft.DotNet.PlatformAbstractions" Version="1.1.0" />
   </ItemGroup>
 </Project>

@@ -9,11 +9,12 @@ Usage: this should be imported once via NuGet at the top of the file.
 
   <!-- common package options -->
   <PropertyGroup>
+    <Authors>Microsoft</Authors>
+    <Company>Microsoft Corporation.</Company>
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <Company>Microsoft Corporation.</Company>
-    <Authors>Microsoft</Authors>
-    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
     <ProjectUrl>https://asp.net</ProjectUrl>
     <RequireLicenseAcceptance>true</RequireLicenseAcceptance>
     <Serviceable Condition="'$(Configuration)' == 'Release'">true</Serviceable>

@@ -362,7 +362,11 @@ namespace Scenarios
     public class ClassWithPropertiesAndEvents
     {
         public string GetAndSetProperty { get; set; }
-        public event Action<int> IntEvent;
+        public event Action<int> IntEvent
+        {
+            add { }
+            remove { }
+        }
     }
 
     public enum CanonicalEnumeration

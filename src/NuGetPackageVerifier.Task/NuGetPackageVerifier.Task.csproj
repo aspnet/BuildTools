@@ -4,7 +4,6 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.6</TargetFramework>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <AssemblyName>NuGetPackageVerifier.Task</AssemblyName>
     <IsPackable>false</IsPackable>
   </PropertyGroup>

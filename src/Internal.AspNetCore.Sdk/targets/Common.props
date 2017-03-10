@@ -6,6 +6,7 @@ Usage: this should be imported once via NuGet at the top of the file.
 
 -->
 <Project>
+  <Import Project="$(MSBuildThisFileDirectory)ApiCheck.props" />
 
   <!-- common package options -->
   <PropertyGroup>

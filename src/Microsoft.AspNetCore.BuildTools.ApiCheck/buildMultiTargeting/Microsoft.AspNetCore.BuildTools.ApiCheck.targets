@@ -1,0 +1,17 @@
+﻿<!--
+  WARNING: These targets are intended for building Microsoft's ASP.NET Core repos and are not intended
+  for use outside of Microsoft.
+-->
+<Project>
+  <Target Name="ApiCheck" Condition=" '$(EnableApiCheck)' == 'true' ">
+    <ItemGroup>
+      <_TargetFrameworks Remove="@(_TargetFrameworks)" />
+      <_TargetFrameworks Include="$(TargetFrameworks)" />
+    </ItemGroup>
+
+    <MSBuild Projects="$(MSBuildProjectFullPath)"
+             Targets="ApiCheck"
+             Properties="TargetFramework=%(_TargetFrameworks.Identity)"
+             RemoveProperties="TargetFrameworks" />
+  </Target>
+</Project>

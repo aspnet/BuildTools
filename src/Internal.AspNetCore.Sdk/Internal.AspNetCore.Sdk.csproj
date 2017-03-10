@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <Import Project="..\..\build\common.props" />
 
@@ -17,8 +17,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Setting PrivateAssets to 'None' ensures the generated nuspec will include the build targets from this project -->
     <ProjectReference Include="..\Internal.AspNetCore.BuildTools.Tasks\Internal.AspNetCore.BuildTools.Tasks.csproj">
-      <!-- Setting to 'None' ensures the generated nuspec will include the build targets from this project -->
+      <PrivateAssets>None</PrivateAssets>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.AspNetCore.BuildTools.ApiCheck\Microsoft.AspNetCore.BuildTools.ApiCheck.csproj">
       <PrivateAssets>None</PrivateAssets>
     </ProjectReference>
   </ItemGroup>

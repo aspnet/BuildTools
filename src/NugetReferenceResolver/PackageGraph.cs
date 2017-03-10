@@ -1,19 +1,19 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using NuGet.Frameworks;
-using NuGet.Packaging.Core;
-using NuGet.ProjectModel;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using NuGet.Frameworks;
+using NuGet.Packaging.Core;
+using NuGet.ProjectModel;
 
 namespace NugetReferenceResolver
 {
     public class PackageGraph
     {
-        public PackageGraph(
+        private PackageGraph(
             IEnumerable<string> packageFolders,
             IDictionary<string, Package> allPackages,
             IEnumerable<Package> packages,
@@ -173,16 +173,16 @@ namespace NugetReferenceResolver
             }
 
             var chosenFramework = NuGetFramework.Parse(dependencyGroup.FrameworkName);
-            var targetFramework = lockFile.Targets
-                .FirstOrDefault(t => t.TargetFramework.Equals(chosenFramework) &&
-                    runtimeIdentifier.Equals(t.RuntimeIdentifier, StringComparison.OrdinalIgnoreCase));
+            var potentialFrameworks = lockFile.Targets
+                .Where(t => t.TargetFramework.Equals(chosenFramework));
+            var targetFramework = potentialFrameworks
+                .FirstOrDefault(t => runtimeIdentifier.Equals(t.RuntimeIdentifier, StringComparison.OrdinalIgnoreCase));
 
-            targetFramework = targetFramework ??
-                lockFile.Targets.FirstOrDefault(t => t.TargetFramework.Equals(chosenFramework) &&
-                    RuntimeIsCompatible(t.RuntimeIdentifier, runtimeIdentifier, fallbacks));
+            targetFramework = targetFramework ?? potentialFrameworks
+                .FirstOrDefault(t => RuntimeIsCompatible(t.RuntimeIdentifier, fallbacks));
 
-            targetFramework = targetFramework ?? lockFile.Targets.FirstOrDefault(t => t.TargetFramework.Equals(chosenFramework) &&
-                t.RuntimeIdentifier == null);
+            targetFramework = targetFramework ?? potentialFrameworks
+                .FirstOrDefault(t => t.RuntimeIdentifier == null);
 
             var directDependencies = targetFramework
                 .Libraries
@@ -194,7 +194,8 @@ namespace NugetReferenceResolver
             var sources = lockFile.PackageFolders.Select(p => p.Path).ToArray();
 
             var packages = directDependencies
-                .Select(dd => CreatePackage(dd, targetFramework, lockFile.Libraries, allPackages, sources)).ToArray();
+                .Select(dd => CreatePackage(dd, targetFramework, lockFile.Libraries, allPackages, sources, fallbacks))
+                .ToArray();
 
             return new PackageGraph(sources, allPackages, packages, chosenFramework.GetShortFolderName());
         }
@@ -210,10 +211,11 @@ namespace NugetReferenceResolver
             return DefaultCompatibilityProvider.Instance.IsCompatible(reference, target);
         }
 
-        private static bool RuntimeIsCompatible(string runtime, string candidateRuntime, IEnumerable<string> fallbacks)
+        private static bool RuntimeIsCompatible(string runtime, IEnumerable<string> compatibleRuntimes)
         {
-            return candidateRuntime.Equals(runtime, StringComparison.OrdinalIgnoreCase) ||
-                fallbacks.Any(f => f.Equals(runtime, StringComparison.OrdinalIgnoreCase));
+            // Technically, a null runtime is compatible. But, Create() gives preference to targets with an exact
+            // match and then a compatible match (this method) over targets with a null Runtime.
+            return compatibleRuntimes.Any(r => r.Equals(runtime, StringComparison.OrdinalIgnoreCase));
         }
 
         public IEnumerable<string> GetAssembliesFullPath() =>
@@ -224,13 +226,19 @@ namespace NugetReferenceResolver
             LockFileTarget targetFramework,
             IList<LockFileLibrary> libraries,
             IDictionary<string, Package> packageDictionary,
-            IEnumerable<string> sources)
+            IEnumerable<string> sources,
+            IEnumerable<string> compatibleRuntimes)
         {
-            var library = libraries.First(l => l.Name.Equals(dependency.Name) && l.Version.Equals(dependency.Version));
+            var library = libraries
+                .First(l => string.Equals(l.Name, dependency.Name, StringComparison.OrdinalIgnoreCase) &&
+                    l.Version.Equals(dependency.Version));
             if (packageDictionary.TryGetValue(library.Name, out var package))
             {
                 return package;
             }
+
+            var packagePath = ResolvePackagePath(library.Name, library.Version.ToString(), sources);
+            var signaturePath = library.Files.SingleOrDefault(f => f.EndsWith(".sha512", StringComparison.OrdinalIgnoreCase));
 
             var dependencies = new List<Package>();
             if (dependency.Dependencies?.Count > 0)
@@ -241,28 +249,39 @@ namespace NugetReferenceResolver
                     if (!packageDictionary.TryGetValue(d.Id, out dependentPackage))
                     {
                         dependentPackage = CreatePackage(
-                            FindLibrary(targetFramework, d), targetFramework, libraries, packageDictionary, sources);
-                    }
-                    else
-                    {
+                            FindLibrary(targetFramework, d),
+                            targetFramework,
+                            libraries,
+                            packageDictionary,
+                            sources,
+                            compatibleRuntimes);
                     }
 
                     dependencies.Add(dependentPackage);
                 }
             }
 
-            string packagePath = ResolvePackagePath(library.Name, library.Version.ToString(), sources);
+            var assemblies = dependency
+                .RuntimeAssemblies
+                .Where(assembly => !assembly.Path.EndsWith("_._", StringComparison.Ordinal))
+                .ToArray();
+            if (assemblies.Length == 0)
+            {
+                var targetAssemblyPaths = dependency
+                    .RuntimeTargets
+                    .Where(target => RuntimeIsCompatible(target.Runtime, compatibleRuntimes) &&
+                        !target.Path.EndsWith("_._", StringComparison.Ordinal));
+                assemblies = targetAssemblyPaths.ToArray();
+            }
+
+            var assemblyPaths = assemblies.Select(assembly => assembly.Path);
             package = new Package(
                 library.Name,
                 library.Version.ToString(),
                 packagePath,
-                library.Files.Single(f => f.EndsWith("sha512", StringComparison.OrdinalIgnoreCase)),
+                signaturePath,
                 dependencies,
-                dependency
-                    ?.RuntimeAssemblies
-                    ?.Select(rt => rt.Path)
-                    ?.Where(p => !p.EndsWith("_._"))
-                    ?.ToArray() ?? Enumerable.Empty<string>());
+                assemblyPaths);
 
             packageDictionary.Add(package.Name, package);
 
@@ -294,7 +313,7 @@ namespace NugetReferenceResolver
                 }
             }
 
-            return "";
+            return string.Empty;
         }
 
         private static LockFileTargetLibrary FindLibrary(LockFileTarget targetFramework, PackageDependency d)

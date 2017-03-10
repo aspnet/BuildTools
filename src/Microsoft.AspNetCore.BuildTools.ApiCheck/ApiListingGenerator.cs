@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -76,7 +75,7 @@ namespace ApiCheck
                 throw new InvalidOperationException($"Can't determine type for {type.FullName}");
             }
 
-            // At this point we've filtered away any non public or protected member, 
+            // At this point we've filtered away any non public or protected member,
             // so we only need to check if something is public
             typeDescriptor.Visibility = type.IsPublic || type.IsNestedPublic ? ApiElementVisibility.Public : ApiElementVisibility.Protected;
 

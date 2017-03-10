@@ -1,33 +1,30 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
+#if NET452
+using System.IO;
+#endif
 using System.Reflection;
 #if NETCOREAPP1_1
-using NuGet.Frameworks;
 using NuGet.ProjectModel;
-#endif
 using NugetReferenceResolver;
-using System.IO;
+#endif
 
 namespace ApiCheck
 {
     public abstract class AssemblyLoader
     {
-        public static Assembly LoadAssembly(
-                string assemblyPath,
-                string assetsJson,
-                string framework)
+        public static Assembly LoadAssembly(string assemblyPath, string assetsJson)
         {
-            
 #if NETCOREAPP1_1
             var lockFile = new LockFileFormat().Read(assetsJson);
-            var graph = PackageGraph.Create(lockFile, framework);
+            var graph = PackageGraph.Create(lockFile, "netcoreapp1.1");
             var loader = new CoreClrAssemblyLoader(graph, assemblyPath);
 #else
             var assemblyDirectory = Path.GetDirectoryName(assemblyPath);
             var loader = new FullFrameworkAssemblyLoader(assemblyDirectory);
-#endif            
+#endif
+
             return loader.Load(assemblyPath);
         }
     }

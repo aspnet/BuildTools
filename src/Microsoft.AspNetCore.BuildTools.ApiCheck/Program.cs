@@ -27,27 +27,26 @@ namespace ApiCheck
                 {
                     var assemblyPathOption = c.Option("-a|--assembly", "Path to the assembly to generate the ApiListing for", CommandOptionType.SingleValue);
                     var assetsJson = c.Option("-p|--project", "Path to the project.assets.json file", CommandOptionType.SingleValue);
-                    var framework = c.Option("-f|--framework", "The moniker for the framework the assembly to analize was compiled against.", CommandOptionType.SingleValue);
                     var noPublicInternal = c.Option("-epi|--exclude-public-internal", "Exclude types on the .Internal namespace from the generated report", CommandOptionType.NoValue);
                     var outputPath = c.Option("-o|--out", "Output path for the generated ApiListing file", CommandOptionType.SingleValue);
 
                     c.HelpOption("-h|--help");
 
-                    c.OnExecute(() => OnGenerate(c, assemblyPathOption, assetsJson, framework, noPublicInternal, outputPath));
+                    c.OnExecute(() => OnGenerate(c, assemblyPathOption, assetsJson, noPublicInternal, outputPath));
                 });
 
                 var compareCommand = app.Command("compare", (c) =>
                 {
-                    var apiListingPathOption = c.Option("-b|--ApiListing", "Path to the API listing file to use as reference.", CommandOptionType.SingleValue);
+                    var apiListingPathOption = c.Option("-b|--api-listing", "Path to the API listing file to use as reference.", CommandOptionType.SingleValue);
                     var exclusionsPathOption = c.Option("-e|--exclusions", "Path to the exclusions file for the ApiListing", CommandOptionType.SingleValue);
                     var assemblyPathOption = c.Option("-a|--assembly", "Path to the assembly to generate the ApiListing for", CommandOptionType.SingleValue);
                     var assetsJson = c.Option("-p|--project", "Path to the project.assets.json file", CommandOptionType.SingleValue);
-                    var framework = c.Option("-f|--framework", "The moniker for the framework the assembly to analize was compiled against.", CommandOptionType.SingleValue);
                     var noPublicInternal = c.Option("-epi|--exclude-public-internal", "Exclude types on the .Internal namespace from the generated report", CommandOptionType.NoValue);
+                    var compactOutputOption = c.Option("--compact-output", "Display an error on a single line (primarily for use within MSBuild)", CommandOptionType.NoValue);
 
                     c.HelpOption("-h|--help");
 
-                    c.OnExecute(() => OnCompare(c, apiListingPathOption, exclusionsPathOption, assemblyPathOption, assetsJson, framework, noPublicInternal));
+                    c.OnExecute(() => OnCompare(c, apiListingPathOption, exclusionsPathOption, assemblyPathOption, assetsJson, noPublicInternal, compactOutputOption));
                 });
 
                 app.HelpOption("-h|--help");
@@ -59,53 +58,87 @@ namespace ApiCheck
                 });
 
                 return app.Execute(args);
+            }
+            catch (FileNotFoundException e)
+            {
+                Console.WriteLine($"{e.GetType().FullName}: {e.Message}, file '{e.FileName}'");
 
+                var inner = e.InnerException;
+                while (inner != null)
+                {
+                    Console.WriteLine($"  {inner.GetType().FullName}: {inner.Message}");
+                    inner = inner.InnerException;
+                }
+
+                if (e.InnerException != null)
+                {
+                    Console.WriteLine("  --- End of inner exceptions ---");
+                }
+
+                Console.WriteLine(e.StackTrace);
             }
             catch (ReflectionTypeLoadException e)
             {
-                foreach (var rtle in e.LoaderExceptions)
+                Console.WriteLine($"{e.GetType().FullName}: {e.Message}");
+
+                var hadLoaderExceptions = false;
+                foreach (var loaderException in e.LoaderExceptions)
                 {
-                    Console.WriteLine(rtle.Message);
-                    var innerException = rtle.InnerException;
+                    hadLoaderExceptions = true;
+                    Console.WriteLine($"  {loaderException.GetType().FullName}: {loaderException.Message}");
+
+                    var innerException = loaderException.InnerException;
                     while (innerException != null)
                     {
-                        Console.WriteLine(innerException.Message);
+                        Console.WriteLine($"  {innerException.GetType().FullName}: {innerException.Message}");
                         innerException = innerException.InnerException;
                     }
+
+                    if (loaderException.InnerException != null)
+                    {
+                        Console.WriteLine("  --- End of inner exceptions ---");
+                    }
+                }
+
+                if (hadLoaderExceptions)
+                {
+                    Console.WriteLine("  --- End of loader exceptions ---");
                 }
 
                 var inner = e.InnerException;
                 while (inner != null)
                 {
-                    Console.WriteLine(inner.InnerException.Message);
+                    Console.WriteLine($"  {inner.GetType().FullName}: {inner.Message}");
                     inner = inner.InnerException;
                 }
 
-                return Error;
+                if (e.InnerException != null)
+                {
+                    Console.WriteLine("  --- End of inner exceptions ---");
+                }
+
+                Console.WriteLine(e.StackTrace);
             }
+
+            return Error;
         }
 
         private static int OnGenerate(
             CommandLineApplication command,
             CommandOption assemblyPath,
             CommandOption assetsJson,
-            CommandOption framework,
             CommandOption excludeInternalNamespace,
             CommandOption output)
         {
             if (!assemblyPath.HasValue() ||
                 !output.HasValue() ||
-                !assetsJson.HasValue() ||
-                !framework.HasValue())
+                !assetsJson.HasValue())
             {
                 command.ShowHelp();
                 return Error;
             }
 
-            var assembly = AssemblyLoader.LoadAssembly(
-                assemblyPath.Value(),
-                assetsJson.Value(),
-                framework.Value());
+            var assembly = AssemblyLoader.LoadAssembly(assemblyPath.Value(), assetsJson.Value());
 
             var filters = new List<Func<MemberInfo, bool>>();
             if (excludeInternalNamespace.HasValue())
@@ -132,22 +165,18 @@ namespace ApiCheck
             CommandOption exclusionsPathOption,
             CommandOption assemblyPath,
             CommandOption assetsJson,
-            CommandOption framework,
-            CommandOption excludeInternalNamespace)
+            CommandOption excludeInternalNamespace,
+            CommandOption compactOutputOption)
         {
             if (!apiListingPathOption.HasValue() ||
                 !assemblyPath.HasValue() ||
-                !assetsJson.HasValue() || 
-                !framework.HasValue())
+                !assetsJson.HasValue())
             {
                 command.ShowHelp();
                 return Error;
             }
 
-            var assembly = AssemblyLoader.LoadAssembly(
-                assemblyPath.Value(),
-                assetsJson.Value(),
-                framework.Value());
+            var assembly = AssemblyLoader.LoadAssembly(assemblyPath.Value(), assetsJson.Value());
 
             var newApiListingFilters = new List<Func<MemberInfo, bool>>();
             var oldApiListingFilters = new List<Func<ApiElement, bool>>();
@@ -171,33 +200,54 @@ namespace ApiCheck
             var result = comparer.GetDifferences();
             var differences = result.BreakingChanges;
 
-            Console.WriteLine();
+            var compactOutput = compactOutputOption.HasValue();
+            if (!compactOutput)
+            {
+                Console.WriteLine();
+            }
+
             foreach (var difference in differences)
             {
-                Console.WriteLine($@"ERROR: Missing type or member on
+                if (compactOutput)
+                {
+                    Console.WriteLine($@"ERROR: Missing type or member '{difference}'");
+                }
+                else
+                {
+                    Console.WriteLine($@"ERROR: Missing type or member
     {difference}");
-                Console.WriteLine();
+                    Console.WriteLine();
+                }
             }
 
             var remainingExclusions = result.RemainingExclusions;
             foreach (var exclusion in remainingExclusions)
             {
-                Console.WriteLine($@"ERROR: The following exclusion is in the exclusion file, but is no longer necessary:
+                if (compactOutput)
+                {
+                    Console.WriteLine($"ERROR: Exclusion is no longer necessary: Old type '{exclusion.OldTypeId}' member " +
+                        $"'{exclusion.OldMemberId}, New type '{exclusion.NewTypeId}' member '{exclusion.NewMemberId}'");
+                }
+                else
+                {
+                    Console.WriteLine($@"ERROR: The following exclusion is in the exclusion file, but is no longer necessary:
     Old type: {exclusion.OldTypeId}
     Old member: {exclusion.OldMemberId}
     New type: {exclusion.NewTypeId}
     New member: {exclusion.NewMemberId}");
 
-                Console.WriteLine();
+                    Console.WriteLine();
+                }
             }
 
             if (differences.Count > 0 || remainingExclusions.Count > 0)
             {
-                if (differences.Count > 0)
+                if (!compactOutput && differences.Count > 0)
                 {
                     Console.WriteLine($"The process for breaking changes is described in: https://github.com/aspnet/Home/wiki/Engineering-guidelines#breaking-changes");
                     Console.WriteLine($"For how to add an exclusion to Api-check go to: https://github.com/aspnet/BuildTools/wiki/Api-Check#apicheck-exceptions");
                 }
+
                 return Error;
             }
 

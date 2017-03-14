@@ -15,8 +15,17 @@ Generates assembly attributes for ASP.NET Core binaries
 -->
   <Target Name="GenerateInternalAspNetCoreAttributes"
           BeforeTargets="CoreCompile"
-          DependsOnTargets="PrepareForBuild;CoreGenerateInternalAspNetCoreAttributes"
+          DependsOnTargets="PrepareForBuild;SetAssemblyFileRevision;CoreGenerateInternalAspNetCoreAttributes"
           Condition="'$(GenerateInternalAspNetCoreAttributes)'=='true' and '$(DesignTimeBuild)'!='true'" />
+
+  <Target Name="SetAssemblyFileRevision"
+    DependsOnTargets="GetAssemblyVersion"
+    Condition="'$(GenerateAssemblyFileVersionAttribute)'=='true' AND '$(FileVersion)'==''">
+
+    <GetAssemblyFileVersion AssemblyVersion="$(AssemblyVersion)" AssemblyRevision="$(AssemblyRevision)">
+      <Output TaskParameter="AssemblyFileVersion" PropertyName="FileVersion" />
+    </GetAssemblyFileVersion>
+  </Target>
 
   <Target Name="CoreGenerateInternalAspNetCoreAttributes"
           Inputs="$(MSBuildAllProjects)"

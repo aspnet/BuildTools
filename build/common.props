@@ -8,6 +8,7 @@
     <CustomAfterMicrosoftCommonTargets>$(_AspNetToolsSdkPath)\build\Internal.AspNetCore.Sdk.targets</CustomAfterMicrosoftCommonTargets>
     <CustomAfterMicrosoftCommonCrossTargetingTargets>$(_AspNetToolsSdkPath)\buildMultiTargeting\Internal.AspNetCore.Sdk.targets</CustomAfterMicrosoftCommonCrossTargetingTargets>
     <GenerateCommitHashAttribute Condition="'$(CommitHash)'==''">false</GenerateCommitHashAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
   </PropertyGroup>
 
   <Import Project="$(_AspNetToolsSdkPath)\build\Internal.AspNetCore.Sdk.props" />

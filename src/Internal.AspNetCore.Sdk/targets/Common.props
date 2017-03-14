@@ -24,6 +24,9 @@ Usage: this should be imported once via NuGet at the top of the file.
   <PropertyGroup>
     <!-- make disabling warnings opt-out -->
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <_TwoDigitYear>$([MSBuild]::Subtract($([System.DateTime]::UtcNow.Year), 2000))</_TwoDigitYear>
+    <_ThreeDigitDayOfYear>$([System.DateTime]::UtcNow.DayOfYear.ToString().PadLeft(3, '0'))</_ThreeDigitDayOfYear>
+    <AssemblyRevision>$(_TwoDigitYear)$(_ThreeDigitDayOfYear)</AssemblyRevision>
   </PropertyGroup>
 
   <!-- Detect this package inclusion. For use by other targets and properties. -->

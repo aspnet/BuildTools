@@ -1,7 +1,9 @@
 ﻿<Project>
   <PropertyGroup>
+    <DotNetCliUtilsVersion>1.0.1</DotNetCliUtilsVersion>
+    <JsonNetVersion>9.0.1</JsonNetVersion>
     <MsBuildPackageVersions>15.1.548</MsBuildPackageVersions>
-    <NuGetPackagesVersion>4.0.0-rtm-2265</NuGetPackagesVersion>
+    <NuGetPackagesVersion>4.0.0</NuGetPackagesVersion>
     <TestSdkVersion>15.0.0</TestSdkVersion>
     <XunitVersion>2.2.0</XunitVersion>
   </PropertyGroup>

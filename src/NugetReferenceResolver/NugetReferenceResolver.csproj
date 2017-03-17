@@ -14,7 +14,7 @@
     <TargetFrameworks>netstandard1.6;net451</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="$(JsonNetVersion)" />
     <PackageReference Include="NuGet.ProjectModel" Version="$(NuGetPackagesVersion)" />
     <PackageReference Include="Microsoft.DotNet.PlatformAbstractions" Version="1.1.0" />
   </ItemGroup>

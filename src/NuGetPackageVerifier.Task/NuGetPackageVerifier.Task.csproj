@@ -13,9 +13,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Framework" Version="15.1.0-*" />
-    <PackageReference Include="Microsoft.Build.Tasks.Core" Version="15.1.0-*" />
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.1.0-*" />
+    <PackageReference Include="Microsoft.Build.Framework" Version="$(MsBuildPackageVersions)" />
+    <PackageReference Include="Microsoft.Build.Tasks.Core" Version="$(MsBuildPackageVersions)" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="$(MsBuildPackageVersions)" />
   </ItemGroup>
 
 </Project>

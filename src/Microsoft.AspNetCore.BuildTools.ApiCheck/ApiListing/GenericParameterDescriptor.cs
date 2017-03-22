@@ -1,9 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
-using System.Reflection;
 using Newtonsoft.Json;
 
 namespace ApiCheck.Description
@@ -12,9 +10,6 @@ namespace ApiCheck.Description
     {
         [JsonIgnore]
         public override string Id => HasConstraints() ? $"T{ParameterPosition}" + " : " + GetConstraints() : ParameterName;
-
-        [JsonIgnore]
-        public TypeInfo Source { get; set; }
 
         public string ParameterName { get; set; }
 

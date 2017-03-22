@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using ApiCheck.Description;
+using ApiCheck.Utilities;
 
 namespace ApiCheck.IO
 {
@@ -32,9 +33,10 @@ namespace ApiCheck.IO
             var types = _assembly.DefinedTypes
                 .Where(t => t.IsPublic || t.IsNestedPublic || t.IsNestedFamily || t.IsNestedFamORAssem);
 
-            var document = new ApiListing();
-            document.AssemblyIdentity = _assembly.GetName().ToString();
-            document.SourceFilters = _filters;
+            var document = new ApiListing()
+            {
+                AssemblyIdentity = _assembly.GetName().ToString()
+            };
 
             foreach (var type in types.Where(t => !_filters.Any(filter => filter(t))))
             {
@@ -55,9 +57,8 @@ namespace ApiCheck.IO
         private TypeDescriptor GenerateTypeDescriptor(TypeInfo type)
         {
             var typeDescriptor = new TypeDescriptor();
-            typeDescriptor.Source = type;
 
-            typeDescriptor.Name = TypeDescriptor.GetTypeNameFor(type);
+            typeDescriptor.Name = ReflectionHelper.GetTypeNameFor(type);
 
             typeDescriptor.Kind = GetTypeKind(type);
 
@@ -82,14 +83,14 @@ namespace ApiCheck.IO
                 !(type.IsEnum && type.GetEnumUnderlyingType() == typeof(int)))
             {
                 typeDescriptor.BaseType = !type.IsEnum ?
-                    TypeDescriptor.GetTypeNameFor(type.BaseType.GetTypeInfo()) :
-                    TypeDescriptor.GetTypeNameFor(type.GetEnumUnderlyingType().GetTypeInfo());
+                    ReflectionHelper.GetTypeNameFor(type.BaseType.GetTypeInfo()) :
+                    ReflectionHelper.GetTypeNameFor(type.GetEnumUnderlyingType().GetTypeInfo());
             }
 
             if (type.ImplementedInterfaces?.Count() > 0)
             {
-                var interfaces = TypeDescriptor.GetImplementedInterfacesFor(type).ToList();
-                foreach (var @interface in interfaces.Select(i => TypeDescriptor.GetTypeNameFor(i)))
+                var interfaces = ReflectionHelper.GetImplementedInterfacesFor(type).ToList();
+                foreach (var @interface in interfaces.Select(i => ReflectionHelper.GetTypeNameFor(i)))
                 {
                     typeDescriptor.ImplementedInterfaces.Add(@interface);
                 }
@@ -116,7 +117,6 @@ namespace ApiCheck.IO
                 var memberApiListing = GenerateMemberApiListing(type, member);
                 if (memberApiListing != null)
                 {
-                    memberApiListing.Source = member;
                     typeDescriptor.Members.Add(memberApiListing);
                 }
             }
@@ -155,7 +155,6 @@ namespace ApiCheck.IO
             {
                 var typeArgument = genericArguments[i];
                 var constraintDescriptor = new GenericParameterDescriptor();
-                constraintDescriptor.Source = typeArgument;
 
                 if (typeArgument.IsGenericParameter)
                 {
@@ -163,12 +162,12 @@ namespace ApiCheck.IO
                         typeArgument.BaseType != typeof(object)
                         && typeArgument.BaseType != typeof(ValueType))
                     {
-                        constraintDescriptor.BaseTypeOrInterfaces.Add(TypeDescriptor.GetTypeNameFor(typeArgument.BaseType.GetTypeInfo()));
+                        constraintDescriptor.BaseTypeOrInterfaces.Add(ReflectionHelper.GetTypeNameFor(typeArgument.BaseType.GetTypeInfo()));
                     }
 
-                    foreach (var interfaceType in TypeDescriptor.GetImplementedInterfacesFor(typeArgument))
+                    foreach (var interfaceType in ReflectionHelper.GetImplementedInterfacesFor(typeArgument))
                     {
-                        constraintDescriptor.BaseTypeOrInterfaces.Add(TypeDescriptor.GetTypeNameFor(interfaceType));
+                        constraintDescriptor.BaseTypeOrInterfaces.Add(ReflectionHelper.GetTypeNameFor(interfaceType));
                     }
 
                     constraintDescriptor.ParameterName = typeArgument.Name;
@@ -179,7 +178,7 @@ namespace ApiCheck.IO
                 }
                 else
                 {
-                    constraintDescriptor.ParameterName = TypeDescriptor.GetTypeNameFor(typeArgument);
+                    constraintDescriptor.ParameterName = ReflectionHelper.GetTypeNameFor(typeArgument);
                 }
 
                 yield return constraintDescriptor;
@@ -201,7 +200,7 @@ namespace ApiCheck.IO
                     constructorDescriptor.Kind = MemberKind.Constructor;
                     constructorDescriptor.Visibility = ctor.IsPublic ? ApiElementVisibility.Public : ApiElementVisibility.Protected;
 
-                    constructorDescriptor.Name = MemberDescriptor.GetMemberNameFor(ctor);
+                    constructorDescriptor.Name = ReflectionHelper.GetMemberNameFor(ctor);
                     foreach (var parameter in ctor.GetParameters())
                     {
                         var parameterDescriptor = GenerateParameterDescriptor(parameter);
@@ -233,7 +232,7 @@ namespace ApiCheck.IO
                         methodDescriptor.Visibility = null;
                     }
 
-                    methodDescriptor.Name = MemberDescriptor.GetMemberNameFor(method);
+                    methodDescriptor.Name = ReflectionHelper.GetMemberNameFor(method);
 
                     if (method.IsGenericMethod)
                     {
@@ -260,7 +259,7 @@ namespace ApiCheck.IO
                         methodDescriptor.Parameters.Add(parameterDescriptor);
                     }
 
-                    methodDescriptor.ReturnType = TypeDescriptor.GetTypeNameFor(method.ReturnType.GetTypeInfo());
+                    methodDescriptor.ReturnType = ReflectionHelper.GetTypeNameFor(method.ReturnType.GetTypeInfo());
 
                     return methodDescriptor;
                 case MemberTypes.Field:
@@ -297,7 +296,7 @@ namespace ApiCheck.IO
                         fieldDescriptor.Constant = field.IsLiteral;
                         fieldDescriptor.Static = field.IsStatic;
                         fieldDescriptor.ReadOnly = field.IsInitOnly;
-                        fieldDescriptor.ReturnType = TypeDescriptor.GetTypeNameFor(field.FieldType.GetTypeInfo());
+                        fieldDescriptor.ReturnType = ReflectionHelper.GetTypeNameFor(field.FieldType.GetTypeInfo());
                     }
 
                     return fieldDescriptor;
@@ -326,7 +325,7 @@ namespace ApiCheck.IO
                 if (map.TargetMethods.Any(m => m.Equals(method)))
                 {
                     return !explicitImplementation || (method.IsPrivate && method.IsFinal) ?
-                        TypeDescriptor.GetTypeNameFor(interfaceImplementation.GetTypeInfo()) :
+                        ReflectionHelper.GetTypeNameFor(interfaceImplementation.GetTypeInfo()) :
                         null;
                 }
             }
@@ -370,9 +369,8 @@ namespace ApiCheck.IO
         {
             return new ParameterDescriptor
             {
-                Source = parameter,
                 Name = parameter.Name,
-                Type = TypeDescriptor.GetTypeNameFor(parameter.ParameterType.GetTypeInfo()),
+                Type = ReflectionHelper.GetTypeNameFor(parameter.ParameterType.GetTypeInfo()),
                 Direction = parameter.ParameterType.IsByRef && parameter.IsOut ? ParameterDirection.Out :
                     parameter.ParameterType.IsByRef && !parameter.IsOut ? ParameterDirection.Ref :
                     ParameterDirection.In,
@@ -393,7 +391,7 @@ namespace ApiCheck.IO
                 var elementTypeInfo = elementType.GetTypeInfo();
                 if (elementTypeInfo.IsValueType)
                 {
-                    return $"default({TypeDescriptor.GetTypeNameFor(elementTypeInfo)})";
+                    return $"default({ReflectionHelper.GetTypeNameFor(elementTypeInfo)})";
                 }
 
                 return "null";

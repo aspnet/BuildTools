@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Reflection;
 using Newtonsoft.Json;
 
 namespace ApiCheck.Description
@@ -11,9 +10,6 @@ namespace ApiCheck.Description
     {
         [JsonIgnore]
         public override string Id => string.Join(" ", GetComponents());
-
-        [JsonIgnore]
-        public ParameterInfo Source { get; set; }
 
         public string Name { get; set; }
 

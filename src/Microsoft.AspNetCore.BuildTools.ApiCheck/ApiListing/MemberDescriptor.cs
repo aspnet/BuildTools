@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using Newtonsoft.Json;
 
@@ -13,9 +12,6 @@ namespace ApiCheck.Description
     {
         [JsonIgnore]
         public override string Id => string.Join(" ", GetComponents());
-
-        [JsonIgnore]
-        public MemberInfo Source { get; set; }
 
         public MemberKind Kind { get; set; }
 
@@ -178,18 +174,6 @@ namespace ApiCheck.Description
 
             builder.Append(")");
             return builder.ToString();
-        }
-
-        public static string GetMemberNameFor(MethodBase member, bool includeGenericParameters = true)
-        {
-            if (!member.IsGenericMethod || !includeGenericParameters)
-            {
-                return member.Name;
-            }
-
-            var genericParameters = string.Join(", ", member.GetGenericArguments().Select(ga => TypeDescriptor.GetTypeNameFor(ga.GetTypeInfo())));
-
-            return $"{member.Name}<{genericParameters}>";
         }
     }
 }

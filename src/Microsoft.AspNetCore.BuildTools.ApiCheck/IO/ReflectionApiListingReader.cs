@@ -3,17 +3,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using ApiCheck.Description;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
-namespace ApiCheck
+namespace ApiCheck.IO
 {
-    public class ApiListingGenerator
+    public class ReflectionApiListingReader : IApiListingReader
     {
         private const BindingFlags SearchFlags = BindingFlags.Public |
             BindingFlags.NonPublic |
@@ -24,20 +21,13 @@ namespace ApiCheck
         private readonly Assembly _assembly;
         private readonly IEnumerable<Func<MemberInfo, bool>> _filters;
 
-        public ApiListingGenerator(Assembly assembly, IEnumerable<Func<MemberInfo, bool>> filters)
+        public ReflectionApiListingReader(Assembly assembly, IEnumerable<Func<MemberInfo, bool>> filters)
         {
             _assembly = assembly;
-            _filters = filters;
+            _filters = filters ?? Enumerable.Empty<Func<MemberInfo, bool>>();
         }
 
-        public static JObject GenerateApiListingReport(Assembly assembly, IEnumerable<Func<MemberInfo, bool>> filters = null)
-        {
-            var generator = new ApiListingGenerator(assembly, filters ?? Enumerable.Empty<Func<MemberInfo, bool>>());
-            var ApiListingDocument = generator.GenerateApiListing();
-            return JObject.FromObject(ApiListingDocument);
-        }
-
-        public ApiListing GenerateApiListing()
+        public ApiListing Read()
         {
             var types = _assembly.DefinedTypes
                 .Where(t => t.IsPublic || t.IsNestedPublic || t.IsNestedFamily || t.IsNestedFamORAssem);
@@ -58,7 +48,7 @@ namespace ApiCheck
         public static TypeDescriptor GenerateTypeDescriptor(TypeInfo type, IEnumerable<Func<MemberInfo, bool>> filters = null)
         {
             filters = filters ?? Enumerable.Empty<Func<MemberInfo, bool>>();
-            var generator = new ApiListingGenerator(type.Assembly, filters);
+            var generator = new ReflectionApiListingReader(type.Assembly, filters);
             return generator.GenerateTypeDescriptor(type);
         }
 
@@ -76,7 +66,7 @@ namespace ApiCheck
                 throw new InvalidOperationException($"Can't determine type for {type.FullName}");
             }
 
-            // At this point we've filtered away any non public or protected member, 
+            // At this point we've filtered away any non public or protected member,
             // so we only need to check if something is public
             typeDescriptor.Visibility = type.IsPublic || type.IsNestedPublic ? ApiElementVisibility.Public : ApiElementVisibility.Protected;
 
@@ -327,29 +317,6 @@ namespace ApiCheck
                     return null;
             }
         }
-
-        public static ApiListing LoadFrom(string json, IEnumerable<Func<ApiElement, bool>> oldApiListingFilters = null)
-        {
-            oldApiListingFilters = oldApiListingFilters ?? Enumerable.Empty<Func<ApiElement, bool>>();
-            var oldApiListing = JsonConvert.DeserializeObject<ApiListing>(json);
-            foreach (var type in oldApiListing.Types.ToArray())
-            {
-                if (oldApiListingFilters.Any(filter => filter(type)))
-                {
-                    oldApiListing.Types.Remove(type);
-                }
-
-                foreach (var member in type.Members.ToArray())
-                {
-                    if (oldApiListingFilters.Any(filter => filter(member)))
-                    {
-                        type.Members.Remove(member);
-                    }
-                }
-            }
-            return oldApiListing;
-        }
-
         private static string GetInterfaceImplementation(MethodInfo method, bool explicitImplementation)
         {
             var typeInfo = method.DeclaringType.GetTypeInfo();
@@ -459,6 +426,10 @@ namespace ApiCheck
             }
 
             throw new InvalidOperationException("Unsupported default value type");
+        }
+
+        public void Dispose()
+        {
         }
     }
 }

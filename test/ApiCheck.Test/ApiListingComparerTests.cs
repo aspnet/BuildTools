@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using ApiCheck.Description;
+using ApiCheck.IO;
 using ApiCheckApiListing.V2;
 using Scenarios;
 using Xunit;
@@ -240,9 +241,9 @@ namespace ApiCheck.Test
         private ApiListing CreateApiListingDocument(Assembly assembly, IEnumerable<Func<MemberInfo, bool>> additionalFilters = null)
         {
             additionalFilters = additionalFilters ?? Enumerable.Empty<Func<MemberInfo, bool>>();
-            var generator = new ApiListingGenerator(assembly, TestFilters.Concat(additionalFilters));
+            var generator = new ReflectionApiListingReader(assembly, TestFilters.Concat(additionalFilters));
 
-            return generator.GenerateApiListing();
+            return generator.Read();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿<Project>
   <PropertyGroup>
+    <AspNetCoreVersion>1.2.0-*</AspNetCoreVersion>
     <DotNetCliUtilsVersion>1.0.1</DotNetCliUtilsVersion>
     <JsonNetVersion>9.0.1</JsonNetVersion>
     <MsBuildPackageVersions>15.1.548</MsBuildPackageVersions>

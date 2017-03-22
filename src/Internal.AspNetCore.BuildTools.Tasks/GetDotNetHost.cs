@@ -3,12 +3,11 @@
 
 #if NETSTANDARD1_6
 
-using System;
-using System.Runtime.InteropServices;
 using System.IO;
 using Microsoft.AspNetCore.BuildTools.Utilities;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
+using Microsoft.Extensions.CommandLineUtils;
 
 namespace Microsoft.AspNetCore.BuildTools
 {
@@ -29,7 +28,6 @@ namespace Microsoft.AspNetCore.BuildTools
     /// </summary>
     public class GetDotNetHost : Task
     {
-        private const string MuxerName = "dotnet";
 
         /// <summary>
         /// The full path to "dotnet.exe"
@@ -45,34 +43,15 @@ namespace Microsoft.AspNetCore.BuildTools
 
         public override bool Execute()
         {
-            var fileName = MuxerName;
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                fileName += ".exe";
-            }
+            ExecutablePath = DotNetMuxer.MuxerPath;
 
-            var fxDepsFile = AppContext.GetData("FX_DEPS_FILE") as string;
-
-            if (string.IsNullOrEmpty(fxDepsFile))
+            if (ExecutablePath == null)
             {
-                Log.LogError("AppContext did not have 'FX_DEPS_FILE' set.");
+                Log.LogError("Failed to find the .NET Core installation");
                 return false;
             }
 
-            var muxerDir = new FileInfo(fxDepsFile) // Microsoft.NETCore.App.deps.json
-                .Directory? // (version)
-                .Parent? // Microsoft.NETCore.App
-                .Parent? // shared
-                .Parent; // DOTNET_HOME
-
-            if (muxerDir == null)
-            {
-                Log.LogError("Failed to find the .NET Core installation starting from '{0}'", fxDepsFile);
-                return false;
-            }
-
-            ExecutablePath = Path.Combine(muxerDir.FullName, fileName);
-            DotNetDirectory = FileHelpers.EnsureTrailingSlash(muxerDir.FullName);
+            DotNetDirectory = FileHelpers.EnsureTrailingSlash(Path.GetDirectoryName(DotNetDirectory));
 
             Log.LogMessage(MessageImportance.Low, "Found dotnet muxer in '{0}'", DotNetDirectory);
 

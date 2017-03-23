@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.0
+VisualStudioVersion = 15.0.26228.9
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A4F4353B-C3D2-40B0-909A-5B48A748EA76}"
 EndProject
@@ -15,33 +15,35 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{60A938B2-D95A-403C-AA7A-3683AD64DFA0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGetPackageVerifier", "src\NuGetPackageVerifier\NuGetPackageVerifier.csproj", "{657AFF5E-164E-493D-8501-8026B7C20808}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NuGetPackageVerifier", "src\NuGetPackageVerifier\NuGetPackageVerifier.csproj", "{657AFF5E-164E-493D-8501-8026B7C20808}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SplitPackages", "src\SplitPackages\SplitPackages.csproj", "{C98F7832-85FB-451B-9152-87425ACF8EEB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SplitPackages", "src\SplitPackages\SplitPackages.csproj", "{C98F7832-85FB-451B-9152-87425ACF8EEB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DependenciesPackager", "src\DependenciesPackager\DependenciesPackager.csproj", "{183BBD52-FFC3-4636-9C6F-EAFA5CDBFEAB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependenciesPackager", "src\DependenciesPackager\DependenciesPackager.csproj", "{183BBD52-FFC3-4636-9C6F-EAFA5CDBFEAB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackageClassifier", "src\PackageClassifier\PackageClassifier.csproj", "{5F13329B-48C4-418A-A495-E9F58949C43E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackageClassifier", "src\PackageClassifier\PackageClassifier.csproj", "{5F13329B-48C4-418A-A495-E9F58949C43E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VersionTool", "src\VersionTool\VersionTool.csproj", "{102216C8-55CB-49EA-B20E-D41B1F0E42B1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VersionTool", "src\VersionTool\VersionTool.csproj", "{102216C8-55CB-49EA-B20E-D41B1F0E42B1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiCheckBaseline.V1", "test\ApiCheckBaseline.V1\ApiCheckBaseline.V1.csproj", "{1B1731E0-4ADB-4A04-9418-FCD7F5CFB79E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiCheckBaseline.V1", "test\ApiCheckBaseline.V1\ApiCheckBaseline.V1.csproj", "{1B1731E0-4ADB-4A04-9418-FCD7F5CFB79E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiCheckBaseline.V2", "test\ApiCheckBaseline.V2\ApiCheckBaseline.V2.csproj", "{ECA89839-3332-43F3-B1B1-9C2D91B7285E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiCheckBaseline.V2", "test\ApiCheckBaseline.V2\ApiCheckBaseline.V2.csproj", "{ECA89839-3332-43F3-B1B1-9C2D91B7285E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiCheck.Test", "test\ApiCheck.Test\ApiCheck.Test.csproj", "{D61A892B-D214-44AB-9652-334C4338377B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiCheck.Test", "test\ApiCheck.Test\ApiCheck.Test.csproj", "{D61A892B-D214-44AB-9652-334C4338377B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.AspNetCore.BuildTools.ApiCheck", "src\Microsoft.AspNetCore.BuildTools.ApiCheck\Microsoft.AspNetCore.BuildTools.ApiCheck.csproj", "{AEFC7985-27C8-468E-8EF8-E1D589C9053F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.BuildTools.ApiCheck", "src\Microsoft.AspNetCore.BuildTools.ApiCheck\Microsoft.AspNetCore.BuildTools.ApiCheck.csproj", "{AEFC7985-27C8-468E-8EF8-E1D589C9053F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGetPackageVerifier.Task", "src\NuGetPackageVerifier.Task\NuGetPackageVerifier.Task.csproj", "{EF38C1CA-8A2E-4C8E-B478-7072C0140514}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NuGetPackageVerifier.Task", "src\NuGetPackageVerifier.Task\NuGetPackageVerifier.Task.csproj", "{EF38C1CA-8A2E-4C8E-B478-7072C0140514}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Internal.AspNetCore.Sdk", "src\Internal.AspNetCore.Sdk\Internal.AspNetCore.Sdk.csproj", "{F0E4CF2B-29B9-432B-BF27-195996CA24FD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Internal.AspNetCore.Sdk", "src\Internal.AspNetCore.Sdk\Internal.AspNetCore.Sdk.csproj", "{F0E4CF2B-29B9-432B-BF27-195996CA24FD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Internal.AspNetCore.BuildTools.Tasks", "src\Internal.AspNetCore.BuildTools.Tasks\Internal.AspNetCore.BuildTools.Tasks.csproj", "{6A631446-BBDD-4743-B576-7F9793B6BE45}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Internal.AspNetCore.BuildTools.Tasks", "src\Internal.AspNetCore.BuildTools.Tasks\Internal.AspNetCore.BuildTools.Tasks.csproj", "{6A631446-BBDD-4743-B576-7F9793B6BE45}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildTools.Tasks.Tests", "test\BuildTools.Tasks.Tests\BuildTools.Tasks.Tests.csproj", "{211858CA-6E82-4EFD-9960-8D023EEB789F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BuildTools.Tasks.Tests", "test\BuildTools.Tasks.Tests\BuildTools.Tasks.Tests.csproj", "{211858CA-6E82-4EFD-9960-8D023EEB789F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NugetReferenceResolver", "src\NugetReferenceResolver\NugetReferenceResolver.csproj", "{7034433C-4D1B-44A9-B696-55F1C43DB8CB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackagePublisher", "src\PackagePublisher\PackagePublisher.csproj", "{E072CD5C-C8D9-4724-9896-A31973775C09}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -105,6 +107,10 @@ Global
 		{7034433C-4D1B-44A9-B696-55F1C43DB8CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7034433C-4D1B-44A9-B696-55F1C43DB8CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7034433C-4D1B-44A9-B696-55F1C43DB8CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E072CD5C-C8D9-4724-9896-A31973775C09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E072CD5C-C8D9-4724-9896-A31973775C09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E072CD5C-C8D9-4724-9896-A31973775C09}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E072CD5C-C8D9-4724-9896-A31973775C09}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -124,5 +130,6 @@ Global
 		{6A631446-BBDD-4743-B576-7F9793B6BE45} = {A4F4353B-C3D2-40B0-909A-5B48A748EA76}
 		{211858CA-6E82-4EFD-9960-8D023EEB789F} = {60A938B2-D95A-403C-AA7A-3683AD64DFA0}
 		{7034433C-4D1B-44A9-B696-55F1C43DB8CB} = {A4F4353B-C3D2-40B0-909A-5B48A748EA76}
+		{E072CD5C-C8D9-4724-9896-A31973775C09} = {A4F4353B-C3D2-40B0-909A-5B48A748EA76}
 	EndGlobalSection
 EndGlobal

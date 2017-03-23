@@ -3,13 +3,11 @@
   for use outside of Microsoft.
 -->
 <Project>
-  <Import Project="$(MSBuildThisFileDirectory)Common.props"/>
-
   <PropertyGroup>
     <_ApiCheckTaskAssembly>$(MSBuildThisFileDirectory)..\tools\netstandard1.6\Microsoft.AspNetCore.BuildTools.ApiCheck.Task.dll</_ApiCheckTaskAssembly>
   </PropertyGroup>
 
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.ApiCheck.Task.ApiCheckTask"
              AssemblyFile="$(_ApiCheckTaskAssembly)"
-             Condition=" '$(EnableApiCheck)' == 'true' " />
+             Condition=" '$(MSBuildRuntimeType)' == 'Core' " />
 </Project>

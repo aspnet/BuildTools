@@ -2,7 +2,7 @@
   <Import Project="..\..\build\common.props" />
 
   <PropertyGroup>
-    <VersionPrefix>1.0.1</VersionPrefix>
+    <VersionPrefix>1.0.2</VersionPrefix>
 
     <!--
       The netstandard1.0 TFM doesn't actually compile. It's just there so Internal.AspNetCore.Sdk can take a dependency

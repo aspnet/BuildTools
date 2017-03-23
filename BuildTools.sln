@@ -45,6 +45,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NugetReferenceResolver", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackagePublisher", "src\PackagePublisher\PackagePublisher.csproj", "{E072CD5C-C8D9-4724-9896-A31973775C09}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackagePublisher", "src\PackagePublisher\PackagePublisher.csproj", "{E072CD5C-C8D9-4724-9896-A31973775C09}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

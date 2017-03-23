@@ -20,10 +20,10 @@
 
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.4.9" />
+    <PackageReference Include="Mono.Cecil" Version="0.10.0-beta1-v2" />
     <PackageReference Include="Newtonsoft.Json" Version="$(JsonNetVersion)" />
     <PackageReference Include="NuGet.Packaging" Version="$(NuGetPackagesVersion)" />
-    <PackageReference Include="Mono.Cecil" Version="0.10.0-beta1-v2" />
-    <PackageReference Include="System.Runtime.Loader" Version="4.0.0" />
+    <PackageReference Include="System.Runtime.Loader" Version="$(CoreFxVersion)" />
   </ItemGroup>
 
  <!-- packaging settings -->

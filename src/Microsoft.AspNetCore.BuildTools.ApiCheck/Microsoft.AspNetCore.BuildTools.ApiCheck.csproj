@@ -30,18 +30,18 @@
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
-    <PackageReference Include="NETStandard.Library" Version="1.6.0" PrivateAssets="All" />
+    <PackageReference Include="NETStandard.Library" Version="$(NetStandardImplicitPackageVersion)" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard1.0' ">
-    <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.0.0" />
+    <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="$(AspNetCoreVersion)" />
     <PackageReference Include="Newtonsoft.Json" Version="$(JsonNetVersion)" />
 
     <ProjectReference Include="..\NugetReferenceResolver\NugetReferenceResolver.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.1' ">
-    <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
+    <PackageReference Include="System.Runtime.Loader" Version="$(CoreFxVersion)" />
   </ItemGroup>
 
   <Target Name="PublishAll">

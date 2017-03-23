@@ -5,11 +5,13 @@
 <Project>
   <!-- Set nothing if handled in project file or already done in outer build. -->
   <PropertyGroup>
+    <!-- Override project if it explicitly set property to true. Task cannot run in .NET Framework MSBuild. -->
+    <EnableApiCheck Condition=" '$(EnableApiCheck)' == 'true' AND '$(MSBuildRuntimeType)' != 'Core' ">false</EnableApiCheck>
     <EnableApiCheck Condition=" '$(EnableApiCheck)' == '' AND '$(MSBuildRuntimeType)' == 'Core' ">true</EnableApiCheck>
     <EnableApiCheck Condition=" '$(EnableApiCheck)' == '' ">false</EnableApiCheck>
     <ExcludePublicInternalTypes_InApiCheck Condition=" '$(ExcludePublicInternalTypes_InApiCheck)' == '' ">true</ExcludePublicInternalTypes_InApiCheck>
 
     <!-- Hook API checks into Pack run, prior to creating the .nupkg but after build (if any). -->
-    <GenerateNuspecDependsOn Condition=" ! $(GenerateNuspecDependsOn.Contains('ApiCheck')) ">$(GenerateNuspecDependsOn);ApiCheck</GenerateNuspecDependsOn>
+    <GenerateNuspecDependsOn>$(GenerateNuspecDependsOn);ApiCheck</GenerateNuspecDependsOn>
   </PropertyGroup>
 </Project>

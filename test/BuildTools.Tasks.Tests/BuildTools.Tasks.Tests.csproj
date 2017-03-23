@@ -9,6 +9,9 @@
   <ItemGroup>
     <EmbeddedResource Remove="Resources\Strings.resx" />
     <Content Include="Resources\**\*" CopyToOutputDirectory="Always" />
+    <None Update="scripts\*.cmd;scripts\*.sh">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

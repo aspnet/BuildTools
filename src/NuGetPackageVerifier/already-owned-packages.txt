@@ -54,6 +54,7 @@ Microsoft.AspNetCore.Mvc.Formatters.Json
 Microsoft.AspNetCore.Mvc.Formatters.Xml
 Microsoft.AspNetCore.Mvc.Localization
 Microsoft.AspNetCore.Mvc.Razor
+Microsoft.AspNetCore.Mvc.Razor.Extensions
 Microsoft.AspNetCore.Mvc.Razor.Host
 Microsoft.AspNetCore.Mvc.Razor.ViewCompilation
 Microsoft.AspNetCore.Mvc.Razor.ViewCompilation.Design
@@ -88,6 +89,7 @@ Microsoft.AspNetCore.SignalR.Common
 Microsoft.AspNetCore.SignalR.Redis
 Microsoft.AspNetCore.Sockets
 Microsoft.AspNetCore.Sockets.Client
+Microsoft.AspNetCore.Sockets.Common
 Microsoft.AspNetCore.StaticFiles
 Microsoft.AspNetCore.TestHost
 Microsoft.AspNetCore.WebSockets
@@ -172,6 +174,7 @@ Microsoft.Owin.Security.Interop
 Microsoft.VisualStudio.Web.BrowserLink
 Microsoft.VisualStudio.Web.BrowserLink.Loader
 Microsoft.VisualStudio.Web.CodeGeneration
+Microsoft.VisualStudio.Web.CodeGeneration.Contracts
 Microsoft.VisualStudio.Web.CodeGeneration.Core
 Microsoft.VisualStudio.Web.CodeGeneration.Design
 Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore

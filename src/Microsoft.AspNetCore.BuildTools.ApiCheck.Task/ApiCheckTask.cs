@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
+using Microsoft.Extensions.CommandLineUtils;
 
 namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
 {
@@ -126,16 +127,8 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
                 return Path.GetFullPath(Path.Combine(taskAssemblyFolder, "..", "net452", ToolExe));
             }
 
-            var dotnetPath = new FileInfo(AppContext.GetData("FX_DEPS_FILE") as string) // .\Microsoft.NETCore.App.deps.json
-                .Directory // version e.g. 1.0.1
-                ?.Parent   // Microsoft.NETCore.App
-                ?.Parent   // shared
-                ?.Parent   // DOTNET_HOME
-                ?.GetFiles(ToolExe)
-                .SingleOrDefault();
-
-            // If above expression does not find dotnet, fall back to system PATH and hope for the best.
-            return dotnetPath?.Exists == true ? dotnetPath.FullName : ToolExe;
+            // If muxer does not find dotnet, fall back to system PATH and hope for the best.
+            return DotNetMuxer.MuxerPath ?? ToolExe;
         }
 
         /// <inheritdoc />

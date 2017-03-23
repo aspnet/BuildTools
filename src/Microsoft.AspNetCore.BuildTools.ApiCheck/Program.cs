@@ -61,24 +61,11 @@ namespace ApiCheck
             }
             catch (FileNotFoundException e)
             {
-                Console.WriteLine($"{e.GetType().FullName}: {e.Message}, file '{e.FileName}'");
-
-                var inner = e.InnerException;
-                while (inner != null)
-                {
-                    Console.WriteLine($"  {inner.GetType().FullName}: {inner.Message}");
-                    inner = inner.InnerException;
-                }
-
-                if (e.InnerException != null)
-                {
-                    Console.WriteLine("  --- End of inner exceptions ---");
-                }
-
-                Console.WriteLine(e.StackTrace);
+                Console.WriteLine(e.ToString());
             }
             catch (ReflectionTypeLoadException e)
             {
+                // ReflectionTypeLoadException does not override ToString() to include LoaderExceptions.
                 Console.WriteLine($"{e.GetType().FullName}: {e.Message}");
 
                 var hadLoaderExceptions = false;

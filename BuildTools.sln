@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.0
+VisualStudioVersion = 15.0.26228.9
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A4F4353B-C3D2-40B0-909A-5B48A748EA76}"
 EndProject
@@ -41,7 +41,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Internal.AspNetCore.BuildTo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuildTools.Tasks.Tests", "test\BuildTools.Tasks.Tests\BuildTools.Tasks.Tests.csproj", "{211858CA-6E82-4EFD-9960-8D023EEB789F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NugetReferenceResolver", "src\NugetReferenceResolver\NugetReferenceResolver.csproj", "{7034433C-4D1B-44A9-B696-55F1C43DB8CB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NugetReferenceResolver", "src\NugetReferenceResolver\NugetReferenceResolver.csproj", "{7034433C-4D1B-44A9-B696-55F1C43DB8CB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackagePublisher", "src\PackagePublisher\PackagePublisher.csproj", "{E072CD5C-C8D9-4724-9896-A31973775C09}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -105,6 +107,10 @@ Global
 		{7034433C-4D1B-44A9-B696-55F1C43DB8CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7034433C-4D1B-44A9-B696-55F1C43DB8CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7034433C-4D1B-44A9-B696-55F1C43DB8CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E072CD5C-C8D9-4724-9896-A31973775C09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E072CD5C-C8D9-4724-9896-A31973775C09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E072CD5C-C8D9-4724-9896-A31973775C09}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E072CD5C-C8D9-4724-9896-A31973775C09}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -124,5 +130,6 @@ Global
 		{6A631446-BBDD-4743-B576-7F9793B6BE45} = {A4F4353B-C3D2-40B0-909A-5B48A748EA76}
 		{211858CA-6E82-4EFD-9960-8D023EEB789F} = {60A938B2-D95A-403C-AA7A-3683AD64DFA0}
 		{7034433C-4D1B-44A9-B696-55F1C43DB8CB} = {A4F4353B-C3D2-40B0-909A-5B48A748EA76}
+		{E072CD5C-C8D9-4724-9896-A31973775C09} = {A4F4353B-C3D2-40B0-909A-5B48A748EA76}
 	EndGlobalSection
 EndGlobal

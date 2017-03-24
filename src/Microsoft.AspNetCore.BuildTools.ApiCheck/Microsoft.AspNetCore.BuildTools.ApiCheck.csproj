@@ -34,7 +34,7 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard1.0' ">
-    <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="$(AspNetCoreVersion)" />
+    <PackageReference Include="Microsoft.Extensions.CommandLineUtils.Sources" Version="$(AspNetCoreVersion)" PrivateAssets="All" />
     <PackageReference Include="Newtonsoft.Json" Version="$(JsonNetVersion)" />
 
     <ProjectReference Include="..\NugetReferenceResolver\NugetReferenceResolver.csproj" />

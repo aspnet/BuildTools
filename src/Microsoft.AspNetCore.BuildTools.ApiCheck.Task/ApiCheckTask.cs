@@ -3,7 +3,6 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Microsoft.Build.Framework;
@@ -148,7 +147,8 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
                 arguments += " --exclude-public-internal";
             }
 
-            arguments += $@" --assembly ""{AssemblyPath}"" --project ""{ProjetAssetsPath}"" --api-listing ""{ApiListingPath}""";
+            arguments += $@" --assembly ""{AssemblyPath}"" --framework {Framework}";
+            arguments += $@" --project ""{ProjetAssetsPath}"" --api-listing ""{ApiListingPath}""";
             if (!string.IsNullOrEmpty(ExclusionsPath))
             {
                 arguments += $@" --exclusions ""{ExclusionsPath}""";

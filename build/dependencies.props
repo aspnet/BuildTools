@@ -6,7 +6,7 @@
     <DotNetProjectModelVersion>1.0.0-rc3-1-003177</DotNetProjectModelVersion>
     <JsonNetVersion>9.0.1</JsonNetVersion>
     <MsBuildPackageVersions>15.1.548</MsBuildPackageVersions>
-    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+    <NetStandardPackageVersion>1.6.1</NetStandardPackageVersion>
     <NuGetPackagesVersion>4.0.0</NuGetPackagesVersion>
     <TestSdkVersion>15.0.0</TestSdkVersion>
     <XunitVersion>2.2.0</XunitVersion>

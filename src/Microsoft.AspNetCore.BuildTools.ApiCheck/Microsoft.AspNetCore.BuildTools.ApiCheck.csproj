@@ -30,7 +30,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
-    <PackageReference Include="NETStandard.Library" Version="$(NetStandardImplicitPackageVersion)" PrivateAssets="All" />
+    <PackageReference Include="NETStandard.Library" Version="$(NetStandardPackageVersion)" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard1.0' ">

@@ -238,7 +238,8 @@ namespace NugetReferenceResolver
             }
 
             var packagePath = ResolvePackagePath(library.Name, library.Version.ToString(), sources);
-            var signaturePath = library.Files.SingleOrDefault(f => f.EndsWith(".sha512", StringComparison.OrdinalIgnoreCase));
+            var signaturePath = library.Files
+                .SingleOrDefault(f => f.EndsWith(".sha512", StringComparison.OrdinalIgnoreCase));
 
             var dependencies = new List<Package>();
             if (dependency.Dependencies?.Count > 0)

@@ -3,7 +3,7 @@
   for use outside of Microsoft.
 -->
 <Project>
-  <Target Name="ApiCheck" Condition=" '$(EnableApiCheck)' == 'true' AND $(IsPackable) == 'true' ">
+  <Target Name="ApiCheck" Condition=" '$(EnableApiCheck)' == 'true' ">
     <PropertyGroup>
       <_ApiListingFileSuffix Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">net45.json</_ApiListingFileSuffix>
       <_ApiListingFileSuffix Condition=" '$(_ApiListingFileSuffix)' == '' ">netcore.json</_ApiListingFileSuffix>

@@ -2,13 +2,14 @@
 using System.Linq;
 using System.Reflection;
 using ApiCheck.Description;
+using ApiCheck.IO;
 using ApiCheckApiListing.V2;
 using Scenarios;
 using Xunit;
 
 namespace ApiCheck.Test
 {
-    public class ApiListingGenerationTests
+    public class ReflectionApiListingReaderTests
     {
         public Assembly V1Assembly => typeof(ApiCheckApiListingV1).GetTypeInfo().Assembly;
         public Assembly V2Assembly => typeof(ApiCheckApiListingV2).GetTypeInfo().Assembly;
@@ -17,10 +18,10 @@ namespace ApiCheck.Test
         public void DetectsClasses()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -32,10 +33,10 @@ namespace ApiCheck.Test
         public void DetectsStructs()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -47,10 +48,10 @@ namespace ApiCheck.Test
         public void DetectsDerivedClasses()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -62,10 +63,10 @@ namespace ApiCheck.Test
         public void DetectsBasicInterface()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -77,10 +78,10 @@ namespace ApiCheck.Test
         public void DetectsComplexInterface()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -92,10 +93,10 @@ namespace ApiCheck.Test
         public void DetectsInterfacesThatImplicitlyImplementOtherInterfaces()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -107,10 +108,10 @@ namespace ApiCheck.Test
         public void DetectsClassImplementingInterface()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -122,10 +123,10 @@ namespace ApiCheck.Test
         public void DetectsClassDerivingClassImplementingInterface()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -137,10 +138,10 @@ namespace ApiCheck.Test
         public void ParameterlessVoidReturningMethod()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -153,10 +154,10 @@ namespace ApiCheck.Test
         public void DetectsProtectedIntReturningMethod()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -169,10 +170,10 @@ namespace ApiCheck.Test
         public void ProtectedInternalStringReturningMethodWithStringParameter()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -185,10 +186,10 @@ namespace ApiCheck.Test
         public void PublicClassReturningMethodWithOptionalStringParameter()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -201,10 +202,10 @@ namespace ApiCheck.Test
         public void PrivateBoolReturningMethodWithOptionalCharParameter()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -217,7 +218,7 @@ namespace ApiCheck.Test
         public void PublicDecimalReturningMethodWithAllDefaultParameterTypes()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
             var parameters = string.Join(", ",
                 "Scenarios.MethodTypesClass methodTypes = null",
                 "System.String nullString = null",
@@ -238,7 +239,7 @@ namespace ApiCheck.Test
                 "System.Threading.CancellationToken cancellation = default(System.Threading.CancellationToken)");
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -251,10 +252,10 @@ namespace ApiCheck.Test
         public void DetectsVoidReturningMethodWithParamsArgument()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -267,10 +268,10 @@ namespace ApiCheck.Test
         public void DetectsStaticVoidReturningMethod()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -283,10 +284,10 @@ namespace ApiCheck.Test
         public void DetectsPublicNestedClass()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -298,10 +299,10 @@ namespace ApiCheck.Test
         public void DetectsProtectedNestedClass()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -313,10 +314,10 @@ namespace ApiCheck.Test
         public void DetectsProtectedInternalNestedClass()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -328,10 +329,10 @@ namespace ApiCheck.Test
         public void DetectsInternalNestedClass()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -343,10 +344,10 @@ namespace ApiCheck.Test
         public void DetectsPrivateNestedClass()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -358,10 +359,10 @@ namespace ApiCheck.Test
         public void DetectsPublicNestedInterface()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -373,10 +374,10 @@ namespace ApiCheck.Test
         public void DetectsMultipleLevelsNestedClass()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -388,10 +389,10 @@ namespace ApiCheck.Test
         public void DetectsAbstractClass()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -403,10 +404,10 @@ namespace ApiCheck.Test
         public void DetectsGenericInterfaceNestedWithinGenericClass()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -418,10 +419,10 @@ namespace ApiCheck.Test
         public void DetectsInstantiatedNestedGenericsCorrectly()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -434,10 +435,10 @@ namespace ApiCheck.Test
         public void DetectsAbstractVoidMethod()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -450,10 +451,10 @@ namespace ApiCheck.Test
         public void DetectsVirtualVoidMethod()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -466,10 +467,10 @@ namespace ApiCheck.Test
         public void DetectsAbstractImplementationMethod()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -482,10 +483,10 @@ namespace ApiCheck.Test
         public void DetectsVirtualOverrideMethod()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -498,10 +499,10 @@ namespace ApiCheck.Test
         public void DetectsNewMethod()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -514,10 +515,10 @@ namespace ApiCheck.Test
         public void DetectsSealedClasses()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -529,10 +530,10 @@ namespace ApiCheck.Test
         public void DetectsSealedAbstractImplementationMethod()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -545,10 +546,10 @@ namespace ApiCheck.Test
         public void DetectsSealedVirtualOverrideMethod()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -561,10 +562,10 @@ namespace ApiCheck.Test
         public void DetectsStaticClasses()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -576,10 +577,10 @@ namespace ApiCheck.Test
         public void DetectsExtensionMethods()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -592,10 +593,10 @@ namespace ApiCheck.Test
         public void DetectsImmediatelyImplementedInterfaces()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -607,10 +608,10 @@ namespace ApiCheck.Test
         public void DoesNotIncludeInterfacesWhenNotExplicitlyReimplemented()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -622,10 +623,10 @@ namespace ApiCheck.Test
         public void DoesNotIncludeInterfacesWhenExtendingAnotherMoreSpecificInterfaceAndNotReimplementingAnyMethod()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -637,10 +638,10 @@ namespace ApiCheck.Test
         public void DetectsExplicitlyImplementedInterfaces()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -653,10 +654,10 @@ namespace ApiCheck.Test
         public void DetectsReimplementedInterfaceExplicitly()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -669,10 +670,10 @@ namespace ApiCheck.Test
         public void DetectsReimplementedInterfaceImplicitly()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -685,10 +686,10 @@ namespace ApiCheck.Test
         public void DetectsGenericTypes()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -700,10 +701,10 @@ namespace ApiCheck.Test
         public void DetectsClosedGenericTypes()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -715,10 +716,10 @@ namespace ApiCheck.Test
         public void DetectsMultipleGenericTypes()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -730,10 +731,10 @@ namespace ApiCheck.Test
         public void DetectsSemiClosedGenericTypes()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -745,10 +746,10 @@ namespace ApiCheck.Test
         public void DetectsClassNewGenericTypeConstraints()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -760,10 +761,10 @@ namespace ApiCheck.Test
         public void DetectsStructGenericTypeConstraints()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -775,10 +776,10 @@ namespace ApiCheck.Test
         public void DetectsGenericInterfaceWithMultipleInterfaceConstraints()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -791,10 +792,10 @@ namespace ApiCheck.Test
         public void DetectsGenericClassImplementingGenericInterfaceWithMultipleInterfaceConstraints()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -807,10 +808,10 @@ namespace ApiCheck.Test
         public void DetectsGenericMethod()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -824,10 +825,10 @@ namespace ApiCheck.Test
         public void DetectsGenericMethodWithMultipleGenericArguments()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -841,10 +842,10 @@ namespace ApiCheck.Test
         public void DetectsMethodWithGenericArgumentsFromClass()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -858,10 +859,10 @@ namespace ApiCheck.Test
         public void DetectsMethodWithGenericArgumentsFromPartiallyClosedClass()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -875,10 +876,10 @@ namespace ApiCheck.Test
         public void DetectsMethodWithGenericArgumentsAndConstraints()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -892,10 +893,10 @@ namespace ApiCheck.Test
         public void DetectsMethodWithGenericArgumentsAndStructConstraint()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -909,10 +910,10 @@ namespace ApiCheck.Test
         public void DetectsMethodWithGenericArgumentsAndTypeAndImplementedInterfacesConstraints()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -926,10 +927,10 @@ namespace ApiCheck.Test
         public void DetectsPublicFields()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -943,10 +944,10 @@ namespace ApiCheck.Test
         public void DetectsReadonlyFields()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -960,10 +961,10 @@ namespace ApiCheck.Test
         public void DetectsConstantFields()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -977,10 +978,10 @@ namespace ApiCheck.Test
         public void DetectsStaticFields()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -994,10 +995,10 @@ namespace ApiCheck.Test
         public void DetectsStaticReadonlyFields()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -1011,10 +1012,10 @@ namespace ApiCheck.Test
         public void DetectsPropertiesAsMethods()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -1029,10 +1030,10 @@ namespace ApiCheck.Test
         public void DetectsEventsAsMethods()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -1047,10 +1048,10 @@ namespace ApiCheck.Test
         public void DetectsEnumerations()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -1063,10 +1064,10 @@ namespace ApiCheck.Test
         public void DetectsEnumerationsValues()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -1081,10 +1082,10 @@ namespace ApiCheck.Test
         public void DetectsEnumerationsWithDifferentSizes()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -1100,10 +1101,10 @@ namespace ApiCheck.Test
         public void DetectsConstructors()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -1119,10 +1120,10 @@ namespace ApiCheck.Test
         public void DetectsExplicitConstructorWithParameters()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -1136,10 +1137,10 @@ namespace ApiCheck.Test
         public void DetectsMethodParameterDirections()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -1153,10 +1154,10 @@ namespace ApiCheck.Test
         public void DetectsArrayParameters()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -1170,10 +1171,10 @@ namespace ApiCheck.Test
         public void DetectsParametersWithGenericTypesCorrectly()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -1187,10 +1188,10 @@ namespace ApiCheck.Test
         public void FiltersNonPublicOrProtectedElements()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly);
+            var reader = CreateReader(V1Assembly);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -1216,10 +1217,10 @@ namespace ApiCheck.Test
         public void FiltersMembersOnTheInternalNamespace()
         {
             // Arrange
-            var generator = CreateGenerator(V1Assembly, ApiListingFilters.IsInInternalNamespace);
+            var reader = CreateReader(V1Assembly, ApiListingFilters.IsInInternalNamespace);
 
             // Act
-            var report = generator.GenerateApiListing();
+            var report = reader.Read();
 
             // Assert
             Assert.NotNull(report);
@@ -1227,32 +1228,10 @@ namespace ApiCheck.Test
             Assert.DoesNotContain(report.Types, type => type.Name == "Scenarios.Internal.ExcludedType");
         }
 
-        [Fact]
-        public void LoadFromFiltersMembersOnTheInternalNamespace()
-        {
-            // Arrange
-            var serialized = @"{
-  ""AssemblyIdentity"": ""Test"",
-  ""Types"": [
-    {
-      ""Name"": ""Scenarios.Internal.ExcludedType""
-    }
-  ]
-}";
-
-            // Act
-            var report = ApiListingGenerator.LoadFrom(serialized, new Func<ApiElement, bool>[] { ApiListingFilters.IsInInternalNamespace });
-
-            // Assert
-            Assert.NotNull(report);
-            Assert.NotNull(report.Types);
-            Assert.Empty(report.Types);
-        }
-
-        private ApiListingGenerator CreateGenerator(Assembly assembly, params Func<MemberInfo, bool>[] filters)
+        private ReflectionApiListingReader CreateReader(Assembly assembly, params Func<MemberInfo, bool>[] filters)
         {
             filters = filters ?? new Func<MemberInfo, bool>[] { };
-            return new ApiListingGenerator(assembly, filters);
+            return new ReflectionApiListingReader(assembly, filters);
         }
     }
 }

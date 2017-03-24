@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using ApiCheck.Description;
+using ApiCheck.IO;
 
 namespace ApiCheck
 {
@@ -134,7 +135,7 @@ namespace ApiCheck
         private static TypeDescriptor FindOrGenerateDescriptorForBaseType(ApiListing newApiListing, TypeDescriptor candidate)
         {
             return newApiListing.FindType(candidate.BaseType) ??
-                ApiListingGenerator.GenerateTypeDescriptor(candidate.Source.BaseType.GetTypeInfo(), newApiListing.SourceFilters);
+                ReflectionApiListingReader.GenerateTypeDescriptor(candidate.Source.BaseType.GetTypeInfo(), newApiListing.SourceFilters);
         }
 
         private bool SameSignature(MemberDescriptor original, MemberDescriptor candidate)

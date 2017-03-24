@@ -14,11 +14,14 @@ namespace ApiCheck
 {
     public abstract class AssemblyLoader
     {
-        public static Assembly LoadAssembly(string assemblyPath, string assetsJson)
+        public static Assembly LoadAssembly(
+                string assemblyPath,
+                string assetsJson,
+                string framework)
         {
 #if NETCOREAPP1_1
             var lockFile = new LockFileFormat().Read(assetsJson);
-            var graph = PackageGraph.Create(lockFile, "netcoreapp1.1");
+            var graph = PackageGraph.Create(lockFile, framework);
             var loader = new CoreClrAssemblyLoader(graph, assemblyPath);
 #else
             var assemblyDirectory = Path.GetDirectoryName(assemblyPath);

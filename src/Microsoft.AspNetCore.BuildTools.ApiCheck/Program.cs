@@ -27,12 +27,13 @@ namespace ApiCheck
                 {
                     var assemblyPathOption = c.Option("-a|--assembly", "Path to the assembly to generate the ApiListing for", CommandOptionType.SingleValue);
                     var assetsJson = c.Option("-p|--project", "Path to the project.assets.json file", CommandOptionType.SingleValue);
+                    var framework = c.Option("-f|--framework", "The moniker for the framework the assembly to analize was compiled against.", CommandOptionType.SingleValue);
                     var noPublicInternal = c.Option("-epi|--exclude-public-internal", "Exclude types on the .Internal namespace from the generated report", CommandOptionType.NoValue);
                     var outputPath = c.Option("-o|--out", "Output path for the generated ApiListing file", CommandOptionType.SingleValue);
 
                     c.HelpOption("-h|--help");
 
-                    c.OnExecute(() => OnGenerate(c, assemblyPathOption, assetsJson, noPublicInternal, outputPath));
+                    c.OnExecute(() => OnGenerate(c, assemblyPathOption, assetsJson, framework, noPublicInternal, outputPath));
                 });
 
                 var compareCommand = app.Command("compare", (c) =>
@@ -41,12 +42,13 @@ namespace ApiCheck
                     var exclusionsPathOption = c.Option("-e|--exclusions", "Path to the exclusions file for the ApiListing", CommandOptionType.SingleValue);
                     var assemblyPathOption = c.Option("-a|--assembly", "Path to the assembly to generate the ApiListing for", CommandOptionType.SingleValue);
                     var assetsJson = c.Option("-p|--project", "Path to the project.assets.json file", CommandOptionType.SingleValue);
+                    var framework = c.Option("-f|--framework", "The moniker for the framework the assembly to analize was compiled against.", CommandOptionType.SingleValue);
                     var noPublicInternal = c.Option("-epi|--exclude-public-internal", "Exclude types on the .Internal namespace from the generated report", CommandOptionType.NoValue);
                     var compactOutputOption = c.Option("--compact-output", "Display an error on a single line (primarily for use within MSBuild)", CommandOptionType.NoValue);
 
                     c.HelpOption("-h|--help");
 
-                    c.OnExecute(() => OnCompare(c, apiListingPathOption, exclusionsPathOption, assemblyPathOption, assetsJson, noPublicInternal, compactOutputOption));
+                    c.OnExecute(() => OnCompare(c, apiListingPathOption, exclusionsPathOption, assemblyPathOption, assetsJson, framework, noPublicInternal, compactOutputOption));
                 });
 
                 app.HelpOption("-h|--help");
@@ -114,18 +116,23 @@ namespace ApiCheck
             CommandLineApplication command,
             CommandOption assemblyPath,
             CommandOption assetsJson,
+            CommandOption framework,
             CommandOption excludeInternalNamespace,
             CommandOption output)
         {
             if (!assemblyPath.HasValue() ||
                 !output.HasValue() ||
-                !assetsJson.HasValue())
+                !assetsJson.HasValue() ||
+                !framework.HasValue())
             {
                 command.ShowHelp();
                 return Error;
             }
 
-            var assembly = AssemblyLoader.LoadAssembly(assemblyPath.Value(), assetsJson.Value());
+            var assembly = AssemblyLoader.LoadAssembly(
+                assemblyPath.Value(),
+                assetsJson.Value(),
+                framework.Value());
 
             var filters = new List<Func<MemberInfo, bool>>();
             if (excludeInternalNamespace.HasValue())
@@ -152,18 +159,23 @@ namespace ApiCheck
             CommandOption exclusionsPathOption,
             CommandOption assemblyPath,
             CommandOption assetsJson,
+            CommandOption framework,
             CommandOption excludeInternalNamespace,
             CommandOption compactOutputOption)
         {
             if (!apiListingPathOption.HasValue() ||
                 !assemblyPath.HasValue() ||
-                !assetsJson.HasValue())
+                !assetsJson.HasValue() ||
+                !framework.HasValue())
             {
                 command.ShowHelp();
                 return Error;
             }
 
-            var assembly = AssemblyLoader.LoadAssembly(assemblyPath.Value(), assetsJson.Value());
+            var assembly = AssemblyLoader.LoadAssembly(
+                assemblyPath.Value(),
+                assetsJson.Value(),
+                framework.Value());
 
             var newApiListingFilters = new List<Func<MemberInfo, bool>>();
             var oldApiListingFilters = new List<Func<ApiElement, bool>>();

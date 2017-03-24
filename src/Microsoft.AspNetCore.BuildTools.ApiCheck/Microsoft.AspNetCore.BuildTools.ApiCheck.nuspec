@@ -1,12 +1,18 @@
-<?xml version="1.0"?>
+﻿<?xml version="1.0"?>
 <package>
   <metadata>
     <id>Microsoft.AspNetCore.BuildTools.ApiCheck</id>
     <version>$version$</version>
     <authors>Microsoft</authors>
     <description>Generates API baselines and detects breaking changes in APIs.</description>
+    <dependencies>
+      <group targetFramework=".NETStandard1.0" />
+    </dependencies>
   </metadata>
   <files>
-    <file src=".\" target="tools/" />
+    <file src="build\**" target="build\" />
+    <file src="$publishDir$\net452\**" target="tools\net452\" />
+    <file src="$publishDir$\netcoreapp1.1\**" target="tools\netcoreapp1.1\" />
+    <file src="$taskBuildDir$\netstandard1.6\*.dll" target="tools\netstandard1.6\" />
   </files>
 </package>

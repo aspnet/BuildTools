@@ -1,14 +1,14 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
+#if NET452
+using System.IO;
+#endif
 using System.Reflection;
 #if NETCOREAPP1_1
-using NuGet.Frameworks;
 using NuGet.ProjectModel;
-#endif
 using NugetReferenceResolver;
-using System.IO;
+#endif
 
 namespace ApiCheck
 {
@@ -19,7 +19,6 @@ namespace ApiCheck
                 string assetsJson,
                 string framework)
         {
-            
 #if NETCOREAPP1_1
             var lockFile = new LockFileFormat().Read(assetsJson);
             var graph = PackageGraph.Create(lockFile, framework);
@@ -27,7 +26,8 @@ namespace ApiCheck
 #else
             var assemblyDirectory = Path.GetDirectoryName(assemblyPath);
             var loader = new FullFrameworkAssemblyLoader(assemblyDirectory);
-#endif            
+#endif
+
             return loader.Load(assemblyPath);
         }
     }

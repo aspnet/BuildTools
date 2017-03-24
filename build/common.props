@@ -4,11 +4,12 @@
 
   <PropertyGroup>
     <!-- these imports substitute for a package reference to Internal.AspNetCore.Sdk -->
-    <_AspNetToolsSdkPath>$([MSBuild]::GetDirectoryNameOfFileAbove($(MsBuildThisFileDirectory), NuGet.config))\src\Internal.AspNetCore.Sdk</_AspNetToolsSdkPath>
+    <_AspNetToolsSdkPath>$([MSBuild]::GetDirectoryNameOfFileAbove($(MsBuildThisFileDirectory), NuGet.Config))\src\Internal.AspNetCore.Sdk</_AspNetToolsSdkPath>
     <CustomAfterMicrosoftCommonTargets>$(_AspNetToolsSdkPath)\build\Internal.AspNetCore.Sdk.targets</CustomAfterMicrosoftCommonTargets>
     <CustomAfterMicrosoftCommonCrossTargetingTargets>$(_AspNetToolsSdkPath)\buildMultiTargeting\Internal.AspNetCore.Sdk.targets</CustomAfterMicrosoftCommonCrossTargetingTargets>
     <GenerateCommitHashAttribute Condition="'$(CommitHash)'==''">false</GenerateCommitHashAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <EnableApiCheck>false</EnableApiCheck>
   </PropertyGroup>
 
   <Import Project="$(_AspNetToolsSdkPath)\build\Internal.AspNetCore.Sdk.props" />

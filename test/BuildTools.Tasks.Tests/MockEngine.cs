@@ -5,12 +5,26 @@ using System;
 using System.Collections.Generic;
 using System.Collections;
 using Microsoft.Build.Framework;
-using Xunit;
+using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace BuildTools.Tasks.Tests
 {
     public class MockEngine : IBuildEngine5
     {
+        private readonly ITestOutputHelper _output;
+
+        public MockEngine()
+            : this(null)
+        {
+        }
+
+        public MockEngine(ITestOutputHelper output)
+        {
+            _output = output;
+        }
+
+        public bool ThrowOnError { get; set; } = true;
         public ICollection<BuildMessageEventArgs> Messages { get; } = new List<BuildMessageEventArgs>();
         public ICollection<BuildWarningEventArgs> Warnings { get; } = new List<BuildWarningEventArgs>();
 
@@ -25,14 +39,42 @@ namespace BuildTools.Tasks.Tests
         public string ProjectFileOfTaskNode => "<test>";
 
         public void LogMessageEvent(BuildMessageEventArgs e)
-            => Messages.Add(e);
+        {
+            Messages.Add(e);
+            if (_output != null)
+            {
+                _output.WriteLine($"MESSAGE: {e.Message}");
+            }
+        }
 
         public void LogWarningEvent(BuildWarningEventArgs e)
-            => Warnings.Add(e);
+        {
+            Warnings.Add(e);
+            if (_output != null)
+            {
+                _output.WriteLine($"WARNING: {e.Message}");
+            }
+        }
 
         public void LogErrorEvent(BuildErrorEventArgs e)
         {
-            Assert.False(true, e.Message);
+            if (_output != null)
+            {
+                _output.WriteLine($"ERROR: {e.Message}");
+            }
+
+            if (ThrowOnError)
+            {
+                throw new XunitException("Task produced error: " + e.Message);
+            }
+        }
+
+        public void LogCustomEvent(CustomBuildEventArgs e)
+        {
+            if (_output != null)
+            {
+                _output.WriteLine($"CUSTOM: {e.ToString()}");
+            }
         }
 
         #region NotImplemented
@@ -58,11 +100,6 @@ namespace BuildTools.Tasks.Tests
         }
 
         public object GetRegisteredTaskObject(object key, RegisteredTaskObjectLifetime lifetime)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void LogCustomEvent(CustomBuildEventArgs e)
         {
             throw new NotImplementedException();
         }

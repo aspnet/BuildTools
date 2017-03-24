@@ -12,6 +12,8 @@
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.GetDotNetHost" AssemblyFile="$(_BuildToolsAssembly)"
              Condition="'$(MSBuildRuntimeType)' == 'Core'"/>
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.GetOSPlatform" AssemblyFile="$(_BuildToolsAssembly)" />
+  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.Run" AssemblyFile="$(_BuildToolsAssembly)" />
+  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.RunDotNet" AssemblyFile="$(_BuildToolsAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.SetEnvironmentVariable" AssemblyFile="$(_BuildToolsAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.UpdatePackageSource" AssemblyFile="$(_BuildToolsAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.WaitForDebugger" AssemblyFile="$(_BuildToolsAssembly)" />

@@ -3,22 +3,19 @@
   <PropertyGroup>
     <_BuildToolsAssemblyTfm Condition="'$(MSBuildRuntimeType)' == 'Core'">netstandard1.6</_BuildToolsAssemblyTfm>
     <_BuildToolsAssemblyTfm Condition="'$(MSBuildRuntimeType)' != 'Core'">net46</_BuildToolsAssemblyTfm>
-    <_BuildToolsAssembly>$(MSBuildThisFileDirectory)..\tools\$(_BuildToolsAssemblyTfm)\Internal.AspNetCore.BuildTools.Tasks.dll</_BuildToolsAssembly>
+    <BuildToolsTaskAssembly>$(MSBuildThisFileDirectory)..\tools\$(_BuildToolsAssemblyTfm)\Internal.AspNetCore.BuildTools.Tasks.dll</BuildToolsTaskAssembly>
   </PropertyGroup>
 
-  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.GenerateResxDesignerFiles" AssemblyFile="$(_BuildToolsAssembly)" />
-  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.GetAssemblyFileVersion" AssemblyFile="$(_BuildToolsAssembly)" />
-  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.GetGitCommitInfo" AssemblyFile="$(_BuildToolsAssembly)" />
-  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.GetDotNetHost" AssemblyFile="$(_BuildToolsAssembly)"
+  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.GenerateResxDesignerFiles" AssemblyFile="$(BuildToolsTaskAssembly)" />
+  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.GetAssemblyFileVersion" AssemblyFile="$(BuildToolsTaskAssembly)" />
+  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.GetGitCommitInfo" AssemblyFile="$(BuildToolsTaskAssembly)" />
+  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.GetDotNetHost" AssemblyFile="$(BuildToolsTaskAssembly)"
              Condition="'$(MSBuildRuntimeType)' == 'Core'"/>
-  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.GetOSPlatform" AssemblyFile="$(_BuildToolsAssembly)" />
-  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.SetEnvironmentVariable" AssemblyFile="$(_BuildToolsAssembly)" />
-  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.UpdatePackageSource" AssemblyFile="$(_BuildToolsAssembly)" />
-  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.WaitForDebugger" AssemblyFile="$(_BuildToolsAssembly)" />
-  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.ZipArchive" AssemblyFile="$(_BuildToolsAssembly)" />
-  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.UnzipArchive" AssemblyFile="$(_BuildToolsAssembly)" />
-
-  <!-- Note: use 'XmlPoke' where possible. We plan to remove this. See https://github.com/aspnet/BuildTools/issues/180 -->
-  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.XmlPoke2" AssemblyFile="$(_BuildToolsAssembly)" />
+  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.GetOSPlatform" AssemblyFile="$(BuildToolsTaskAssembly)" />
+  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.SetEnvironmentVariable" AssemblyFile="$(BuildToolsTaskAssembly)" />
+  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.UpdatePackageSource" AssemblyFile="$(BuildToolsTaskAssembly)" />
+  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.WaitForDebugger" AssemblyFile="$(BuildToolsTaskAssembly)" />
+  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.ZipArchive" AssemblyFile="$(BuildToolsTaskAssembly)" />
+  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.UnzipArchive" AssemblyFile="$(BuildToolsTaskAssembly)" />
 
 </Project>

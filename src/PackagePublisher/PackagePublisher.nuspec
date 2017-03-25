@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>PackagePublisher</id>
+    <version>$version$</version>
+    <authors>Microsoft</authors>
+    <description>Publishes packages to a feed, with retries.</description>
+  </metadata>
+  <files>
+    <file src="netcoreapp1.0\" target="/" />
+  </files>
+</package>

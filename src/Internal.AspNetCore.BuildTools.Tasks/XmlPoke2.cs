@@ -12,7 +12,13 @@ namespace Microsoft.AspNetCore.BuildTools
     /// <summary>
     /// Similar behavior as MSBuild's XmlPoke task, but for .NET Core.
     /// </summary>
+#if SDK
+    public class Sdk_XmlPoke2 : Task
+#elif BuildTools
     public class XmlPoke2 : Task
+#else
+#error This must be built either for an SDK or for BuildTools
+#endif
     {
         [Required]
         public ITaskItem XmlInputPath { get; set; }

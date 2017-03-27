@@ -9,7 +9,13 @@ using Microsoft.Build.Utilities;
 
 namespace Microsoft.AspNetCore.BuildTools
 {
+#if SDK
+    public class Sdk_GetOSPlatform : Task
+#elif BuildTools
     public class GetOSPlatform : Task
+#else
+#error This must be built either for an SDK or for BuildTools
+#endif
     {
         [Output]
         public string PlatformName { get; set; }

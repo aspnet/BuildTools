@@ -11,7 +11,13 @@ using ZipArchiveStream = System.IO.Compression.ZipArchive;
 
 namespace Microsoft.AspNetCore.BuildTools
 {
+#if SDK
+    public class Sdk_ZipArchive : Task
+#elif BuildTools
     public class ZipArchive : Task
+#else
+#error This must be built either for an SDK or for BuildTools
+#endif
     {
         /// <summary>
         /// The path where the zip file should be created.

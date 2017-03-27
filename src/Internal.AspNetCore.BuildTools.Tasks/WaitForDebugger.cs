@@ -8,7 +8,13 @@ using Microsoft.Build.Framework;
 
 namespace Microsoft.AspNetCore.BuildTools
 {
+#if SDK
+    public class Sdk_WaitForDebugger : Task
+#elif BuildTools
     public class WaitForDebugger : Task
+#else
+#error This must be built either for an SDK or for BuildTools
+#endif
     {
         public override bool Execute()
         {

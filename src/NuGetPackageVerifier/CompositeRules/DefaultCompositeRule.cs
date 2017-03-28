@@ -11,8 +11,7 @@ namespace NuGetPackageVerifier.Rules
         {
             new AssemblyHasCompanyAttributeRule(),
             new AssemblyHasCopyrightAttributeRule(),
-            // Disabling this rule temporarily for Json.net upgrade to 10.0.1
-            //new AssemblyHasCorrectJsonNetVersionRule(),
+            new AssemblyHasCorrectJsonNetVersionRule(),
             new AssemblyHasDocumentFileRule(),
             new AssemblyHasDescriptionAttributeRule(),
             new AssemblyHasNeutralResourcesLanguageAttributeRule(),

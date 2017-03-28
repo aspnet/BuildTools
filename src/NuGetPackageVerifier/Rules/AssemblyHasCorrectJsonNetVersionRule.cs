@@ -8,7 +8,7 @@ namespace NuGetPackageVerifier.Rules
 {
     public class AssemblyHasCorrectJsonNetVersionRule : IPackageVerifierRule
     {
-        private static readonly string ExpectedJsonNetVersion = "9.0.1";
+        private static readonly string ExpectedJsonNetVersion = "10.0.1";
 
         public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {

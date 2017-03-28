@@ -4,7 +4,7 @@
     <CoreFxVersion>4.3.0</CoreFxVersion>
     <DotNetCliUtilsVersion>1.0.1</DotNetCliUtilsVersion>
     <DotNetProjectModelVersion>1.0.0-rc3-1-003177</DotNetProjectModelVersion>
-    <JsonNetVersion>9.0.1</JsonNetVersion>
+    <JsonNetVersion>10.0.1</JsonNetVersion>
     <MsBuildPackageVersions>15.1.548</MsBuildPackageVersions>
     <NetStandardPackageVersion>1.6.1</NetStandardPackageVersion>
     <NuGetPackagesVersion>4.0.0</NuGetPackagesVersion>

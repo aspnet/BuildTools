@@ -18,7 +18,7 @@
 
   <ItemGroup>
     <!-- Setting PrivateAssets to 'None' ensures the generated nuspec will include the build targets from this project -->
-    <ProjectReference Include="..\Internal.AspNetCore.BuildTools.Tasks\Internal.AspNetCore.BuildTools.Tasks.csproj">
+    <ProjectReference Include="..\Internal.AspNetCore.Sdk.Tasks\Internal.AspNetCore.Sdk.Tasks.csproj">
       <PrivateAssets>None</PrivateAssets>
     </ProjectReference>
     <ProjectReference Include="..\Microsoft.AspNetCore.BuildTools.ApiCheck\Microsoft.AspNetCore.BuildTools.ApiCheck.csproj">

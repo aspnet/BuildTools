@@ -32,9 +32,9 @@ For single-tfm projects, this will be imported from build/Internal.AspNetCore.Sd
 
     <Message Importance="high" Text="Found @(_ResxFiles ->Count()) resx file(s) in $(MSBuildProjectName)" />
 
-    <GenerateResxDesignerFiles ResourceFiles="@(_ResxFiles)">
+    <Sdk_GenerateResxDesignerFiles ResourceFiles="@(_ResxFiles)">
       <Output TaskParameter="FileWrites" ItemName="FileWrites" />
-    </GenerateResxDesignerFiles>
+    </Sdk_GenerateResxDesignerFiles>
   </Target>
 
 </Project>

@@ -2,7 +2,7 @@
   <Import Project="..\..\build\common.props" />
 
   <PropertyGroup>
-    <VersionPrefix>1.0.0</VersionPrefix>
+    <VersionPrefix>2.0.0</VersionPrefix>
     <DefineConstants>$(DefineConstants);SDK</DefineConstants>
     <Description>
       Package expressly designed to carry tasks used by Internal.AspNetCore.Sdk. This package should never be directly referenced.

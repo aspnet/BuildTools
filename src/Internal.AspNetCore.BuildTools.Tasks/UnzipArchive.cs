@@ -15,7 +15,13 @@ namespace Microsoft.AspNetCore.BuildTools
     /// <summary>
     /// Unzips an archive file.
     /// </summary>
+#if SDK
+    public class Sdk_UnzipArchive : Task
+#elif BuildTools
     public class UnzipArchive : Task
+#else
+#error This must be built either for an SDK or for BuildTools
+#endif
     {
         /// <summary>
         /// The file to unzip.

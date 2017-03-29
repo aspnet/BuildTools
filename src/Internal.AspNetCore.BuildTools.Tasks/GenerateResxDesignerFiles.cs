@@ -17,13 +17,7 @@ namespace Microsoft.AspNetCore.BuildTools
     /// the 'PrepareResourceNames' target.
     /// <seealso cref="Microsoft.Build.Tasks.CreateManifestResourceName"/>.
     /// </summary>
-#if SDK
-    public class Sdk_GenerateResxDesignerFiles : Task
-#elif BuildTools
     public class GenerateResxDesignerFiles : Task
-#else
-#error This must be built either for an SDK or for BuildTools
-#endif
     {
         /// <summary>
         /// Expected metadata items on <see cref="ResourceFiles"/>.

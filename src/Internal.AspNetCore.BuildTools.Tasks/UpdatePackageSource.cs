@@ -14,13 +14,7 @@ namespace Microsoft.AspNetCore.BuildTools
     /// Update or adds a NuGet feed to a NuGet.config file. It reads <see cref="NuGetConfigPath"/>
     /// and replaces or adds the feed named <see cref="SourceName"/> with <see cref="SourceUri'"/>.
     /// </summary>
-#if SDK
-    public class Sdk_UpdatePackageSource : Task
-#elif BuildTools
     public class UpdatePackageSource : Task
-#else
-#error This must be built either for an SDK or for BuildTools
-#endif
     {
         [Required]
         public string NuGetConfigPath { get; set; }

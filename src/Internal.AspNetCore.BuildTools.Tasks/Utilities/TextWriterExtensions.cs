@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.BuildTools.Utilities;
 
 namespace System.IO
 {
-    internal static class TextWriterExtensions
+    public static class TextWriterExtensions
     {
         public static IndentedTextWriter Indent(this TextWriter writer, int spaces = 4)
             => new IndentedTextWriter(writer, spaces);

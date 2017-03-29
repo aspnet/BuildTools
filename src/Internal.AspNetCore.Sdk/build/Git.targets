@@ -12,11 +12,11 @@
       <CommitHash Condition="'$(TRAVIS_COMMIT)' != ''">$(TRAVIS_COMMIT)</CommitHash>
     </PropertyGroup>
 
-    <Sdk_GetGitCommitInfo WorkingDirectory="$(MSBuildProjectDirectory)"
+    <GetGitCommitInfo WorkingDirectory="$(MSBuildProjectDirectory)"
                       Condition="'$(CommitHash)' == ''"
                       ContinueOnError="WarnAndContinue">
       <Output TaskParameter="CommitHash" PropertyName="CommitHash" />
-    </Sdk_GetGitCommitInfo>
+    </GetGitCommitInfo>
   </Target>
 
 <!--

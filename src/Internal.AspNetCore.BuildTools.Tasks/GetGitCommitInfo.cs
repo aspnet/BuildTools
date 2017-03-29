@@ -8,13 +8,7 @@ using Microsoft.Build.Utilities;
 
 namespace Microsoft.AspNetCore.BuildTools
 {
-#if SDK
-    public class Sdk_GetGitCommitInfo : Task
-#elif BuildTools
     public class GetGitCommitInfo : Task
-#else
-#error This must be built either for an SDK or for BuildTools
-#endif
     {
         private const string HeadContentStart = "ref: refs/heads/";
         private const int CommitShaLength = 40;

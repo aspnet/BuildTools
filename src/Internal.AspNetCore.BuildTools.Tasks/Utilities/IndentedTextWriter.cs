@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Microsoft.AspNetCore.BuildTools.Utilities
 {
-    internal class IndentedTextWriter : TextWriter, IDisposable
+    public class IndentedTextWriter : TextWriter, IDisposable
     {
         private readonly TextWriter _wrapped;
         private readonly string _spaces;

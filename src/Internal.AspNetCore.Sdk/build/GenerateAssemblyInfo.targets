@@ -22,9 +22,9 @@ Generates assembly attributes for ASP.NET Core binaries
     DependsOnTargets="GetAssemblyVersion"
     Condition="'$(GenerateAssemblyFileVersionAttribute)'=='true' AND '$(FileVersion)'==''">
 
-    <Sdk_GetAssemblyFileVersion AssemblyVersion="$(AssemblyVersion)" AssemblyRevision="$(AssemblyRevision)">
+    <GetAssemblyFileVersion AssemblyVersion="$(AssemblyVersion)" AssemblyRevision="$(AssemblyRevision)">
       <Output TaskParameter="AssemblyFileVersion" PropertyName="FileVersion" />
-    </Sdk_GetAssemblyFileVersion>
+    </GetAssemblyFileVersion>
   </Target>
 
   <Target Name="CoreGenerateInternalAspNetCoreAttributes"

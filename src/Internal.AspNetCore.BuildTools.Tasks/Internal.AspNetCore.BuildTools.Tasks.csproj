@@ -1,11 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <!-- Most modifications to this file need to also be made to Internal.AspNetCore.Sdk.Tasks.csproj. -->
+
   <Import Project="..\..\build\common.props" />
 
   <PropertyGroup>
     <VersionPrefix>1.0.0</VersionPrefix>
-    <DefineConstants>$(DefineConstants);BuildTools</DefineConstants>
-    <Description>MSBuild tasks. This package is intended for Microsoft use only</Description>
+    <NuspecFile>$(MSBuildThisFileDirectory)$(MSBuildProjectName).nuspec</NuspecFile>
     <!--
       The netstandard1.0 TFM doesn't actually compile tasks.
       It's just there so Internal.AspNetCore.Sdk gets a dependency to this project.
@@ -14,16 +13,9 @@
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
     <RootNamespace>Microsoft.AspNetCore.BuildTools</RootNamespace>
     <NoPackageAnalysis>true</NoPackageAnalysis>
-    <BuildOutputTargetFolder>tools</BuildOutputTargetFolder>
-
     <!-- don't try to compile the *.cs files on netstandard1.0 -->
     <EnableDefaultItems Condition="'$(TargetFramework)' != 'netstandard1.6' AND '$(TargetFramework)' != 'net46'">false</EnableDefaultItems>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Include="build\*" Pack="true" PackagePath="build\" />
-    <None Include="buildMultiTargeting\*.props" Pack="true" PackagePath="buildMultiTargeting\" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="NETStandard.Library" Version="1.6.0" PrivateAssets="All" />
@@ -35,10 +27,16 @@
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="$(MsBuildPackageVersions)" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Extensions.CommandLineUtils.Sources" Version="$(CommandLineUtilsVersion)" PrivateAssets="All" />
   </ItemGroup>
-
+  
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.6' ">
     <PackageReference Include="System.Xml.XmlDocument" Version="4.0.1" PrivateAssets="All" />
     <PackageReference Include="System.Xml.XPath.XmlDocument" Version="4.0.1" PrivateAssets="All" />
   </ItemGroup>
+
+ <Target Name="SetPackageProperties" BeforeTargets="GenerateNuspec">
+    <PropertyGroup>
+      <NuspecProperties>configuration=$(Configuration);version=$(PackageVersion);assemblyname=$(AssemblyName)</NuspecProperties>
+    </PropertyGroup>
+  </Target>
 
 </Project>

@@ -7,7 +7,13 @@ using Microsoft.Build.Framework;
 
 namespace Microsoft.AspNetCore.BuildTools
 {
+#if SDK
+    public class Sdk_SetEnvironmentVariable : Task
+#elif BuildTools
     public class SetEnvironmentVariable : Task
+#else
+#error This must be built either for an SDK or for BuildTools
+#endif
     {
         [Required]
         public string Variable { get; set; }

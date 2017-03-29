@@ -26,7 +26,13 @@ namespace Microsoft.AspNetCore.BuildTools
     /// and https://github.com/dotnet/sdk/issues/20
     /// </para>
     /// </summary>
+#if SDK
+    public class Sdk_GetDotNetHost : Task
+#elif BuildTools
     public class GetDotNetHost : Task
+#else
+#error This must be built either for an SDK or for BuildTools
+#endif
     {
 
         /// <summary>

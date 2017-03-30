@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -20,11 +21,14 @@ namespace PackagePublisher
         private const string ApiKeyEnvironmentVariableName = "APIKey";
         private static CommandOption _packagesDirectory;
         private static CommandOption _feedToUploadTo;
-        private static CommandOption _maxRetryCountOption;
 
         // Do NOT log the key
         private static string _apiKey = null;
-        private static int _maxRetryCount = 10;
+        private const int _maxRetryCount = 5;
+        private const int _maxParallelPackagePushes = 4;
+        private static readonly TimeSpan _packagePushTimeout = TimeSpan.FromSeconds(90);
+        private static ConcurrentBag<PackageInfo> _packages = null;
+        private static readonly CancellationTokenSource _packagePushCancellationTokenSource = new CancellationTokenSource();
 
         public static int Main(string[] args)
         {
@@ -36,10 +40,6 @@ namespace PackagePublisher
             _feedToUploadTo = app.Option(
                 "-f|--feed",
                 "Feed to upload the .nupkg file(s) to",
-                CommandOptionType.SingleValue);
-            _maxRetryCountOption = app.Option(
-                "-c|--retryCount",
-                $"Max retry count to publish a package. Defaults to {_maxRetryCount}",
                 CommandOptionType.SingleValue);
             var help = app.Option("-h|--help", "Show help", CommandOptionType.NoValue);
 
@@ -73,7 +73,9 @@ namespace PackagePublisher
                         }
                     });
 
-                if (packages.Count() == 0)
+                _packages = new ConcurrentBag<PackageInfo>(packages);
+
+                if (_packages.Count == 0)
                 {
                     Console.WriteLine("No package files were found to be published!!");
                     return 1;
@@ -126,44 +128,39 @@ namespace PackagePublisher
                 return false;
             }
 
-            if (_maxRetryCountOption.HasValue())
-            {
-                _maxRetryCount = int.Parse(_maxRetryCountOption.Value());
-            }
-
             return true;
         }
 
         private static async Task PublishToFeedAsync(IEnumerable<PackageInfo> packages)
         {
-            using (var semaphore = new SemaphoreSlim(initialCount: 4, maxCount: 4))
-            {
-                var sourceRepository = Repository.Factory.GetCoreV3(_feedToUploadTo.Value(), FeedType.HttpV3);
-                var metadataResource = await sourceRepository.GetResourceAsync<MetadataResource>();
-                var packageUpdateResource = await sourceRepository.GetResourceAsync<PackageUpdateResource>();
+            var sourceRepository = Repository.Factory.GetCoreV3(_feedToUploadTo.Value(), FeedType.HttpV3);
+            var metadataResource = await sourceRepository.GetResourceAsync<MetadataResource>();
+            var packageUpdateResource = await sourceRepository.GetResourceAsync<PackageUpdateResource>();
 
-                var tasks = packages.Select(async package =>
-                {
-                    await semaphore.WaitAsync(TimeSpan.FromMinutes(3));
-                    try
-                    {
-                        await PushPackageAsync(packageUpdateResource, package);
-                    }
-                    finally
-                    {
-                        semaphore.Release();
-                    }
-                });
-                await Task.WhenAll(tasks);
+            var tasks = new Task[_maxParallelPackagePushes];
+            for (var i = 0; i < tasks.Length; i++)
+            {
+                tasks[i] = PushPackagesAsync(packageUpdateResource);
+            }
+
+            await Task.WhenAll(tasks);
+        }
+
+        private static async Task PushPackagesAsync(PackageUpdateResource packageUpdateResource)
+        {
+            while (_packages.TryTake(out var package))
+            {
+                await PushPackageAsync(packageUpdateResource, package);
             }
         }
 
         private static async Task PushPackageAsync(PackageUpdateResource packageUpdateResource, PackageInfo package)
         {
-            var attempt = 0;
-            while (true)
+            for (var attempt = 1; attempt <= _maxRetryCount; attempt++)
             {
-                attempt++;
+                // Fail fast if a parallel push operation has already failed
+                _packagePushCancellationTokenSource.Token.ThrowIfCancellationRequested();
+
                 Console.WriteLine($"Attempting to publish package {package.Identity} (Attempt: {attempt})");
 
                 try
@@ -171,20 +168,29 @@ namespace PackagePublisher
                     await packageUpdateResource.Push(
                         package.PackagePath,
                         symbolSource: null,
-                        timeoutInSecond: 30,
+                        timeoutInSecond: (int)_packagePushTimeout.TotalSeconds,
                         disableBuffering: false,
                         getApiKey: _ => _apiKey,
                         getSymbolApiKey: _ => null,
                         log: NullLogger.Instance);
-
                     Console.WriteLine($"Done publishing package {package.Identity}");
                     return;
                 }
-                catch (Exception ex) when (attempt <= _maxRetryCount)
+                catch (Exception ex) when (attempt < _maxRetryCount) // allow exception to be thrown at the last attempt
                 {
-                    Console.WriteLine($"Attempt {attempt} failed to publish package {package.Identity}.");
-                    Console.WriteLine(ex.ToString());
-                    Console.WriteLine("Retrying...");
+                    // Write in a single call as multiple WriteLine statements can get interleaved causing
+                    // confusion when reading logs.
+                    Console.WriteLine(
+                        $"Attempt {attempt} failed to publish package {package.Identity}." +
+                        Environment.NewLine +
+                        ex.ToString() +
+                        Environment.NewLine +
+                        "Retrying...");
+                }
+                catch
+                {
+                    _packagePushCancellationTokenSource.Cancel();
+                    throw;
                 }
             }
         }

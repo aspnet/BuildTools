@@ -57,7 +57,7 @@ namespace Microsoft.AspNetCore.BuildTools
                 return false;
             }
 
-            DotNetDirectory = FileHelpers.EnsureTrailingSlash(Path.GetDirectoryName(DotNetDirectory));
+            DotNetDirectory = FileHelpers.EnsureTrailingSlash(Path.GetDirectoryName(ExecutablePath));
 
             Log.LogMessage(MessageImportance.Low, "Found dotnet muxer in '{0}'", DotNetDirectory);
 

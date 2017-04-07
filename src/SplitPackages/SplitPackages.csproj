@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Description>Copies NuGet packages form a given source folder into a specific set of folders based on a CSV file.</Description>
     <VersionPrefix>1.0.1</VersionPrefix>
-    <TargetFrameworks>netcoreapp1.0;net451</TargetFrameworks>
+    <TargetFramework>netcoreapp1.0</TargetFramework>
     <DebugType>portable</DebugType>
     <OutputType>exe</OutputType>
   </PropertyGroup>
@@ -19,9 +19,6 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="1.0.0-*" />
     <PackageReference Include="Newtonsoft.Json" Version="$(JsonNetVersion)" />
     <PackageReference Include="NuGet.Client" Version="$(NuGetPackagesVersion)" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
     <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.1.1-*" />
   </ItemGroup>
 
@@ -37,7 +34,7 @@
   <Target Name="PublishAll">
     <MSBuild Projects="$(MSBuildProjectFullPath)"
              Targets="Publish"
-             Properties="TargetFramework=net451" />
+             Properties="TargetFramework=netcoreapp1.0" />
   </Target>
 
   <Target Name="SetPackageDependencies" BeforeTargets="GenerateNuspec" DependsOnTargets="PublishAll">

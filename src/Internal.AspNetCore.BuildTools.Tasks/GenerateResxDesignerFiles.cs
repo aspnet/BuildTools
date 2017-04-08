@@ -118,7 +118,6 @@ namespace Microsoft.AspNetCore.BuildTools
                 ? outputFullPath.Replace('/', Path.DirectorySeparatorChar)
                 : outputFullPath.Replace('\\', Path.DirectorySeparatorChar);
 
-            var fileName = Path.GetFileNameWithoutExtension(resxFile).Replace(".", "_");
             var resourceStrings = new List<ResourceData>();
             if (!File.Exists(resxFile))
             {

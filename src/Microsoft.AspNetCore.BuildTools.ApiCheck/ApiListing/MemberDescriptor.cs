@@ -136,7 +136,7 @@ namespace ApiCheck.Description
             if (Kind != MemberKind.Field)
             {
                 var name = ExplicitInterface != null ? $"{ExplicitInterface}.{Name}" : Name;
-                yield return GetParametersComponent(Name);
+                yield return GetParametersComponent(name);
 
                 foreach (var constraint in GenericParameter.Where(p => p.HasConstraints()))
                 {

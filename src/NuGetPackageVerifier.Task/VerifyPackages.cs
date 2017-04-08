@@ -36,10 +36,6 @@ namespace NuGetPackagerVerifier
                 return false;
             }
 
-            var exeExtension = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                ? ".exe"
-                : string.Empty;
-
             var taskAssemblyFolder = Path.GetDirectoryName(GetType().GetTypeInfo().Assembly.Location);
             var toolPath = Path.Combine(taskAssemblyFolder, "../../NuGetPackageVerifier.dll");
             var dotnetMuxer = DotNetMuxer.MuxerPathOrDefault();

@@ -8,7 +8,7 @@ namespace VersionTool
         {
             var app = new CommandLineApplication();
 
-            var listCommand = app.Command("list", (c) =>
+            app.Command("list", (c) =>
             {
                 var pathOption = c.Option("-p|--path", "path to search for projects", CommandOptionType.MultipleValue);
 
@@ -17,7 +17,7 @@ namespace VersionTool
                 c.OnExecute(() => ListCommand.Execute(pathOption));
             });
 
-            var updateVersionCommand = app.Command("update-version", (c) =>
+            app.Command("update-version", (c) =>
             {
                 var pathOption = c.Option("-p|--path", "path to search for projects", CommandOptionType.MultipleValue);
                 var matchingOption = c.Option("-m|--matching", "current version to match", CommandOptionType.MultipleValue);
@@ -29,7 +29,7 @@ namespace VersionTool
                 c.OnExecute(() => UpdateVersionCommand.Execute(pathOption, matchingOption, versionArgument));
             });
 
-            var listDepdendency = app.Command("list-dependency", (c) =>
+            app.Command("list-dependency", (c) =>
             {
                 var pathOption = c.Option("-p|--path", "path to search for projects", CommandOptionType.MultipleValue);
                 var matchingOption = c.Option("-m|--matching", "current version to match", CommandOptionType.MultipleValue);
@@ -41,7 +41,7 @@ namespace VersionTool
                 c.OnExecute(() => ListDependencyCommand.Execute(pathOption, matchingOption, dependencyArgument));
             });
 
-            var updateDependency = app.Command("update-dependency", (c) =>
+            app.Command("update-dependency", (c) =>
             {
                 var pathOption = c.Option("-p|--path", "path to search for projects", CommandOptionType.MultipleValue);
                 var matchingOption = c.Option("-m|--matching", "current version to match", CommandOptionType.MultipleValue);
@@ -54,7 +54,7 @@ namespace VersionTool
                 c.OnExecute(() => UpdateDependencyCommand.Execute(pathOption, matchingOption, dependencyArgument, versionArgument));
             });
 
-            var updatePatch = app.Command("update-patch", (c) =>
+            app.Command("update-patch", (c) =>
             {
                 var pathOption = c.Option("-d|--directory", "Directory containing all repos", CommandOptionType.SingleValue);
                 var updatePatchConfigOption = c.Option("-u|--update-patchconfig", "Update patchconfig with all packages found and their current versions", CommandOptionType.NoValue);

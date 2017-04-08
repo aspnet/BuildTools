@@ -66,8 +66,6 @@ namespace DependenciesPackager
                     Library = p
                 });
 
-            var packagesToCrossGen = packagesToCrossgenGraph.AllPackages;
-
             var crossGenPackage = _graph.AllPackages
                 .Single(le => le.Key.Equals(
                     GetCrossGenPackageName(runtime),

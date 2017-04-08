@@ -17,8 +17,6 @@ namespace ApiCheck
                 return false;
             }
 
-            var name = type.Name;
-
             var segments = type.Namespace.Split('.');
             return segments.Any(s => s == "Internal");
         }

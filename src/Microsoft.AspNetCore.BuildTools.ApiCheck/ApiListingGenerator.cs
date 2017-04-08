@@ -219,7 +219,6 @@ namespace ApiCheck
 
                     return constructorDescriptor;
                 case MemberTypes.Method:
-                    var name = member.Name;
                     var method = (MethodInfo)member;
                     if (!method.IsPublic && !method.IsFamily && !method.IsFamilyOrAssembly)
                     {

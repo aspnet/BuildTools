@@ -23,7 +23,7 @@ namespace ApiCheck
             {
                 var app = new CommandLineApplication();
 
-                var generateCommand = app.Command("generate", (c) =>
+                app.Command("generate", (c) =>
                 {
                     var assemblyPathOption = c.Option("-a|--assembly", "Path to the assembly to generate the ApiListing for", CommandOptionType.SingleValue);
                     var assetsJson = c.Option("-p|--project", "Path to the project.assets.json file", CommandOptionType.SingleValue);
@@ -36,7 +36,7 @@ namespace ApiCheck
                     c.OnExecute(() => OnGenerate(c, assemblyPathOption, assetsJson, framework, noPublicInternal, outputPath));
                 });
 
-                var compareCommand = app.Command("compare", (c) =>
+                app.Command("compare", (c) =>
                 {
                     var apiListingPathOption = c.Option("-b|--api-listing", "Path to the API listing file to use as reference.", CommandOptionType.SingleValue);
                     var exclusionsPathOption = c.Option("-e|--exclusions", "Path to the exclusions file for the ApiListing", CommandOptionType.SingleValue);

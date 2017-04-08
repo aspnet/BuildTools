@@ -293,7 +293,6 @@ namespace NuGetPackageVerifier
 
             if (issuesToReport.Count > 0)
             {
-                var infos = issuesToReport.Where(issueReport => issueReport.IssueLevel == LogLevel.Info).ToList();
                 var warnings = issuesToReport.Where(issueReport => issueReport.IssueLevel == LogLevel.Warning).ToList();
                 var errors = issuesToReport.Where(issueReport => issueReport.IssueLevel == LogLevel.Error).ToList();
 

@@ -34,9 +34,9 @@ namespace NuGetPackageVerifier.Rules
 
         private PackageVerifierIssue VerifyPackageReference(IPackageMetadata contextMetadata, PackageDependencyGroup dependencySet, PackageDependency package)
         {
-            if (Config.PrefixWhitelist.Any(prefix => package.Id.StartsWith(prefix)))
+            if (Config.PrefixWhitelist.Any(prefix => package.Id.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)))
             {
-                if (!Config.PrefixBlacklist.Any(prefix => package.Id.StartsWith(prefix)))
+                if (!Config.PrefixBlacklist.Any(prefix => package.Id.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)))
                 {
                     // Package is in whitelist and not in the blacklist
                     return null;

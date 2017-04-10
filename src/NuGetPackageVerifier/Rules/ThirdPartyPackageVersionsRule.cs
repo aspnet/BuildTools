@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using NuGet.Packaging;
 using NuGet.Packaging.Core;
+using NuGet.Versioning;
 
 namespace NuGetPackageVerifier.Rules
 {
@@ -34,34 +35,38 @@ namespace NuGetPackageVerifier.Rules
 
         private PackageVerifierIssue VerifyPackageReference(IPackageMetadata contextMetadata, PackageDependencyGroup dependencySet, PackageDependency package)
         {
-            if (Config.PrefixWhitelist.Any(prefix => package.Id.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) &&
-                !Config.PrefixBlacklist.Any(prefix => package.Id.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)))
+            if (Config.PrefixInclusionList.Any(prefix => package.Id.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) &&
+                !Config.PrefixExclusionList.Any(prefix => package.Id.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)))
             {
                 // Package is in whitelist and not in the blacklist
                 return null;
             }
 
-            var packageVersion = package.VersionRange.MinVersion.ToString();
+            var packageVersion = package.VersionRange;
             if (!Config.Packages.TryGetValue(package.Id, out var expectedVersions))
             {
                 return PackageIssueFactory.PackageHasUnregisteredThirdPartyDependency(
                     contextMetadata.Id,
                     dependencySet.TargetFramework.DotNetFrameworkName,
                     package.Id,
-                    packageVersion);
+                    package.VersionRange.ToString());
             }
 
-            if (!expectedVersions.Contains(packageVersion))
+            foreach (var expectedVersion in expectedVersions)
             {
-                return PackageIssueFactory.PackageHasWrongThirdPartyDependencyVersion(
-                    contextMetadata.Id,
-                    dependencySet.TargetFramework.DotNetFrameworkName,
-                    package.Id,
-                    packageVersion,
-                    string.Join(", ", expectedVersions));
+                var expectedSemVersion = VersionRange.Parse(expectedVersion);
+                if (packageVersion.IsSubSetOrEqualTo(expectedSemVersion))
+                {
+                    return null;
+                }
             }
 
-            return null;
+            return PackageIssueFactory.PackageHasWrongThirdPartyDependencyVersion(
+                contextMetadata.Id,
+                dependencySet.TargetFramework.DotNetFrameworkName,
+                package.Id,
+                package.VersionRange.ToString(),
+                string.Join(", ", expectedVersions));
         }
 
         private static ThirdPartyPackageVersionsConfig GetConfig()
@@ -73,15 +78,17 @@ namespace NuGetPackageVerifier.Rules
             using (var stream = assembly.GetManifestResourceStream("NuGetPackageVerifier.third-party.json"))
             using (var reader = new StreamReader(stream))
             {
-                return JsonConvert.DeserializeObject<ThirdPartyPackageVersionsConfig>(reader.ReadToEnd(), serializerSettings);
+                var config = JsonConvert.DeserializeObject<ThirdPartyPackageVersionsConfig>(reader.ReadToEnd(), serializerSettings);
+                config.Packages = new Dictionary<string, string[]>(config.Packages, StringComparer.CurrentCultureIgnoreCase);
+                return config;
             }
         }
     }
 
     internal class ThirdPartyPackageVersionsConfig
     {
-        public string[] PrefixWhitelist { get; set; }
-        public string[] PrefixBlacklist { get; set; }
+        public string[] PrefixInclusionList { get; set; }
+        public string[] PrefixExclusionList { get; set; }
         public IDictionary<string, string[]> Packages { get; set; }
     }
 }

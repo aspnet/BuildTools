@@ -1,6 +1,6 @@
 ﻿{
-  "prefixWhitelist": [
-    "Libuv"
+  "prefixInclusionList": [
+    "Libuv",
     "Microsoft.AspNetCore",
     "Microsoft.CodeAnalysis.Razor",
     "Microsoft.Data.Sqlite",
@@ -11,11 +11,9 @@
     "Microsoft.Owin.Security.Interop",
     "Microsoft.VisualStudio.Web.",
     "NETStandard.Library",
-    "System.",
+    "System."
   ],
-  "prefixBlacklist":  [
-    "System.Ben"
-  ],
+  "prefixExclusionList": [ ],
 
   "packages": {
     "Microsoft.ApplicationInsights.AspNetCore": [ "2.0.0" ],

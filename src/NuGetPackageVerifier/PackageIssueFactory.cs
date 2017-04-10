@@ -271,15 +271,16 @@ namespace NuGetPackageVerifier
             return new PackageVerifierIssue(
                 "WRONG_THIRDPARTY_DEPENDENCY_VERSION",
                 $"{packageId}; {targetFramework}",
-                $"The package '{packageId}' references the wrong version of `{dependencyPackageId}` package. Current version '{currentVersion}'; Expected version '{expectedVersion}'.",
+                $"The package '{packageId}' references the wrong version of `{dependencyPackageId}` package. Current version '{currentVersion}'; Expected version '{expectedVersion}'.  See https://github.com/aspnet/BuildTools/wiki/Third-party-dependency-version-check for details.",
                 PackageIssueLevel.Error);
         }
+
         public static PackageVerifierIssue PackageHasUnregisteredThirdPartyDependency(string packageId, string targetFramework, string dependencyPackageId, string version)
         {
             return new PackageVerifierIssue(
                 "THIRDPARTY_DEPENDENCY_NOT_REGISTERED",
                 $"{packageId}; {targetFramework}",
-                $"The package '{packageId}' references the `{dependencyPackageId}` package that is not registered (version `{version}`).",
+                $"The package '{packageId}' references the `{dependencyPackageId}` package that is not registered (version `{version}`). See https://github.com/aspnet/BuildTools/wiki/Third-party-dependency-version-check for details.",
                 PackageIssueLevel.Error);
         }
 

@@ -1,24 +1,23 @@
 ﻿{
   "prefixWhitelist": [
-    "System.",
-    "Microsoft.Extensions.",
+    "Libuv"
     "Microsoft.AspNetCore",
-    "Microsoft.Net.Http.Headers",
+    "Microsoft.CodeAnalysis.Razor",
+    "Microsoft.Data.Sqlite",
     "Microsoft.EntityFrameworkCore",
+    "Microsoft.Extensions.",
+    "Microsoft.Net.Http.Headers",
+    "Microsoft.NETCore.App",
+    "Microsoft.Owin.Security.Interop",
     "Microsoft.VisualStudio.Web.",
     "NETStandard.Library",
-    "Microsoft.NETCore.App",
-    "Microsoft.Data.Sqlite",
-    "Microsoft.CodeAnalysis.Razor",
-    "Microsoft.Owin.Security.Interop",
-    "Libuv"
+    "System.",
   ],
   "prefixBlacklist":  [
     "System.Ben"
   ],
 
   "packages": {
-    "Libuv": [ "1.10.0-preview1-22038" ],
     "Microsoft.ApplicationInsights.AspNetCore": [ "2.0.0" ],
     "Microsoft.AspNet.Identity.EntityFramework": [ "2.2.1" ],
     "Microsoft.AspNet.WebApi.Client": [ "5.2.2" ],

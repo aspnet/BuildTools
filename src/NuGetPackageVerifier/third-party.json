@@ -53,7 +53,7 @@
     "Microsoft.VisualStudio.Text.Data": [ "15.0.26201" ],
     "Microsoft.Web.Administration": [ "7.0.0" ],
     "Microsoft.Win32.Registry": [ "4.3.0" ],
-    "Newtonsoft.Json": [ "8.0.3", "10.0.1" ],
+    "Newtonsoft.Json": [ "10.0.1" ],
     "Newtonsoft.Json.Bson": [ "1.0.1" ],
     "NuGet.Frameworks": [ "3.5.0" ],
     "Remotion.Linq": [ "2.1.1" ],

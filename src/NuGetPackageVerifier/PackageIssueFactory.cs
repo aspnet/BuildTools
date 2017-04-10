@@ -266,12 +266,20 @@ namespace NuGetPackageVerifier
             return new PackageVerifierIssue("DOC_MISSING", assemblyPath, string.Format("The assembly '{0}' doesn't have a corresponding XML document file.", assemblyPath), PackageIssueLevel.Warning);
         }
 
-        public static PackageVerifierIssue AssemblyHasWrongJsonNetVersion(string assemblyPath, string targetFramework, string currentVersion, string expectedVersion)
+        public static PackageVerifierIssue PackageHasWrongThirdPartyDependencyVersion(string packageId, string targetFramework, string dependencyPackageId, string currentVersion, string expectedVersion)
         {
             return new PackageVerifierIssue(
-                "WRONG_JSONNET_VERSION",
-                string.Format("{0}; {1}", assemblyPath, targetFramework),
-                string.Format("The assembly '{0}' references the wrong Json.NET version. Current version '{1}'; Expected version '{2}'.", assemblyPath, currentVersion, expectedVersion),
+                "WRONG_THIRDPARTY_DEPENDENCY_VERSION",
+                $"{packageId}; {targetFramework}",
+                $"The package '{packageId}' references the wrong version of `{dependencyPackageId}` package. Current version '{currentVersion}'; Expected version '{expectedVersion}'.",
+                PackageIssueLevel.Error);
+        }
+        public static PackageVerifierIssue PackageHasUnregisteredThirdPartyDependency(string packageId, string targetFramework, string dependencyPackageId, string version)
+        {
+            return new PackageVerifierIssue(
+                "THIRDPARTY_DEPENDENCY_NOT_REGISTERED",
+                $"{packageId}; {targetFramework}",
+                $"The package '{packageId}' references the `{dependencyPackageId}` package that is not registered (version `{version}`).",
                 PackageIssueLevel.Error);
         }
 

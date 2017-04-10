@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="already-owned-packages.txt" />
+    <EmbeddedResource Include="third-party.json" />
     <Content Include="build\*.targets">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>

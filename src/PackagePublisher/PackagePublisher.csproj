@@ -5,6 +5,7 @@
     <Description>Publishes packages to a feed, with retries.</Description>
     <DebugType>portable</DebugType>
     <OutputType>exe</OutputType>
+    <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
     <TargetFramework>netcoreapp1.0</TargetFramework>
     <VersionPrefix>1.0.1</VersionPrefix>
   </PropertyGroup>

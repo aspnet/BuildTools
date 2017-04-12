@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>VersionTool</id>
+    <version>$version$</version>
+    <authors>Microsoft</authors>
+    <description>project.json version utilities.</description>
+  </metadata>
+  <files>
+    <file src="$publishdir$" target="/" />
+  </files>
+</package>

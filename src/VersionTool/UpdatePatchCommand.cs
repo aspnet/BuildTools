@@ -105,6 +105,8 @@ namespace VersionTool
                 }
             }
 
+            var newlyUpdatedRepos = new List<Repository>();
+
             // Handle repo updates
             if (updateRepoOption.HasValue())
             {
@@ -126,7 +128,7 @@ namespace VersionTool
                         throw new InvalidOperationException($"Repo {repoUpdate} not found in patch config.");
                     }
 
-                    UpdatePackagesInRepo(repo, directory, patchConfig);
+                    UpdatePackagesInRepo(repo, directory, patchConfig, newlyUpdatedRepos);
                 }
             }
 
@@ -135,7 +137,7 @@ namespace VersionTool
             {
                 if (ContainsModifiedSrcProjectFile(repo.Path))
                 {
-                    UpdatePackagesInRepo(repo, directory, patchConfig);
+                    UpdatePackagesInRepo(repo, directory, patchConfig, newlyUpdatedRepos);
                 }
             }
 
@@ -143,12 +145,32 @@ namespace VersionTool
             UpdatePatchConfig(patchConfig, patchConfigPath, repoConverter);
 
             // Notify check in still required
-            Console.WriteLine($"Updates for patch have been made. Please commit and merge the changes in {directory}.");
+            Console.WriteLine("**************************************************************************");
+            Console.WriteLine("* Updates for patch have been made. Please commit the following changes. *");
+            Console.WriteLine("**************************************************************************");
+
+            foreach (var repo in patchConfig.Repos.OrderBy(r => r.Order))
+            {
+                if (newlyUpdatedRepos.Contains(repo))
+                {
+                    // Rule of thumb, the branch name should follow the version numbers of the SRC package, which should be identical within the repo.
+                    var projects = Utilities.EnumerateProjects(new[] { Path.Combine(repo.Path, "src") });
+                    var repoVersion = projects.Select(p => p.Version).Max();
+
+                    // Notify branch creation and commit required
+                    Console.WriteLine($"SRC project files modified in {repo.Name}. Please create branch rel/{repoVersion} and merge the changes in {repo.Path}.");
+                }
+                else if (ContainsModifiedProjectFile(repo.Path))
+                {
+                    // Notify commit required, but no branch needs to be created
+                    Console.WriteLine($"Non-SRC project files modified in {repo.Name}. Please commit and merge the changes in {repo.Path}.");
+                }
+            }
 
             return 0;
         }
 
-        private static void UpdatePackagesInRepo(Repository repo, string directory, PatchConfig patchConfig)
+        private static void UpdatePackagesInRepo(Repository repo, string directory, PatchConfig patchConfig, List<Repository> newlyUpdateRepos)
         {
             foreach (var package in Utilities.EnumerateProjects(new[] { Path.Combine(repo.Path, "src") }))
             {
@@ -166,6 +188,7 @@ namespace VersionTool
                 if (unUpdatedPackage != null)
                 {
                     Console.WriteLine($"{package.Name} is a src project and has not been updated in this patch, updating version.");
+                    newlyUpdateRepos.Add(repo);
 
                     var rule = GetRuleForPackage(package, patchConfig.Rules);
 
@@ -294,6 +317,21 @@ $@"No update rule found for package {package.Name} {package.Version}. Please add
             }
 
             var result = Command.Create("git", new[] { "diff", "--", "./src/**/project.json" })
+                .WorkingDirectory(path)
+                .CaptureStdOut()
+                .Execute();
+
+            if (result.ExitCode != 0)
+            {
+                throw new InvalidOperationException("Could not run 'git diff'");
+            }
+
+            return !string.IsNullOrWhiteSpace(result.StdOut);
+        }
+
+        private static bool ContainsModifiedProjectFile(string path)
+        {
+            var result = Command.Create("git", new[] { "diff", "--", "./**/project.json" })
                 .WorkingDirectory(path)
                 .CaptureStdOut()
                 .Execute();

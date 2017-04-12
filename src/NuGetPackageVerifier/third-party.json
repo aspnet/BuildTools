@@ -50,6 +50,7 @@
     "Microsoft.VisualStudio.Shell.Interop.9.0": [ "9.0.30729" ],
     "Microsoft.VisualStudio.Text.Data": [ "15.0.26201" ],
     "Microsoft.Web.Administration": [ "7.0.0" ],
+    "Microsoft.Web.Xdt": [ "1.4.0" ],
     "Microsoft.Win32.Registry": [ "4.3.0" ],
     "Newtonsoft.Json": [ "10.0.1" ],
     "Newtonsoft.Json.Bson": [ "1.0.1" ],

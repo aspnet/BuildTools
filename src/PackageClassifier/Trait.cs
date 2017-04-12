@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -19,12 +19,12 @@ namespace PackageClassifier
 
         public bool HasName(string name)
         {
-            return string.Equals(Name, name, System.StringComparison.OrdinalIgnoreCase);
+            return string.Equals(Name, name, StringComparison.OrdinalIgnoreCase);
         }
 
         public bool HasValue(string value)
         {
-            return string.Equals(Value, value, System.StringComparison.OrdinalIgnoreCase);
+            return string.Equals(Value, value, StringComparison.OrdinalIgnoreCase);
         }
 
         public bool Equals(Trait other)
@@ -34,7 +34,7 @@ namespace PackageClassifier
 
         public override bool Equals(object obj)
         {
-            return base.Equals(obj as Trait);
+            return Equals(obj as Trait);
         }
 
         public override int GetHashCode()

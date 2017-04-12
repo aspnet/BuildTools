@@ -10,12 +10,7 @@ namespace NuGetPackageVerifier.Rules
     {
         public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
-            SemanticVersion semanticVersion;
-            if (SemanticVersion.TryParse(context.Metadata.Version.ToString(), out semanticVersion))
-            {
-                yield break;
-            }
-            else
+            if (!SemanticVersion.TryParse(context.Metadata.Version.ToString(), out var _))
             {
                 yield return PackageIssueFactory.NotSemanticVersion(context.Metadata.Version);
             }

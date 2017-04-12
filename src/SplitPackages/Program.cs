@@ -20,25 +20,17 @@ namespace SplitPackages
 
         private ILogger _logger;
 
-        private CommandLineApplication _app;
-        private CommandOption _sourceOption;
-        private CommandOption _csvOption;
-        private CommandOption _destinationOption;
-        private CommandOption _whatIf;
-        private CommandOption _quiet;
-        private CommandOption _ignoreErrors;
+        private readonly CommandLineApplication _app;
+        private readonly CommandOption _sourceOption;
+        private readonly CommandOption _csvOption;
+        private readonly CommandOption _destinationOption;
+        private readonly CommandOption _whatIf;
+        private readonly CommandOption _quiet;
+        private readonly CommandOption _ignoreErrors;
 
         public ILogger Logger
         {
-            get
-            {
-                if (_logger == null)
-                {
-                    _logger = CreateLogger();
-                }
-
-                return _logger;
-            }
+            get { return _logger ?? (_logger = CreateLogger()); }
         }
 
         public Program(
@@ -68,9 +60,10 @@ namespace SplitPackages
                 Console.ReadLine();
             }
 
-            var app = new CommandLineApplication();
-            app.Name = "SplitPackages";
-
+            var app = new CommandLineApplication
+            {
+                Name = "SplitPackages"
+            };
             app.HelpOption("-?|-h|--help");
 
             var sourceOption = app.Option(
@@ -209,12 +202,9 @@ namespace SplitPackages
             {
                 return new NuGetVersion(frameworkVersion.Version).ToNormalizedString();
             }
-            else
-            {
-                var prefix = frameworkVersion.Release.Substring(0, frameworkVersion.Release.IndexOf('-'));
-                var releaseLabel = $"{prefix}-final";
-                return new NuGetVersion(frameworkVersion.Version, releaseLabel).ToNormalizedString();
-            }
+            var prefix = frameworkVersion.Release.Substring(0, frameworkVersion.Release.IndexOf('-'));
+            var releaseLabel = $"{prefix}-final";
+            return new NuGetVersion(frameworkVersion.Version, releaseLabel).ToNormalizedString();
         }
 
         private CsprojFileBuilder CreateBaseCsprojFileBuilderForCache(string destinationPath, string projectName)
@@ -268,13 +258,13 @@ namespace SplitPackages
 
         private void CreateCsprojFile(string path, ClassifiedPackages packages)
         {
-            CsprojFileBuilder csprojFileBuilder = CreateBaseCsprojFileBuilder(path, packages);
+            var csprojFileBuilder = CreateBaseCsprojFileBuilder(path, packages);
             csprojFileBuilder.Execute();
         }
 
         private void CreateCsprojFileWithImports(string path, ClassifiedPackages packages)
         {
-            CsprojFileBuilder csprojFileBuilder = CreateBaseCsprojFileBuilder(path, packages);
+            var csprojFileBuilder = CreateBaseCsprojFileBuilder(path, packages);
 
             csprojFileBuilder.AddImports(Frameworks.NetCoreApp10, Frameworks.DnxCore50);
             csprojFileBuilder.AddImports(Frameworks.NetCoreApp10, Frameworks.Dotnet56);
@@ -369,14 +359,9 @@ namespace SplitPackages
             foreach (var mapping in classifier.PackageMappings)
             {
                 var packagePaths = string.Concat(mapping.Packages.Select(p => $"{Environment.NewLine}    {p}"));
-                if (mapping.Entry.Identity.Contains("*"))
-                {
-                    Logger.LogInformation($@"Packages extended for pattern '{mapping.Entry.Identity}':{packagePaths}");
-                }
-                else
-                {
-                    Logger.LogInformation($@"Packages extended for literal '{mapping.Entry.Identity}':{packagePaths}");
-                }
+                Logger.LogInformation(mapping.Entry.Identity.Contains("*")
+                    ? $@"Packages extended for pattern '{mapping.Entry.Identity}':{packagePaths}"
+                    : $@"Packages extended for literal '{mapping.Entry.Identity}':{packagePaths}");
             }
         }
 

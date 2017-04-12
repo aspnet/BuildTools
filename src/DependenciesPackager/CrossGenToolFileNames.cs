@@ -25,22 +25,14 @@ namespace DependenciesPackager
             // eliminate the architecture part from the runtime monitor: debian8-x64 => debian8
             var platform = runtimeMoniker.Substring(0, runtimeMoniker.Length - 4);
 
-            CrossGenTool result;
-            if (_executables.TryGetValue(platform, out result))
-            {
-                return result;
-            }
-            else
-            {
-                return null;
-            }
+            return _executables.TryGetValue(platform, out var result) ? result : null;
         }
 
         public static IEnumerable<string> FindAllCrossGen(string searchPath) =>
             _executables.Values.Select(f => f.CrossGen).Distinct()
                         .SelectMany(f => Directory.GetFiles(searchPath, f, SearchOption.AllDirectories));
 
-        public static IEnumerable<string> FindAllClrJIT(string searchPath) =>
+        public static IEnumerable<string> FindAllClrJit(string searchPath) =>
             _executables.Values.Select(f => f.ClrJit).Distinct()
                         .SelectMany(f => Directory.GetFiles(searchPath, f, SearchOption.AllDirectories));
 

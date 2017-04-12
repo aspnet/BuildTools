@@ -13,7 +13,6 @@ namespace ApiCheck
 {
     public class FullFrameworkAssemblyLoader
     {
-        private readonly string _probingPath;
         private readonly Dictionary<AssemblyName, string> _resolvedDlls;
 
         public FullFrameworkAssemblyLoader(string probingPath)
@@ -21,39 +20,23 @@ namespace ApiCheck
             var directory = new DirectoryInfo(probingPath);
             _resolvedDlls = directory.EnumerateFiles("*.dll")
                 .ToDictionary(f => GetAssemblyName(f.FullName), f => f.FullName, new AssemblyNameComparer());
-            _probingPath = probingPath;
 
             AppDomain.CurrentDomain.AssemblyResolve += Resolver;
         }
 
-        private AssemblyName GetAssemblyName(string assemblyPath)
-        {
-            return AssemblyName.GetAssemblyName(assemblyPath);
-        }
+        private AssemblyName GetAssemblyName(string assemblyPath) => AssemblyName.GetAssemblyName(assemblyPath);
 
         private Assembly Resolver(object sender, ResolveEventArgs args)
         {
             var name = new AssemblyName(args.Name);
             var path = FindAssemblyPath(name);
 
-            if (path != null)
-            {
-                return Assembly.LoadFile(path);
-            }
-
-            return null;
+            return path != null ? Assembly.LoadFile(path) : null;
         }
 
-        private string FindAssemblyPath(AssemblyName name)
-        {
-            string path;
-            return _resolvedDlls.TryGetValue(name, out path) ? path : null;
-        }
+        private string FindAssemblyPath(AssemblyName name) => _resolvedDlls.TryGetValue(name, out var path) ? path : null;
 
-        public Assembly Load(string assemblyPath)
-        {
-            return Assembly.LoadFile(assemblyPath);
-        }
+        public Assembly Load(string assemblyPath) => Assembly.LoadFile(assemblyPath);
     }
 }
 

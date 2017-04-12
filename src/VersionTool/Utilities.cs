@@ -77,15 +77,12 @@ namespace VersionTool
             }
 
             var runtimes = root.Property("runtimes")?.Value as JObject;
-            if (runtimes != null)
+            var runtimeDependencies = runtimes?.Property("dependencies")?.Value as JObject;
+            if (runtimeDependencies != null)
             {
-                var runtimeDependencies = runtimes.Property("dependencies")?.Value as JObject;
-                if (runtimeDependencies != null)
+                foreach (var dependency in runtimeDependencies.Properties())
                 {
-                    foreach (var dependency in runtimeDependencies.Properties())
-                    {
-                        yield return dependency;
-                    }
+                    yield return dependency;
                 }
             }
 
@@ -104,12 +101,9 @@ namespace VersionTool
             if (dependency.Contains('*'))
             {
                 var regex = "^" + Regex.Escape(dependency).Replace("\\*", ".*") + "$";
-                return (s) => Regex.IsMatch(s, regex, RegexOptions.IgnoreCase);
+                return s => Regex.IsMatch(s, regex, RegexOptions.IgnoreCase);
             }
-            else
-            {
-                return (s) => string.Equals(s, dependency, StringComparison.OrdinalIgnoreCase);
-            }
+            return s => string.Equals(s, dependency, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

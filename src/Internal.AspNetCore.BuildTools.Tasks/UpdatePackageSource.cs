@@ -5,14 +5,14 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
-using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
 
 namespace Microsoft.AspNetCore.BuildTools
 {
     /// <summary>
     /// Update or adds a NuGet feed to a NuGet.config file. It reads <see cref="NuGetConfigPath"/>
-    /// and replaces or adds the feed named <see cref="SourceName"/> with <see cref="SourceUri'"/>.
+    /// and replaces or adds the feed named <see cref="SourceName"/> with <see cref="SourceUri"/>.
     /// </summary>
 #if SDK
     public class Sdk_UpdatePackageSource : Task
@@ -47,7 +47,7 @@ namespace Microsoft.AspNetCore.BuildTools
 
             var nugetConfig = XDocument.Load(NuGetConfigPath);
             var packageSources = nugetConfig.Element("configuration")?.Element("packageSources");
-            var addElements = packageSources.Elements("add").ToList();
+            var addElements = packageSources?.Elements("add").ToList();
 
             var valueToUpdate = addElements.FirstOrDefault(f => string.Equals(f.Attribute("key")?.Value, SourceName, StringComparison.OrdinalIgnoreCase));
             if (valueToUpdate == null)

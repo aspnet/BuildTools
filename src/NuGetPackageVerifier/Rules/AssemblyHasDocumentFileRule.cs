@@ -19,9 +19,7 @@ namespace NuGetPackageVerifier.Rules
                 yield break;
             }
 
-            PackageIdentity identity;
-            string packageLanguage;
-            if (!PackageHelper.IsSatellitePackage(context.PackageReader, out identity, out packageLanguage))
+            if (!PackageHelper.IsSatellitePackage(context.PackageReader, out var _, out var _))
             {
                 var allXmlFiles =
                     from item in context.PackageReader.GetLibItems()
@@ -47,8 +45,6 @@ namespace NuGetPackageVerifier.Rules
                     }
                 }
             }
-
-            yield break;
         }
     }
 }

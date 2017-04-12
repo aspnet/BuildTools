@@ -7,8 +7,7 @@ namespace NuGetPackageVerifier.Rules
 {
     public class NonAdxVerificationCompositeRule : IPackageVerifierRule
     {
-        IPackageVerifierRule[] _rules = new IPackageVerifierRule[]
-        {
+        readonly IPackageVerifierRule[] _rules = {
             new AuthenticodeSigningRule(),
         };
 

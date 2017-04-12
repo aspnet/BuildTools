@@ -97,7 +97,7 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
 
             if (string.IsNullOrEmpty(Framework))
             {
-                Log.LogError($"Framework moniker must be specified.");
+                Log.LogError("Framework moniker must be specified.");
                 return false;
             }
 

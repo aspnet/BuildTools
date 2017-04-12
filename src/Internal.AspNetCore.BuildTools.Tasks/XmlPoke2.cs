@@ -32,7 +32,7 @@ namespace Microsoft.AspNetCore.BuildTools
         public override bool Execute()
         {
             var xmlDoc = new XmlDocument();
-            var xrs = new XmlReaderSettings()
+            var xrs = new XmlReaderSettings
             {
                 DtdProcessing = DtdProcessing.Ignore
             };

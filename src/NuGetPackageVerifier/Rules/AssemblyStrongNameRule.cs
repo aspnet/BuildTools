@@ -12,7 +12,7 @@ namespace NuGetPackageVerifier.Rules
 {
     public class AssemblyStrongNameRule : IPackageVerifierRule
     {
-        private static string _publicKeyToken = "ADB9793829DDAE60";
+        private static readonly string _publicKeyToken = "ADB9793829DDAE60";
 
         public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
@@ -85,7 +85,6 @@ namespace NuGetPackageVerifier.Rules
                     }
                 }
             }
-            yield break;
         }
     }
 }

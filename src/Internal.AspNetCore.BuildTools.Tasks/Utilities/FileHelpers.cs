@@ -13,9 +13,7 @@ namespace Microsoft.AspNetCore.BuildTools.Utilities
                 : path;
 
         public static bool HasTrailingSlash(string path)
-            => string.IsNullOrEmpty(path)
-                ? false
-                : path[path.Length - 1] == Path.DirectorySeparatorChar
-                    || path[path.Length - 1] == Path.AltDirectorySeparatorChar;
+            => !string.IsNullOrEmpty(path) && (path[path.Length - 1] == Path.DirectorySeparatorChar ||
+                                               path[path.Length - 1] == Path.AltDirectorySeparatorChar);
     }
 }

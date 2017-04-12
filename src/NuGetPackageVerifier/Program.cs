@@ -51,7 +51,7 @@ namespace NuGetPackageVerifier
                 logger = new PackageVerifierLogger(hideInfoLogs);
             }
 
-            IDictionary<string, PackageSet> packageSets = null;
+            IDictionary<string, PackageSet> packageSets;
 
             if (args.Length >= 2)
             {
@@ -67,7 +67,7 @@ namespace NuGetPackageVerifier
 
                 packageSets = JsonConvert.DeserializeObject<IDictionary<string, PackageSet>>(
                     packagesToScanJsonFileContent,
-                    new JsonSerializerSettings()
+                    new JsonSerializerSettings
                     {
                         MissingMemberHandling = MissingMemberHandling.Error
                     });
@@ -319,15 +319,13 @@ namespace NuGetPackageVerifier
                     if (ignoreAssistanceMode == IgnoreAssistanceMode.ShowAll ||
                         (ignoreAssistanceMode == IgnoreAssistanceMode.ShowNew && issueToReport.IgnoreJustification == null))
                     {
-                        PackageVerifierOptions options;
-                        if (!ignoreAssistanceData.TryGetValue(package.Id, out options))
+                        if (!ignoreAssistanceData.TryGetValue(package.Id, out var options))
                         {
                             options = new PackageVerifierOptions();
                             ignoreAssistanceData.Add(package.Id, options);
                         }
 
-                        IDictionary<string, string> packageRuleInfo;
-                        if (!options.Exclusions.TryGetValue(issueToReport.PackageIssue.IssueId, out packageRuleInfo))
+                        if (!options.Exclusions.TryGetValue(issueToReport.PackageIssue.IssueId, out var packageRuleInfo))
                         {
                             packageRuleInfo = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
                             options.Exclusions.Add(issueToReport.PackageIssue.IssueId, packageRuleInfo);
@@ -347,11 +345,8 @@ namespace NuGetPackageVerifier
 
                 return new Tuple<int, int>(errors.Count, warnings.Count);
             }
-            else
-            {
-                logger.LogInfo("No issues found with package {0} ({1})", package.Id, package.Version);
-                return new Tuple<int, int>(0, 0);
-            }
+            logger.LogInfo("No issues found with package {0} ({1})", package.Id, package.Version);
+            return new Tuple<int, int>(0, 0);
         }
 
         private static IEnumerable<IssueIgnore> GetIgnoresFromFile(IDictionary<string, PackageVerifierOptions> ignoresInFile)
@@ -383,7 +378,7 @@ namespace NuGetPackageVerifier
                             PackageId = packageId,
                             IssueId = issueId,
                             Instance = instance,
-                            Justification = justification,
+                            Justification = justification
                         });
                     }
                 }

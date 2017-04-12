@@ -15,14 +15,14 @@ namespace NuGetPackageVerifier.Rules
 
         public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
-            if (!context.Metadata.PackageTypes.Any(p => p == PackageType.DotnetCliTool))
+            if (context.Metadata.PackageTypes.All(p => p != PackageType.DotnetCliTool))
             {
                 yield break;
             }
 
-            var libItems = context.PackageReader.GetLibItems()
-                .Where(f => f.TargetFramework == _expectedFramework)
-                .FirstOrDefault();
+            var libItems = context.PackageReader
+                .GetLibItems()
+                .FirstOrDefault(f => f.TargetFramework == _expectedFramework);
 
             if (libItems == null)
             {
@@ -42,13 +42,13 @@ namespace NuGetPackageVerifier.Rules
             foreach (var tool in assembly)
             {
                 var expected = Path.GetFileNameWithoutExtension(tool) + ".runtimeconfig.json";
-                if (!libItems.Items.Any(f => Path.GetFileName(f) == expected))
+                if (libItems.Items.All(f => Path.GetFileName(f) != expected))
                 {
                     yield return PackageIssueFactory.DotNetCliToolMissingRuntimeConfig();
                 }
             }
 
-            if (!context.PackageReader.GetFiles().Any(f => f == "prefercliruntime"))
+            if (context.PackageReader.GetFiles().All(f => f != "prefercliruntime"))
             {
                 yield return PackageIssueFactory.DotNetCliToolMissingPrefercliRuntime();
             }

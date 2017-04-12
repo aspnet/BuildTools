@@ -11,7 +11,7 @@ namespace NugetReferenceResolver
 {
     public partial class RuntimeGraph
     {
-        private static readonly RuntimeGraph Instance = null;
+        private static readonly RuntimeGraph Instance;
 
         static RuntimeGraph()
         {
@@ -34,29 +34,27 @@ namespace NugetReferenceResolver
             {
                 return Enumerable.Empty<RuntimeDefinition>();
             }
-            else
-            {
-                var fallbacks = (JArray)definition["#import"];
-                return fallbacks
-                    .Select(fr => (string)fr)
-                    .Select(fr => {
-                        if (runtimes.FirstOrDefault(r => r.Key.Equals(fr)).Key == null)
-                        {
-                            return new RuntimeDefinition
-                            {
-                                Name = fr,
-                                Fallbacks = Enumerable.Empty<RuntimeDefinition>()
-                            };
-                        }
+            var fallbacks = (JArray)definition["#import"];
+            return fallbacks
+                .Select(fr => (string)fr)
+                .Select(fr =>
+                {
+                    if (runtimes.FirstOrDefault(r => r.Key.Equals(fr)).Key == null)
+                    {
                         return new RuntimeDefinition
                         {
-                            Name = runtimes.First(r => r.Key.Equals(fr)).Key,
-                            Fallbacks = CreateRuntimeDefinitions(
-                                (IDictionary<string, JToken>)runtimes.First(r => r.Key.Equals(fr)).Value,
-                                runtimes).ToArray()
+                            Name = fr,
+                            Fallbacks = Enumerable.Empty<RuntimeDefinition>()
                         };
-                    });
-            }
+                    }
+                    return new RuntimeDefinition
+                    {
+                        Name = runtimes.First(r => r.Key.Equals(fr)).Key,
+                        Fallbacks = CreateRuntimeDefinitions(
+                                   (IDictionary<string, JToken>)runtimes.First(r => r.Key.Equals(fr)).Value,
+                                   runtimes).ToArray()
+                    };
+                });
         }
 
         private RuntimeGraph(IEnumerable<RuntimeDefinition> runtimes)
@@ -94,25 +92,22 @@ namespace NugetReferenceResolver
             {
                 return RuntimeEnvironment.GetRuntimeIdentifier();
             }
-            else
+            var arch = RuntimeEnvironment.RuntimeArchitecture.ToLowerInvariant();
+            if (RuntimeEnvironment.OperatingSystemVersion.StartsWith("6.1", StringComparison.Ordinal))
             {
-                var arch = RuntimeEnvironment.RuntimeArchitecture.ToLowerInvariant();
-                if (RuntimeEnvironment.OperatingSystemVersion.StartsWith("6.1", StringComparison.Ordinal))
-                {
-                    return "win7-" + arch;
-                }
-                else if (RuntimeEnvironment.OperatingSystemVersion.StartsWith("6.2", StringComparison.Ordinal))
-                {
-                    return "win8-" + arch;
-                }
-                else if (RuntimeEnvironment.OperatingSystemVersion.StartsWith("6.3", StringComparison.Ordinal))
-                {
-                    return "win81-" + arch;
-                }
-                else if (RuntimeEnvironment.OperatingSystemVersion.StartsWith("10.0", StringComparison.Ordinal))
-                {
-                    return "win10-" + arch;
-                }
+                return "win7-" + arch;
+            }
+            if (RuntimeEnvironment.OperatingSystemVersion.StartsWith("6.2", StringComparison.Ordinal))
+            {
+                return "win8-" + arch;
+            }
+            if (RuntimeEnvironment.OperatingSystemVersion.StartsWith("6.3", StringComparison.Ordinal))
+            {
+                return "win81-" + arch;
+            }
+            if (RuntimeEnvironment.OperatingSystemVersion.StartsWith("10.0", StringComparison.Ordinal))
+            {
+                return "win10-" + arch;
             }
 
             throw new InvalidOperationException("Runtime not supported");

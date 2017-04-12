@@ -82,7 +82,7 @@ namespace NugetReferenceResolver
                 foreach (var dependency in newDependencies.ToArray())
                 {
                     var newDependency = RemovePackagesFromTransitiveDependencies(dependency, packagesToExclude);
-                    if (newDependency != dependency)
+                    if (!Equals(newDependency, dependency))
                     {
                         newDependencies.Remove(dependency);
                         newDependencies.Add(newDependency);
@@ -106,7 +106,7 @@ namespace NugetReferenceResolver
                 if (!packagesToExclude.ContainsKey(package.Name))
                 {
                     var newDependency = RemovePackagesFromTransitiveDependencies(package, packagesToExclude);
-                    if (newDependency != package || dependenciesModified)
+                    if (!Equals(newDependency, package) || dependenciesModified)
                     {
                         dependenciesModified = true;
                     }
@@ -120,15 +120,13 @@ namespace NugetReferenceResolver
 
             if (dependenciesModified)
             {
-                var newPackage = new Package(dependency);
-                newPackage.Dependencies = newDependencies;
-
+                var newPackage = new Package(dependency)
+                {
+                    Dependencies = newDependencies
+                };
                 return newPackage;
             }
-            else
-            {
-                return dependency;
-            }
+            return dependency;
         }
 
         private static Dictionary<string, Package> GetPackagesToExclude(KeyValuePair<string, Package> package)
@@ -246,8 +244,7 @@ namespace NugetReferenceResolver
             {
                 foreach (var d in dependency.Dependencies)
                 {
-                    Package dependentPackage;
-                    if (!packageDictionary.TryGetValue(d.Id, out dependentPackage))
+                    if (!packageDictionary.TryGetValue(d.Id, out var dependentPackage))
                     {
                         dependentPackage = CreatePackage(
                             FindLibrary(targetFramework, d),

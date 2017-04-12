@@ -4,7 +4,6 @@
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using Microsoft.Build.Framework;
 using Microsoft.Extensions.CommandLineUtils;
 using MSBuildTask = Microsoft.Build.Utilities.Task;

@@ -32,8 +32,8 @@ namespace ApiCheck
         public static JObject GenerateApiListingReport(Assembly assembly, IEnumerable<Func<MemberInfo, bool>> filters = null)
         {
             var generator = new ApiListingGenerator(assembly, filters ?? Enumerable.Empty<Func<MemberInfo, bool>>());
-            var ApiListingDocument = generator.GenerateApiListing();
-            return JObject.FromObject(ApiListingDocument);
+            var apiListingDocument = generator.GenerateApiListing();
+            return JObject.FromObject(apiListingDocument);
         }
 
         public ApiListing GenerateApiListing()
@@ -41,14 +41,15 @@ namespace ApiCheck
             var types = _assembly.DefinedTypes
                 .Where(t => t.IsPublic || t.IsNestedPublic || t.IsNestedFamily || t.IsNestedFamORAssem);
 
-            var document = new ApiListing();
-            document.AssemblyIdentity = _assembly.GetName().ToString();
-            document.SourceFilters = _filters;
-
+            var document = new ApiListing
+            {
+                AssemblyIdentity = _assembly.GetName().ToString(),
+                SourceFilters = _filters
+            };
             foreach (var type in types.Where(t => !_filters.Any(filter => filter(t))))
             {
-                var ApiListingType = GenerateTypeDescriptor(type);
-                document.Types.Add(ApiListingType);
+                var apiListingType = GenerateTypeDescriptor(type);
+                document.Types.Add(apiListingType);
             }
 
             return document;
@@ -63,13 +64,12 @@ namespace ApiCheck
 
         private TypeDescriptor GenerateTypeDescriptor(TypeInfo type)
         {
-            var typeDescriptor = new TypeDescriptor();
-            typeDescriptor.Source = type;
-
-            typeDescriptor.Name = TypeDescriptor.GetTypeNameFor(type);
-
-            typeDescriptor.Kind = GetTypeKind(type);
-
+            var typeDescriptor = new TypeDescriptor
+            {
+                Source = type,
+                Name = TypeDescriptor.GetTypeNameFor(type),
+                Kind = GetTypeKind(type),
+            };
             if (typeDescriptor.Kind == TypeKind.Unknown)
             {
                 throw new InvalidOperationException($"Can't determine type for {type.FullName}");
@@ -95,10 +95,10 @@ namespace ApiCheck
                     TypeDescriptor.GetTypeNameFor(type.GetEnumUnderlyingType().GetTypeInfo());
             }
 
-            if (type.ImplementedInterfaces?.Count() > 0)
+            if (type.ImplementedInterfaces.Any())
             {
                 var interfaces = TypeDescriptor.GetImplementedInterfacesFor(type).ToList();
-                foreach (var @interface in interfaces.Select(i => TypeDescriptor.GetTypeNameFor(i)))
+                foreach (var @interface in interfaces.Select(TypeDescriptor.GetTypeNameFor))
                 {
                     typeDescriptor.ImplementedInterfaces.Add(@interface);
                 }
@@ -160,12 +160,12 @@ namespace ApiCheck
 
         private static IEnumerable<GenericParameterDescriptor> GetGenericConstraintsFor(TypeInfo[] genericArguments)
         {
-            for (var i = 0; i < genericArguments.Length; i++)
+            foreach (var typeArgument in genericArguments)
             {
-                var typeArgument = genericArguments[i];
-                var constraintDescriptor = new GenericParameterDescriptor();
-                constraintDescriptor.Source = typeArgument;
-
+                var constraintDescriptor = new GenericParameterDescriptor
+                {
+                    Source = typeArgument
+                };
                 if (typeArgument.IsGenericParameter)
                 {
                     if (typeArgument.BaseType != null &&
@@ -206,11 +206,13 @@ namespace ApiCheck
                         return null;
                     }
 
-                    var constructorDescriptor = new MemberDescriptor();
-                    constructorDescriptor.Kind = MemberKind.Constructor;
-                    constructorDescriptor.Visibility = ctor.IsPublic ? ApiElementVisibility.Public : ApiElementVisibility.Protected;
+                    var constructorDescriptor = new MemberDescriptor
+                    {
+                        Kind = MemberKind.Constructor,
+                        Visibility = ctor.IsPublic ? ApiElementVisibility.Public : ApiElementVisibility.Protected,
 
-                    constructorDescriptor.Name = MemberDescriptor.GetMemberNameFor(ctor);
+                        Name = MemberDescriptor.GetMemberNameFor(ctor)
+                    };
                     foreach (var parameter in ctor.GetParameters())
                     {
                         var parameterDescriptor = GenerateParameterDescriptor(parameter);
@@ -225,12 +227,12 @@ namespace ApiCheck
                         return null;
                     }
 
-                    var methodDescriptor = new MemberDescriptor();
+                    var methodDescriptor = new MemberDescriptor
+                    {
+                        Kind = MemberKind.Method,
 
-                    methodDescriptor.Kind = MemberKind.Method;
-
-                    methodDescriptor.Visibility = method.IsPublic ? ApiElementVisibility.Public : ApiElementVisibility.Protected;
-
+                        Visibility = method.IsPublic ? ApiElementVisibility.Public : ApiElementVisibility.Protected
+                    };
                     if (!type.IsInterface)
                     {
                         methodDescriptor.ExplicitInterface = GetInterfaceImplementation(method, explicitImplementation: true);
@@ -255,11 +257,12 @@ namespace ApiCheck
                     methodDescriptor.Static = method.IsStatic;
                     methodDescriptor.Sealed = method.IsFinal;
                     methodDescriptor.Virtual = !type.IsInterface && method.IsVirtual;
-                    methodDescriptor.Override = !type.IsInterface && method.IsVirtual && method.GetBaseDefinition() != method;
+                    methodDescriptor.Override = !type.IsInterface && method.IsVirtual && !Equals(method.GetBaseDefinition(), method);
                     methodDescriptor.Abstract = !type.IsInterface && method.IsAbstract;
-                    methodDescriptor.New = !method.IsAbstract && !method.IsVirtual && method.IsHideBySig &&
-                        method.DeclaringType.GetMember(method.Name).OfType<MethodInfo>()
-                        .Where(m => SameSignature(m, method)).Count() > 1;
+                    methodDescriptor.New = !method.IsAbstract && !method.IsVirtual && method.IsHideBySig && method
+                                               .DeclaringType.GetMember(method.Name)
+                                               .OfType<MethodInfo>()
+                                               .Count(m => SameSignature(m, method)) > 1;
                     methodDescriptor.Extension = method.IsDefined(typeof(ExtensionAttribute), false);
 
                     foreach (var parameter in method.GetParameters())
@@ -284,13 +287,13 @@ namespace ApiCheck
                         return null;
                     }
 
-                    var fieldDescriptor = new MemberDescriptor();
+                    var fieldDescriptor = new MemberDescriptor
+                    {
+                        Visibility = field.IsPublic ? ApiElementVisibility.Public : ApiElementVisibility.Protected,
 
-                    fieldDescriptor.Visibility = field.IsPublic ? ApiElementVisibility.Public : ApiElementVisibility.Protected;
-
-                    fieldDescriptor.Kind = MemberKind.Field;
-                    fieldDescriptor.Name = field.Name;
-
+                        Kind = MemberKind.Field,
+                        Name = field.Name
+                    };
                     if (type.IsEnum || field.IsLiteral)
                     {
                         fieldDescriptor.Literal = FormatLiteralValue(field.GetRawConstantValue(), field.FieldType);
@@ -380,7 +383,7 @@ namespace ApiCheck
                 return false;
             }
 
-            for (int i = 0; i < candidateParameters.Length; i++)
+            for (var i = 0; i < candidateParameters.Length; i++)
             {
                 var candidateParameter = candidateParameters[i];
                 var methodParameter = methodParameters[i];
@@ -422,12 +425,7 @@ namespace ApiCheck
             if (rawDefaultValue == null)
             {
                 var elementTypeInfo = elementType.GetTypeInfo();
-                if (elementTypeInfo.IsValueType)
-                {
-                    return $"default({TypeDescriptor.GetTypeNameFor(elementTypeInfo)})";
-                }
-
-                return "null";
+                return elementTypeInfo.IsValueType ? $"default({TypeDescriptor.GetTypeNameFor(elementTypeInfo)})" : "null";
             }
 
             if (elementType == typeof(string))
@@ -440,18 +438,18 @@ namespace ApiCheck
                 return $"'{rawDefaultValue}'";
             }
 
-            if (rawDefaultValue.GetType() == typeof(bool) ||
-                rawDefaultValue.GetType() == typeof(byte) ||
-                rawDefaultValue.GetType() == typeof(sbyte) ||
-                rawDefaultValue.GetType() == typeof(short) ||
-                rawDefaultValue.GetType() == typeof(ushort) ||
-                rawDefaultValue.GetType() == typeof(int) ||
-                rawDefaultValue.GetType() == typeof(uint) ||
-                rawDefaultValue.GetType() == typeof(long) ||
-                rawDefaultValue.GetType() == typeof(ulong) ||
-                rawDefaultValue.GetType() == typeof(double) ||
-                rawDefaultValue.GetType() == typeof(float) ||
-                rawDefaultValue.GetType() == typeof(decimal))
+            if (rawDefaultValue is bool ||
+                rawDefaultValue is byte ||
+                rawDefaultValue is sbyte ||
+                rawDefaultValue is short ||
+                rawDefaultValue is ushort ||
+                rawDefaultValue is int ||
+                rawDefaultValue is uint ||
+                rawDefaultValue is long ||
+                rawDefaultValue is ulong ||
+                rawDefaultValue is double ||
+                rawDefaultValue is float ||
+                rawDefaultValue is decimal)
             {
                 return rawDefaultValue.ToString();
             }

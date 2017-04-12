@@ -54,8 +54,6 @@ namespace ApiCheck.Description
                 case ApiElementVisibility.Protected:
                     yield return "protected";
                     break;
-                default:
-                    break;
             }
 
             if (Static)
@@ -142,7 +140,7 @@ namespace ApiCheck.Description
 
         public static string GetTypeNameFor(TypeInfo type)
         {
-            string typeName = type.FullName ?? type.Name;
+            var typeName = type.FullName ?? type.Name;
 
             if (type.IsGenericParameter)
             {
@@ -157,7 +155,7 @@ namespace ApiCheck.Description
 
             if (type.IsGenericType)
             {
-                if (type.DeclaringType == null || type.DeclaringType.GetTypeInfo() == type)
+                if (type.DeclaringType == null || Equals(type.DeclaringType.GetTypeInfo(), type))
                 {
                     var name = type.GetGenericTypeDefinition().FullName;
                     typeName = name.Substring(0, name.IndexOf('`'));
@@ -169,7 +167,7 @@ namespace ApiCheck.Description
                     var prefix = GetTypeNameFor(container);
                     var name = type.GetGenericTypeDefinition().FullName;
                     var currentTypeGenericArguments = type.GetGenericTypeDefinition().GetGenericArguments()
-                    .Where(p => !container.GetGenericArguments().Any(cp => cp.Name == p.Name))
+                    .Where(p => container.GetGenericArguments().All(cp => cp.Name != p.Name))
                     .Select(p => type.GetGenericArguments()[p.GenericParameterPosition])
                     .ToArray();
 
@@ -213,11 +211,12 @@ namespace ApiCheck.Description
             if (type.IsGenericParameter)
             {
                 var interfaces = type.ImplementedInterfaces.ToArray();
-                for (var i = 0; i < interfaces.Length; i++)
+                foreach (var t in interfaces)
                 {
-                    var implementedInterface = interfaces[i].GetTypeInfo();
+                    var implementedInterface = t.GetTypeInfo();
                     var implementedOnBaseType = type.BaseType != null &&
-                        InterfaceIsImplementedOnBaseType(type.BaseType.GetTypeInfo(), implementedInterface);
+                                                InterfaceIsImplementedOnBaseType(type.BaseType.GetTypeInfo(),
+                                                    implementedInterface);
 
                     if (!implementedOnBaseType && !InterfaceIsTransitivelyImplemented(type, implementedInterface))
                     {
@@ -228,11 +227,11 @@ namespace ApiCheck.Description
             else if (!type.IsInterface)
             {
                 var interfaces = type.ImplementedInterfaces.ToArray();
-                for (var i = 0; i < interfaces.Length; i++)
+                foreach (var t in interfaces)
                 {
-                    var implementedInterface = interfaces[i].GetTypeInfo();
+                    var implementedInterface = t.GetTypeInfo();
                     if ((!InterfaceIsImplementedOnBaseType(type.BaseType.GetTypeInfo(), implementedInterface) &&
-                        !InterfaceIsTransitivelyImplemented(type, implementedInterface)) ||
+                         !InterfaceIsTransitivelyImplemented(type, implementedInterface)) ||
                         InterfaceIsReimplementedOnCurrentType(type, implementedInterface))
                     {
                         yield return implementedInterface;
@@ -242,9 +241,9 @@ namespace ApiCheck.Description
             else
             {
                 var interfaces = type.ImplementedInterfaces.ToArray();
-                for (var i = 0; i < interfaces.Length; i++)
+                foreach (var t in interfaces)
                 {
-                    var implementedInterface = interfaces[i].GetTypeInfo();
+                    var implementedInterface = t.GetTypeInfo();
                     if (!InterfaceIsTransitivelyImplemented(type, implementedInterface))
                     {
                         yield return implementedInterface;
@@ -270,7 +269,7 @@ namespace ApiCheck.Description
 
         private static bool InterfaceIsImplementedOnBaseType(TypeInfo typeInfo, TypeInfo implementedInterface)
         {
-            return typeInfo.ImplementedInterfaces.Any(ii => ii.Equals(implementedInterface));
+            return typeInfo.ImplementedInterfaces.Any(ii => ii.GetTypeInfo().Equals(implementedInterface));
         }
     }
 }

@@ -106,7 +106,7 @@ namespace ApiCheck
         private bool IsAcceptableMemberChange(ApiListing newApiListing, TypeDescriptor newType, MemberDescriptor member)
         {
             var acceptable = false;
-            var candidate = newType == null ? null : newType;
+            var candidate = newType;
             while (candidate != null && !acceptable)
             {
                 if (candidate.Members.Any(m => m.Id == member.Id))
@@ -230,8 +230,6 @@ namespace ApiCheck
                     return oldType.BaseType == newType.BaseType;
                 case TypeKind.Unknown:
                     break;
-                default:
-                    break;
             }
 
             return false;
@@ -319,14 +317,7 @@ namespace ApiCheck
                 }
             }
 
-            if (member == null)
-            {
-                return new BreakingChange(type);
-            }
-            else
-            {
-                return new BreakingChange(member, type.Id);
-            }
+            return member == null ? new BreakingChange(type) : new BreakingChange(member, type.Id);
         }
     }
 }

@@ -14,9 +14,9 @@ namespace NuGetPackageVerifier
             IgnoreJustification = ignoreJustification;
         }
 
-        public PackageVerifierIssue PackageIssue { get; private set; }
+        public PackageVerifierIssue PackageIssue { get; }
 
-        public LogLevel IssueLevel { get; private set; }
+        public LogLevel IssueLevel { get; }
 
         public string IgnoreJustification { get; set; }
     }

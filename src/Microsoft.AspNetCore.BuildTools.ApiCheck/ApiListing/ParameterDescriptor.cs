@@ -41,8 +41,6 @@ namespace ApiCheck.Description
                 case ParameterDirection.Ref:
                     yield return "ref";
                     break;
-                default:
-                    break;
             }
 
             if (IsParams)

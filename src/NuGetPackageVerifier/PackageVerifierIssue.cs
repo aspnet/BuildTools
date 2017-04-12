@@ -21,18 +21,16 @@ namespace NuGetPackageVerifier
         public PackageIssueLevel Level
         {
             get;
-            private set;
         }
 
         public string Issue
         {
             get;
-            private set;
         }
 
         public string IssueId
         {
-            get; private set;
+            get;
         }
 
         public string Instance
@@ -40,9 +38,6 @@ namespace NuGetPackageVerifier
             get; set;
         }
 
-        public override string ToString()
-        {
-            return string.Format("{0} @ {1}: {2}: {3}", IssueId, Instance, Level.ToString().ToUpperInvariant(), Issue);
-        }
+        public override string ToString() => $"{IssueId} @ {Instance}: {Level.ToString().ToUpperInvariant()}: {Issue}";
     }
 }

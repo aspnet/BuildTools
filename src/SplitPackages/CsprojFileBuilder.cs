@@ -30,8 +30,8 @@ namespace SplitPackages
             _logger = logger;
         }
 
-        private IList<PackageInformation> _dependencies = new List<PackageInformation>();
-        private IList<FrameworkDefinition> _frameworks = new List<FrameworkDefinition>();
+        private readonly IList<PackageInformation> _dependencies = new List<PackageInformation>();
+        private readonly IList<FrameworkDefinition> _frameworks = new List<FrameworkDefinition>();
 
         public void AddDependencies(IEnumerable<PackageInformation> dependencies)
         {
@@ -62,7 +62,7 @@ namespace SplitPackages
             var imports = "";
             if (classification.Imports.Any())
             {
-                imports = $"with imports {string.Join(", ", classification.Imports.Select(i => Frameworks.GetMoniker(i)))}";
+                imports = $"with imports {string.Join(", ", classification.Imports.Select(Frameworks.GetMoniker))}";
             }
 
             _logger.LogInformation($@"'{dependency.Identity}' with frameworks
@@ -138,7 +138,7 @@ namespace SplitPackages
                 var imports = framework.Imports;
                 if (imports?.Count != 0)
                 {
-                    var importNames = string.Join(";", imports.Select(i => Frameworks.GetMoniker(i)));
+                    var importNames = string.Join(";", imports.Select(Frameworks.GetMoniker));
                     projectDefinitionPropertyGroup.Add(
                         new XElement("PackageTargetFallback",
                         new XAttribute("Condition", $" '$(TargetFramework)' == '{monikerName}'"),
@@ -222,9 +222,9 @@ namespace SplitPackages
 
         private class FrameworkDefinition
         {
-            public string Name { get; set; }
-            public IList<string> Imports { get; set; }
-            public IList<PackageInformation> Dependencies { get; set; } = new List<PackageInformation>();
+            public string Name { get; private set; }
+            public IList<string> Imports { get; private set; }
+            public IList<PackageInformation> Dependencies { get; } = new List<PackageInformation>();
 
             public static FrameworkDefinition NetCoreApp10 => new FrameworkDefinition
             {

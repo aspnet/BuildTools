@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using NuGet.Packaging;
-using NuGet.Packaging.Core;
 
 namespace NuGetPackageVerifier.Rules
 {
@@ -11,9 +10,7 @@ namespace NuGetPackageVerifier.Rules
     {
         public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
-            PackageIdentity identity;
-            string packageLanguage;
-            if (PackageHelper.IsSatellitePackage(context.PackageReader, out identity, out packageLanguage))
+            if (PackageHelper.IsSatellitePackage(context.PackageReader, out var _, out var _))
             {
                 if (context.Metadata.Summary.Contains("{"))
                 {
@@ -28,8 +25,6 @@ namespace NuGetPackageVerifier.Rules
                     yield return PackageIssueFactory.Satellite_PackageDescriptionNotLocalized();
                 }
             }
-
-            yield break;
         }
     }
 }

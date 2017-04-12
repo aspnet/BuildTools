@@ -8,15 +8,7 @@ namespace NuGetPackageVerifier
 {
     public class PackageAnalyzer
     {
-        private IList<IPackageVerifierRule> _rules = new List<IPackageVerifierRule>();
-
-        public IList<IPackageVerifierRule> Rules
-        {
-            get
-            {
-                return _rules;
-            }
-        }
+        public IList<IPackageVerifierRule> Rules { get; } = new List<IPackageVerifierRule>();
 
         public IEnumerable<PackageVerifierIssue> AnalyzePackage(PackageAnalysisContext context)
         {

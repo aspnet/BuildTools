@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,13 +8,14 @@ using System.IO.Compression;
 using System.Linq;
 using System.Reflection.PortableExecutable;
 using System.Text;
+using Microsoft.Extensions.Logging;
 
 namespace DependenciesPackager
 {
     internal class OutputFilesContext : IDisposable
     {
         private const int CrossGenFlag = 4;
-        private ILogger _logger;
+        private readonly ILogger _logger;
 
         public OutputFilesContext(
             string destination,
@@ -66,7 +66,7 @@ namespace DependenciesPackager
             {
                 var buffer = new StringBuilder();
                 buffer.Clear();
-                buffer.AppendLine($"The following files are not crossgened.");
+                buffer.AppendLine("The following files are not crossgened.");
 
                 foreach (var file in notCrossgend)
                 {

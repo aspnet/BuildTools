@@ -29,8 +29,6 @@ namespace NuGetPackageVerifier.Rules
             {
                 yield return PackageIssueFactory.RequiredRequireLicenseAcceptanceTrue();
             }
-
-            yield break;
         }
     }
 }

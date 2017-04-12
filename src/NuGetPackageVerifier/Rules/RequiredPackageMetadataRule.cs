@@ -21,8 +21,6 @@ namespace NuGetPackageVerifier.Rules
             {
                 yield return PackageIssueFactory.RequiredId();
             }
-
-            yield break;
         }
     }
 }

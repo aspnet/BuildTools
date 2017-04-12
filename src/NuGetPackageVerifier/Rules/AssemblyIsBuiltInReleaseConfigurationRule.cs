@@ -38,13 +38,8 @@ namespace NuGetPackageVerifier.Rules
 
             var foundAttrArg = foundAttr.ConstructorArguments.SingleOrDefault();
             var attrValue = (DebuggableAttribute.DebuggingModes)foundAttrArg.Value;
-            if (attrValue.HasFlag(DebuggableAttribute.DebuggingModes.Default) ||
-                attrValue.HasFlag(DebuggableAttribute.DebuggingModes.DisableOptimizations))
-            {
-                return false;
-            }
-
-            return true;
+            return !attrValue.HasFlag(DebuggableAttribute.DebuggingModes.Default) &&
+                   !attrValue.HasFlag(DebuggableAttribute.DebuggingModes.DisableOptimizations);
         }
     }
 }

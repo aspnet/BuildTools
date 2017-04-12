@@ -243,7 +243,7 @@ namespace NuGetPackageVerifier
 
         public static PackageVerifierIssue RequiredRequireLicenseAcceptanceTrue()
         {
-            return new PackageVerifierIssue("NUSPEC_ACCEPTLICENSE", string.Format("NuSpec Require License Acceptance is not set to true"), PackageIssueLevel.Error);
+            return new PackageVerifierIssue("NUSPEC_ACCEPTLICENSE", "NuSpec Require License Acceptance is not set to true", PackageIssueLevel.Error);
         }
 
         private static PackageVerifierIssue RequiredCore(string issueId, string attributeName, PackageIssueLevel issueLevel)

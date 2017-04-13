@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
@@ -30,11 +30,11 @@ namespace SplitPackages
             var supportsNetStandard = GetCompatibleFrameworks(frameworks, FrameworkConstants.CommonFrameworks.NetCoreApp10);
 
             if ((supportsNet451.Any() && supportsNetStandard.Any()) ||
-                supportedFrameworks.Count() == 0)
+                !supportedFrameworks.Any())
             {
                 return FrameworkClasification.All();
             }
-            else if (frameworks.Any(f => SupportsNet451(f)))
+            if (frameworks.Any(SupportsNet451))
             {
                 var imports = supportsNet451.Except(new[] { FrameworkConstants.CommonFrameworks.Net451 });
                 return FrameworkClasification.Net451(imports.Select(f => f.DotNetFrameworkName));

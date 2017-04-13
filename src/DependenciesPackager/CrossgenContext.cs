@@ -1,14 +1,14 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Extensions.Logging;
-using NugetReferenceResolver;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using NugetReferenceResolver;
 
 namespace DependenciesPackager
 {
@@ -21,7 +21,7 @@ namespace DependenciesPackager
         private IEnumerable<PackageEntry> _packagesToCrossGen = Enumerable.Empty<PackageEntry>();
         private IEnumerable<PackageEntry> _referenceAssemblyPaths = Enumerable.Empty<PackageEntry>();
 
-        public IEnumerable<PackageAssembly> _crossGenAssets;
+        private IEnumerable<PackageAssembly> _crossGenAssets;
         private string _clrJitPath;
         private string _crossgenExecutable;
 
@@ -185,12 +185,13 @@ namespace DependenciesPackager
             var assemblyPath = Path.GetFullPath(asset.ResolvedPath);
             var arguments = $"@\"{_responseFilePath}\" /JITPath \"{_clrJitPath}\" /in \"{assemblyPath}\" /out \"{targetPath}\"";
 
-            var crossGen = new CrossGenResult();
-            crossGen.CrossGenArgumentsMessage = $@"Crossgen assembly
+            var crossGen = new CrossGenResult
+            {
+                CrossGenArgumentsMessage = $@"Crossgen assembly
     assembly: {assemblyPath}
       output: {targetPath}
-   arguments: {arguments}";
-
+   arguments: {arguments}"
+            };
             var stdout = new StringBuilder();
             var stderr = new StringBuilder();
 
@@ -278,7 +279,7 @@ namespace DependenciesPackager
                         if (firstFalingAsset)
                         {
                             firstFalingAsset = false;
-                            _logger.LogInformation(package.Library.Identity.ToString() + ":");
+                            _logger.LogInformation(package.Library.Identity + ":");
                         }
 
                         if (exclusions.Contains(assetResult.Key.FileName, StringComparer.OrdinalIgnoreCase))
@@ -343,17 +344,18 @@ namespace DependenciesPackager
         public void CreateResponseFile()
         {
             _responseFilePath = Path.Combine(_destinationFolder, "aspnet-crossgen.rsp");
-            var lines = new List<string>();
-            lines.Add("/Platform_Assemblies_Paths");
-            lines.Add("\"" + string.Join(
+            var lines = new List<string>
+            {
+                "/Platform_Assemblies_Paths",
+                "\"" + string.Join(
                 Path.PathSeparator.ToString(),
-                _referenceAssemblyPaths.SelectMany(e => e.Assets.Select(a => GetCleanedUpDirectoryPath(a)))) + "\"");
-            lines.Add("/App_paths");
-            lines.Add(
+                _referenceAssemblyPaths.SelectMany(e => e.Assets.Select(GetCleanedUpDirectoryPath))) + "\"",
+                "/App_paths",
                 "\"" +
-                string.Join(Path.PathSeparator.ToString(), _packagesToCrossGen.SelectMany(e => e.Assets.Select(a => GetCleanedUpDirectoryPath(a)))) +
-                "\"");
-            lines.Add("/ReadyToRun");
+                string.Join(Path.PathSeparator.ToString(), _packagesToCrossGen.SelectMany(e => e.Assets.Select(GetCleanedUpDirectoryPath))) +
+                "\"",
+                "/ReadyToRun"
+            };
             File.WriteAllLines(_responseFilePath, lines);
         }
 

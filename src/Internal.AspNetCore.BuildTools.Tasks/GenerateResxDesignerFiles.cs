@@ -37,9 +37,9 @@ namespace Microsoft.AspNetCore.BuildTools
             public const string WithCulture = "WithCulture";
         }
 
-        private static Regex _namedParameterMatcher = new Regex(@"\{([a-z]\w+)\}", RegexOptions.IgnoreCase);
-        private static Regex _numberParameterMatcher = new Regex(@"\{(\d+)\}");
-        private List<ITaskItem> _createdFiles = new List<ITaskItem>();
+        private static readonly Regex _namedParameterMatcher = new Regex(@"\{([a-z]\w+)\}", RegexOptions.IgnoreCase);
+        private static readonly Regex _numberParameterMatcher = new Regex(@"\{(\d+)\}");
+        private readonly List<ITaskItem> _createdFiles = new List<ITaskItem>();
 
         /// <summary>
         /// <para>
@@ -102,7 +102,7 @@ namespace Microsoft.AspNetCore.BuildTools
             return true;
         }
 
-        private bool GenerateCsharp(string resxFile, string outputFileName, string manifestName)
+        private void GenerateCsharp(string resxFile, string outputFileName, string manifestName)
         {
             if (string.IsNullOrEmpty(outputFileName))
             {
@@ -122,7 +122,7 @@ namespace Microsoft.AspNetCore.BuildTools
             if (!File.Exists(resxFile))
             {
                 Log.LogError("'{0}' does not exist", resxFile);
-                return false;
+                return;
             }
 
             var xml = XDocument.Load(resxFile);
@@ -135,7 +135,7 @@ namespace Microsoft.AspNetCore.BuildTools
                 var name = entry.Attribute("name").Value;
                 var value = entry.Element("value").Value;
 
-                bool usingNamedArgs = true;
+                var usingNamedArgs = true;
                 var match = _namedParameterMatcher.Matches(value);
                 if (match.Count == 0)
                 {
@@ -219,10 +219,7 @@ namespace {resourceNamespace}
 }");
 
             }
-
-            return true;
         }
-
 
         private static void RenderHeader(TextWriter writer, ResourceData resourceString)
         {
@@ -238,7 +235,7 @@ namespace {resourceNamespace}
         {
             writer.WriteLine("internal static string {0}", resourceString.Name);
             writer.WriteLine("{");
-            using (var indent = writer.Indent(4))
+            using (var indent = writer.Indent())
             {
                 indent.WriteLine($@"get => GetString(""{resourceString.Name}"");");
             }
@@ -249,7 +246,7 @@ namespace {resourceNamespace}
         {
             writer.WriteLine($"internal static string Format{resourceString.Name}({resourceString.Parameters})");
 
-            using (var indent = writer.Indent(4))
+            using (var indent = writer.Indent())
             {
                 if (resourceString.Arguments.Count > 0)
                 {
@@ -273,25 +270,13 @@ namespace {resourceNamespace}
 
             public bool UsingNamedArgs { get; set; }
 
-            public string FormatArguments
-            {
-                get { return string.Join(", ", Arguments.Select(a => "\"" + a + "\"")); }
-            }
+            public string FormatArguments => string.Join(", ", Arguments.Select(a => "\"" + a + "\""));
 
-            public string ArgumentNames
-            {
-                get { return string.Join(", ", Arguments.Select(GetArgName)); }
-            }
+            public string ArgumentNames => string.Join(", ", Arguments.Select(GetArgName));
 
-            public string Parameters
-            {
-                get { return string.Join(", ", Arguments.Select(a => "object " + GetArgName(a))); }
-            }
+            public string Parameters => string.Join(", ", Arguments.Select(a => "object " + GetArgName(a)));
 
-            public string GetArgName(string name)
-            {
-                return UsingNamedArgs ? name : 'p' + name;
-            }
+            private string GetArgName(string name) => UsingNamedArgs ? name : 'p' + name;
         }
     }
 }

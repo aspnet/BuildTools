@@ -11,8 +11,7 @@ namespace NuGetPackageVerifier.Rules
 {
     public class PowerShellScriptIsSignedRule : IPackageVerifierRule
     {
-        private static readonly string[] PowerShellExtensions = new string[]
-        {
+        private static readonly string[] PowerShellExtensions = {
             ".ps1",
             ".psm1",
             ".psd1",
@@ -32,14 +31,12 @@ namespace NuGetPackageVerifier.Rules
                     }
                 }
             }
-
-            yield break;
         }
 
         private static bool VerifySigned(PackageArchiveReader reader, string packageFilePath)
         {
             bool result;
-            using (Stream stream = reader.GetStream(packageFilePath))
+            using (var stream = reader.GetStream(packageFilePath))
             {
                 var streamReader = new StreamReader(stream);
                 var text = streamReader.ReadToEnd();

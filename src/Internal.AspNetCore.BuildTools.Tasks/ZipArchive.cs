@@ -6,7 +6,6 @@ using System.IO.Compression;
 using Microsoft.AspNetCore.BuildTools.Utilities;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
-
 using ZipArchiveStream = System.IO.Compression.ZipArchive;
 
 namespace Microsoft.AspNetCore.BuildTools

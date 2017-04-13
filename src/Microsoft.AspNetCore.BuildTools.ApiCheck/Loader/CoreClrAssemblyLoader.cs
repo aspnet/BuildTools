@@ -46,11 +46,6 @@ namespace ApiCheck
             _loadContext = new ApiCheckLoadContext(FindAssemblyPath);
         }
 
-        private static bool IsCompatible(NuGetFramework reference, NuGetFramework target)
-        {
-            return DefaultCompatibilityProvider.Instance.IsCompatible(reference, target);
-        }
-
         public Assembly Load(string assemblyPath)
         {
             return _loadContext.LoadFromAssemblyPath(assemblyPath);

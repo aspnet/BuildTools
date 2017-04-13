@@ -10,7 +10,7 @@ namespace NuGetPackageVerifier
 {
     public class IssueProcessor
     {
-        private List<IssueIgnore> _allIssuesToIgnore;
+        private readonly List<IssueIgnore> _allIssuesToIgnore;
 
         public IssueProcessor(IEnumerable<IssueIgnore> issuesToIgnore)
         {
@@ -46,11 +46,8 @@ namespace NuGetPackageVerifier
                     ignore: false,
                     ignoreJustification: null);
             }
-            else
-            {
-                // If nothing to ignore, just report the issue as-is
-                return new IssueReport(packageIssue, false, null);
-            }
+            // If nothing to ignore, just report the issue as-is
+            return new IssueReport(packageIssue, false, null);
         }
     }
 }

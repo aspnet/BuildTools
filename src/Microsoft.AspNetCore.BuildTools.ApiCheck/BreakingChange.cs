@@ -16,14 +16,6 @@ namespace ApiCheck
 
         public ApiElement Item { get; }
 
-        public override string ToString()
-        {
-            if (Context == null)
-            {
-                return Item.Id;
-            }
-
-            return $"{Context} => {Item.Id}";
-        }
+        public override string ToString() => Context == null ? Item.Id : $"{Context} => {Item.Id}";
     }
 }

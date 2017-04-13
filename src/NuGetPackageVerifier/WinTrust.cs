@@ -91,7 +91,7 @@ namespace NuGetPackageVerifier
 
         public static bool IsAuthenticodeSigned(string path)
         {
-            var fileInfo = new WinTrustFileInfo()
+            var fileInfo = new WinTrustFileInfo
             {
                 cbStruct = (uint)Marshal.SizeOf<WinTrustFileInfo>(),
 
@@ -100,7 +100,7 @@ namespace NuGetPackageVerifier
                 pgKnownSubject = IntPtr.Zero
             };
 
-            var data = new WinTrustData()
+            var data = new WinTrustData
             {
                 cbStruct = (uint)Marshal.SizeOf<WinTrustData>(),
                 dwProvFlags = Convert.ToUInt32(Provider.WTD_SAFER_FLAG),

@@ -16,17 +16,7 @@ namespace NuGetPackageVerifier
         public IPackageMetadata Metadata { get; set; }
         public PackageVerifierOptions Options { get; set; }
         public IPackageVerifierLogger Logger { get; set; }
-        public PackageArchiveReader PackageReader
-        {
-            get
-            {
-                if (_reader == null)
-                {
-                    _reader = new PackageArchiveReader(PackageFileInfo.FullName);
-                }
-                return _reader;
-            }
-        }
+        public PackageArchiveReader PackageReader => _reader ?? (_reader = new PackageArchiveReader(PackageFileInfo.FullName));
 
         public void Dispose()
         {

@@ -1,22 +1,22 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Extensions.CommandLineUtils;
-using Microsoft.Extensions.Logging;
-using NuGet.Frameworks;
-using NuGet.ProjectModel;
-using NugetReferenceResolver;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Microsoft.Extensions.CommandLineUtils;
+using Microsoft.Extensions.Logging;
+using NugetReferenceResolver;
+using NuGet.Frameworks;
+using NuGet.ProjectModel;
 
 namespace DependenciesPackager
 {
     class Program
     {
-        private static readonly IEnumerable<NuGetFramework> FrameworkConfigurations =
+        private static readonly IEnumerable<NuGetFramework> _frameworkConfigurations =
             new[] { FrameworkConstants.CommonFrameworks.NetCoreApp10 };
 
         private const int Ok = 0;
@@ -77,9 +77,10 @@ namespace DependenciesPackager
 
         static int Main(string[] args)
         {
-            var app = new CommandLineApplication();
-            app.Name = "DependenciesPackager";
-
+            var app = new CommandLineApplication
+            {
+                Name = "DependenciesPackager"
+            };
             app.HelpOption("-?|-h|--help");
 
             var projectCsproj = app.Option(
@@ -202,7 +203,7 @@ namespace DependenciesPackager
                 var graph = PackageGraph.Create(format.Read(GetAssetsFile()), "netcoreapp1.1");
                 var outputs = new List<OutputFilesContext>();
 
-                foreach (var framework in FrameworkConfigurations)
+                foreach (var framework in _frameworkConfigurations)
                 {
                     foreach (var runtime in _optRuntime.Values)
                     {

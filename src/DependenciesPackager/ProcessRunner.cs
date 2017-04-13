@@ -13,8 +13,8 @@ namespace DependenciesPackager
         private readonly string _arguments;
         private readonly string _exePath;
         private readonly IDictionary<string, string> _environment = new Dictionary<string, string>();
-        private Process _process = null;
-        private object _writeLock = new object();
+        private Process _process;
+        private readonly object _writeLock = new object();
         private string _workingDirectory;
 
         public ProcessRunner(
@@ -36,13 +36,13 @@ namespace DependenciesPackager
 
         public ProcessRunner WriteErrorsToConsole()
         {
-            OnError = s => Console.WriteLine(s);
+            OnError = Console.WriteLine;
             return this;
         }
 
         public ProcessRunner WriteOutputToConsole()
         {
-            OnOutput = s => Console.WriteLine(s);
+            OnOutput = Console.WriteLine;
             return this;
         }
 
@@ -96,9 +96,11 @@ namespace DependenciesPackager
             }
 
             var processInfo = CreateProcessInfo();
-            _process = new Process();
-            _process.StartInfo = processInfo;
-            _process.EnableRaisingEvents = true;
+            _process = new Process
+            {
+                StartInfo = processInfo,
+                EnableRaisingEvents = true
+            };
             _process.ErrorDataReceived += (s, e) => OnError(e.Data);
             _process.OutputDataReceived += (s, e) => OnOutput(e.Data);
             _process.Start();

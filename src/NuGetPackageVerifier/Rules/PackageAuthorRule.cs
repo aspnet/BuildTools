@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -12,7 +13,7 @@ namespace NuGetPackageVerifier.Rules
 
         public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
-            if (context.Metadata.Authors == null || context.Metadata.Authors.Count() < 1)
+            if (context.Metadata.Authors == null || !context.Metadata.Authors.Any())
             {
                 yield return PackageIssueFactory.RequiredAuthor();
             }
@@ -23,7 +24,7 @@ namespace NuGetPackageVerifier.Rules
             }
 
             var author = context.Metadata.Authors.First();
-            if (!string.Equals(author, _expectedAuthor, System.StringComparison.Ordinal))
+            if (!string.Equals(author, _expectedAuthor, StringComparison.Ordinal))
             {
                 yield return PackageIssueFactory.AuthorIsIncorrect(context.Metadata.Id, _expectedAuthor, author);
             }

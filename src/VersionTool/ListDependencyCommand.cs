@@ -40,7 +40,7 @@ namespace VersionTool
                         Console.WriteLine($"Project: {project.ProjectFilePath}");
                         foreach (var match in matches)
                         {
-                            Console.WriteLine($"{match.Name}: {match.Value.ToString()}");
+                            Console.WriteLine($"{match.Name}: {match.Value}");
                         }
 
                         Console.WriteLine();

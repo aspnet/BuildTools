@@ -3,8 +3,8 @@
 
 using System.Diagnostics;
 using System.Threading;
-using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
 
 namespace Microsoft.AspNetCore.BuildTools
 {
@@ -21,7 +21,7 @@ namespace Microsoft.AspNetCore.BuildTools
             Log.LogMessage(MessageImportance.High, $"Waiting for debugger. Process ID: {Process.GetCurrentProcess().Id}");
 
             // 30 seconds
-            var maxTimeout = 30 * 1000; 
+            var maxTimeout = 30 * 1000;
             var step = 150;
 
             while (!Debugger.IsAttached && maxTimeout > 0)

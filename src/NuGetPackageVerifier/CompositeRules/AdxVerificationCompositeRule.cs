@@ -7,8 +7,7 @@ namespace NuGetPackageVerifier.Rules
 {
     public class AdxVerificationCompositeRule : IPackageVerifierRule
     {
-        IPackageVerifierRule[] _rules = new IPackageVerifierRule[]
-        {
+        private readonly IPackageVerifierRule[] _rules = {
             new DefaultCompositeRule()
         };
 

@@ -23,7 +23,7 @@ namespace ApiCheck
             {
                 var app = new CommandLineApplication();
 
-                app.Command("generate", (c) =>
+                app.Command("generate", c =>
                 {
                     var assemblyPathOption = c.Option("-a|--assembly", "Path to the assembly to generate the ApiListing for", CommandOptionType.SingleValue);
                     var assetsJson = c.Option("-p|--project", "Path to the project.assets.json file", CommandOptionType.SingleValue);
@@ -36,7 +36,7 @@ namespace ApiCheck
                     c.OnExecute(() => OnGenerate(c, assemblyPathOption, assetsJson, framework, noPublicInternal, outputPath));
                 });
 
-                app.Command("compare", (c) =>
+                app.Command("compare", c =>
                 {
                     var apiListingPathOption = c.Option("-b|--api-listing", "Path to the API listing file to use as reference.", CommandOptionType.SingleValue);
                     var exclusionsPathOption = c.Option("-e|--exclusions", "Path to the exclusions file for the ApiListing", CommandOptionType.SingleValue);
@@ -243,8 +243,8 @@ namespace ApiCheck
             {
                 if (!compactOutput && differences.Count > 0)
                 {
-                    Console.WriteLine($"The process for breaking changes is described in: https://github.com/aspnet/Home/wiki/Engineering-guidelines#breaking-changes");
-                    Console.WriteLine($"For how to add an exclusion to Api-check go to: https://github.com/aspnet/BuildTools/wiki/Api-Check#apicheck-exceptions");
+                    Console.WriteLine("The process for breaking changes is described in: https://github.com/aspnet/Home/wiki/Engineering-guidelines#breaking-changes");
+                    Console.WriteLine("For how to add an exclusion to Api-check go to: https://github.com/aspnet/BuildTools/wiki/Api-Check#apicheck-exceptions");
                 }
 
                 return Error;

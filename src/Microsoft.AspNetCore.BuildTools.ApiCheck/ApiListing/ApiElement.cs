@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace ApiCheck.Description
 {
-    [DebuggerDisplay("{Id,nq}")]
+    [DebuggerDisplay("{" + nameof(Id) + ",nq}")]
     public class ApiElement
     {
         public virtual string Id { get; }

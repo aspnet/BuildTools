@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Microsoft.DotNet.ProjectModel;
 using Microsoft.DotNet.Cli.Utils;
+using Microsoft.DotNet.ProjectModel;
 using Microsoft.Extensions.CommandLineUtils;
 using Newtonsoft.Json;
 
@@ -255,10 +255,7 @@ $@"No update rule found for package {package.Name} {package.Version}. Please add
                 foreach (var packageDependency in repo.PackageDependencies)
                 {
                     var parentRepo = repos.Find(r => r.Packages.Contains(packageDependency));
-                    if (parentRepo != null)
-                    {
-                        parentRepo.DependentRepos.Add(repo);
-                    }
+                    parentRepo?.DependentRepos.Add(repo);
                 }
             }
 

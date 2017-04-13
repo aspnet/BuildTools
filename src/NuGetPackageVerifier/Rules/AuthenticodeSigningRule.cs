@@ -53,8 +53,6 @@ namespace NuGetPackageVerifier.Rules
             {
                 CleanUpFolder(extractPath, context.Logger);
             }
-
-            yield break;
         }
 
         private void UnzipPackage(FileInfo nupkgFile, string extractDir)

@@ -20,8 +20,7 @@ namespace NuGetPackageVerifier.Rules
         // Per https://github.com/NuGet/Home/issues/2178
         private const string NuGetV3Endpoint = "https://api-v2v3search-0.nuget.org/search/query?q=Id:{0}&prerelease=true&take=1&ignoreFilter=true";
         private const string NuGetOrgPackagePage = "https://www.nuget.org/packages/";
-        private static readonly string[] AllowedOwners = new[]
-        {
+        private static readonly string[] AllowedOwners = {
             "aspnet",
             "microsoft",
         };

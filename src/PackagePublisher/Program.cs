@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -23,11 +22,11 @@ namespace PackagePublisher
         private static CommandOption _feedToUploadTo;
 
         // Do NOT log the key
-        private static string _apiKey = null;
+        private static string _apiKey;
         private const int _maxRetryCount = 5;
         private const int _maxParallelPackagePushes = 4;
         private static readonly TimeSpan _packagePushTimeout = TimeSpan.FromSeconds(90);
-        private static ConcurrentBag<PackageInfo> _packages = null;
+        private static ConcurrentBag<PackageInfo> _packages;
         private static readonly CancellationTokenSource _packagePushCancellationTokenSource = new CancellationTokenSource();
 
         public static int Main(string[] args)
@@ -65,7 +64,7 @@ namespace PackagePublisher
                         using (var fileStream = File.OpenRead(fileInfo.FullName))
                         using (var reader = new PackageArchiveReader(fileStream))
                         {
-                            return new PackageInfo()
+                            return new PackageInfo
                             {
                                 Identity = reader.GetIdentity(),
                                 PackagePath = fileInfo.FullName
@@ -81,7 +80,7 @@ namespace PackagePublisher
                     return 1;
                 }
 
-                PublishToFeedAsync(packages).Wait();
+                PublishToFeedAsync().Wait();
 
                 return 0;
             });
@@ -110,14 +109,11 @@ namespace PackagePublisher
                 Console.WriteLine("Packages directory is required");
                 return false;
             }
-            else
+            var packageDir = _packagesDirectory.Value();
+            if (!Directory.Exists(packageDir))
             {
-                var packageDir = _packagesDirectory.Value();
-                if (!Directory.Exists(packageDir))
-                {
-                    Console.WriteLine($"The supplied directory '{packageDir}' does not exist.");
-                    return false;
-                }
+                Console.WriteLine($"The supplied directory '{packageDir}' does not exist.");
+                return false;
             }
 
             _apiKey = Environment.GetEnvironmentVariable(ApiKeyEnvironmentVariableName);
@@ -131,7 +127,7 @@ namespace PackagePublisher
             return true;
         }
 
-        private static async Task PublishToFeedAsync(IEnumerable<PackageInfo> packages)
+        private static async Task PublishToFeedAsync()
         {
             var sourceRepository = Repository.Factory.GetCoreV3(_feedToUploadTo.Value(), FeedType.HttpV3);
             var packageUpdateResource = await sourceRepository.GetResourceAsync<PackageUpdateResource>();
@@ -182,7 +178,7 @@ namespace PackagePublisher
                     Console.WriteLine(
                         $"Attempt {attempt} failed to publish package {package.Identity}." +
                         Environment.NewLine +
-                        ex.ToString() +
+                        ex +
                         Environment.NewLine +
                         "Retrying...");
                 }

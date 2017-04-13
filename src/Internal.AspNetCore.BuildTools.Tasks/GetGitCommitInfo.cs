@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.IO;
 using Microsoft.AspNetCore.BuildTools.Utilities;
 using Microsoft.Build.Framework;
@@ -62,11 +63,11 @@ namespace Microsoft.AspNetCore.BuildTools
             }
 
             var content = File.ReadAllText(headFile).Trim();
-            if (content.StartsWith(HeadContentStart))
+            if (content.StartsWith(HeadContentStart, StringComparison.OrdinalIgnoreCase))
             {
                 return ResolveFromBranch(content);
             }
-            else if (content.Length == CommitShaLength)
+            if (content.Length == CommitShaLength)
             {
                 return ResolveFromDetachedHead(content);
             }

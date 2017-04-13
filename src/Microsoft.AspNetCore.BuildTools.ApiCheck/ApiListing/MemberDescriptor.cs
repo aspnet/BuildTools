@@ -81,8 +81,6 @@ namespace ApiCheck.Description
                     case ApiElementVisibility.Protected:
                         yield return "protected";
                         break;
-                    default:
-                        break;
                 }
             }
 
@@ -162,7 +160,7 @@ namespace ApiCheck.Description
 
             builder.Append(name);
             builder.Append("(");
-            for (int i = 0; i < Parameters.Count; i++)
+            for (var i = 0; i < Parameters.Count; i++)
             {
                 var parameter = Parameters[i];
                 if (Extension && i == 0)

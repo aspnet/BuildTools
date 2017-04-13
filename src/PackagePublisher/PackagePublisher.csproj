@@ -6,8 +6,7 @@
     <DebugType>portable</DebugType>
     <OutputType>exe</OutputType>
     <TargetFramework>netcoreapp1.0</TargetFramework>
-    <VersionPrefix>1.0.1</VersionPrefix>
-    <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
+    <VersionPrefix>1.0.2</VersionPrefix>
   </PropertyGroup>
   
   <ItemGroup>

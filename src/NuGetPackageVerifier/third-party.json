@@ -4,7 +4,7 @@
     "Microsoft.AspNetCore",
     "Microsoft.CodeAnalysis.Razor",
     "Microsoft.Data.Sqlite",
-    "Microsoft.DotNet",
+    "Microsoft.DotNet.",
     "Microsoft.EntityFrameworkCore",
     "Microsoft.Extensions.",
     "Microsoft.Net.Http.Headers",

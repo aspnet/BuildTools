@@ -123,7 +123,7 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
             if (Framework.StartsWith("net4", StringComparison.OrdinalIgnoreCase))
             {
                 var taskAssemblyFolder = Path.GetDirectoryName(GetType().GetTypeInfo().Assembly.Location);
-                return Path.GetFullPath(Path.Combine(taskAssemblyFolder, "..", "net452", ToolExe));
+                return Path.GetFullPath(Path.Combine(taskAssemblyFolder, "..", "net46", ToolExe));
             }
 
             // If muxer does not find dotnet, fall back to system PATH and hope for the best.
@@ -141,7 +141,7 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
                 arguments = $@"""{Path.GetFullPath(toolPath)}"" ";
             }
 
-            arguments += "compare --compact-output";
+            arguments += "compare";
             if (ExcludePublicInternalTypes)
             {
                 arguments += " --exclude-public-internal";
@@ -167,14 +167,15 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
         /// <inheritdoc />
         protected override void LogEventsFromTextOutput(string singleLine, MessageImportance messageImportance)
         {
-            if (string.IsNullOrEmpty(singleLine) || singleLine.StartsWith("  ", StringComparison.Ordinal))
+            // Since tool prints out formatted list of breaking changes,
+            // anything that starts with Error considered an error; the rest is user information.
+            if (singleLine.StartsWith("Error", StringComparison.OrdinalIgnoreCase))
             {
-                // Almost everything the tool writes indicates an error. But, blank and indented lines are informative.
-                base.LogEventsFromTextOutput(singleLine, messageImportance);
+                Log.LogError(singleLine, Array.Empty<object>());
             }
             else
             {
-                Log.LogError(singleLine, Array.Empty<object>());
+                base.LogEventsFromTextOutput(singleLine, messageImportance);
             }
         }
     }

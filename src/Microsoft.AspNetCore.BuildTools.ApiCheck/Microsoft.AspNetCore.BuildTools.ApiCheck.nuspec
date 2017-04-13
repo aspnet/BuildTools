@@ -11,7 +11,7 @@
   </metadata>
   <files>
     <file src="build\**" target="build\" />
-    <file src="$publishDir$\net452\**" target="tools\net452\" />
+    <file src="$publishDir$\net46\**" target="tools\net46\" />
     <file src="$publishDir$\netcoreapp1.1\**" target="tools\netcoreapp1.1\" />
     <file src="$taskBuildDir$\netstandard1.6\*.dll" target="tools\netstandard1.6\" />
   </files>

@@ -10,7 +10,6 @@ namespace ApiCheck
     public enum ChangeKind
     {
         Removal,
-        Modification,
         Addition,
     }
 }

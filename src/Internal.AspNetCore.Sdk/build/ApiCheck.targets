@@ -5,10 +5,10 @@
 <Project>
   <Target Name="ApiCheck" Condition=" '$(EnableApiCheck)' == 'true' ">
     <PropertyGroup>
-      <_ApiListingFileSuffix Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">net45.json</_ApiListingFileSuffix>
+      <_ApiListingFileSuffix Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">netframework.json</_ApiListingFileSuffix>
       <_ApiListingFileSuffix Condition=" '$(_ApiListingFileSuffix)' == '' ">netcore.json</_ApiListingFileSuffix>
       <_ApiListingFilePath>$(MSBuildProjectDirectory)\baseline.$(_ApiListingFileSuffix)</_ApiListingFilePath>
-      <_ApiExclusionsFilePath>$(MSBuildProjectDirectory)\exceptions.$(_ApiListingFileSuffix)</_ApiExclusionsFilePath>
+      <_ApiExclusionsFilePath>$(MSBuildProjectDirectory)\breakingchanges.$(_ApiListingFileSuffix)</_ApiExclusionsFilePath>
       <_ApiListingFile Condition=" Exists('$(_ApiListingFilePath)') ">$(_ApiListingFilePath)</_ApiListingFile>
       <_ApiExclusionsFile Condition=" Exists('$(_ApiExclusionsFilePath)') ">$(_ApiExclusionsFilePath)</_ApiExclusionsFile>
     </PropertyGroup>

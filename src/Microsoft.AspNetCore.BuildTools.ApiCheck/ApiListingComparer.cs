@@ -13,128 +13,108 @@ namespace ApiCheck
     {
         private readonly ApiListing _newApiListing;
         private readonly ApiListing _oldApiListing;
-        private readonly IList<ApiChangeExclusion> _exclusions;
 
         public ApiListingComparer(
             ApiListing oldApiListing,
-            ApiListing newApiListing,
-            IList<ApiChangeExclusion> exclusions = null)
+            ApiListing newApiListing)
         {
             _oldApiListing = oldApiListing;
             _newApiListing = newApiListing;
-            _exclusions = exclusions ?? new List<ApiChangeExclusion>();
         }
 
-        public ApiComparisonResult GetDifferences()
+        public IList<BreakingChange> GetDifferences()
         {
-            var exclusions = _exclusions.ToList();
-
             var breakingChanges = new List<BreakingChange>();
+            var newTypes = _newApiListing.Types;
+
             foreach (var type in _oldApiListing.Types)
             {
                 var newType = _newApiListing.FindType(type.Name);
-                if (newType == null || !string.Equals(type.Id, newType.Id, StringComparison.Ordinal))
+                if (newType == null)
                 {
-                    var isAcceptable = newType != null && IsAcceptableTypeChange(type, newType);
-                    if (!isAcceptable)
+                    breakingChanges.Add(new BreakingChange(type.Id, memberId: null, kind: ChangeKind.Removal));
+                }
+                else
+                {
+                    newTypes.Remove(newType);
+
+                    if (!string.Equals(type.Id, newType.Id, StringComparison.Ordinal)
+                        && !IsAcceptableTypeChange(type, newType))
                     {
-                        var typeChange = FilterExclusions(type, member: null, exclusions: exclusions);
-                        if (typeChange != null)
-                        {
-                            breakingChanges.Add(typeChange);
-                        }
+                        breakingChanges.Add(new BreakingChange(type.Id, memberId: null, kind: ChangeKind.Removal));
+                        continue;
                     }
 
-                }
-
-                if (newType != null)
-                {
-                    CompareMembers(type, newType, exclusions, breakingChanges);
+                    CompareMembers(type, newType, breakingChanges);
                 }
             }
 
-            return new ApiComparisonResult(breakingChanges, exclusions);
+            return breakingChanges;
         }
 
-        private void CompareMembers(TypeDescriptor type, TypeDescriptor newType, List<ApiChangeExclusion> exclusions, List<BreakingChange> breakingChanges)
+        private void CompareMembers(TypeDescriptor type, TypeDescriptor newType, List<BreakingChange> breakingChanges)
         {
-            var removedOrChanged = 0;
+            var newMembers = newType.Members.ToList();
+
             foreach (var member in type.Members)
             {
-                var newMember = newType.FindMember(member.Id);
-                var isAcceptable = IsAcceptableMemberChange(_newApiListing, newType, member);
-                if (isAcceptable)
+                if (IsAcceptableMemberChange(newType, member, out var newMember))
                 {
-                    if (newMember == null)
-                    {
-                        removedOrChanged++;
-                    }
-
-                    continue;
+                    newMembers.Remove(newMember);
                 }
-
-                if (newMember == null)
+                else
                 {
-                    removedOrChanged++;
-                    var memberChange = FilterExclusions(type, member, exclusions);
-                    if (memberChange != null)
-                    {
-                        breakingChanges.Add(memberChange);
-                    }
+                    breakingChanges.Add(new BreakingChange(type.Id, member.Id, ChangeKind.Removal));
                 }
             }
 
-            if (type.Kind == TypeKind.Interface && type.Members.Count - removedOrChanged < newType.Members.Count)
+            if (type.Kind == TypeKind.Interface && newMembers.Count > 0)
             {
-                var members = newType.Members.ToList();
-                foreach (var member in newType.Members)
-                {
-                    var change = FilterExclusions(type, null, exclusions);
-                    if (change == null)
-                    {
-                        members.Remove(member);
-                    }
-                }
-
-                if (type.Members.Count - removedOrChanged < members.Count)
-                {
-                    breakingChanges.Add(new BreakingChange(type, "New members were added to the following interface"));
-                }
+                breakingChanges.AddRange(newMembers.Select(member => new BreakingChange(newType.Id, member.Id, ChangeKind.Addition)));
             }
         }
 
-        private bool IsAcceptableMemberChange(ApiListing newApiListing, TypeDescriptor newType, MemberDescriptor member)
+        private bool IsAcceptableMemberChange(TypeDescriptor newType, MemberDescriptor member, out MemberDescriptor newMember)
         {
             var acceptable = false;
+            newMember = null;
             var candidate = newType;
             while (candidate != null && !acceptable)
             {
-                if (candidate.Members.Any(m => m.Id == member.Id))
+                var matchingMembers = candidate.Members.Where(m => m.Id == member.Id).ToList();
+
+                if (matchingMembers.Count == 1)
                 {
+                    newMember = matchingMembers.Single();
                     acceptable = true;
                 }
                 else if (member.Kind == MemberKind.Method)
                 {
-                    var newMember = newType.Members.FirstOrDefault(m => SameSignature(member, m));
-                    if (newMember != null)
+                    var matchingMember = newType.Members.FirstOrDefault(m => SameSignature(member, m));
+                    if (matchingMember != null)
                     {
-                        acceptable = (!member.Sealed ? !newMember.Sealed : true) &&
-                            (member.Virtual ? newMember.Virtual || newMember.Override : true) &&
-                            (member.Static == newMember.Static) &&
-                            (!member.Abstract ? !newMember.Abstract : true);
+                        acceptable = (member.Sealed || !matchingMember.Sealed)
+                                     && (!member.Virtual || matchingMember.Virtual || matchingMember.Override)
+                                     && member.Static == matchingMember.Static
+                                     && (member.Abstract || !matchingMember.Abstract);
+
+                        if (acceptable)
+                        {
+                            newMember = matchingMember;
+                        }
                     }
                 }
 
-                candidate = candidate.BaseType == null ? null : FindOrGenerateDescriptorForBaseType(newApiListing, candidate);
+                candidate = candidate.BaseType == null ? null : FindOrGenerateDescriptorForBaseType(candidate);
             }
 
             return acceptable;
         }
 
-        private static TypeDescriptor FindOrGenerateDescriptorForBaseType(ApiListing newApiListing, TypeDescriptor candidate)
+        private TypeDescriptor FindOrGenerateDescriptorForBaseType(TypeDescriptor candidate)
         {
-            return newApiListing.FindType(candidate.BaseType) ??
-                ApiListingGenerator.GenerateTypeDescriptor(candidate.Source.BaseType.GetTypeInfo(), newApiListing.SourceFilters);
+            return _newApiListing.FindType(candidate.BaseType) ??
+                ApiListingGenerator.GenerateTypeDescriptor(candidate.Source.BaseType.GetTypeInfo(), _newApiListing.SourceFilters);
         }
 
         private bool SameSignature(MemberDescriptor original, MemberDescriptor candidate)
@@ -298,26 +278,6 @@ namespace ApiCheck
                 default:
                     throw new InvalidOperationException("Unrecognized visibility");
             }
-        }
-
-        private BreakingChange FilterExclusions(TypeDescriptor type, MemberDescriptor member, List<ApiChangeExclusion> exclusions)
-        {
-            var exclusion = exclusions
-                .FirstOrDefault(e => e.IsExclusionFor(type.Id, member?.Id));
-
-            if (exclusion != null)
-            {
-                var element = _newApiListing.FindElement(exclusion.NewTypeId, exclusion.NewMemberId);
-                if (exclusion.Kind == ChangeKind.Removal && element == null ||
-                    exclusion.Kind == ChangeKind.Modification && element != null ||
-                    exclusion.Kind == ChangeKind.Addition && element != null)
-                {
-                    exclusions.Remove(exclusion);
-                    return null;
-                }
-            }
-
-            return member == null ? new BreakingChange(type) : new BreakingChange(member, type.Id);
         }
     }
 }

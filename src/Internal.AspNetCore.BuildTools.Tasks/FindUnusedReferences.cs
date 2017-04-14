@@ -58,7 +58,7 @@ namespace Microsoft.AspNetCore.BuildTools
                 StringComparer.OrdinalIgnoreCase);
 
             using (var fileStream = File.OpenRead(Assembly))
-            using (PEReader reader = new PEReader(fileStream))
+            using (var reader = new PEReader(fileStream))
             {
                 var metadataReader = reader.GetMetadataReader();
                 foreach (AssemblyReferenceHandle assemblyReferenceHandle in metadataReader.AssemblyReferences)

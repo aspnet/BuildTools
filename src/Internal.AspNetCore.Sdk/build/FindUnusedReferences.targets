@@ -1,0 +1,15 @@
+﻿<!--
+  WARNING: These targets are intended for building Microsoft's ASP.NET Core repos and are not intended
+  for use outside of Microsoft.
+-->
+<Project>
+  <Target Name="FindUnusedReferences"
+          AfterTargets="CoreCompile"
+          DependsOnTargets="RunResolvePackageDependencies"
+          Condition=" '$(EnableFindUnusedReferences)' == 'true' ">
+    <Sdk_FindUnusedReferences Assembly="@(IntermediateAssembly)" References="@(ReferencePath)" Packages="@(PackageDependencies)" Files="@(FileDefinitions)" >
+      <Output TaskParameter="UnusedReferences" ItemName="UnusedReferences" />
+    </Sdk_FindUnusedReferences>
+    <Warning Condition="'@(UnusedReferences)' != ''" Text="Unused reference in $(MSBuildProjectFile)/$(TargetFramework) %(UnusedReferences.Identity) from package %(UnusedReferences.PackageName)" />
+  </Target>
+</Project>

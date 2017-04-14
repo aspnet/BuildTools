@@ -34,6 +34,8 @@
     <PackageReference Include="Microsoft.Build.Tasks.Core" Version="$(MsBuildPackageVersions)" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="$(MsBuildPackageVersions)" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Extensions.CommandLineUtils.Sources" Version="$(CommandLineUtilsVersion)" PrivateAssets="All" />
+    <PackageReference Include="System.Reflection.Metadata" Version="1.4.2" PrivateAssets="All" />
+    <PackageReference Include="System.Collections.Immutable" Version="1.2.0" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.6' ">
@@ -41,4 +43,17 @@
     <PackageReference Include="System.Xml.XPath.XmlDocument" Version="4.0.1" PrivateAssets="All" />
   </ItemGroup>
 
+  <Target Name="PackTaskDependencies" BeforeTargets="GenerateNuspec">
+    <!--
+    The include needs to happen after output has been copied to build output folder
+    but before NuGet generates a nuspec. See https://github.com/NuGet/Home/issues/4704.
+    -->
+    <ItemGroup>
+      <_PackageFiles Include="bin\$(Configuration)\*\System.Reflection.Metadata.dll;bin\$(Configuration)\*\System.Collections.Immutable.dll">
+        <PackagePath>tools\%(RecursiveDir)</PackagePath>
+        <Visible>false</Visible>
+        <BuildAction>Content</BuildAction>
+      </_PackageFiles>
+    </ItemGroup>
+  </Target>
 </Project>

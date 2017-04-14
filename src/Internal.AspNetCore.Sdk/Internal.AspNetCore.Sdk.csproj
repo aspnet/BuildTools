@@ -30,4 +30,10 @@
     <PackageReference Include="NETStandard.Library" Version="$(NetStandardPackageVersion)" PrivateAssets="All" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="build\FindUnusedReferences.targets">
+      <PackagePath>%(Identity)</PackagePath>
+    </Content>
+  </ItemGroup>
+
 </Project>

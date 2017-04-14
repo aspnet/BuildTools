@@ -44,6 +44,7 @@
     <PackageReference Include="Microsoft.Build.Tasks.Core" Version="$(MsBuildPackageVersions)" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="$(MsBuildPackageVersions)" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Extensions.CommandLineUtils.Sources" Version="$(CommandLineUtilsVersion)" PrivateAssets="All" />
+    <PackageReference Include="System.Reflection.Metadata" Version="1.4.1" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.6' ">

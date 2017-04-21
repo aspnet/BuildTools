@@ -1,0 +1,5 @@
+<Project>
+  <PropertyGroup>
+    <PackagePublisherNetCoreApp>$(MSBuildThisFileDirectory)..\PackagePublisher.dll</PackagePublisherNetCoreApp>
+  </PropertyGroup>
+</Project>

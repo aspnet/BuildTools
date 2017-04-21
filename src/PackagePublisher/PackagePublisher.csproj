@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\build\common.props" />
-  
+
   <PropertyGroup>
     <Description>Publishes packages to a feed, with retries.</Description>
     <DebugType>portable</DebugType>
@@ -8,7 +8,11 @@
     <TargetFramework>netcoreapp1.0</TargetFramework>
     <VersionPrefix>1.0.2</VersionPrefix>
   </PropertyGroup>
-  
+
+  <ItemGroup>
+    <Content Include="build\*.props" CopyToPublishDirectory="Always" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.CommandLineUtils.Sources" Version="$(CommandLineUtilsVersion)" PrivateAssets="All" />
     <PackageReference Include="NuGet.Packaging" Version="$(NuGetPackagesVersion)" />

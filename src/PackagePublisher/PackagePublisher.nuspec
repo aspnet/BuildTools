@@ -8,6 +8,5 @@
   </metadata>
   <files>
     <file src="netcoreapp1.0\" target="/" />
-    <file src="netcoreapp1.0\build\*.targets" target="/build" />
   </files>
 </package>

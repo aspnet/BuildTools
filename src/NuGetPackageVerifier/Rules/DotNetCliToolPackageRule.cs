@@ -11,8 +11,6 @@ namespace NuGetPackageVerifier.Rules
 {
     public class DotNetCliToolPackageRule : IPackageVerifierRule
     {
-        private static readonly NuGetFramework _expectedFramework = FrameworkConstants.CommonFrameworks.NetCoreApp10;
-
         public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
             if (context.Metadata.PackageTypes.All(p => p != PackageType.DotnetCliTool))
@@ -22,11 +20,11 @@ namespace NuGetPackageVerifier.Rules
 
             var libItems = context.PackageReader
                 .GetLibItems()
-                .FirstOrDefault(f => f.TargetFramework == _expectedFramework);
+                .FirstOrDefault(f => f.TargetFramework.Framework == FrameworkConstants.FrameworkIdentifiers.NetCoreApp);
 
             if (libItems == null)
             {
-                yield return PackageIssueFactory.DotNetCliToolMustTargetFramework(_expectedFramework);
+                yield return PackageIssueFactory.DotNetCliToolMustTargetNetCoreApp();
                 yield break;
             }
 

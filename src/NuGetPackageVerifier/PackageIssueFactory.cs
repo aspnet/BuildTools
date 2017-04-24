@@ -322,8 +322,8 @@ namespace NuGetPackageVerifier
         public static PackageVerifierIssue DotNetCliToolMissingDotnetAssembly()
             => new PackageVerifierIssue("DOTNETCLITOOL_MISSING_EXECUTABLE", "DotnetCliTool package must contain assembly that starts with 'dotnet-'", PackageIssueLevel.Error);
 
-        public static PackageVerifierIssue DotNetCliToolMustTargetFramework(NuGetFramework framework)
-            => new PackageVerifierIssue("DOTNETCLITOOL_FRAMEWORK", $"DotnetCliTool package must target {framework}", PackageIssueLevel.Error);
+        public static PackageVerifierIssue DotNetCliToolMustTargetNetCoreApp()
+            => new PackageVerifierIssue("DOTNETCLITOOL_FRAMEWORK", $"DotnetCliTool package must target a '{FrameworkConstants.FrameworkIdentifiers.NetCoreApp}' framework", PackageIssueLevel.Error);
 
         public static PackageVerifierIssue BuildItemsDoNotMatchFrameworks(string id, NuGetFramework framework)
             => new PackageVerifierIssue("BUILD_ITEMS_FRAMEWORK",

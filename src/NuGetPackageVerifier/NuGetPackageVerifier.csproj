@@ -5,7 +5,7 @@
   <PropertyGroup>
     <Description>Verifies Asp.Net Core NuGet packages.</Description>
     <VersionPrefix>1.0.2</VersionPrefix>
-    <TargetFramework>netcoreapp1.0</TargetFramework>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
     <AssemblyName>NuGetPackageVerifier</AssemblyName>
     <OutputType>exe</OutputType>
     <PackageTargetFallback>$(PackageTargetFallback);portable-net45+wp8</PackageTargetFallback>

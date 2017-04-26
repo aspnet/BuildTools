@@ -16,26 +16,20 @@ namespace NuGetPackageVerifier.Rules
         // TODO: Revert to using Mono.Cecil when https://github.com/jbevain/cecil/issues/306 is fixed.
         public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
+            var issues = new List<PackageVerifierIssue>();
             foreach (var currentFile in context.PackageReader.GetFiles())
             {
                 var extension = Path.GetExtension(currentFile);
                 if (extension.Equals(".dll", StringComparison.OrdinalIgnoreCase) ||
                     extension.Equals(".exe", StringComparison.OrdinalIgnoreCase))
                 {
-                    var assemblyPath = Path.ChangeExtension(
-                        Path.Combine(Path.GetTempPath(), Path.GetTempFileName()), extension);
-
                     try
                     {
                         using (var packageFileStream = context.PackageReader.GetStream(currentFile))
-                        using (var fileStream = new FileStream(assemblyPath, FileMode.Create))
+                        using (var stream = new MemoryStream())
                         {
-                            packageFileStream.CopyTo(fileStream);
-                        }
-
-                        if (AssemblyHelpers.IsAssemblyManaged(assemblyPath))
-                        {
-                            using (var stream = File.OpenRead(assemblyPath))
+                            packageFileStream.CopyTo(stream);
+                            stream.Position = 0;
                             using (var peReader = new PEReader(stream))
                             {
                                 var reader = peReader.GetMetadataReader();
@@ -53,7 +47,7 @@ namespace NuGetPackageVerifier.Rules
                                         if (debuggingMode.HasFlag(DebuggableAttribute.DebuggingModes.Default) ||
                                             debuggingMode.HasFlag(DebuggableAttribute.DebuggingModes.DisableOptimizations))
                                         {
-                                            yield return PackageIssueFactory.AssemblyHasIncorrectBuildConfiguration(currentFile);
+                                            issues.Add(PackageIssueFactory.AssemblyHasIncorrectBuildConfiguration(currentFile));
                                         };
 
                                         break;
@@ -62,15 +56,14 @@ namespace NuGetPackageVerifier.Rules
                             }
                         }
                     }
-                    finally
+                    catch (InvalidOperationException)
                     {
-                        if (File.Exists(assemblyPath))
-                        {
-                            File.Delete(assemblyPath);
-                        }
+                        // This assembly is not managed.
                     }
                 }
             }
+
+            return issues;
         }
 
         private class NullProvider : ICustomAttributeTypeProvider<object>

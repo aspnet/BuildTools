@@ -28,6 +28,7 @@ namespace NuGetPackageVerifier.Rules
                         using (var packageFileStream = context.PackageReader.GetStream(currentFile))
                         using (var stream = new MemoryStream())
                         {
+                            // packageFileStream is not a seekable stream. So wrap it in a memory stream for PEReader to consume.
                             packageFileStream.CopyTo(stream);
                             stream.Position = 0;
                             using (var peReader = new PEReader(stream))

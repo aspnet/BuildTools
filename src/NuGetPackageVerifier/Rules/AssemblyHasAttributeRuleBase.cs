@@ -34,7 +34,6 @@ namespace NuGetPackageVerifier.Rules
                         {
                             using (var assembly = AssemblyDefinition.ReadAssembly(assemblyPath))
                             {
-
                                 var asmAttrs = assembly.CustomAttributes;
 
                                 return ValidateAttribute(currentFile, assembly, asmAttrs);

@@ -129,7 +129,9 @@ namespace PackagePublisher
 
         private static async Task PublishToFeedAsync()
         {
-            var sourceRepository = Repository.Factory.GetCoreV3(_feedToUploadTo.Value(), FeedType.HttpV3);
+            var feed = _feedToUploadTo.Value();
+            Console.WriteLine("Publishing packages to feed: {0}", feed);
+            var sourceRepository = Repository.Factory.GetCoreV3(feed, FeedType.HttpV3);
             var packageUpdateResource = await sourceRepository.GetResourceAsync<PackageUpdateResource>();
 
             var tasks = new Task[_maxParallelPackagePushes];

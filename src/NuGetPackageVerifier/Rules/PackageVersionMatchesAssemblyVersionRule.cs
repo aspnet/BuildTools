@@ -6,26 +6,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
+using Mono.Collections.Generic;
+using NuGet.Packaging;
 using NuGet.Versioning;
 
 namespace NuGetPackageVerifier.Rules
 {
     public class PackageVersionMatchesAssemblyVersionRule : AssemblyHasAttributeRuleBase
     {
-        private NuGetVersion _packageVersion;
-        private string _packageId;
-
-        public override IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
-        {
-            _packageVersion = context.Metadata.Version;
-            _packageId = context.Metadata.Id;
-            return base.Validate(context);
-        }
-
         public override IEnumerable<PackageVerifierIssue> ValidateAttribute(
+            IPackageMetadata packageMetadata,
             string currentFilePath,
             AssemblyDefinition assembly,
-            Mono.Collections.Generic.Collection<CustomAttribute> assemblyAttributes)
+            Collection<CustomAttribute> assemblyAttributes)
         {
             var assemblyInformationalVersionAttribute = assemblyAttributes.SingleOrDefault(a =>
                 a.AttributeType.FullName.Equals(
@@ -33,13 +26,13 @@ namespace NuGetPackageVerifier.Rules
                     StringComparison.Ordinal));
 
             var assemblyInformationalNuGetVersion = new NuGetVersion(assemblyInformationalVersionAttribute.ConstructorArguments[0].Value.ToString());
-            if (!VersionEquals(_packageVersion, assemblyInformationalNuGetVersion))
+            if (!VersionEquals(packageMetadata.Version, assemblyInformationalNuGetVersion))
             {
                 yield return PackageIssueFactory.AssemblyInformationalVersionDoesNotMatchPackageVersion(
                     currentFilePath,
                     assemblyInformationalNuGetVersion,
-                    _packageVersion,
-                    _packageId);
+                    packageMetadata.Version,
+                    packageMetadata.Id);
             }
 
             var assemblyFileVersionAttribute = assemblyAttributes.SingleOrDefault(a =>
@@ -48,24 +41,29 @@ namespace NuGetPackageVerifier.Rules
                     StringComparison.Ordinal));
 
             var assemblyFileNuGetVersion = new NuGetVersion(assemblyFileVersionAttribute.ConstructorArguments[0].Value.ToString());
-            if (!VersionEquals(_packageVersion, assemblyFileNuGetVersion))
+            if (!VersionEquals(packageMetadata.Version, assemblyFileNuGetVersion))
             {
                 yield return PackageIssueFactory.AssemblyFileVersionDoesNotMatchPackageVersion(
                     currentFilePath,
                     assemblyFileNuGetVersion,
-                    _packageVersion,
-                    _packageId);
+                    packageMetadata.Version,
+                    packageMetadata.Id);
             }
 
             var assemblyVersion = assembly.Name.Version;
-            if (!_packageVersion.Version.Equals(assemblyVersion))
+            if (!packageMetadata.Version.Version.Equals(assemblyVersion))
             {
                 yield return PackageIssueFactory.AssemblyVersionDoesNotMatchPackageVersion(
                     currentFilePath,
                     assemblyVersion,
-                    _packageVersion.Version,
-                    _packageId);
+                    packageMetadata.Version.Version,
+                    packageMetadata.Id);
             }
+        }
+
+        public override IEnumerable<PackageVerifierIssue> ValidateAttribute(string currentFilePath, AssemblyDefinition assembly, Collection<CustomAttribute> assemblyAttributes)
+        {
+            return null;
         }
 
         private bool VersionEquals(NuGetVersion packageVersion, NuGetVersion assemblyNuGetVersion)

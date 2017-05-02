@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
+using Mono.Collections.Generic;
+using NuGet.Packaging;
 
 namespace NuGetPackageVerifier.Rules
 {
@@ -13,7 +15,7 @@ namespace NuGetPackageVerifier.Rules
         public override IEnumerable<PackageVerifierIssue> ValidateAttribute(
             string currentFilePath,
             AssemblyDefinition assembly,
-            Mono.Collections.Generic.Collection<CustomAttribute> assemblyAttributes)
+            Collection<CustomAttribute> assemblyAttributes)
         {
             if (!HasCompanyAttribute(assemblyAttributes))
             {
@@ -21,7 +23,7 @@ namespace NuGetPackageVerifier.Rules
             }
         }
 
-        private static bool HasCompanyAttribute(Mono.Collections.Generic.Collection<CustomAttribute> asmAttrs)
+        private static bool HasCompanyAttribute(Collection<CustomAttribute> asmAttrs)
         {
             var foundAttr = asmAttrs.SingleOrDefault(attr => attr.AttributeType.FullName == typeof(AssemblyCompanyAttribute).FullName);
             if (foundAttr == null)
@@ -32,6 +34,11 @@ namespace NuGetPackageVerifier.Rules
             var attrValue = foundAttrArg.Value as string;
 
             return !string.IsNullOrEmpty(attrValue);
+        }
+
+        public override IEnumerable<PackageVerifierIssue> ValidateAttribute(IPackageMetadata packageMetadata, string currentFilePath, AssemblyDefinition assembly, Collection<CustomAttribute> assemblyAttributes)
+        {
+            return null;
         }
     }
 }

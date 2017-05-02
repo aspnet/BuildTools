@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Mono.Cecil;
+using NuGet.Packaging;
 
 namespace NuGetPackageVerifier.Rules
 {
@@ -36,7 +37,13 @@ namespace NuGetPackageVerifier.Rules
                             {
                                 var asmAttrs = assembly.CustomAttributes;
 
-                                return ValidateAttribute(currentFile, assembly, asmAttrs);
+                                var issues = ValidateAttribute(currentFile, assembly, asmAttrs);
+                                if (issues == null)
+                                {
+                                    issues = ValidateAttribute(context.Metadata, currentFile, assembly, asmAttrs);
+                                }
+
+                                return issues;
                             }
                         }
                     }
@@ -54,6 +61,12 @@ namespace NuGetPackageVerifier.Rules
         }
 
         public abstract IEnumerable<PackageVerifierIssue> ValidateAttribute(
+            string currentFilePath,
+            AssemblyDefinition assembly,
+            Mono.Collections.Generic.Collection<CustomAttribute> assemblyAttributes);
+
+        public abstract IEnumerable<PackageVerifierIssue> ValidateAttribute(
+            IPackageMetadata packageMetadata,
             string currentFilePath,
             AssemblyDefinition assembly,
             Mono.Collections.Generic.Collection<CustomAttribute> assemblyAttributes);

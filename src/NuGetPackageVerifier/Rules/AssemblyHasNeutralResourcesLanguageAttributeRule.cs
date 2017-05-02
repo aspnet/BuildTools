@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Resources;
 using Mono.Cecil;
+using Mono.Collections.Generic;
+using NuGet.Packaging;
 
 namespace NuGetPackageVerifier.Rules
 {
@@ -14,7 +16,7 @@ namespace NuGetPackageVerifier.Rules
         public override IEnumerable<PackageVerifierIssue> ValidateAttribute(
             string currentFilePath,
             AssemblyDefinition assembly,
-            Mono.Collections.Generic.Collection<CustomAttribute> assemblyAttributes)
+            Collection<CustomAttribute> assemblyAttributes)
         {
             if (!HasNeutralResourcesLanguageAttribute(assemblyAttributes))
             {
@@ -22,7 +24,7 @@ namespace NuGetPackageVerifier.Rules
             }
         }
 
-        private static bool HasNeutralResourcesLanguageAttribute(Mono.Collections.Generic.Collection<CustomAttribute> asmAttrs)
+        private static bool HasNeutralResourcesLanguageAttribute(Collection<CustomAttribute> asmAttrs)
         {
             return asmAttrs.Any(asmAttr => IsValidNeutralResourcesLanguageAttribute(asmAttr));
         }
@@ -41,6 +43,11 @@ namespace NuGetPackageVerifier.Rules
             var value = asmAttr.ConstructorArguments[0].Value as string;
 
             return string.Equals(value, "en-us", StringComparison.OrdinalIgnoreCase);
+        }
+
+        public override IEnumerable<PackageVerifierIssue> ValidateAttribute(IPackageMetadata packageMetadata, string currentFilePath, AssemblyDefinition assembly, Collection<CustomAttribute> assemblyAttributes)
+        {
+            return null;
         }
     }
 }

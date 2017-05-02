@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
+using Mono.Collections.Generic;
+using NuGet.Packaging;
 
 namespace NuGetPackageVerifier.Rules
 {
@@ -13,7 +15,7 @@ namespace NuGetPackageVerifier.Rules
         public override IEnumerable<PackageVerifierIssue> ValidateAttribute(
             string currentFilePath,
             AssemblyDefinition assembly,
-            Mono.Collections.Generic.Collection<CustomAttribute> assemblyAttributes)
+            Collection<CustomAttribute> assemblyAttributes)
         {
             if (!HasServicingAttribute(assemblyAttributes))
             {
@@ -21,7 +23,7 @@ namespace NuGetPackageVerifier.Rules
             }
         }
 
-        private static bool HasServicingAttribute(Mono.Collections.Generic.Collection<CustomAttribute> asmAttrs)
+        private static bool HasServicingAttribute(Collection<CustomAttribute> asmAttrs)
         {
             return asmAttrs.Any(asmAttr => IsValidServicingAttribute(asmAttr));
         }
@@ -41,6 +43,11 @@ namespace NuGetPackageVerifier.Rules
             var valueValue = asmAttr.ConstructorArguments[1].Value as string;
 
             return (keyValue == "Serviceable") && (valueValue == "True");
+        }
+
+        public override IEnumerable<PackageVerifierIssue> ValidateAttribute(IPackageMetadata packageMetadata, string currentFilePath, AssemblyDefinition assembly, Collection<CustomAttribute> assemblyAttributes)
+        {
+            return null;
         }
     }
 }

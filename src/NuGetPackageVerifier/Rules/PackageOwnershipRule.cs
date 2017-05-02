@@ -25,7 +25,6 @@ namespace NuGetPackageVerifier.Rules
             "microsoft",
         };
         private static readonly IList<string> OwnedPackages = GetOwnedPackages();
-        private readonly HttpClient _httpClient = new HttpClient();
 
         public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
@@ -35,9 +34,9 @@ namespace NuGetPackageVerifier.Rules
             }
 
             context.Logger.LogWarning($"Looking up ownership for package {context.Metadata.Id}. Add this package to the owned-packages.txt list if it's owned.");
-
+            var httpClient = new HttpClient();
             var url = string.Format(CultureInfo.InvariantCulture, NuGetV3Endpoint, context.Metadata.Id);
-            var result = GetPackageSearchResultAsync(context.Logger, url).Result;
+            var result = GetPackageSearchResultAsync(httpClient, context.Logger, url).Result;
             if (result?.Data.Length == 0)
             {
                 yield return PackageIssueFactory.IdDoesNotExist(context.Metadata.Id);
@@ -51,7 +50,7 @@ namespace NuGetPackageVerifier.Rules
                 {
                     // The API result can sometimes be empty and not contain any owner data.
                     var packagePage = NuGetOrgPackagePage + context.Metadata.Id + "/0.0.1-alpha";
-                    using (var httpResponse = _httpClient.GetAsync(packagePage).Result)
+                    using (var httpResponse = httpClient.GetAsync(packagePage).Result)
                     {
                         if (!httpResponse.IsSuccessStatusCode)
                         {
@@ -73,9 +72,9 @@ namespace NuGetPackageVerifier.Rules
             }
         }
 
-        private async Task<PackageSearchResult> GetPackageSearchResultAsync(IPackageVerifierLogger logger, string url)
+        private async Task<PackageSearchResult> GetPackageSearchResultAsync(HttpClient httpClient, IPackageVerifierLogger logger, string url)
         {
-            using (var httpResponse = await _httpClient.GetAsync(url))
+            using (var httpResponse = await httpClient.GetAsync(url))
             {
                 if (!httpResponse.IsSuccessStatusCode)
                 {

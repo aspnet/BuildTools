@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
 using Mono.Collections.Generic;
-using NuGet.Packaging;
 
 namespace NuGetPackageVerifier.Rules
 {
@@ -37,11 +36,6 @@ namespace NuGetPackageVerifier.Rules
                     && !string.IsNullOrEmpty(a.ConstructorArguments[1].Value as string));
 
             return hashAttribute != null;
-        }
-
-        public override IEnumerable<PackageVerifierIssue> ValidateAttribute(IPackageMetadata packageMetadata, string currentFilePath, AssemblyDefinition assembly, Collection<CustomAttribute> assemblyAttributes)
-        {
-            return null;
         }
     }
 }

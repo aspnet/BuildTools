@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
 using Mono.Collections.Generic;
-using NuGet.Packaging;
 
 namespace NuGetPackageVerifier.Rules
 {
@@ -39,11 +38,6 @@ namespace NuGetPackageVerifier.Rules
             var attrValue = foundAttrArg.Value as string;
 
             return !string.IsNullOrEmpty(attrValue);
-        }
-
-        public override IEnumerable<PackageVerifierIssue> ValidateAttribute(IPackageMetadata packageMetadata, string currentFilePath, AssemblyDefinition assembly, Collection<CustomAttribute> assemblyAttributes)
-        {
-            return null;
         }
     }
 }

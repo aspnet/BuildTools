@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
@@ -12,9 +13,52 @@ using NuGet.Versioning;
 
 namespace NuGetPackageVerifier.Rules
 {
-    public class PackageVersionMatchesAssemblyVersionRule : AssemblyHasAttributeRuleBase
+    public class PackageVersionMatchesAssemblyVersionRule : IPackageVerifierRule
     {
-        public override IEnumerable<PackageVerifierIssue> ValidateAttribute(
+        public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
+        {
+            foreach (var currentFile in context.PackageReader.GetFiles())
+            {
+                var extension = Path.GetExtension(currentFile);
+                if (extension.Equals(".dll", StringComparison.OrdinalIgnoreCase) ||
+                    extension.Equals(".exe", StringComparison.OrdinalIgnoreCase))
+                {
+                    var assemblyPath = Path.ChangeExtension(
+                        Path.Combine(Path.GetTempPath(), Path.GetTempFileName()), extension);
+
+                    try
+                    {
+                        using (var packageFileStream = context.PackageReader.GetStream(currentFile))
+                        using (var fileStream = new FileStream(assemblyPath, FileMode.Create))
+                        {
+                            packageFileStream.CopyTo(fileStream);
+                        }
+
+                        if (AssemblyHelpers.IsAssemblyManaged(assemblyPath))
+                        {
+                            using (var assembly = AssemblyDefinition.ReadAssembly(assemblyPath))
+                            {
+                                var asmAttrs = assembly.CustomAttributes;
+
+                                return ValidateAttribute(context.Metadata, currentFile, assembly, asmAttrs);
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        if (File.Exists(assemblyPath))
+                        {
+                            File.Delete(assemblyPath);
+                        }
+                    }
+                }
+            }
+
+            return Enumerable.Empty<PackageVerifierIssue>();
+        }
+
+
+        private IEnumerable<PackageVerifierIssue> ValidateAttribute(
             IPackageMetadata packageMetadata,
             string currentFilePath,
             AssemblyDefinition assembly,
@@ -59,11 +103,6 @@ namespace NuGetPackageVerifier.Rules
                     packageMetadata.Version.Version,
                     packageMetadata.Id);
             }
-        }
-
-        public override IEnumerable<PackageVerifierIssue> ValidateAttribute(string currentFilePath, AssemblyDefinition assembly, Collection<CustomAttribute> assemblyAttributes)
-        {
-            return null;
         }
 
         private bool VersionEquals(NuGetVersion packageVersion, NuGetVersion assemblyNuGetVersion)

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.IO;
@@ -79,7 +79,7 @@ namespace Microsoft.AspNetCore.BuildTools
             {
                 foreach (var file in SourceFiles)
                 {
-                    zip.CreateEntryFromFile(file.ItemSpec, file.GetMetadata("Link"));
+                    zip.CreateEntryFromFile(file.ItemSpec, file.GetMetadata("Link").Replace('\\', '/'));
                     Log.LogMessage("Added '{0}' to archive", file.ItemSpec);
                 }
             }

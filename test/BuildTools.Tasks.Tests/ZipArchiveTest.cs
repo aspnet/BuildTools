@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -88,7 +88,7 @@ namespace BuildTools.Tasks.Tests
                 Assert.Collection(zipStream.Entries,
                     a => Assert.Equal("a.txt", a.FullName),
                     b => Assert.Equal("dir/b.txt", b.FullName),
-                    c => Assert.Equal($"dir{Path.DirectorySeparatorChar}c.txt", c.FullName));
+                    c => Assert.Equal("dir/c.txt", c.FullName));
             }
         }
 

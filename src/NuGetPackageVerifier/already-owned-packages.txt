@@ -44,10 +44,10 @@ Microsoft.AspNetCore.Http.Extensions
 Microsoft.AspNetCore.Http.Features
 Microsoft.AspNetCore.HttpOverrides
 Microsoft.AspNetCore.Identity
+Microsoft.AspNetCore.Identity.EntityFrameworkCore
 Microsoft.AspNetCore.Identity.Service
 Microsoft.AspNetCore.Identity.Service.Abstractions
 Microsoft.AspNetCore.Identity.Service.Core
-Microsoft.AspNetCore.Identity.EntityFrameworkCore
 Microsoft.AspNetCore.Identity.Service.EntityFrameworkCore
 Microsoft.AspNetCore.Identity.Service.IntegratedWebClient
 Microsoft.AspNetCore.Identity.Service.Mvc

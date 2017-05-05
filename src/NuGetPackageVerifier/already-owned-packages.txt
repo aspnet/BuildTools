@@ -1,8 +1,12 @@
 ﻿Microsoft.AspNet.Identity.AspNetCoreCompat
 Microsoft.AspNetCore
+Microsoft.AspNetCore.All
 Microsoft.AspNetCore.Antiforgery
+Microsoft.AspNetCore.ApplicationInsights.HostingStartup
 Microsoft.AspNetCore.Authentication
+Microsoft.AspNetCore.Authentication.Abstractions
 Microsoft.AspNetCore.Authentication.Cookies
+Microsoft.AspNetCore.Authentication.Core
 Microsoft.AspNetCore.Authentication.Facebook
 Microsoft.AspNetCore.Authentication.Google
 Microsoft.AspNetCore.Authentication.JwtBearer
@@ -11,6 +15,7 @@ Microsoft.AspNetCore.Authentication.OAuth
 Microsoft.AspNetCore.Authentication.OpenIdConnect
 Microsoft.AspNetCore.Authentication.Twitter
 Microsoft.AspNetCore.Authorization
+Microsoft.AspNetCore.AzureAppServices.HostingStartup
 Microsoft.AspNetCore.AzureAppServicesIntegration
 Microsoft.AspNetCore.Buffering
 Microsoft.AspNetCore.CookiePolicy
@@ -27,6 +32,7 @@ Microsoft.AspNetCore.Diagnostics
 Microsoft.AspNetCore.Diagnostics.Abstractions
 Microsoft.AspNetCore.Diagnostics.Elm
 Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore
+Microsoft.AspNetCore.Diagnostics.Identity.Service
 Microsoft.AspNetCore.Hosting
 Microsoft.AspNetCore.Hosting.Abstractions
 Microsoft.AspNetCore.Hosting.Server.Abstractions
@@ -38,7 +44,13 @@ Microsoft.AspNetCore.Http.Extensions
 Microsoft.AspNetCore.Http.Features
 Microsoft.AspNetCore.HttpOverrides
 Microsoft.AspNetCore.Identity
+Microsoft.AspNetCore.Identity.Service
+Microsoft.AspNetCore.Identity.Service.Abstractions
+Microsoft.AspNetCore.Identity.Service.Core
 Microsoft.AspNetCore.Identity.EntityFrameworkCore
+Microsoft.AspNetCore.Identity.Service.EntityFrameworkCore
+Microsoft.AspNetCore.Identity.Service.IntegratedWebClient
+Microsoft.AspNetCore.Identity.Service.Mvc
 Microsoft.AspNetCore.Identity.Specification.Tests
 Microsoft.AspNetCore.JsonPatch
 Microsoft.AspNetCore.Localization
@@ -68,6 +80,7 @@ Microsoft.AspNetCore.Proxy
 Microsoft.AspNetCore.Razor
 Microsoft.AspNetCore.Razor.Design
 Microsoft.AspNetCore.Razor.Evolution
+Microsoft.AspNetCore.Razor.Language
 Microsoft.AspNetCore.Razor.Runtime
 Microsoft.AspNetCore.Razor.Tools
 Microsoft.AspNetCore.ResponseCaching
@@ -80,7 +93,11 @@ Microsoft.AspNetCore.Server.HttpSys
 Microsoft.AspNetCore.Server.IISIntegration
 Microsoft.AspNetCore.Server.IISIntegration.Tools
 Microsoft.AspNetCore.Server.Kestrel
+Microsoft.AspNetCore.Server.Kestrel.Core
 Microsoft.AspNetCore.Server.Kestrel.Https
+Microsoft.AspNetCore.Server.Kestrel.Transport.Abstractions
+Microsoft.AspNetCore.Server.Kestrel.Transport.Libuv
+Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets
 Microsoft.AspNetCore.Server.WebListener
 Microsoft.AspNetCore.Session
 Microsoft.AspNetCore.SignalR
@@ -149,6 +166,7 @@ Microsoft.Extensions.FileProviders.Embedded
 Microsoft.Extensions.FileProviders.Physical
 Microsoft.Extensions.FileSystemGlobbing
 Microsoft.Extensions.Globalization.CultureInfoCache
+Microsoft.Extensions.Hosting.Abstractions
 Microsoft.Extensions.Localization
 Microsoft.Extensions.Localization.Abstractions
 Microsoft.Extensions.Logging

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -11,18 +11,20 @@ using Mono.Collections.Generic;
 
 namespace NuGetPackageVerifier.Rules
 {
-    public class AssemblyHasCommitHashAttributeRule : AssemblyHasAttributeRuleBase
+    public class AssemblyHasCommitHashAttributeRule : IPackageVerifierRule
     {
-        public override IEnumerable<PackageVerifierIssue> ValidateAttribute(
-            string currentFilePath,
-            AssemblyDefinition assembly,
-            Collection<CustomAttribute> assemblyAttributes)
+        public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
-            var fileName = Path.GetFileNameWithoutExtension(currentFilePath);
-            var isSourcesPackage = fileName.EndsWith(".Sources", StringComparison.OrdinalIgnoreCase);
-            if (!isSourcesPackage && !HasCommitHashInMetadataAttribute(assemblyAttributes))
+            AssemblyHasAttributeHelper.GetAssemblyAttributesData(context);
+
+            foreach (var assemblyData in context.AssemblyData)
             {
-                yield return PackageIssueFactory.AssemblyMissingHashAttribute(currentFilePath);
+                var fileName = Path.GetFileNameWithoutExtension(assemblyData.Key);
+                var isSourcesPackage = fileName.EndsWith(".Sources", StringComparison.OrdinalIgnoreCase);
+                if (!isSourcesPackage && !HasCommitHashInMetadataAttribute(assemblyData.Value.AssemblyAttributes))
+                {
+                    yield return PackageIssueFactory.AssemblyMissingHashAttribute(assemblyData.Key);
+                }
             }
         }
 

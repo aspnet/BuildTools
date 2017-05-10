@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
@@ -9,21 +9,22 @@ using Mono.Collections.Generic;
 
 namespace NuGetPackageVerifier.Rules
 {
-    public class AssemblyHasVersionAttributesRule : AssemblyHasAttributeRuleBase
+    public class AssemblyHasVersionAttributesRule : IPackageVerifierRule
     {
-        public override IEnumerable<PackageVerifierIssue> ValidateAttribute(
-            string currentFilePath,
-            AssemblyDefinition assembly,
-            Collection<CustomAttribute> assemblyAttributes)
+        public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
-            if (!HasAttrWithArg(assemblyAttributes, typeof(AssemblyFileVersionAttribute).FullName))
+            AssemblyHasAttributeHelper.GetAssemblyAttributesData(context);
+            foreach (var assemblyData in context.AssemblyData)
             {
-                yield return PackageIssueFactory.AssemblyMissingFileVersionAttribute(currentFilePath);
-            }
+                if (!HasAttrWithArg(assemblyData.Value.AssemblyAttributes, typeof(AssemblyFileVersionAttribute).FullName))
+                {
+                    yield return PackageIssueFactory.AssemblyMissingFileVersionAttribute(assemblyData.Key);
+                }
 
-            if (!HasAttrWithArg(assemblyAttributes, typeof(AssemblyInformationalVersionAttribute).FullName))
-            {
-                yield return PackageIssueFactory.AssemblyMissingInformationalVersionAttribute(currentFilePath);
+                if (!HasAttrWithArg(assemblyData.Value.AssemblyAttributes, typeof(AssemblyInformationalVersionAttribute).FullName))
+                {
+                    yield return PackageIssueFactory.AssemblyMissingInformationalVersionAttribute(assemblyData.Key);
+                }
             }
         }
 

@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Mono.Cecil;
-using Mono.Collections.Generic;
 using NuGet.Packaging;
 using NuGetPackageVerifier.Logging;
 
@@ -21,18 +19,11 @@ namespace NuGetPackageVerifier
         public IPackageVerifierLogger Logger { get; set; }
         public PackageArchiveReader PackageReader => _reader ?? (_reader = new PackageArchiveReader(PackageFileInfo.FullName));
 
-        public IDictionary<string, AssemblyAttributesData> AssemblyData = new Dictionary<string, AssemblyAttributesData>();
+        public IDictionary<string, AssemblyAttributesData> AssemblyData { get; set; } = new Dictionary<string, AssemblyAttributesData>();
 
         public void Dispose()
         {
             _reader?.Dispose();
         }
-    }
-
-    public class AssemblyAttributesData
-    {
-        public AssemblyDefinition Assembly { get; set; }
-
-        public Collection<CustomAttribute> AssemblyAttributes { get; set; }
     }
 }

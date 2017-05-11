@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -13,7 +13,7 @@ namespace NuGetPackageVerifier.Rules
     {
         public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
-            AssemblyHasAttributeHelper.GetAssemblyAttributesData(context);
+            AssemblyAttributesDataHelper.SetAssemblyAttributesData(context);
             foreach (var assemblyData in context.AssemblyData)
             {
                 var assemblyInformationalVersionAttribute = assemblyData.Value.AssemblyAttributes.SingleOrDefault(a =>
@@ -46,7 +46,7 @@ namespace NuGetPackageVerifier.Rules
                         context.Metadata.Id);
                 }
 
-                var assemblyVersion = assemblyData.Value.Assembly.Name.Version;
+                var assemblyVersion = assemblyData.Value.AssemblyName.Version;
                 if (!context.Metadata.Version.Version.Equals(assemblyVersion))
                 {
                     yield return PackageIssueFactory.AssemblyVersionDoesNotMatchPackageVersion(

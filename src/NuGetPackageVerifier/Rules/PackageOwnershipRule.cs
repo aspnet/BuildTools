@@ -25,7 +25,7 @@ namespace NuGetPackageVerifier.Rules
             "microsoft",
         };
         private static readonly IList<string> OwnedPackages = GetOwnedPackages();
-        private readonly HttpClient _httpClient = new HttpClient();
+        private static readonly HttpClient HttpClient = new HttpClient();
 
         public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
@@ -35,7 +35,6 @@ namespace NuGetPackageVerifier.Rules
             }
 
             context.Logger.LogWarning($"Looking up ownership for package {context.Metadata.Id}. Add this package to the owned-packages.txt list if it's owned.");
-
             var url = string.Format(CultureInfo.InvariantCulture, NuGetV3Endpoint, context.Metadata.Id);
             var result = GetPackageSearchResultAsync(context.Logger, url).Result;
             if (result?.Data.Length == 0)
@@ -51,7 +50,7 @@ namespace NuGetPackageVerifier.Rules
                 {
                     // The API result can sometimes be empty and not contain any owner data.
                     var packagePage = NuGetOrgPackagePage + context.Metadata.Id + "/0.0.1-alpha";
-                    using (var httpResponse = _httpClient.GetAsync(packagePage).Result)
+                    using (var httpResponse = HttpClient.GetAsync(packagePage).Result)
                     {
                         if (!httpResponse.IsSuccessStatusCode)
                         {
@@ -75,7 +74,7 @@ namespace NuGetPackageVerifier.Rules
 
         private async Task<PackageSearchResult> GetPackageSearchResultAsync(IPackageVerifierLogger logger, string url)
         {
-            using (var httpResponse = await _httpClient.GetAsync(url))
+            using (var httpResponse = await HttpClient.GetAsync(url))
             {
                 if (!httpResponse.IsSuccessStatusCode)
                 {

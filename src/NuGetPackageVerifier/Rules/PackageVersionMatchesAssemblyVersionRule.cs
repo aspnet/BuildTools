@@ -5,66 +5,56 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Mono.Cecil;
 using NuGet.Versioning;
 
 namespace NuGetPackageVerifier.Rules
 {
-    public class PackageVersionMatchesAssemblyVersionRule : AssemblyHasAttributeRuleBase
+    public class PackageVersionMatchesAssemblyVersionRule : IPackageVerifierRule
     {
-        private NuGetVersion _packageVersion;
-        private string _packageId;
-
-        public override IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
+        public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
-            _packageVersion = context.Metadata.Version;
-            _packageId = context.Metadata.Id;
-            return base.Validate(context);
-        }
-
-        public override IEnumerable<PackageVerifierIssue> ValidateAttribute(
-            string currentFilePath,
-            AssemblyDefinition assembly,
-            Mono.Collections.Generic.Collection<CustomAttribute> assemblyAttributes)
-        {
-            var assemblyInformationalVersionAttribute = assemblyAttributes.SingleOrDefault(a =>
+            AssemblyAttributesDataHelper.SetAssemblyAttributesData(context);
+            foreach (var assemblyData in context.AssemblyData)
+            {
+                var assemblyInformationalVersionAttribute = assemblyData.Value.AssemblyAttributes.SingleOrDefault(a =>
                 a.AttributeType.FullName.Equals(
                     typeof(AssemblyInformationalVersionAttribute).FullName,
                     StringComparison.Ordinal));
 
-            var assemblyInformationalNuGetVersion = new NuGetVersion(assemblyInformationalVersionAttribute.ConstructorArguments[0].Value.ToString());
-            if (!VersionEquals(_packageVersion, assemblyInformationalNuGetVersion))
-            {
-                yield return PackageIssueFactory.AssemblyInformationalVersionDoesNotMatchPackageVersion(
-                    currentFilePath,
-                    assemblyInformationalNuGetVersion,
-                    _packageVersion,
-                    _packageId);
-            }
+                var assemblyInformationalNuGetVersion = new NuGetVersion(assemblyInformationalVersionAttribute.ConstructorArguments[0].Value.ToString());
+                if (!VersionEquals(context.Metadata.Version, assemblyInformationalNuGetVersion))
+                {
+                    yield return PackageIssueFactory.AssemblyInformationalVersionDoesNotMatchPackageVersion(
+                        assemblyData.Key,
+                        assemblyInformationalNuGetVersion,
+                        context.Metadata.Version,
+                        context.Metadata.Id);
+                }
 
-            var assemblyFileVersionAttribute = assemblyAttributes.SingleOrDefault(a =>
-                a.AttributeType.FullName.Equals(
-                    typeof(AssemblyFileVersionAttribute).FullName,
-                    StringComparison.Ordinal));
+                var assemblyFileVersionAttribute = assemblyData.Value.AssemblyAttributes.SingleOrDefault(a =>
+                    a.AttributeType.FullName.Equals(
+                        typeof(AssemblyFileVersionAttribute).FullName,
+                        StringComparison.Ordinal));
 
-            var assemblyFileNuGetVersion = new NuGetVersion(assemblyFileVersionAttribute.ConstructorArguments[0].Value.ToString());
-            if (!VersionEquals(_packageVersion, assemblyFileNuGetVersion))
-            {
-                yield return PackageIssueFactory.AssemblyFileVersionDoesNotMatchPackageVersion(
-                    currentFilePath,
-                    assemblyFileNuGetVersion,
-                    _packageVersion,
-                    _packageId);
-            }
+                var assemblyFileNuGetVersion = new NuGetVersion(assemblyFileVersionAttribute.ConstructorArguments[0].Value.ToString());
+                if (!VersionEquals(context.Metadata.Version, assemblyFileNuGetVersion))
+                {
+                    yield return PackageIssueFactory.AssemblyFileVersionDoesNotMatchPackageVersion(
+                        assemblyData.Key,
+                        assemblyFileNuGetVersion,
+                        context.Metadata.Version,
+                        context.Metadata.Id);
+                }
 
-            var assemblyVersion = assembly.Name.Version;
-            if (!_packageVersion.Version.Equals(assemblyVersion))
-            {
-                yield return PackageIssueFactory.AssemblyVersionDoesNotMatchPackageVersion(
-                    currentFilePath,
-                    assemblyVersion,
-                    _packageVersion.Version,
-                    _packageId);
+                var assemblyVersion = assemblyData.Value.AssemblyName.Version;
+                if (!context.Metadata.Version.Version.Equals(assemblyVersion))
+                {
+                    yield return PackageIssueFactory.AssemblyVersionDoesNotMatchPackageVersion(
+                        assemblyData.Key,
+                        assemblyVersion,
+                        context.Metadata.Version.Version,
+                        context.Metadata.Id);
+                }
             }
         }
 

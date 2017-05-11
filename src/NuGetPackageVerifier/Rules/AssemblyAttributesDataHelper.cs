@@ -2,17 +2,21 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Mono.Cecil;
 
 namespace NuGetPackageVerifier.Rules
 {
-    public abstract class AssemblyHasAttributeRuleBase : IPackageVerifierRule
+    public class AssemblyAttributesDataHelper
     {
-        public virtual IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
+        public static void SetAssemblyAttributesData(PackageAnalysisContext context)
         {
+            if (context.AssemblyData.Any())
+            {
+                return;
+            }
+
             foreach (var currentFile in context.PackageReader.GetFiles())
             {
                 var extension = Path.GetExtension(currentFile);
@@ -35,8 +39,11 @@ namespace NuGetPackageVerifier.Rules
                             using (var assembly = AssemblyDefinition.ReadAssembly(assemblyPath))
                             {
                                 var asmAttrs = assembly.CustomAttributes;
-
-                                return ValidateAttribute(currentFile, assembly, asmAttrs);
+                                context.AssemblyData.Add(currentFile, new AssemblyAttributesData
+                                {
+                                    AssemblyName = assembly.Name,
+                                    AssemblyAttributes = asmAttrs,
+                                });
                             }
                         }
                     }
@@ -49,13 +56,6 @@ namespace NuGetPackageVerifier.Rules
                     }
                 }
             }
-
-            return Enumerable.Empty<PackageVerifierIssue>();
         }
-
-        public abstract IEnumerable<PackageVerifierIssue> ValidateAttribute(
-            string currentFilePath,
-            AssemblyDefinition assembly,
-            Mono.Collections.Generic.Collection<CustomAttribute> assemblyAttributes);
     }
 }

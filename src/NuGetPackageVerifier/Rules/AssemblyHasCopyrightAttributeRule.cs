@@ -5,23 +5,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
+using Mono.Collections.Generic;
 
 namespace NuGetPackageVerifier.Rules
 {
-    public class AssemblyHasCopyrightAttributeRule : AssemblyHasAttributeRuleBase
+    public class AssemblyHasCopyrightAttributeRule : IPackageVerifierRule
     {
-        public override IEnumerable<PackageVerifierIssue> ValidateAttribute(
-            string currentFilePath,
-            AssemblyDefinition assembly,
-            Mono.Collections.Generic.Collection<CustomAttribute> assemblyAttributes)
+        public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
-            if (!HasCopyrightAttribute(assemblyAttributes))
+            AssemblyAttributesDataHelper.SetAssemblyAttributesData(context);
+            foreach (var assemblyData in context.AssemblyData)
             {
-                yield return PackageIssueFactory.AssemblyMissingCopyrightAttribute(currentFilePath);
+                if (!HasCopyrightAttribute(assemblyData.Value.AssemblyAttributes))
+                {
+                    yield return PackageIssueFactory.AssemblyMissingCopyrightAttribute(assemblyData.Key);
+                }
             }
         }
 
-        private static bool HasCopyrightAttribute(Mono.Collections.Generic.Collection<CustomAttribute> asmAttrs)
+        private static bool HasCopyrightAttribute(Collection<CustomAttribute> asmAttrs)
         {
             var foundAttr = asmAttrs.SingleOrDefault(attr => attr.AttributeType.FullName == typeof(AssemblyCopyrightAttribute).FullName);
             if (foundAttr == null)

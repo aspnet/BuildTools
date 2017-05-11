@@ -5,23 +5,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
+using Mono.Collections.Generic;
 
 namespace NuGetPackageVerifier.Rules
 {
-    public class AssemblyHasServicingAttributeRule : AssemblyHasAttributeRuleBase
+    public class AssemblyHasServicingAttributeRule : IPackageVerifierRule
     {
-        public override IEnumerable<PackageVerifierIssue> ValidateAttribute(
-            string currentFilePath,
-            AssemblyDefinition assembly,
-            Mono.Collections.Generic.Collection<CustomAttribute> assemblyAttributes)
+        public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
-            if (!HasServicingAttribute(assemblyAttributes))
+            AssemblyAttributesDataHelper.SetAssemblyAttributesData(context);
+            foreach (var assemblyData in context.AssemblyData)
             {
-                yield return PackageIssueFactory.AssemblyMissingServicingAttribute(currentFilePath);
+                if (!HasServicingAttribute(assemblyData.Value.AssemblyAttributes))
+                {
+                    yield return PackageIssueFactory.AssemblyMissingServicingAttribute(assemblyData.Key);
+                }
             }
         }
 
-        private static bool HasServicingAttribute(Mono.Collections.Generic.Collection<CustomAttribute> asmAttrs)
+        private static bool HasServicingAttribute(Collection<CustomAttribute> asmAttrs)
         {
             return asmAttrs.Any(asmAttr => IsValidServicingAttribute(asmAttr));
         }

@@ -11,18 +11,19 @@ using Mono.Collections.Generic;
 
 namespace NuGetPackageVerifier.Rules
 {
-    public class AssemblyHasCommitHashAttributeRule : AssemblyHasAttributeRuleBase
+    public class AssemblyHasCommitHashAttributeRule : IPackageVerifierRule
     {
-        public override IEnumerable<PackageVerifierIssue> ValidateAttribute(
-            string currentFilePath,
-            AssemblyDefinition assembly,
-            Collection<CustomAttribute> assemblyAttributes)
+        public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
-            var fileName = Path.GetFileNameWithoutExtension(currentFilePath);
-            var isSourcesPackage = fileName.EndsWith(".Sources", StringComparison.OrdinalIgnoreCase);
-            if (!isSourcesPackage && !HasCommitHashInMetadataAttribute(assemblyAttributes))
+            AssemblyAttributesDataHelper.SetAssemblyAttributesData(context);
+            foreach (var assemblyData in context.AssemblyData)
             {
-                yield return PackageIssueFactory.AssemblyMissingHashAttribute(currentFilePath);
+                var fileName = Path.GetFileNameWithoutExtension(assemblyData.Key);
+                var isSourcesPackage = fileName.EndsWith(".Sources", StringComparison.OrdinalIgnoreCase);
+                if (!isSourcesPackage && !HasCommitHashInMetadataAttribute(assemblyData.Value.AssemblyAttributes))
+                {
+                    yield return PackageIssueFactory.AssemblyMissingHashAttribute(assemblyData.Key);
+                }
             }
         }
 

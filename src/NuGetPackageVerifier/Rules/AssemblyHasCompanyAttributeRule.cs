@@ -5,23 +5,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
+using Mono.Collections.Generic;
 
 namespace NuGetPackageVerifier.Rules
 {
-    public class AssemblyHasCompanyAttributeRule : AssemblyHasAttributeRuleBase
+    public class AssemblyHasCompanyAttributeRule : IPackageVerifierRule
     {
-        public override IEnumerable<PackageVerifierIssue> ValidateAttribute(
-            string currentFilePath,
-            AssemblyDefinition assembly,
-            Mono.Collections.Generic.Collection<CustomAttribute> assemblyAttributes)
+        public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
-            if (!HasCompanyAttribute(assemblyAttributes))
+            AssemblyAttributesDataHelper.SetAssemblyAttributesData(context);
+            foreach (var assemblyData in context.AssemblyData)
             {
-                yield return PackageIssueFactory.AssemblyMissingCompanyAttribute(currentFilePath);
+                if (!HasCompanyAttribute(assemblyData.Value.AssemblyAttributes))
+                {
+                    yield return PackageIssueFactory.AssemblyMissingCompanyAttribute(assemblyData.Key);
+                }
             }
         }
 
-        private static bool HasCompanyAttribute(Mono.Collections.Generic.Collection<CustomAttribute> asmAttrs)
+        private static bool HasCompanyAttribute(Collection<CustomAttribute> asmAttrs)
         {
             var foundAttr = asmAttrs.SingleOrDefault(attr => attr.AttributeType.FullName == typeof(AssemblyCompanyAttribute).FullName);
             if (foundAttr == null)

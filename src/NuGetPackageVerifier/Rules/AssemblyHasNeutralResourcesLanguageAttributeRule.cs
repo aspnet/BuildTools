@@ -6,23 +6,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Resources;
 using Mono.Cecil;
+using Mono.Collections.Generic;
 
 namespace NuGetPackageVerifier.Rules
 {
-    public class AssemblyHasNeutralResourcesLanguageAttributeRule : AssemblyHasAttributeRuleBase
+    public class AssemblyHasNeutralResourcesLanguageAttributeRule : IPackageVerifierRule
     {
-        public override IEnumerable<PackageVerifierIssue> ValidateAttribute(
-            string currentFilePath,
-            AssemblyDefinition assembly,
-            Mono.Collections.Generic.Collection<CustomAttribute> assemblyAttributes)
+        public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
-            if (!HasNeutralResourcesLanguageAttribute(assemblyAttributes))
+            AssemblyAttributesDataHelper.SetAssemblyAttributesData(context);
+            foreach (var assemblyData in context.AssemblyData)
             {
-                yield return PackageIssueFactory.AssemblyMissingNeutralResourcesLanguageAttribute(currentFilePath);
+                if (!HasNeutralResourcesLanguageAttribute(assemblyData.Value.AssemblyAttributes))
+                {
+                    yield return PackageIssueFactory.AssemblyMissingNeutralResourcesLanguageAttribute(assemblyData.Key);
+                }
             }
         }
 
-        private static bool HasNeutralResourcesLanguageAttribute(Mono.Collections.Generic.Collection<CustomAttribute> asmAttrs)
+        private static bool HasNeutralResourcesLanguageAttribute(Collection<CustomAttribute> asmAttrs)
         {
             return asmAttrs.Any(asmAttr => IsValidNeutralResourcesLanguageAttribute(asmAttr));
         }

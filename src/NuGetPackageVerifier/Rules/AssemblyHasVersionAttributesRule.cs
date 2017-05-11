@@ -5,28 +5,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
+using Mono.Collections.Generic;
 
 namespace NuGetPackageVerifier.Rules
 {
-    public class AssemblyHasVersionAttributesRule : AssemblyHasAttributeRuleBase
+    public class AssemblyHasVersionAttributesRule : IPackageVerifierRule
     {
-        public override IEnumerable<PackageVerifierIssue> ValidateAttribute(
-            string currentFilePath,
-            AssemblyDefinition assembly,
-            Mono.Collections.Generic.Collection<CustomAttribute> assemblyAttributes)
+        public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
-            if (!HasAttrWithArg(assemblyAttributes, typeof(AssemblyFileVersionAttribute).FullName))
+            AssemblyAttributesDataHelper.SetAssemblyAttributesData(context);
+            foreach (var assemblyData in context.AssemblyData)
             {
-                yield return PackageIssueFactory.AssemblyMissingFileVersionAttribute(currentFilePath);
-            }
+                if (!HasAttrWithArg(assemblyData.Value.AssemblyAttributes, typeof(AssemblyFileVersionAttribute).FullName))
+                {
+                    yield return PackageIssueFactory.AssemblyMissingFileVersionAttribute(assemblyData.Key);
+                }
 
-            if (!HasAttrWithArg(assemblyAttributes, typeof(AssemblyInformationalVersionAttribute).FullName))
-            {
-                yield return PackageIssueFactory.AssemblyMissingInformationalVersionAttribute(currentFilePath);
+                if (!HasAttrWithArg(assemblyData.Value.AssemblyAttributes, typeof(AssemblyInformationalVersionAttribute).FullName))
+                {
+                    yield return PackageIssueFactory.AssemblyMissingInformationalVersionAttribute(assemblyData.Key);
+                }
             }
         }
 
-        private static bool HasAttrWithArg(Mono.Collections.Generic.Collection<CustomAttribute> asmAttrs, string attrTypeName)
+        private static bool HasAttrWithArg(Collection<CustomAttribute> asmAttrs, string attrTypeName)
         {
             var foundAttr = asmAttrs.SingleOrDefault(attr => attr.AttributeType.FullName == attrTypeName);
             if (foundAttr == null)

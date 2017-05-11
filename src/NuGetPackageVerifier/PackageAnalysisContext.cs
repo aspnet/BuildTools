@@ -19,7 +19,7 @@ namespace NuGetPackageVerifier
         public IPackageVerifierLogger Logger { get; set; }
         public PackageArchiveReader PackageReader => _reader ?? (_reader = new PackageArchiveReader(PackageFileInfo.FullName));
 
-        public IDictionary<string, AssemblyAttributesData> AssemblyData { get; set; } = new Dictionary<string, AssemblyAttributesData>();
+        public IDictionary<string, AssemblyAttributesData> AssemblyData { get; } = new Dictionary<string, AssemblyAttributesData>();
 
         public void Dispose()
         {

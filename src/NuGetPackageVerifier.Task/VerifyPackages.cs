@@ -36,7 +36,7 @@ namespace NuGetPackagerVerifier
             }
 
             var taskAssemblyFolder = Path.GetDirectoryName(GetType().GetTypeInfo().Assembly.Location);
-            var toolPath = Path.Combine(taskAssemblyFolder, "../../NuGetPackageVerifier.dll");
+            var toolPath = Path.Combine(taskAssemblyFolder, "..", "..", "NuGetPackageVerifier.dll");
             var dotnetMuxer = DotNetMuxer.MuxerPathOrDefault();
             var psi = new ProcessStartInfo
             {

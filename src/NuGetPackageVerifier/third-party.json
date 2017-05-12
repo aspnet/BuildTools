@@ -16,6 +16,7 @@
   "prefixExclusionList": [ ],
 
   "packages": {
+    "Microsoft.ApplicationInsights": [ "2.4.0-beta3" ],
     "Microsoft.ApplicationInsights.AspNetCore": [ "2.1.0-beta3" ],
     "Microsoft.AspNet.Identity.EntityFramework": [ "2.2.1" ],
     "Microsoft.AspNet.WebApi.Client": [ "5.2.2" ],

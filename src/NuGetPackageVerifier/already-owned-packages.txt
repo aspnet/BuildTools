@@ -51,6 +51,7 @@ Microsoft.AspNetCore.Identity.Service.Core
 Microsoft.AspNetCore.Identity.Service.EntityFrameworkCore
 Microsoft.AspNetCore.Identity.Service.IntegratedWebClient
 Microsoft.AspNetCore.Identity.Service.Mvc
+Microsoft.AspNetCore.Identity.Service.Specification.Tests
 Microsoft.AspNetCore.Identity.Specification.Tests
 Microsoft.AspNetCore.JsonPatch
 Microsoft.AspNetCore.Localization

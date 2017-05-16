@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -220,6 +220,7 @@ namespace ApiCheck
                     }
 
                     return constructorDescriptor;
+
                 case MemberTypes.Method:
                     var method = (MethodInfo)member;
                     if (!method.IsPublic && !method.IsFamily && !method.IsFamilyOrAssembly)
@@ -274,6 +275,7 @@ namespace ApiCheck
                     methodDescriptor.ReturnType = TypeDescriptor.GetTypeNameFor(method.ReturnType.GetTypeInfo());
 
                     return methodDescriptor;
+
                 case MemberTypes.Field:
                     var field = (FieldInfo)member;
                     if (!field.IsPublic && !field.IsFamily && !field.IsFamilyOrAssembly)
@@ -318,12 +320,14 @@ namespace ApiCheck
                     // All these cases are covered by the methods they implicitly define on the class
                     // (Properties and Events) and when we enumerate all the types in an assembly (Nested types).
                     return null;
+
                 case MemberTypes.TypeInfo:
-                // There should not be any member passsed into this method that is not a top level type.
+                    // There should not be any member passed into this method that is not a top level type.
                 case MemberTypes.Custom:
-                // We don't know about custom member types, so better throw if we find something we don't understand.
+                    // We don't know about custom member types, so better throw if we find something we don't understand.
                 case MemberTypes.All:
                     throw new InvalidOperationException($"'{type.MemberType}' [{member}] is not supported.");
+
                 default:
                     return null;
             }

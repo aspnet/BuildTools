@@ -35,7 +35,7 @@
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="$(MsBuildPackageVersions)" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Extensions.CommandLineUtils.Sources" Version="$(CommandLineUtilsVersion)" PrivateAssets="All" />
     <PackageReference Include="System.Reflection.Metadata" Version="1.4.2" PrivateAssets="All" />
-    <PackageReference Include="System.Collections.Immutable" Version="1.2.0" PrivateAssets="All" />
+    <PackageReference Include="System.Collections.Immutable" Version="1.3.1" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.6' ">

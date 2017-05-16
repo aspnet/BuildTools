@@ -6,7 +6,7 @@
   <Target Name="FindUnusedReferences"
           AfterTargets="CoreCompile"
           DependsOnTargets="RunResolvePackageDependencies"
-          Condition=" '$(EnableFindUnusedReferences)' == 'true' ">
+          Condition=" '$(EnableFindUnusedReferences)' == 'true' and '$(MSBuildRuntimeType)' == 'Core' ">
     <Sdk_FindUnusedReferences Assembly="@(IntermediateAssembly)" References="@(ReferencePath)" Packages="@(PackageDependencies)" Files="@(FileDefinitions)" >
       <Output TaskParameter="UnusedReferences" ItemName="UnusedReferences" />
     </Sdk_FindUnusedReferences>

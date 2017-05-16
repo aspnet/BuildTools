@@ -19,7 +19,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="1.0.0-*" />
     <PackageReference Include="Newtonsoft.Json" Version="$(JsonNetVersion)" />
     <PackageReference Include="NuGet.Client" Version="$(NuGetPackagesVersion)" />
-    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.1.1-*" />
+    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="$(CoreFxVersion)" />
   </ItemGroup>
 
    <!-- packaging settings -->

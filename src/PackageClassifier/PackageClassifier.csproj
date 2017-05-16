@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
-    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.1.1" />
+    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="$(CoreFxVersion)" />
   </ItemGroup>
 
 </Project>

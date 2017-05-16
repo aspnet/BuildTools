@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -68,9 +68,20 @@ namespace ApiCheck
                 }
             }
 
-            if (type.Kind == TypeKind.Interface && newMembers.Count > 0)
+            if (newMembers.Count > 0)
             {
-                breakingChanges.AddRange(newMembers.Select(member => new BreakingChange(newType.Id, member.Id, ChangeKind.Addition)));
+                if (type.Kind == TypeKind.Interface)
+                {
+                    breakingChanges.AddRange(newMembers.Select(member => new BreakingChange(newType.Id, member.Id, ChangeKind.Addition)));
+                }
+                else
+                {
+                    var disallowedNewMembers = newMembers.Where(member => member.Abstract).ToArray();
+                    if (disallowedNewMembers.Length > 0)
+                    {
+                        breakingChanges.AddRange(disallowedNewMembers.Select(member => new BreakingChange(newType.Id, member.Id, ChangeKind.Addition)));
+                    }
+                }
             }
         }
 

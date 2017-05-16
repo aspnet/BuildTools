@@ -1,7 +1,5 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
-
-
 
 // V1
 namespace ComparisonScenarios
@@ -16,6 +14,56 @@ namespace ComparisonScenarios
 
     public struct StructToMakeGeneric
     {
+    }
+
+    public struct StructToRemoveFieldsFrom
+    {
+        public StructToRemoveFieldsFrom(int fieldToIgnore)
+        {
+            FieldToIgnore = 0;
+            FieldToMakeReadonly = 3;
+            FieldToRemove = 4;
+            FieldToMakeWritable = 5;
+        }
+
+        internal int FieldToIgnore;
+
+        public const int ConstToChangeValue = 1;
+
+        public const int ConstToMakeField = 2;
+
+        public int FieldToMakeReadonly;
+
+        public int FieldToRemove;
+
+        public readonly int FieldToMakeWritable;
+
+        public static int StaticFieldToMakeReadonly = 6;
+
+        public static readonly int StaticFieldToMakeConst = 7;
+
+        public static readonly int StaticFieldToMakeWritable = 8;
+    }
+
+    public class ClassToRemoveFieldsFrom
+    {
+        internal int FieldToIgnore = 0;
+
+        public const int ConstToChangeValue = 1;
+
+        public const int ConstToMakeField = 2;
+
+        public int FieldToMakeReadonly = 3;
+
+        public int FieldToRemove = 4;
+
+        public readonly int FieldToMakeWritable = 5;
+
+        public static int StaticFieldToMakeReadonly = 6;
+
+        public static readonly int StaticFieldToMakeConst = 7;
+
+        public static readonly int StaticFieldToMakeWritable = 8;
     }
 
     public class ClassToChangeNamespaces
@@ -48,6 +96,15 @@ namespace ComparisonScenarios
 
     public class TypeWithExtraInterface
     {
+    }
+
+    public abstract class AbstractClassToAddMethodsTo
+    {
+    }
+
+    public abstract class AbstractClassToAddPropertiesTo
+    {
+        public abstract int PropertyToAddSetterTo { get; }
     }
 
     public interface IInterfaceToAddMembersTo

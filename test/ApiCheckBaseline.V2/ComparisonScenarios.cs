@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
@@ -16,6 +16,46 @@ namespace ComparisonScenarios
 
     public struct StructToMakeGeneric<TGenericType>
     {
+    }
+
+    public struct StructToRemoveFieldsFrom
+    {
+        public StructToRemoveFieldsFrom(int fieldToIgnore)
+        {
+            FieldToMakeReadonly = 3;
+            FieldToMakeWritable = 5;
+        }
+
+        public const int ConstToChangeValue = 0;
+
+        public static readonly int ConstToMakeField = 2;
+
+        public readonly int FieldToMakeReadonly;
+
+        public int FieldToMakeWritable;
+
+        public static readonly int StaticFieldToMakeReadonly = 6;
+
+        public const int StaticFieldToMakeConst = 7;
+
+        public static int StaticFieldToMakeWritable = 8;
+    }
+
+    public class ClassToRemoveFieldsFrom
+    {
+        public const int ConstToChangeValue = 0;
+
+        public static readonly int ConstToMakeField = 2;
+
+        public readonly int FieldToMakeReadonly = 3;
+
+        public int FieldToMakeWritable = 5;
+
+        public static readonly int StaticFieldToMakeReadonly = 6;
+
+        public const int StaticFieldToMakeConst = 7;
+
+        public static int StaticFieldToMakeWritable = 8;
     }
 
     public class ClassToNestContainer
@@ -50,6 +90,30 @@ namespace ComparisonScenarios
     public interface IExtraInterface
     {
         int Property { get; set; }
+    }
+
+    public abstract class AbstractClassToAddMethodsTo
+    {
+        public abstract void NewAbstractMethod();
+
+        public virtual void NewVirtualMethod() { }
+
+        public void NewMethod() { }
+
+        internal abstract void NewInternalMethod();
+    }
+
+    public abstract class AbstractClassToAddPropertiesTo
+    {
+        public abstract int NewAbstractProperty { get; }
+
+        public abstract int PropertyToAddSetterTo { get; set; }
+
+        public int NewProperty => 0;
+
+        public virtual int NewVirtualProperty => 0;
+
+        internal abstract int NewInternalProperty { get; }
     }
 
     public interface IInterfaceToAddMembersTo

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -17,11 +17,10 @@ namespace ApiCheck.Test
         public Assembly V1Assembly => typeof(ApiCheckApiListingV1).GetTypeInfo().Assembly;
         public Assembly V2Assembly => typeof(ApiCheckApiListingV2).GetTypeInfo().Assembly;
 
-        public IEnumerable<Func<MemberInfo, bool>> TestFilters
-            => new Func<MemberInfo, bool> []
-               {
-                   ti => (ti as TypeInfo)?.Namespace?.StartsWith("ComparisonScenarios") == false
-               };
+        public IEnumerable<Func<MemberInfo, bool>> TestFilters => new Func<MemberInfo, bool> []
+        {
+            ti => (ti as TypeInfo)?.Namespace?.StartsWith("ComparisonScenarios") == false
+        };
 
         [Fact]
         public void Compare_Detects_ChangesInTypeVisibility_as_removal()
@@ -78,6 +77,68 @@ namespace ApiCheck.Test
                 memberId: null,
                 kind: ChangeKind.Removal);
             Assert.Contains(expected, breakingChanges);
+        }
+
+        [Theory]
+        [InlineData("public class ComparisonScenarios.ClassToRemoveFieldsFrom")]
+        [InlineData("public struct ComparisonScenarios.StructToRemoveFieldsFrom")]
+        public void Compare_DetectsAllFieldRemovals(string typeToCheck)
+        {
+            // Arrange
+            var v1ApiListing = CreateApiListingDocument(V1Assembly);
+            var v2ApiListing = CreateApiListingDocument(V2Assembly);
+            var comparer = new ApiListingComparer(v1ApiListing, v2ApiListing);
+
+            // Oops. The NewInternalProperty addition is a breaking change; makes it impossible to subclass type in
+            // another assembly.
+            var expected = new List<BreakingChange>
+            {
+                // Changing a const's value doesn't cause a binary incompatibility but often causes problems.
+                new BreakingChange(
+                    typeToCheck,
+                    "public const System.Int32 ConstToChangeValue = 1",
+                    ChangeKind.Removal),
+                // Removing a const doesn't cause a binary incompatibilty but often causes problems.
+                new BreakingChange(
+                    typeToCheck,
+                    "public const System.Int32 ConstToMakeField = 2",
+                    ChangeKind.Removal),
+                // Oops. Making a field writable is not technically a breaking change.
+                new BreakingChange(
+                    typeToCheck,
+                    "public readonly System.Int32 FieldToMakeWritable",
+                    ChangeKind.Removal),
+                new BreakingChange(
+                    typeToCheck,
+                    "public static readonly System.Int32 StaticFieldToMakeConst",
+                    ChangeKind.Removal),
+                // Oops. Making a field writable is not technically a breaking change.
+                new BreakingChange(
+                    typeToCheck,
+                    "public static readonly System.Int32 StaticFieldToMakeWritable",
+                    ChangeKind.Removal),
+                new BreakingChange(
+                    typeToCheck,
+                    "public static System.Int32 StaticFieldToMakeReadonly",
+                    ChangeKind.Removal),
+                new BreakingChange(
+                    typeToCheck,
+                    "public System.Int32 FieldToMakeReadonly",
+                    ChangeKind.Removal),
+                new BreakingChange(
+                    typeToCheck,
+                    "public System.Int32 FieldToRemove",
+                    ChangeKind.Removal),
+            };
+
+            // Act
+            var breakingChanges = comparer.GetDifferences();
+
+            // Assert
+            var breakingChanginesInType = breakingChanges
+                .Where(change => string.Equals(change.TypeId, typeToCheck, StringComparison.Ordinal))
+                .OrderBy(change => change.MemberId);
+            Assert.Equal(expected, breakingChanginesInType);
         }
 
         [Fact]
@@ -192,6 +253,56 @@ namespace ApiCheck.Test
         }
 
         [Fact]
+        public void Compare_DetectsAbstractMethodAdditions()
+        {
+            // Arrange
+            var v1ApiListing = CreateApiListingDocument(V1Assembly);
+            var v2ApiListing = CreateApiListingDocument(V2Assembly);
+            var comparer = new ApiListingComparer(v1ApiListing, v2ApiListing);
+            var typeToCheck = "public abstract class ComparisonScenarios.AbstractClassToAddMethodsTo";
+
+            // Act
+            var breakingChanges = comparer.GetDifferences();
+
+            // Assert
+            var breakingChangesInType = breakingChanges
+                .Where(change => string.Equals(change.TypeId, typeToCheck, StringComparison.Ordinal));
+            var breakingChange = Assert.Single(breakingChangesInType);
+            Assert.Equal(ChangeKind.Addition, breakingChange.Kind);
+            Assert.Equal("public abstract System.Void NewAbstractMethod()", breakingChange.MemberId);
+        }
+
+        [Fact]
+        public void Compare_DetectsAbstractPropertyAdditions()
+        {
+            // Arrange
+            var v1ApiListing = CreateApiListingDocument(V1Assembly);
+            var v2ApiListing = CreateApiListingDocument(V2Assembly);
+            var comparer = new ApiListingComparer(v1ApiListing, v2ApiListing);
+            var typeToCheck = "public abstract class ComparisonScenarios.AbstractClassToAddPropertiesTo";
+            var expected = new List<BreakingChange>
+            {
+                new BreakingChange(
+                    typeToCheck,
+                    "public abstract System.Int32 get_NewAbstractProperty()",
+                    ChangeKind.Addition),
+                new BreakingChange(
+                    typeToCheck,
+                    "public abstract System.Void set_PropertyToAddSetterTo(System.Int32 value)",
+                    ChangeKind.Addition),
+            };
+
+            // Act
+            var breakingChanges = comparer.GetDifferences();
+
+            // Assert
+            var breakingChangesInType = breakingChanges
+                .Where(change => string.Equals(change.TypeId, typeToCheck, StringComparison.Ordinal))
+                .OrderBy(change => change.MemberId);
+            Assert.Equal(expected, breakingChangesInType);
+        }
+
+        [Fact]
         public void Compare_DetectsNewMembersBeingAddedToAnInterface_as_addition()
         {
             // Arrange
@@ -203,9 +314,8 @@ namespace ApiCheck.Test
             var breakingChanges = comparer.GetDifferences();
 
             // Assert
-            var interfaceBreakingChanges = breakingChanges.Where(
-                    b => b.TypeId ==
-                         "public interface ComparisonScenarios.IInterfaceToAddMembersTo")
+            var interfaceBreakingChanges = breakingChanges
+                .Where( b => b.TypeId == "public interface ComparisonScenarios.IInterfaceToAddMembersTo")
                 .ToList();
             Assert.Single(interfaceBreakingChanges,
                 b => b.MemberId == "System.Int32 get_NewMember()" && b.Kind == ChangeKind.Addition);
@@ -222,23 +332,24 @@ namespace ApiCheck.Test
             var comparer = new ApiListingComparer(v1ApiListing, v2ApiListing);
 
             var knownBreakingChanges = new List<BreakingChange>
-                                       {
-                                           new BreakingChange(
-                                               "public interface ComparisonScenarios.IInterfaceToAddMembersTo",
-                                               "System.Int32 get_NewMember()",
-                                               ChangeKind.Addition),
-                                           new BreakingChange(
-                                               "public interface ComparisonScenarios.IInterfaceToAddMembersTo",
-                                               "System.Void set_NewMember(System.Int32 value)",
-                                               ChangeKind.Addition)
-                                       };
+            {
+                new BreakingChange(
+                    "public interface ComparisonScenarios.IInterfaceToAddMembersTo",
+                    "System.Int32 get_NewMember()",
+                    ChangeKind.Addition),
+                new BreakingChange(
+                    "public interface ComparisonScenarios.IInterfaceToAddMembersTo",
+                    "System.Void set_NewMember(System.Int32 value)",
+                    ChangeKind.Addition)
+            };
 
             // Act
             var breakingChanges = comparer.GetDifferences().Except(knownBreakingChanges);
 
             // Assert
-            Assert.Null(breakingChanges.FirstOrDefault(
-                bc => bc.TypeId == "public interface ComparisonScenarios.IInterfaceToAddMembersTo"));
+            Assert.DoesNotContain(
+                breakingChanges,
+                bc => bc.TypeId == "public interface ComparisonScenarios.IInterfaceToAddMembersTo");
         }
 
         [Fact]
@@ -253,9 +364,8 @@ namespace ApiCheck.Test
             var breakingChanges = comparer.GetDifferences();
 
             // Assert
-            var interfaceBreakingChanges = breakingChanges.Where(
-                    b => b.TypeId ==
-                         "public interface ComparisonScenarios.IInterfaceWithMembersThatWillGetRenamedRemovedAndAdded")
+            var interfaceBreakingChanges = breakingChanges
+                .Where( b => b.TypeId == "public interface ComparisonScenarios.IInterfaceWithMembersThatWillGetRenamedRemovedAndAdded")
                 .ToList();
             Assert.Single(interfaceBreakingChanges,
                 b => b.MemberId == "System.Void MemberToBeRenamed()" && b.Kind == ChangeKind.Removal);
@@ -279,9 +389,8 @@ namespace ApiCheck.Test
             var breakingChanges = comparer.GetDifferences();
 
             // Assert
-            var interfaceBreakingChanges = breakingChanges.Where(
-                    b => b.TypeId ==
-                         "public interface ComparisonScenarios.IInterfaceWithSameNumberOfRemovedAndAddedMembers")
+            var interfaceBreakingChanges = breakingChanges
+                .Where(b => b.TypeId == "public interface ComparisonScenarios.IInterfaceWithSameNumberOfRemovedAndAddedMembers")
                 .ToList();
             Assert.Single(interfaceBreakingChanges,
                 b => b.MemberId == "System.Void FirstMemberToRemove()" && b.Kind == ChangeKind.Removal);
@@ -297,11 +406,9 @@ namespace ApiCheck.Test
                 b => b.MemberId == "System.Void ThirdAddedMember()" && b.Kind == ChangeKind.Addition);
         }
 
-        private ApiListing CreateApiListingDocument(Assembly assembly,
-            IEnumerable<Func<MemberInfo, bool>> additionalFilters = null)
+        private ApiListing CreateApiListingDocument(Assembly assembly)
         {
-            additionalFilters = additionalFilters ?? Enumerable.Empty<Func<MemberInfo, bool>>();
-            var generator = new ApiListingGenerator(assembly, TestFilters.Concat(additionalFilters));
+            var generator = new ApiListingGenerator(assembly, TestFilters);
 
             return generator.GenerateApiListing();
         }

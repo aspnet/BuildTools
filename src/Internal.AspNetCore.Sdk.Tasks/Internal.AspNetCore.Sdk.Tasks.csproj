@@ -8,7 +8,6 @@
       Package expressly designed to carry tasks used by Internal.AspNetCore.Sdk. This package should never be directly referenced.
       Use Internal.AspNetCore.BuildTools.Tasks if build tasks are required.
     </Description>
-
     <!--
       The netstandard1.0 TFM doesn't actually compile tasks.
       It's just there so Internal.AspNetCore.Sdk gets a dependency to this project.
@@ -18,17 +17,11 @@
     <RootNamespace>Microsoft.AspNetCore.BuildTools</RootNamespace>
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <BuildOutputTargetFolder>tools</BuildOutputTargetFolder>
-    <BuildToolsPath>..\Internal.AspNetCore.BuildTools.Tasks\</BuildToolsPath>
 
     <!-- don't try to compile the *.cs files on netstandard1.0 -->
     <EnableDefaultItems>false</EnableDefaultItems>
+    <BuildToolsPath>..\Internal.AspNetCore.BuildTools.Tasks\</BuildToolsPath>
 
-    <!--
-      Enable binding redirects to ensure correct versions of System.Reflection.Metadata and
-      System.Collections.Immutable are picked up even when running under full framework and one is in the GAC.
-    -->
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
   </PropertyGroup>
 
   <ItemGroup>
@@ -66,7 +59,7 @@
     but before NuGet generates a nuspec. See https://github.com/NuGet/Home/issues/4704.
     -->
     <ItemGroup>
-      <_PackageFiles Include="bin\$(Configuration)\*\*.config;bin\$(Configuration)\*\System.Reflection.Metadata.dll;bin\$(Configuration)\*\System.Collections.Immutable.dll">
+      <_PackageFiles Include="bin\$(Configuration)\*\System.Reflection.Metadata.dll;bin\$(Configuration)\*\System.Collections.Immutable.dll">
         <PackagePath>tools\%(RecursiveDir)</PackagePath>
         <Visible>false</Visible>
         <BuildAction>Content</BuildAction>

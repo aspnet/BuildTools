@@ -17,7 +17,8 @@
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)WaitForDebugger" AssemblyFile="$(_BuildToolsAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)ZipArchive" AssemblyFile="$(_BuildToolsAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)UnzipArchive" AssemblyFile="$(_BuildToolsAssembly)" />
-  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)FindUnusedReferences" AssemblyFile="$(_BuildToolsAssembly)" />
+  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)FindUnusedReferences" AssemblyFile="$(_BuildToolsAssembly)"
+    Condition="'$(MSBuildRuntimeType)' == 'Core'" />
 
   <!-- Note: use 'XmlPoke' where possible. We plan to remove this. See https://github.com/aspnet/BuildTools/issues/180 -->
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)XmlPoke2" AssemblyFile="$(_BuildToolsAssembly)" />

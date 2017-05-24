@@ -22,6 +22,7 @@
     "Microsoft.AspNet.WebApi.Client": [ "5.2.2" ],
     "Microsoft.Azure.KeyVault": [ "2.2.1-preview" ],
     "Microsoft.Build.Runtime": [ "15.2.0-preview-000047-02" ],
+    "Microsoft.Build.Tasks.Core": [ "15.1.1012" ],
     "Microsoft.CodeAnalysis.Common": [ "1.3.0" ],
     "Microsoft.CodeAnalysis.CSharp": [ "1.3.0", "2.0.0" ],
     "Microsoft.CodeAnalysis.CSharp.Workspaces": [ "2.0.0" ],

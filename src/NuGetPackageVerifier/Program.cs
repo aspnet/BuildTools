@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -22,7 +22,7 @@ namespace NuGetPackageVerifier
         public static int Main(string[] args)
         {
             // TODO: Show extraneous packages, exclusions, etc.
-            var ignoreAssistanceMode = IgnoreAssistanceMode.None;
+            var ignoreAssistanceMode = IgnoreAssistanceMode.ShowNew;
 
             // TODO: Get this from the command line
             var hideInfoLogs = true;
@@ -249,7 +249,7 @@ namespace NuGetPackageVerifier
                 }
             }
 
-            if (ignoreAssistanceMode != IgnoreAssistanceMode.None)
+            if (ignoreAssistanceMode != IgnoreAssistanceMode.None && ignoreAssistanceData.Any())
             {
                 Console.WriteLine("Showing JSON for ignore content:");
                 Console.WriteLine(JsonConvert.SerializeObject(ignoreAssistanceData,

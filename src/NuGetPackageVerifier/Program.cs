@@ -113,6 +113,7 @@ namespace NuGetPackageVerifier
                 StringComparer.OrdinalIgnoreCase);
 
             IEnumerable<IPackageVerifierRule> defaultRuleSet = null;
+            IEnumerable<IssueIgnore> defaultIssuesToIgnore = null;
 
             foreach (var packageSet in packageSets)
             {
@@ -130,6 +131,7 @@ namespace NuGetPackageVerifier
                 if (string.Equals(packageSet.Key, "Default", StringComparison.OrdinalIgnoreCase))
                 {
                     defaultRuleSet = packageSetRules;
+                    defaultIssuesToIgnore = GetIgnoresFromFile(packageSet.Value.Packages);
                     continue;
                 }
 
@@ -219,7 +221,7 @@ namespace NuGetPackageVerifier
                     analyzer.Rules.Add(ruleInstance);
                 }
 
-                var issueProcessor = new IssueProcessor(issuesToIgnore: null);
+                var issueProcessor = new IssueProcessor(issuesToIgnore: defaultIssuesToIgnore);
 
                 foreach (var unlistedPackage in unlistedPackages)
                 {
@@ -246,6 +248,17 @@ namespace NuGetPackageVerifier
 
                     totalErrors += packageErrorsAndWarnings.Item1;
                     totalWarnings += packageErrorsAndWarnings.Item2;
+                }
+
+                foreach (var issue in issueProcessor.RemainingIssuesToIgnore)
+                {
+                    // TODO: Don't show this for rules that we don't run.
+                    logger.LogWarning(
+                        "Unnecessary exclusion in {0}{3}Issue: {1}{3}Instance: {2}{3}",
+                        issue.PackageId,
+                        issue.IssueId,
+                        issue.Instance,
+                        Environment.NewLine);
                 }
             }
 

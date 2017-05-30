@@ -68,7 +68,6 @@ Microsoft.AspNetCore.Mvc.Formatters.Xml
 Microsoft.AspNetCore.Mvc.Localization
 Microsoft.AspNetCore.Mvc.Razor
 Microsoft.AspNetCore.Mvc.Razor.Extensions
-Microsoft.AspNetCore.Mvc.Razor.Host
 Microsoft.AspNetCore.Mvc.Razor.ViewCompilation
 Microsoft.AspNetCore.Mvc.Razor.ViewCompilation.Design
 Microsoft.AspNetCore.Mvc.Razor.ViewCompilation.Tools

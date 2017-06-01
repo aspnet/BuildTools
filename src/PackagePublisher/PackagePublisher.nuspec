@@ -7,6 +7,6 @@
     <description>Publishes packages to a feed, with retries.</description>
   </metadata>
   <files>
-    <file src="netcoreapp1.0\" target="/" />
+    <file src="netcoreapp2.0\" target="/" />
   </files>
 </package>

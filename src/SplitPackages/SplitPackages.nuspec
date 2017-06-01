@@ -7,6 +7,6 @@
     <description>Splits Asp.Net Core packages.</description>
   </metadata>
   <files>
-    <file src="netcoreapp1.0\" target="/" />
+    <file src="netcoreapp2.0\" target="/" />
   </files>
 </package>

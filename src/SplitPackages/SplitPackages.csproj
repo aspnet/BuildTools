@@ -3,8 +3,8 @@
 
   <PropertyGroup>
     <Description>Copies NuGet packages form a given source folder into a specific set of folders based on a CSV file.</Description>
-    <VersionPrefix>1.0.3</VersionPrefix>
-    <TargetFramework>netcoreapp1.0</TargetFramework>
+    <VersionPrefix>2.0.0</VersionPrefix>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
     <DebugType>portable</DebugType>
     <OutputType>exe</OutputType>
   </PropertyGroup>
@@ -19,11 +19,10 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.CommandLineUtils.Sources" Version="$(CommandLineUtilsVersion)" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="1.0.0-*" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="1.0.0-*" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="$(AspNetCoreVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="$(AspNetCoreVersion)" />
     <PackageReference Include="Newtonsoft.Json" Version="$(JsonNetVersion)" />
     <PackageReference Include="NuGet.Client" Version="$(NuGetPackagesVersion)" />
-    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="$(CoreFxVersion)" />
   </ItemGroup>
 
    <!-- packaging settings -->
@@ -38,7 +37,7 @@
   <Target Name="PublishAll">
     <MSBuild Projects="$(MSBuildProjectFullPath)"
              Targets="Publish"
-             Properties="TargetFramework=netcoreapp1.0" />
+             Properties="TargetFramework=netcoreapp2.0" />
   </Target>
 
   <Target Name="SetPackageDependencies" BeforeTargets="GenerateNuspec" DependsOnTargets="PublishAll">

@@ -12,7 +12,7 @@ namespace VersionTool
 {
     public class UpdatePatchCommand
     {
-        public static int Execute(
+        internal static int Execute(
             CommandOption directoryOption,
             CommandOption updatePatchConfigOption,
             CommandOption updatePackageOption,

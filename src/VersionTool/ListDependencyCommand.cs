@@ -8,7 +8,7 @@ namespace VersionTool
 {
     public class ListDependencyCommand
     {
-        public static int Execute(
+        internal static int Execute(
             CommandOption pathOption,
             CommandOption matchingOption,
             CommandArgument dependencyArgument)

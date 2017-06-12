@@ -9,7 +9,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
 using NuGet.Frameworks;
-using NugetReferenceResolver;
+using ApiCheck.NuGet;
 
 namespace ApiCheck
 {

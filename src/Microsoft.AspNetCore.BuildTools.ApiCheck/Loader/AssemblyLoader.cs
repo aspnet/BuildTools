@@ -7,7 +7,7 @@ using System.IO;
 using System.Reflection;
 #if NETCOREAPP2_0
 using NuGet.ProjectModel;
-using NugetReferenceResolver;
+using ApiCheck.NuGet;
 #endif
 
 namespace ApiCheck

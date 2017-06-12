@@ -1,4 +1,4 @@
-﻿namespace NugetReferenceResolver
+﻿namespace ApiCheck.NuGet
 {
     public partial class RuntimeGraph
     {

@@ -7,7 +7,7 @@ using System.Linq;
 using Microsoft.DotNet.PlatformAbstractions;
 using Newtonsoft.Json.Linq;
 
-namespace NugetReferenceResolver
+namespace ApiCheck.NuGet
 {
     public partial class RuntimeGraph
     {

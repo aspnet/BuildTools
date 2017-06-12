@@ -7,7 +7,7 @@ using System.Linq;
 using NuGet.LibraryModel;
 using NuGet.Versioning;
 
-namespace NugetReferenceResolver
+namespace ApiCheck.NuGet
 {
     public class Package : IEquatable<Package>
     {

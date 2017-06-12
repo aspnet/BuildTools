@@ -9,7 +9,7 @@ using NuGet.Frameworks;
 using NuGet.Packaging.Core;
 using NuGet.ProjectModel;
 
-namespace NugetReferenceResolver
+namespace ApiCheck.NuGet
 {
     public class PackageGraph
     {

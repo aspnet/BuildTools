@@ -3,7 +3,7 @@
 
 using System.IO;
 
-namespace NugetReferenceResolver
+namespace ApiCheck.NuGet
 {
     public class PackageAssembly
     {

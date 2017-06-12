@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace NugetReferenceResolver
+namespace ApiCheck.NuGet
 {
     public class RuntimeDefinition
     {

@@ -3,7 +3,7 @@ WARNING: These targets are intended for building Microsoft's ASP.NET Core repos,
 for use outside of Microsoft.
 -->
 <Project>
-  <Import Project="$(MSBuildThisFileDirectory)..\targets\Common.targets" />
+  <Import Project="$(MSBuildThisFileDirectory)Common.targets" />
   <Import Project="$(MSBuildThisFileDirectory)ApiCheck.targets" />
   <Import Project="$(MSBuildThisFileDirectory)FindUnusedReferences.targets" />
   <Import Project="$(MSBuildThisFileDirectory)GenerateAssemblyInfo.targets" />

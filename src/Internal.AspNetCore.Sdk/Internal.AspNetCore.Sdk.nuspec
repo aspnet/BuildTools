@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>Internal.AspNetCore.Sdk</id>
+    <version>$version$</version>
+    <authors>Microsoft</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <copyright>$copyright$</copyright>
+    <dependencies>
+      <dependency id="Microsoft.AspNetCore.BuildTools.ApiCheck" version="$apicheckversion$" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="_._" target="lib\netstandard1.0\_._" />
+    <file src="bin\$config$\netcoreapp2.0\Internal.AspNetCore.Sdk.dll" target="tools\netcoreapp2.0\Internal.AspNetCore.Sdk.dll" />
+    <file src="bin\$config$\net46\Internal.AspNetCore.Sdk.dll" target="tools\net46\Internal.AspNetCore.Sdk.dll" />
+    <file src="..\Internal.AspNetCore.BuildTools.Tasks\build\Tasks.tasks" target="build\" />
+    <file src="build\" target="build\" />
+    <file src="buildMultiTargeting\" target="buildMultiTargeting\" />
+  </files>
+</package>

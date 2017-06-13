@@ -4,6 +4,6 @@ for use outside of Microsoft.
 -->
 <Project>
 
-  <Import Project="$(MSBuildThisFileDirectory)..\targets\Common.props" />
+  <Import Project="$(MSBuildThisFileDirectory)Common.props" />
 
 </Project>

@@ -3,7 +3,7 @@
   <Import Project="..\..\build\common.props" />
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.6</TargetFramework>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
     <AssemblyName>NuGetPackageVerifier.Task</AssemblyName>
     <IsPackable>false</IsPackable>
   </PropertyGroup>

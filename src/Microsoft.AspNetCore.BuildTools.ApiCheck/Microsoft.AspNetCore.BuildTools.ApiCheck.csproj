@@ -56,4 +56,6 @@
       <NuspecProperties>$(NuspecProperties);version=$(PackageVersion)</NuspecProperties>
     </PropertyGroup>
   </Target>
+
+  <Target Name="GetPackageVersion" Returns="$(PackageVersion)" />
 </Project>

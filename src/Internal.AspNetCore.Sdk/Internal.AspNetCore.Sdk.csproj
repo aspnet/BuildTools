@@ -4,30 +4,49 @@
 
   <PropertyGroup>
     <VersionPrefix>2.1.0</VersionPrefix>
-    <TargetFramework>netstandard1.0</TargetFramework>
-    <IncludeBuildOutput>false</IncludeBuildOutput>
-    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+    <TargetFrameworks>netcoreapp2.0;net46</TargetFrameworks>
+    <DefineConstants>$(DefineConstants);SDK</DefineConstants>
     <Serviceable>false</Serviceable>
     <Description>Build targets and extensions to Microsoft.NET.Sdk. This package is intended for Microsoft use only.</Description>
-    <IncludeSymbols>false</IncludeSymbols>
+    <RootNamespace>Microsoft.AspNetCore.BuildTools</RootNamespace>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <BuildToolsPath>..\Internal.AspNetCore.BuildTools.Tasks\</BuildToolsPath>
+    <NuspecFile>$(MSBuildThisFileDirectory)$(MSBuildProjectName).nuspec</NuspecFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="**\*.targets;**\*.props" Exclude="$(DefaultItemExcludes)" PackagePath="%(Identity)" />
+    <Compile Include="$(BuildToolsPath)*.cs" />
+    <Compile Include="$(BuildToolsPath)Utilities\*.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Setting PrivateAssets to 'None' ensures the generated nuspec will include the build targets from this project -->
-    <ProjectReference Include="..\Internal.AspNetCore.Sdk.Tasks\Internal.AspNetCore.Sdk.Tasks.csproj">
-      <PrivateAssets>None</PrivateAssets>
-    </ProjectReference>
-    <ProjectReference Include="..\Microsoft.AspNetCore.BuildTools.ApiCheck\Microsoft.AspNetCore.BuildTools.ApiCheck.csproj">
-      <PrivateAssets>None</PrivateAssets>
-    </ProjectReference>
+    <PackageReference Include="Microsoft.Build.Framework" Version="$(MsBuildPackageVersions)" />
+    <PackageReference Include="Microsoft.Build.Tasks.Core" Version="$(MsBuildPackageVersions)" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="$(MsBuildPackageVersions)" />
+    <PackageReference Include="Microsoft.Extensions.CommandLineUtils.Sources" Version="$(CommandLineUtilsVersion)" />
+    <PackageReference Include="System.Collections.Immutable" Version="1.3.1" PrivateAssets="All" />
+    <PackageReference Include="System.Reflection.Metadata" Version="1.4.2" PrivateAssets="All" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="NETStandard.Library" Version="$(NetStandardPackageVersion)" PrivateAssets="All" />
+  <ItemGroup Condition="'$(TargetFramework)' == 'net46'">
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
   </ItemGroup>
+
+  <Target Name="SetPackageDependencies" BeforeTargets="GenerateNuspec">
+    <MSBuild Projects="..\Microsoft.AspNetCore.BuildTools.ApiCheck\Microsoft.AspNetCore.BuildTools.ApiCheck.csproj" Targets="GetPackageVersion">
+      <Output TaskParameter="TargetOutputs" PropertyName="ApiCheckPackageVersion" />
+    </MSBuild>
+
+    <PropertyGroup>
+      <NuspecProperties>$(NuspecProperties);apicheckVersion=$(ApiCheckPackageVersion)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);config=$(Configuration)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);version=$(PackageVersion)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);description=$(Description)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);copyright=$(Copyright)</NuspecProperties>
+    </PropertyGroup>
+  </Target>
 
 </Project>

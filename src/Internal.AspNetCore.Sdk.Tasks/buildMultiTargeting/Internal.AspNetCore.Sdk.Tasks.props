@@ -1,8 +1,0 @@
-﻿<Project>
-  <PropertyGroup>
-    <_BuildTasksAssemblyName>Internal.AspNetCore.Sdk.Tasks</_BuildTasksAssemblyName>
-    <_BuildTasksPrefix>Sdk_</_BuildTasksPrefix>
-  </PropertyGroup>
-
-  <Import Project="$(MSBuildThisFileDirectory)..\build\Tasks.tasks" />
-</Project>

@@ -35,6 +35,10 @@ Usage: this should be imported once via NuGet at the top of the file.
   <!-- Detect this package inclusion. For use by other targets and properties. -->
   <PropertyGroup>
     <InternalAspNetCoreSdkImported>true</InternalAspNetCoreSdkImported>
+    <_BuildTasksAssemblyName>Internal.AspNetCore.Sdk</_BuildTasksAssemblyName>
+    <_BuildTasksPrefix>Sdk_</_BuildTasksPrefix>
   </PropertyGroup>
+
+  <Import Project="$(MSBuildThisFileDirectory)Tasks.tasks" Condition="Exists('$(MSBuildThisFileDirectory)Tasks.tasks')"/>
 
 </Project>

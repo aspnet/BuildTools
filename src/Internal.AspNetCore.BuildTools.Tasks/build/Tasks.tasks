@@ -1,7 +1,7 @@
 ﻿<Project>
 
   <PropertyGroup>
-    <_BuildToolsAssemblyTfm Condition="'$(MSBuildRuntimeType)' == 'Core'">netstandard1.6</_BuildToolsAssemblyTfm>
+    <_BuildToolsAssemblyTfm Condition="'$(MSBuildRuntimeType)' == 'Core'">netcoreapp2.0</_BuildToolsAssemblyTfm>
     <_BuildToolsAssemblyTfm Condition="'$(MSBuildRuntimeType)' != 'Core'">net46</_BuildToolsAssemblyTfm>
     <_BuildToolsAssembly>$(MSBuildThisFileDirectory)..\tools\$(_BuildToolsAssemblyTfm)\$(_BuildTasksAssemblyName).dll</_BuildToolsAssembly>
   </PropertyGroup>
@@ -19,8 +19,5 @@
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)UnzipArchive" AssemblyFile="$(_BuildToolsAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)FindUnusedReferences" AssemblyFile="$(_BuildToolsAssembly)"
     Condition="'$(MSBuildRuntimeType)' == 'Core'" />
-
-  <!-- Note: use 'XmlPoke' where possible. We plan to remove this. See https://github.com/aspnet/BuildTools/issues/180 -->
-  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)XmlPoke2" AssemblyFile="$(_BuildToolsAssembly)" />
 
 </Project>

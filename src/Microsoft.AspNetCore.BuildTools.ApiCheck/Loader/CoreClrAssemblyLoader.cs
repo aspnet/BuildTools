@@ -80,10 +80,6 @@ namespace ApiCheck
             {
                 // The assembly has already been loaded.
             }
-            catch (MissingMethodException)
-            {
-                // Temporary workaround for a CoreFx issue
-            }
 
             return false;
         }

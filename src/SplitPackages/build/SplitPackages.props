@@ -1,0 +1,5 @@
+<Project>
+  <PropertyGroup>
+    <SplitPackagesNetCoreAppPath>$(MSBuildThisFileDirectory)..\SplitPackages.dll</SplitPackagesNetCoreAppPath>
+  </PropertyGroup>
+</Project>

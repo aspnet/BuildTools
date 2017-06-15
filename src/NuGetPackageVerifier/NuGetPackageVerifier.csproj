@@ -8,7 +8,6 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <AssemblyName>NuGetPackageVerifier</AssemblyName>
     <OutputType>exe</OutputType>
-    <PackageTargetFallback>$(PackageTargetFallback);portable-net45+wp8</PackageTargetFallback>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,11 +19,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.4.9" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.5.0-beta8" />
     <PackageReference Include="Mono.Cecil" Version="0.10.0-beta1-v2" />
     <PackageReference Include="Newtonsoft.Json" Version="$(JsonNetVersion)" />
     <PackageReference Include="NuGet.Packaging" Version="$(NuGetPackagesVersion)" />
-    <PackageReference Include="System.Runtime.Loader" Version="4.0.0" />
   </ItemGroup>
 
  <!-- packaging settings -->

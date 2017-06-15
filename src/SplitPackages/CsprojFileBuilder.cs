@@ -140,9 +140,9 @@ namespace SplitPackages
                 {
                     var importNames = string.Join(";", imports.Select(Frameworks.GetMoniker));
                     projectDefinitionPropertyGroup.Add(
-                        new XElement("PackageTargetFallback",
+                        new XElement("AssetTargetFallback",
                         new XAttribute("Condition", $" '$(TargetFramework)' == '{monikerName}'"),
-                        $"$(PackageTargetFallback);{importNames}"));
+                        $"$(AssetTargetFallback);{importNames}"));
                 }
             }
 

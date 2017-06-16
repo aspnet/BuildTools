@@ -21,7 +21,7 @@ namespace BuildTools.Tasks.Tests
                 Query = "$.sdk.version"
             };
 
-            Assert.True(task.Execute(), "Task should passed");
+            Assert.True(task.Execute(), "Task should pass");
             var result = Assert.Single(task.Result);
             Assert.Equal("1.2.3", result.ItemSpec);
             Assert.Equal("String", result.GetMetadata("Type"));
@@ -39,7 +39,7 @@ namespace BuildTools.Tasks.Tests
                 Query = "$.runtimes[*].version"
             };
 
-            Assert.True(task.Execute(), "Task should passed");
+            Assert.True(task.Execute(), "Task should pass");
             Assert.Collection(task.Result,
                 i => Assert.Equal("1.0.0-beta", i.ItemSpec),
                 i => Assert.Equal("1.0.0-alpha", i.ItemSpec));
@@ -55,7 +55,7 @@ namespace BuildTools.Tasks.Tests
                 Query = "$.dne.property.notthere"
             };
 
-            Assert.True(task.Execute(), "Task should passed");
+            Assert.True(task.Execute(), "Task should pass");
             Assert.Empty(task.Result);
         }
 
@@ -70,7 +70,7 @@ namespace BuildTools.Tasks.Tests
                 Query = "this is bad JSONPath syntax"
             };
 
-            Assert.False(task.Execute(), "Task should not passed");
+            Assert.False(task.Execute(), "Task should not pass");
             var error = Assert.Single(engine.Errors);
             Assert.Contains("Unexpected character while parsing path", error.Message);
             Assert.NotNull(task.Result);
@@ -87,7 +87,7 @@ namespace BuildTools.Tasks.Tests
                 Query = ""
             };
 
-            Assert.False(task.Execute(), "Task should not passed");
+            Assert.False(task.Execute(), "Task should not pass");
             var error = Assert.Single(engine.Errors);
             Assert.Contains("Unexpected character encountered while parsing value", error.Message);
             Assert.NotNull(task.Result);
@@ -104,7 +104,7 @@ namespace BuildTools.Tasks.Tests
                 Query = ""
             };
 
-            Assert.False(task.Execute(), "Task should not passed");
+            Assert.False(task.Execute(), "Task should not pass");
             Assert.NotNull(task.Result);
         }
     }

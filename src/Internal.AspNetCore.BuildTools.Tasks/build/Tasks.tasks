@@ -1,4 +1,4 @@
-﻿<Project>
+<Project>
 
   <PropertyGroup>
     <_BuildToolsAssemblyTfm Condition="'$(MSBuildRuntimeType)' == 'Core'">netcoreapp2.0</_BuildToolsAssemblyTfm>
@@ -12,6 +12,7 @@
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)GetDotNetHost" AssemblyFile="$(_BuildToolsAssembly)"
     Condition="'$(MSBuildRuntimeType)' == 'Core'"/>
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)GetOSPlatform" AssemblyFile="$(_BuildToolsAssembly)" />
+  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)JsonPeek" AssemblyFile="$(_BuildToolsAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)SetEnvironmentVariable" AssemblyFile="$(_BuildToolsAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)UpdatePackageSource" AssemblyFile="$(_BuildToolsAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)WaitForDebugger" AssemblyFile="$(_BuildToolsAssembly)" />

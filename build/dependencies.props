@@ -1,10 +1,13 @@
-﻿<Project>
+<Project>
   <PropertyGroup>
     <CommandLineUtilsVersion>1.2.0-*</CommandLineUtilsVersion>
     <CoreFxVersion>4.3.0</CoreFxVersion>
     <DotNetCliUtilsVersion>1.0.1</DotNetCliUtilsVersion>
     <DotNetProjectModelVersion>1.0.0-rc3-1-003177</DotNetProjectModelVersion>
+    <!-- This one is OK for console tools that bundle their own version of JSON.NET -->
     <JsonNetVersion>10.0.1</JsonNetVersion>
+    <!-- Use this for anything that runs as an MSBuild task. Should match this: https://github.com/dotnet/sdk/blob/master/build/DependencyVersions.props#L14 -->
+    <JsonNetInMSBuildVersion>9.0.1</JsonNetInMSBuildVersion>
     <MsBuildPackageVersions>15.1.1012</MsBuildPackageVersions>
     <NetStandardPackageVersion>1.6.1</NetStandardPackageVersion>
     <NuGetPackagesVersion>4.0.0</NuGetPackagesVersion>

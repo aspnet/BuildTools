@@ -1,0 +1,37 @@
+<Project>
+
+  <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)NuGetPackageVerifier.Task.dll"
+              TaskName="NuGetPackagerVerifier.VerifyPackages" />
+
+  <PropertyGroup>
+    <VerifyDependsOn>$(VerifyDependsOn);VerifyPackages</VerifyDependsOn>
+  </PropertyGroup>
+
+<!--
+###################################################################
+Target: VerifyPackages
+
+Runs the NuGet Package Verifier on all nupkgs in build output.
+Only runs if a file named NuGetPackageVerifier.json is in the
+repository root.
+###################################################################
+-->
+  <PropertyGroup>
+    <NuGetVerifierRuleFile>$(RepositoryRoot)NuGetPackageVerifier.json</NuGetVerifierRuleFile>
+  </PropertyGroup>
+
+  <Target Name="VerifyPackages" Condition="Exists('$(NuGetVerifierRuleFile)')">
+    <ItemGroup>
+      <Packages Include="$(BuildDir)*.nupkg" />
+    </ItemGroup>
+
+    <Warning Text="No nupkg found in '$(BuildDir)'." Condition="$(Packages -> Count()) == 0" />
+    <Warning Text="Skipping nuget package verification because artifacts directory could not be found"
+      Condition="!Exists('$(BuildDir)')" />
+
+    <VerifyPackages ArtifactDirectory="$(BuildDir)"
+      RuleFile="$(NuGetVerifierRuleFile)"
+      Condition="Exists('$(BuildDir)')" />
+  </Target>
+
+</Project>

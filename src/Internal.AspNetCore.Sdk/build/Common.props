@@ -32,11 +32,13 @@ Usage: this should be imported once via NuGet at the top of the file.
     <AssemblyRevision>$(_TwoDigitYear)$(_ThreeDigitDayOfYear)</AssemblyRevision>
   </PropertyGroup>
 
-  <!-- Detect this package inclusion. For use by other targets and properties. -->
   <PropertyGroup>
+    <!-- Detect this package inclusion. For use by other targets and properties. -->
     <InternalAspNetCoreSdkImported>true</InternalAspNetCoreSdkImported>
-    <_BuildTasksAssemblyName>Internal.AspNetCore.Sdk</_BuildTasksAssemblyName>
     <_BuildTasksPrefix>Sdk_</_BuildTasksPrefix>
+    <_BuildToolsAssemblyTfm Condition="'$(MSBuildRuntimeType)' == 'Core'">netcoreapp2.0</_BuildToolsAssemblyTfm>
+    <_BuildToolsAssemblyTfm Condition="'$(MSBuildRuntimeType)' != 'Core'">net46</_BuildToolsAssemblyTfm>
+    <_BuildToolsAssembly>$(MSBuildThisFileDirectory)..\tools\$(_BuildToolsAssemblyTfm)\Internal.AspNetCore.Sdk.dll</_BuildToolsAssembly>
   </PropertyGroup>
 
   <Import Project="$(MSBuildThisFileDirectory)Tasks.tasks" Condition="Exists('$(MSBuildThisFileDirectory)Tasks.tasks')"/>

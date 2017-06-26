@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <_RepoTaskAssembly>$(MSBuildThisFileDirectory)bin\publish\RepoTasks.dll</_RepoTaskAssembly>
+  </PropertyGroup>
+
+  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.ZipArchive" AssemblyFile="$(_RepoTaskAssembly)" />
+  <UsingTask TaskName="RepoTasks.GenerateBadge" AssemblyFile="$(_RepoTaskAssembly)" />
+</Project>

@@ -1,11 +1,5 @@
 <Project>
 
-  <PropertyGroup>
-    <_BuildToolsAssemblyTfm Condition="'$(MSBuildRuntimeType)' == 'Core'">netcoreapp2.0</_BuildToolsAssemblyTfm>
-    <_BuildToolsAssemblyTfm Condition="'$(MSBuildRuntimeType)' != 'Core'">net46</_BuildToolsAssemblyTfm>
-    <_BuildToolsAssembly>$(MSBuildThisFileDirectory)..\tools\$(_BuildToolsAssemblyTfm)\$(_BuildTasksAssemblyName).dll</_BuildToolsAssembly>
-  </PropertyGroup>
-
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)GenerateResxDesignerFiles" AssemblyFile="$(_BuildToolsAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)GetAssemblyFileVersion" AssemblyFile="$(_BuildToolsAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)GetGitCommitInfo" AssemblyFile="$(_BuildToolsAssembly)" />

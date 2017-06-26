@@ -1,7 +1,6 @@
 <Project>
   <PropertyGroup>
     <AspNetCoreVersion>2.0.0-*</AspNetCoreVersion>
-    <CommandLineUtilsVersion>$(AspNetCoreVersion)</CommandLineUtilsVersion>
     <CoreFxVersion>4.3.0</CoreFxVersion>
     <DotNetCliUtilsVersion>1.0.1</DotNetCliUtilsVersion>
     <DotNetProjectModelVersion>1.0.0-rc3-1-003177</DotNetProjectModelVersion>

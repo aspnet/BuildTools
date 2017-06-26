@@ -4,8 +4,9 @@
 
   <PropertyGroup>
     <Description>Classifies a set of packages from several directories based on information from a csv file</Description>
-    <VersionPrefix>2.0.0</VersionPrefix>
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+    <VersionPrefix>2.0.0</VersionPrefix>
+    <VersionSuffix>rc2-$(BuildNumber)</VersionSuffix>
   </PropertyGroup>
 
   <ItemGroup>

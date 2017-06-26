@@ -1,0 +1,57 @@
+<Project>
+
+  <ItemGroup>
+    <!-- put unit test projects ahead of functional tests -->
+    <_FunctionalTests Include="$(RepositoryRoot)test\*\*FunctionalTest*.csproj" Exclude="@(ExcludeFromTest)" />
+    <ProjectsToTest Include="$(RepositoryRoot)test\*\*.csproj" Exclude="@(_FunctionalTests);@(ExcludeFromTest)" />
+    <ProjectsToTest Include="@(_FunctionalTests)"  />
+  </ItemGroup>
+
+<!--
+###################################################################
+Target: TestProjects
+
+Items: ProjectsToTest. Defaults to test/*/*.csproj
+Properties: ExcludeFromTest. ItemSpec for projects to avoid testing.
+
+Runs the VSTest on all projects in the ProjectsToTest itemgroup.
+###################################################################
+-->
+  <PropertyGroup>
+    <TestDependsOn>$(TestDependsOn);TestProjects</TestDependsOn>
+    <VSTestLogger Condition=" '$(VSTestLogger)' == '' AND '$(TEAMCITY_VERSION)' != '' ">trx</VSTestLogger>
+    <VSTestAutoReporters Condition=" '$(VSTestAutoReporters)' == '' AND '$(VSTestLogger)' != '' ">false</VSTestAutoReporters>
+    <VSTestAutoReporters Condition=" '$(VSTestAutoReporters)' == '' ">true</VSTestAutoReporters>
+    <IgnoreFailingTestProjects>false</IgnoreFailingTestProjects>
+    <IgnoreFailingTestProjects Condition="'$(KOREBUILD_IGNORE_DOTNET_TEST_EXIT_CODE)' == '1'">true</IgnoreFailingTestProjects>
+  </PropertyGroup>
+
+  <Target Name="TestProjects" DependsOnTargets="ResolveSolutions">
+    <RemoveDuplicates Inputs="@(ProjectsToTest)">
+      <Output TaskParameter="Filtered" ItemName="_TestProjectItems" />
+    </RemoveDuplicates>
+
+    <Message Text="%0ARunning tests for:%0A@(_TestProjectItems -> '%(FileName)','%0A')%0A"
+      Importance="High"
+      Condition="'@(_TestProjectItems)' != ''" />
+
+    <PropertyGroup>
+      <!--
+        Disable other test reporters if trx logging is enabled.
+        VSTestCLIRunSettings is a space-separated list of key=value pairs.
+      -->
+      <VSTestCLIRunSettings Condition=" '$(VSTestAutoReporters)' != 'true' ">RunConfiguration.NoAutoReporters=true $(VSTestCLIRunSettings)</VSTestCLIRunSettings>
+      <VSTestNoBuild Condition="'$(VSTestNoBuild)' == ''">$(_SolutionWasBuilt)</VSTestNoBuild>
+      <_TestContinueOnError Condition="'$(IgnoreFailingTestProjects)' == 'true'">ErrorAndContinue</_TestContinueOnError>
+      <_TestContinueOnError Condition="'$(IgnoreFailingTestProjects)' != 'true'">ErrorAndStop</_TestContinueOnError>
+    </PropertyGroup>
+
+    <!-- Intentional use of batching ('%') instead of passing items ('@') so that tests fail sooner -->
+    <MSBuild Projects="%(_TestProjectItems.Identity)"
+      Targets="VSTest"
+      Properties="$(SolutionProperties);VSTestLogger=$(VSTestLogger);VSTestNoBuild=$(VSTestNoBuild);VSTestCLIRunSettings=$([MSBuild]::Escape('$(VSTestCLIRunSettings)'));%(_TestProjectItems.AdditionalProperties)"
+      Condition="'@(_TestProjectItems)' != ''"
+      ContinueOnError="$(_TestContinueOnError)"
+      RemoveProperties="$(_BuildPropertiesToRemove)" />
+  </Target>
+</Project>

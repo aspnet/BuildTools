@@ -14,14 +14,15 @@ insert_final_newline = true
 [*.{cs}]
 indent_size = 4
 
-[*.{xml,config,*proj,nuspec,props,resx,targets,yml}]
+[*.{xml,config,*proj,nuspec,props,resx,targets,yml,tasks}]
 indent_size = 2
 
-[*.{json}]
+[*.json]
 indent_size = 2
 
-[*.{ps1}]
+[*.{ps1,psm1}]
 indent_size = 4
 
-[*.{sh}]
+[*.sh]
 indent_size = 4
+end_of_line = lf

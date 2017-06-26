@@ -21,3 +21,4 @@ project.lock.json
 .vscode/
 global.json
 launchSettings.json
+korebuild-lock.txt

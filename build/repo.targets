@@ -1,17 +1,62 @@
 <Project>
 
-  <!-- resolve using git.exe because the GetGitCommitInfoTask can't be loaded before it is compiled -->
-  <Target Name="ResolveCommitHashWithExe" Condition="'$(CommitHash)'==''" BeforeTargets="Compile">
+  <!-- resolve using git.exe because the GetGitCommitInfoTask isn't available here -->
+  <Target Name="ResolveCommitHashWithExe" Condition="'$(CommitHash)'==''" BeforeTargets="Prepare">
 
     <Exec Command="git rev-parse HEAD" ConsoleToMSBuild="true" EchoOff="true" Condition="'$(CommitHash)'==''">
       <Output TaskParameter="ConsoleOutput" PropertyName="CommitHash" />
     </Exec>
 
+    <PropertyGroup>
+      <SolutionProperties Condition="'$(CommitHash)' != ''">$(SolutionProperties);CommitHash=$(CommitHash)</SolutionProperties>
+    </PropertyGroup>
+  </Target>
+
+  <ItemDefinitionGroup>
+    <BundledTools>
+      <AdditionalProperties></AdditionalProperties>
+    </BundledTools>
+  </ItemDefinitionGroup>
+
+  <Target Name="PackageKoreBuild" DependsOnTargets="ResolveCommitHashWithExe" AfterTargets="Package">
+
+    <Error Text="Missing property: KoreBuildChannel" Condition="'$(KoreBuildChannel)' == ''" />
+    <Error Text="Missing property: Version" Condition="'$(Version)' == ''" />
+    <Error Text="Missing property: CommitHash" Condition="'$(CommitHash)' == ''" />
+
     <ItemGroup>
-      <Solutions Update="@(Solutions)">
-        <AdditionalProperties>CommitHash=$(CommitHash)</AdditionalProperties>
-      </Solutions>
+      <BundledTools Include="NuGetPackageVerifier" />
+      <BundledTools Include="Internal.AspNetCore.BuildTools.Tasks" AdditionalProperties="TargetFramework=netcoreapp2.0" />
+      <Content Include="$(RepositoryRoot)sdk\KoreBuild\**\*" />
     </ItemGroup>
+
+    <PropertyGroup>
+      <_KoreBuildIntermediateDir>$(IntermediateDir)korebuild\</_KoreBuildIntermediateDir>
+      <_KoreBuildOutDir>$(ArtifactsDir)korebuild\artifacts\$(Version)\</_KoreBuildOutDir>
+      <_ChannelOutDir>$(ArtifactsDir)korebuild\channels\$(KoreBuildChannel)\</_ChannelOutDir>
+    </PropertyGroup>
+
+    <RemoveDir Directories="$(_KoreBuildIntermediateDir);$(ArtifactsDir)korebuild\" />
+    <MakeDir Directories="$(_ChannelOutDir);$(_KoreBuildOutDir);$(_KoreBuildIntermediateDir)" />
+    <Copy SourceFiles="%(Content.Identity)" DestinationFiles="$(_KoreBuildIntermediateDir)%(RecursiveDir)%(FileName)%(Extension)" />
+
+    <WriteLinesToFile File="$(_KoreBuildIntermediateDir).version" Lines="$(CommitHash);$(Version)" Overwrite="true" />
+
+    <MSBuild Targets="Publish"
+      Projects="$(RepositoryRoot)src\%(BundledTools.Identity)\%(Identity).csproj"
+      Properties="$(SolutionProperties);PublishDir=$(_KoreBuildIntermediateDir)modules\%(Identity)\;%(AdditionalProperties)" />
+
+    <MSBuild Targets="Publish"
+      Projects="$(RepositoryRoot)src\NuGetPackageVerifier.Task\NuGetPackageVerifier.Task.csproj"
+      Properties="$(SolutionProperties);PublishDir=$(_KoreBuildIntermediateDir)modules\NuGetPackageVerifier\" />
+
+    <ItemGroup>
+      <KoreBuildFiles Include="$(_KoreBuildIntermediateDir)**\*" />
+    </ItemGroup>
+
+    <WriteLinesToFile File="$(_ChannelOutDir)latest.txt" Lines="$(CommitHash);$(Version)" Overwrite="true"/>
+    <RepoTasks.GenerateBadge File="$(_ChannelOutDir)badge.svg" Version="$(Version)" />
+    <ZipArchive WorkingDirectory="$(_KoreBuildIntermediateDir)" File="$(_KoreBuildOutDir)korebuild.$(Version).zip" SourceFiles="@(KoreBuildFiles)" />
   </Target>
 
 </Project>

@@ -1,0 +1,43 @@
+<!-- this is a dummy project designed to produce contentFiles packages -->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Target Name="VerifyProperties" BeforeTargets="Pack">
+    <Error Text="Missing property: RepositoryRoot" Condition="'$(RepositoryRoot)'==''"/>
+    <Error Text="Missing property: PackageId" Condition="'$(PackageId)'==''"/>
+    <Error Text="Missing property: NuspecBasePath" Condition="'$(NuspecBasePath)'==''"/>
+  </Target>
+
+  <Import Project="$(RepositoryRoot)build\common.props" Condition="Exists('$(RepositoryRoot)build\common.props')" />
+
+  <Target Name="WarnIfNoCommonProps" BeforeTargets="Pack">
+    <Warning Text="Expected a props file in '$(RepositoryRoot)build\common.props'. Shared sources packages may be missing the right version number when this is left out."
+             Condition="!Exists('$(RepositoryRoot)build\common.props')"/>
+  </Target>
+
+  <PropertyGroup>
+    <NoBuild>true</NoBuild>
+    <PackageOutputPath Condition="'$(PackageOutputPath)'==''">$(RepositoryRoot)artifacts\build</PackageOutputPath>
+    <TargetFramework>netstandard1.0</TargetFramework>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <Description>$(PackageId)</Description>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <ContentTargetFolders>contentFiles</ContentTargetFolders>
+    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(NuspecBasePath)'!=''">
+    <Compile Include="$(NuspecBasePath)\**\*.cs">
+      <Pack>true</Pack>
+      <PackagePath>$(ContentTargetFolders)\cs\netstandard1.0\</PackagePath>
+    </Compile>
+    <EmbeddedResource Include="$(NuspecBasePath)\**\*.resx">
+      <Pack>true</Pack>
+      <PackagePath>$(ContentTargetFolders)\any\any\</PackagePath>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="@(PackageReference)" PrivateAssets="All" />
+  </ItemGroup>
+
+</Project>

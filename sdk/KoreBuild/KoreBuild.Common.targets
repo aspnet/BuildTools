@@ -1,0 +1,25 @@
+<Project>
+
+<!--
+###################################################################
+Standard lifecycle targets.
+
+When extending the solution build, chain off one of these by
+extending the *DependsOn property
+###################################################################
+-->
+
+  <!-- Default cycle targets, in order. -->
+  <Target Name="Prepare" DependsOnTargets="$(PrepareDependsOn)" />
+  <Target Name="Restore" DependsOnTargets="$(RestoreDependsOn)" />
+  <Target Name="Compile" DependsOnTargets="$(CompileDependsOn)" />
+  <Target Name="Package" DependsOnTargets="$(PackageDependsOn)" />
+  <Target Name="Test"    DependsOnTargets="$(TestDependsOn)" />
+  <Target Name="Verify"  DependsOnTargets="$(VerifyDependsOn)" />
+  <Target Name="Build"   DependsOnTargets="$(BuildDependsOn)" />
+
+  <!-- Additional common targets. -->
+  <Target Name="Clean"   DependsOnTargets="$(CleanDependsOn)" />
+  <Target Name="Rebuild" DependsOnTargets="$(RebuildDependsOn)" />
+
+</Project>

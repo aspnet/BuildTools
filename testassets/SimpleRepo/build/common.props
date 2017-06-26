@@ -1,0 +1,5 @@
+<Project>
+  <PropertyGroup>
+    <VersionSuffix>beta-$(BuildNumber)</VersionSuffix>
+  </PropertyGroup>
+</Project>

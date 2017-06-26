@@ -1,0 +1,155 @@
+<!--
+FYI: targets, properties, and items that begin with an underscore are meant to be internal.
+     They are subject to change. Overriding these may break these targets.
+-->
+<Project>
+
+  <ItemGroup Condition="'$(DisableDefaultItems)' != 'true'">
+    <Solutions Include="$(RepositoryRoot)*.sln" Exclude="@(ExcludeSolutions)" />
+    <ProjectsToPack Include="$(RepositoryRoot)src\*\*.csproj" Exclude="@(ExcludeFromPack)" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(DisableDefaultTargets)' != 'true'">
+    <PrepareDependsOn>$(PrepareDependsOn);CleanArtifacts;_PrepareOutputPaths</PrepareDependsOn>
+    <RestoreDependsOn>$(RestoreDependsOn);_BeforeRestore;RestoreSolutions</RestoreDependsOn>
+    <CompileDependsOn>$(CompileDependsOn);_CreateCommitHashArtifact;BuildSolutions</CompileDependsOn>
+    <PackageDependsOn>$(PackageDependsOn);PackageProjects;PackSharedSources</PackageDependsOn>
+    <CleanDependsOn>$(CleanDependsOn);CleanArtifacts;CleanSolutions</CleanDependsOn>
+    <RebuildDependsOn>$(RebuildDependsOn);RebuildSolutions</RebuildDependsOn>
+  </PropertyGroup>
+
+  <Target Name="CleanArtifacts">
+    <RemoveDir Directories="$(BuildDir);$(IntermediateDir)" />
+    <ItemGroup>
+      <_FilesToDelete Include="$(ArtifactsDir)**\*" Exclude="$(ArtifactsDir)msbuild\**\*" />
+    </ItemGroup>
+    <Delete Files="@(_FilesToDelete)" />
+  </Target>
+
+  <Target Name="_PrepareOutputPaths">
+    <MakeDir Directories="$(ArtifactsDir);$(BuildDir)" />
+  </Target>
+
+  <!-- The filename that will contain the commit hash -->
+  <PropertyGroup>
+    <_CommitArtifactFileName>commit</_CommitArtifactFileName>
+  </PropertyGroup>
+
+  <Target Name="_CreateCommitHashArtifact" DependsOnTargets="Prepare">
+    <WriteLinesToFile
+      File="$(ArtifactsDir)$(_CommitArtifactFileName)"
+      Overwrite="true"
+      Lines="$(CommitHash)"
+      Condition="'$(CommitHash)' != ''" />
+  </Target>
+
+<!--
+###################################################################
+Targets: {Target}Solutions
+
+Items: Solutions
+Properties: ExcludeSolutions
+
+Executes /t:{Target} on all solutions
+###################################################################
+-->
+  <PropertyGroup>
+    <_SolutionWasBuilt>false</_SolutionWasBuilt>
+    <!-- ensure its value doesn't invalidate MSBuild build cache -->
+    <_BuildPropertiesToRemove>$(_BuildPropertiesToRemove);_SolutionWasBuilt</_BuildPropertiesToRemove>
+
+    <BuildInParallel>true</BuildInParallel>
+  </PropertyGroup>
+
+  <Target Name="ResolveSolutions"
+    DependsOnTargets="Prepare"
+    Returns="@(Solutions)">
+
+    <ItemGroup>
+      <_Temp Remove="@(_Temp)" />
+      <_Temp Include="@(Solutions)"/>
+      <Solutions Remove="@(Solutions)" />
+    </ItemGroup>
+
+    <RemoveDuplicates Inputs="@(_Temp)">
+      <Output TaskParameter="Filtered" ItemName="Solutions" />
+    </RemoveDuplicates>
+  </Target>
+
+  <Target Name="_EnsureSolutions">
+    <Error Text="No solutions found to build in '$(RepositoryRoot)'" Condition="'@(Solutions)' == ''" />
+  </Target>
+
+  <Target Name="_BeforeRestore">
+    <Warning Text="Restore is skipped because 'NoRestore' == 'true'" Condition="'$(NoRestore)' == 'true'" />
+  </Target>
+
+  <Target Name="RestoreSolutions" DependsOnTargets="ResolveSolutions;_EnsureSolutions" Condition="'$(NoRestore)' != 'true'">
+    <!--
+      Added _SolutionTarget to invalidate subsequent MSBuild calls on the solution.
+      MSBuild incorrectly caches some solution target.
+    -->
+    <MSBuild Targets="Restore"
+      Projects="@(Solutions)"
+      Properties="$(SolutionProperties);_SolutionTarget=Restore"
+      RemoveProperties="$(_BuildPropertiesToRemove)" />
+  </Target>
+
+  <Target Name="CleanSolutions" DependsOnTargets="ResolveSolutions;_EnsureSolutions">
+    <!--
+      Added _SolutionTarget to invalidate subsequent MSBuild calls on the solution.
+      MSBuild incorrectly caches the "Clean" target.
+    -->
+    <MSBuild Targets="Clean"
+      Projects="@(Solutions)"
+      Properties="$(SolutionProperties);_SolutionTarget=Clean"
+      RemoveProperties="$(_BuildPropertiesToRemove)" />
+  </Target>
+
+  <Target Name="BuildSolutions" DependsOnTargets="ResolveSolutions;_EnsureSolutions">
+    <MSBuild Targets="Build"
+      Projects="@(Solutions)"
+      Properties="$(SolutionProperties)"
+      BuildInParallel="$(BuildInParallel)"
+      RemoveProperties="$(_BuildPropertiesToRemove)" />
+
+    <PropertyGroup>
+      <_SolutionWasBuilt>true</_SolutionWasBuilt>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="RebuildSolutions" DependsOnTargets="ResolveSolutions;_EnsureSolutions">
+    <MSBuild Targets="Rebuild"
+      Projects="@(Solutions)"
+      RemoveProperties="$(_BuildPropertiesToRemove)" />
+
+    <PropertyGroup>
+      <_SolutionWasBuilt>true</_SolutionWasBuilt>
+    </PropertyGroup>
+  </Target>
+
+<!--
+###################################################################
+Target: PackageProjects
+
+Executes /t:Pack on all projects matching src/*/*.csproj.
+###################################################################
+-->
+  <Target Name="PackageProjects" DependsOnTargets="ResolveSolutions">
+    <RemoveDuplicates Inputs="@(ProjectsToPack)">
+      <Output TaskParameter="Filtered" ItemName="_PackProjectItems" />
+    </RemoveDuplicates>
+
+    <PropertyGroup>
+      <PackageNoBuild Condition="'$(PackageNoBuild)' == ''">$(_SolutionWasBuilt)</PackageNoBuild>
+    </PropertyGroup>
+
+    <MSBuild Targets="Pack"
+      Projects="@(_PackProjectItems)"
+      Condition="'@(_PackProjectItems)' != ''"
+      Properties="$(SolutionProperties);PackageOutputPath=$(BuildDir);NoBuild=$(PackageNoBuild)"
+      BuildInParallel="$(BuildInParallel)"
+      RemoveProperties="$(_BuildPropertiesToRemove);PackageNoBuild" />
+  </Target>
+
+</Project>

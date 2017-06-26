@@ -1,0 +1,30 @@
+<!--
+###################################################################
+Target: PackSharedSources
+
+Creates a content files package for all each directory in
+that matches "$(RepositoryRoot)/shared/*.Sources".
+###################################################################
+-->
+<Project>
+  <PropertyGroup>
+    <PackageDependsOn>$(PackageDependsOn);PackSharedSources</PackageDependsOn>
+  </PropertyGroup>
+
+
+  <Target Name="PackSharedSources" Condition="Exists('$(SharedSourcesFolder)') OR '@(SharedSourceDirectories)' != ''">
+    <RemoveDuplicates Inputs="@(SharedSourceDirectories)">
+      <Output TaskParameter="Filtered" ItemName="_SharedSourceItems" />
+    </RemoveDuplicates>
+
+    <Message Importance="normal"
+      Text="Producing shared source package for %(_SharedSourceItems.Identity)"
+      Condition="'@(_SharedSourceItems)' != ''" />
+
+    <MSBuild Targets="Restore;Pack"
+      Projects="$(MSBuildThisFileDirectory)sharedsources.csproj"
+      Properties="PackageOutputPath=$(BuildDir);RepositoryRoot=$(RepositoryRoot);NuspecBasePath=%(_SharedSourceItems.Identity);PackageId=%(FileName)%(Extension);BuildNumber=$(BuildNumber)"
+      Condition="'@(_SharedSourceItems)' != ''"
+      BuildInParallel="$(BuildInParallel)" />
+  </Target>
+</Project>

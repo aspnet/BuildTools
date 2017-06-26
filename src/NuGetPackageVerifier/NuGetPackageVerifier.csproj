@@ -5,6 +5,7 @@
   <PropertyGroup>
     <Description>Verifies Asp.Net Core NuGet packages.</Description>
     <VersionPrefix>2.0.0</VersionPrefix>
+    <VersionSuffix>rc2-$(BuildNumber)</VersionSuffix>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <AssemblyName>NuGetPackageVerifier</AssemblyName>
     <OutputType>exe</OutputType>
@@ -16,6 +17,7 @@
     <Content Include="build\*.targets">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
+    <None Include="module.targets" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

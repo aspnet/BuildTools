@@ -15,6 +15,8 @@ namespace NuGetPackagerVerifier
     /// </summary>
     public class VerifyPackages : MSBuildTask
     {
+        private const string ConsoleAppExe = "NuGetPackageVerifier.dll";
+
         [Required]
         public string RuleFile { get; set; }
 
@@ -36,7 +38,12 @@ namespace NuGetPackagerVerifier
             }
 
             var taskAssemblyFolder = Path.GetDirectoryName(GetType().GetTypeInfo().Assembly.Location);
-            var toolPath = Path.Combine(taskAssemblyFolder, "..", "..", "NuGetPackageVerifier.dll");
+            var toolPath = Path.Combine(taskAssemblyFolder, "..", "..", ConsoleAppExe);
+            if (!File.Exists(toolPath))
+            {
+                toolPath = Path.Combine(taskAssemblyFolder, ConsoleAppExe);
+            }
+
             var dotnetMuxer = DotNetMuxer.MuxerPathOrDefault();
             var psi = new ProcessStartInfo
             {

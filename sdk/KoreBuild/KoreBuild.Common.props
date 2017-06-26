@@ -1,0 +1,67 @@
+<Project>
+
+<!--
+###################################################################
+Standard lifecycle chain.
+###################################################################
+-->
+  <PropertyGroup>
+    <PrepareDependsOn></PrepareDependsOn>
+    <RestoreDependsOn>Prepare</RestoreDependsOn>
+    <CompileDependsOn>Restore</CompileDependsOn>
+    <PackageDependsOn>Compile</PackageDependsOn>
+    <TestDependsOn>Package</TestDependsOn>
+    <VerifyDependsOn>Test</VerifyDependsOn>
+    <BuildDependsOn>Verify</BuildDependsOn>
+
+    <CleanDependsOn></CleanDependsOn>
+    <RebuildDependsOn></RebuildDependsOn>
+  </PropertyGroup>
+
+<!--
+###################################################################
+Default layout and configuration.
+###################################################################
+-->
+  <PropertyGroup>
+    <!--
+      The environment variable 'CI' is set to 'true' by Travis and AppVeyor.
+      https://docs.travis-ci.com/user/environment-variables/
+      https://www.appveyor.com/docs/environment-variables/
+    -->
+    <Configuration Condition="'$(CI)' == 'true'">Release</Configuration>
+    <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
+    <SolutionProperties>$(SolutionProperties);Configuration=$(Configuration)</SolutionProperties>
+    <RepositoryRoot Condition="'$(RepositoryRoot)' == ''">$(MSBuildStartupDirectory)..\..\</RepositoryRoot>
+    <RepositoryRoot>$([MSBuild]::EnsureTrailingSlash('$(RepositoryRoot)'))</RepositoryRoot>
+    <ArtifactsDir>$(RepositoryRoot)artifacts\</ArtifactsDir>
+    <BuildDir>$(ArtifactsDir)build\</BuildDir>
+    <IntermediateDir>$(RepositoryRoot)obj\</IntermediateDir>
+  </PropertyGroup>
+
+
+  <!-- Use build number from CI if available -->
+  <PropertyGroup Condition=" '$(BuildNumber)' == '' ">
+    <!--
+      See https://confluence.jetbrains.com/display/TCD10/Predefined+Build+Parameters.
+      This environment variable is automatically set by TeamCity.
+    -->
+    <BuildNumber Condition=" '$(BUILD_NUMBER)' != '' ">$(BUILD_NUMBER)</BuildNumber>
+  </PropertyGroup>
+
+  <!-- Create a temporary build number if not assigned by the CI server -->
+  <PropertyGroup Condition=" '$(BuildNumber)' == '' ">
+    <!--
+      Create second-based build number for local builds.
+      635556672000000000 is Jan 1, 2015.
+    -->
+    <_SecondBasedTimeStamp>$([System.DateTime]::UtcNow.Subtract($([System.DateTime]::FromBinary(635556672000000000))).TotalSeconds.ToString("F0"))</_SecondBasedTimeStamp>
+    <_SecondBasedTimeStamp>t$([System.Int64]::Parse($(_SecondBasedTimeStamp)).ToString("x9"))</_SecondBasedTimeStamp>
+    <BuildNumber>$(_SecondBasedTimeStamp)</BuildNumber>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <SolutionProperties Condition="'$(BuildNumber)' != ''">$(SolutionProperties);BuildNumber=$(BuildNumber)</SolutionProperties>
+  </PropertyGroup>
+
+</Project>

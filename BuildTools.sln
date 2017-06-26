@@ -43,10 +43,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PackagePublisher", "src\Pac
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.BuildTools.ApiCheck.Task", "src\Microsoft.AspNetCore.BuildTools.ApiCheck.Task\Microsoft.AspNetCore.BuildTools.ApiCheck.Task.csproj", "{9BE633D2-025A-4B29-A8A9-FC8F79C331AB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KoreBuild.FunctionalTests", "test\KoreBuild.FunctionalTests\KoreBuild.FunctionalTests.csproj", "{D5D1BD88-1781-4448-89DD-3E62C95D3A77}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{657AFF5E-164E-493D-8501-8026B7C20808}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -105,6 +111,18 @@ Global
 		{9BE633D2-025A-4B29-A8A9-FC8F79C331AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9BE633D2-025A-4B29-A8A9-FC8F79C331AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9BE633D2-025A-4B29-A8A9-FC8F79C331AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5D1BD88-1781-4448-89DD-3E62C95D3A77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5D1BD88-1781-4448-89DD-3E62C95D3A77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5D1BD88-1781-4448-89DD-3E62C95D3A77}.Debug|x64.ActiveCfg = Debug|x64
+		{D5D1BD88-1781-4448-89DD-3E62C95D3A77}.Debug|x64.Build.0 = Debug|x64
+		{D5D1BD88-1781-4448-89DD-3E62C95D3A77}.Debug|x86.ActiveCfg = Debug|x86
+		{D5D1BD88-1781-4448-89DD-3E62C95D3A77}.Debug|x86.Build.0 = Debug|x86
+		{D5D1BD88-1781-4448-89DD-3E62C95D3A77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5D1BD88-1781-4448-89DD-3E62C95D3A77}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5D1BD88-1781-4448-89DD-3E62C95D3A77}.Release|x64.ActiveCfg = Release|x64
+		{D5D1BD88-1781-4448-89DD-3E62C95D3A77}.Release|x64.Build.0 = Release|x64
+		{D5D1BD88-1781-4448-89DD-3E62C95D3A77}.Release|x86.ActiveCfg = Release|x86
+		{D5D1BD88-1781-4448-89DD-3E62C95D3A77}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -124,5 +142,6 @@ Global
 		{211858CA-6E82-4EFD-9960-8D023EEB789F} = {60A938B2-D95A-403C-AA7A-3683AD64DFA0}
 		{E072CD5C-C8D9-4724-9896-A31973775C09} = {A4F4353B-C3D2-40B0-909A-5B48A748EA76}
 		{9BE633D2-025A-4B29-A8A9-FC8F79C331AB} = {A4F4353B-C3D2-40B0-909A-5B48A748EA76}
+		{D5D1BD88-1781-4448-89DD-3E62C95D3A77} = {60A938B2-D95A-403C-AA7A-3683AD64DFA0}
 	EndGlobalSection
 EndGlobal

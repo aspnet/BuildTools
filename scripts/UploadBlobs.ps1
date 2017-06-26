@@ -56,22 +56,18 @@ if ($env:BUILD_IS_PERSONAL) {
 
 $globs = (
     @{
-        pattern     = '*.zip'
+        pattern     = 'artifacts/*.zip'
         contentType = 'application/zip'
     },
     @{
-        pattern     = 'badge.svg'
+        pattern     = '*/badge.svg'
         contentType = 'image/svg+xml'
         otherArgs   = ('--content-cache-control', 'no-cache, no-store, must-revalidate')
     },
     @{
-        pattern     = 'latest.txt'
+        pattern     = '*/latest.txt'
         contentType = 'text/plain'
         otherArgs   = ('--content-cache-control', 'no-cache, no-store, must-revalidate')
-    },
-    @{
-        pattern     = '*.tar.gz'
-        contentType = 'application/gzip'
     }
 )
 

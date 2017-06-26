@@ -79,7 +79,14 @@ namespace Microsoft.AspNetCore.BuildTools
             {
                 foreach (var file in SourceFiles)
                 {
-                    zip.CreateEntryFromFile(file.ItemSpec, file.GetMetadata("Link").Replace('\\', '/'));
+                    var entryName = file.GetMetadata("Link").Replace('\\', '/');
+                    if (string.IsNullOrEmpty(Path.GetFileName(entryName)))
+                    {
+                        Log.LogError("Empty file names not allowed. The effective entry path for item '{0}' is '{1}'", file.ItemSpec, entryName);
+                        return false;
+                    }
+
+                    zip.CreateEntryFromFile(file.ItemSpec, entryName);
                     Log.LogMessage("Added '{0}' to archive", file.ItemSpec);
                 }
             }

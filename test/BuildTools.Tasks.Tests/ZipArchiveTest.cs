@@ -92,6 +92,40 @@ namespace BuildTools.Tasks.Tests
             }
         }
 
+        [Fact]
+        public void FailsForEmptyFileName()
+        {
+            var inputFile = Path.Combine(_tempDir, "..", Guid.NewGuid().ToString());
+            var dest = Path.Combine(_tempDir, "test.zip");
+            var linkItem = new TaskItem(inputFile);
+            linkItem.SetMetadata("Link", "temp/");
+            try
+            {
+                File.WriteAllText(inputFile, "");
+                var mock = new MockEngine { ContinueOnError = true };
+                var task = new ZipArchive
+                {
+                    SourceFiles = new[] { linkItem },
+                    WorkingDirectory = Path.Combine(_tempDir, "temp"),
+                    File = dest,
+                    BuildEngine = mock,
+                };
+
+                Assert.False(task.Execute(), "Task should fail");
+                Assert.NotEmpty(mock.Errors);
+
+                using (var fileStream = new FileStream(dest, FileMode.Open))
+                using (var zipStream = new ZipArchiveStream(fileStream))
+                {
+                    Assert.Empty(zipStream.Entries);
+                }
+            }
+            finally
+            {
+                File.Delete(inputFile);
+            }
+        }
+
         private IEnumerable<ITaskItem> CreateItems(string[] files)
         {
             foreach (var file in files)

@@ -79,7 +79,7 @@ function Invoke-RepositoryBuild(
         $MSBuildArgs | ForEach-Object { $msBuildArguments += "`n`"$_`"" }
 
         if (!(Test-Path $msbuildArtifactsDir)) {
-            mkdir $msbuildArtifactsDir | Out-Null
+            New-Item -Type Directory $msbuildArtifactsDir | Out-Null
         }
 
         $msBuildArguments | Out-File -Encoding ASCII -FilePath $msBuildResponseFile
@@ -113,7 +113,7 @@ function Install-Tools(
 
     $ErrorActionPreference = 'Stop'
     if (!(Test-Path $DotNetHome)) {
-        New-Item -ItemType Directory $DotNetHome
+        New-Item -ItemType Directory $DotNetHome | Out-Null
     }
 
     $DotNetHome = Resolve-Path $DotNetHome

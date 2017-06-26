@@ -1,5 +1,5 @@
 #!/usr/bin/env powershell
-# requires -version 5
+#requires -version 4
 [CmdletBinding(PositionalBinding = $false)]
 param(
     [Alias('p')]

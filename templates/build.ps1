@@ -1,5 +1,5 @@
 #!/usr/bin/env powershell
-#requires -version 5
+#requires -version 4
 
 <#
 .SYNOPSIS
@@ -60,7 +60,7 @@ $ErrorActionPreference = 'Stop'
 
 function __get_korebuild {
 
-    $lockFile = Join-Path $PSScriptRoot 'korebuild-lock.txt'
+    $lockFile = Join-Path $Path 'korebuild-lock.txt'
 
     if (!(Test-Path $lockFile) -or $Update) {
         __fetch "$ToolsSource/korebuild/channels/$Channel/latest.txt" $lockFile
@@ -73,10 +73,20 @@ function __get_korebuild {
         Write-Host "Downloading KoreBuild $version"
         New-Item -ItemType Directory -Path $korebuildPath | Out-Null
         $remotePath = "$ToolsSource/korebuild/artifacts/$version/korebuild.$version.zip"
-        $tmpfile = "$(New-TemporaryFile).zip"
+
         try {
-            __fetch $remotePath $tmpfile
-            Expand-Archive -Path $tmpfile -DestinationPath $korebuildPath
+            if ($PSVersionTable.PSVersion -ge '5.0.0.0') {
+                # Use built-in commands where possible as they are cross-plat compatible
+                $tmpfile = "$(New-TemporaryFile).zip"
+                __fetch $remotePath $tmpfile
+                Expand-Archive -Path $tmpfile -DestinationPath $korebuildPath
+            } else {
+                # Fallback to old approach for old installations of PowerShell
+                $tmpfile = Join-Path $env:TEMP "KoreBuild-$([guid]::NewGuid()).zip"
+                __fetch $remotePath $tmpfile
+                Add-Type -AssemblyName System.IO.Compression.FileSystem
+                [System.IO.Compression.ZipFile]::ExtractToDirectory($tmpfile, $korebuildPath)
+            }
         }
         finally {
             remove-item $tmpfile -ErrorAction Ignore
@@ -99,14 +109,19 @@ function __fetch($RemotePath, $LocalPath) {
 
     $retries = 10
     while ($retries -gt 0) {
+        $retries -= 1
         try {
             Invoke-WebRequest -UseBasicParsing -Uri $RemotePath -OutFile $LocalPath
             break
         }
         catch {
-            Write-Verbose "Request failed. $retries retries remaining"
+            if ($retries -le 0) {
+                Write-Error "Download failed: '$RemotePath'."
+            }
+            else {
+                Write-Verbose "Request failed. $retries retries remaining"
+            }
         }
-        $retries -= 1
     }
 }
 

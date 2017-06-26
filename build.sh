@@ -26,7 +26,7 @@ tools_source='https://aspnetcore.blob.core.windows.net/buildtools'
 verbose=false
 while [[ $# > 0 ]]; do
     case $1 in
-        -?|-h|--help)
+        -\?|-h|--help)
             __usage
             ;;
         -d|--dotnet-home)

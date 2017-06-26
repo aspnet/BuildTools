@@ -48,6 +48,11 @@ fi
 repo_path="$(cd $repo_path && pwd)"
 __verbose "Building $repo_path"
 
+version_file="$__script_dir/../.version"
+if [ -f "$version_file" ]; then
+    echo -e "${MAGENTA}Using KoreBuild $(cat "$version_file" | tail -1)${RESET}"
+fi
+
 echo "{ \"sdk\": { \"version\": \"$(__get_dotnet_sdk_version)\" } }" > "$repo_path/global.json"
 
 korebuild_proj="$__script_dir/../KoreBuild.proj"

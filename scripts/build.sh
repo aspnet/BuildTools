@@ -7,9 +7,10 @@ tools_source='https://aspnetcore.blob.core.windows.net/buildtools'
 [ -z "${DOTNET_HOME:-}"] && DOTNET_HOME="$HOME/.dotnet"
 verbose=false
 update=false
+repo_path="$DIR"
 
 __usage() {
-    echo "Usage: $(basename ${BASH_SOURCE[0]}) [-d|--dotnet-home <DIR>] [-s|--tools-source <URL>] [--update] [[--] <MSBUILD_ARG>...]"
+    echo "Usage: $(basename ${BASH_SOURCE[0]}) [options] [[--] <MSBUILD_ARG>...]"
     echo ""
     echo "Arguments:"
     echo "    <MSBUILD_ARG>...         Arguments passed to MSBuild. Variable number of arguments allowed."
@@ -17,8 +18,8 @@ __usage() {
     echo "Options:"
     echo "    --verbose                Show verbose output."
     echo "    -c|--channel <CHANNEL>   The channel of KoreBuild to download. Defaults to '$channel'."
-    echo "    -p|--path <PATH>         The directory to build. Defaults to the directory containing the script."
     echo "    -d|--dotnet-home <DIR>   The directory where .NET Core tools will be stored. Defaults to '\$DOTNET_HOME' or '\$HOME/.dotnet."
+    echo "    -p|--path <PATH>         The directory to build. Defaults to the directory containing the script."
     echo "    -s|--tools-source <URL>  The base url where build tools can be downloaded. Defaults to '$tools_source'."
     echo "    -u|--update              Update to the latest KoreBuild even if the lock file is present."
     echo ""
@@ -34,7 +35,7 @@ __usage() {
 
 get_korebuild() {
 
-    local lock_file="$DIR/korebuild-lock.txt"
+    local lock_file="$repo_path/korebuild-lock.txt"
     if [ ! -f $lock_file ] || [ "$update" = true ]; then
         __fetch "$tools_source/korebuild/channels/$channel/latest.txt" $lock_file
     fi
@@ -95,7 +96,7 @@ __fetch() {
 
 while [[ $# > 0 ]]; do
     case $1 in
-        -?|-h|--help)
+        -\?|-h|--help)
             __usage
             ;;
         -c|--channel|-Channel)
@@ -107,6 +108,11 @@ while [[ $# > 0 ]]; do
             shift
             DOTNET_HOME=${1:-}
             [ -z "$DOTNET_HOME" ] && __usage
+            ;;
+        -p|--path|-Path)
+            shift
+            repo_path="${1:-}"
+            [ -z "$repo_path" ] && __usage
             ;;
         -s|--tools-source|-ToolsSource)
             shift
@@ -132,4 +138,4 @@ done
 
 get_korebuild
 install_tools "$tools_source" "$DOTNET_HOME"
-invoke_repository_build "$DIR" $@
+invoke_repository_build "$repo_path" $@

@@ -52,6 +52,11 @@ function Invoke-RepositoryBuild(
         Write-Verbose "Building $Path"
         Write-Verbose "dotnet = ${global:dotnet}"
 
+        $versionFile = Join-Paths $PSScriptRoot ('..', '.version')
+        if (Test-Path $versionFile) {
+            Write-Host -ForegroundColor Magenta "Using KoreBuild $(Get-Content $versionFile -Tail 1)"
+        }
+
         # Generate global.json to ensure the repo uses the right SDK version
         "{ `"sdk`": { `"version`": `"$(__get_dotnet_sdk_version)`" } }" | Out-File (Join-Path $Path 'global.json') -Encoding ascii
 

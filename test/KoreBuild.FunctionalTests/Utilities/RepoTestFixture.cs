@@ -28,7 +28,7 @@ namespace KoreBuild.FunctionalTests
             }
         }
 
-        public string TemplateDir { get; } = Path.Combine(_solutionDir, "templates");
+        public string ScriptsDir { get; } = Path.Combine(_solutionDir, "scripts");
         public string ToolsSource { get; } = Path.Combine(_solutionDir, "artifacts");
         public string TestAssets { get; } = Path.Combine(_solutionDir, "testassets");
 
@@ -36,7 +36,7 @@ namespace KoreBuild.FunctionalTests
         {
             var srcDir = Path.Combine(TestAssets, name);
             var tempDir = Path.Combine(Path.GetTempPath(), "korebuild", Guid.NewGuid().ToString());
-            var app = new TestApp(TemplateDir, ToolsSource, srcDir, tempDir);
+            var app = new TestApp(ScriptsDir, ToolsSource, srcDir, tempDir);
             _disposables.Enqueue(app);
             return app;
         }

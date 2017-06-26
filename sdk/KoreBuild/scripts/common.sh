@@ -9,6 +9,7 @@ fi
 
 # colors
 GREEN="\033[1;32m"
+MAGENTA="\033[0;95m"
 CYAN="\033[0;36m"
 RESET="\033[0m"
 RED="\033[0;31m"

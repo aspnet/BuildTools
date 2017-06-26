@@ -7,7 +7,6 @@
     ModuleVersion = '0.1'
     Description = 'Functions for using KoreBuild'
     PowerShellVersion = '4.0'
-    CompatiblePSEditions = @('Desktop', 'Core')
     FunctionsToExport = @('Install-Tools', 'Invoke-RepositoryBuild')
     AliasesToExport = @('')
     VariablesToExport = @('')

@@ -37,7 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="@(PackageReference)" PrivateAssets="All" />
+    <PackageReference Remove="@(PackageReference)" />
   </ItemGroup>
 
 </Project>

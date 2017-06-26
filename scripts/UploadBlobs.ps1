@@ -7,6 +7,8 @@ param (
 )
 
 $ErrorActionPreference = 'Stop'
+Set-StrictMode -Version 1
+
 function Join-Paths($path, $childPaths) {
     $childPaths | ForEach-Object { $path = Join-Path $path $_ }
     return $path
@@ -58,12 +60,14 @@ $globs = (
         contentType = 'application/zip'
     },
     @{
-        pattern     = '*.svg'
+        pattern     = 'badge.svg'
         contentType = 'image/svg+xml'
+        otherArgs   = ('--content-cache-control', 'no-cache, no-store, must-revalidate')
     },
     @{
-        pattern     = '*.txt'
+        pattern     = 'latest.txt'
         contentType = 'text/plain'
+        otherArgs   = ('--content-cache-control', 'no-cache, no-store, must-revalidate')
     },
     @{
         pattern     = '*.tar.gz'
@@ -72,13 +76,15 @@ $globs = (
 )
 
 $globs | ForEach-Object {
+    $otherArgs = $_.otherArgs
     __exec az storage blob upload-batch `
         $dryrun `
         --verbose `
         --pattern $_.pattern `
         --content-type $_.contentType `
         --destination "$ContainerName/korebuild" `
-        --source $korebuildDir
+        --source $korebuildDir `
+        @otherArgs
 
     if ($LASTEXITCODE -ne 0) {
         Write-Error 'Failed to upload Azure artifacts'

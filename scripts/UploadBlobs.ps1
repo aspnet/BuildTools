@@ -1,0 +1,86 @@
+#!/usr/bin/env powershell
+#requires -version 4
+param (
+    [Parameter(Mandatory = $true)]
+    $ArtifactsDir,
+    $ContainerName = 'buildtools'
+)
+
+$ErrorActionPreference = 'Stop'
+function Join-Paths($path, $childPaths) {
+    $childPaths | ForEach-Object { $path = Join-Path $path $_ }
+    return $path
+}
+
+function __exec($cmd) {
+    $cmdName = [IO.Path]::GetFileName($cmd)
+
+    Write-Host -ForegroundColor Cyan ">>> $cmdName $args"
+    $originalErrorPref = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    & $cmd @args
+    $exitCode = $LASTEXITCODE
+    $ErrorActionPreference = $originalErrorPref
+    if ($exitCode -ne 0) {
+        Write-Error "$cmdName failed with exit code: $exitCode"
+    }
+    else {
+        Write-Host -ForegroundColor Green "<<< $cmdName [$exitCode]"
+    }
+}
+
+## Main
+
+$korebuildDir = Join-Path (Resolve-Path $ArtifactsDir) 'korebuild'
+
+if (!($env:AZURE_STORAGE_ACCOUNT)) {
+    Write-Error 'Expected $env:AZURE_STORAGE_ACCOUNT to be set'
+}
+
+if (!($env:AZURE_STORAGE_SAS_TOKEN)) {
+    Write-Error 'Expected $env:AZURE_STORAGE_SAS_TOKEN to be set'
+}
+
+if (!(Test-Path $korebuildDir)) {
+    Write-Warning "Skipping Azure publish because $korebuildDir does not exist"
+    exit 0
+}
+
+$dryrun = ''
+if ($env:BUILD_IS_PERSONAL) {
+    Write-Host "Running publish as a dryrun for personal builds"
+    $dryrun = '--dryrun'
+}
+
+$globs = (
+    @{
+        pattern     = '*.zip'
+        contentType = 'application/zip'
+    },
+    @{
+        pattern     = '*.svg'
+        contentType = 'image/svg+xml'
+    },
+    @{
+        pattern     = '*.txt'
+        contentType = 'text/plain'
+    },
+    @{
+        pattern     = '*.tar.gz'
+        contentType = 'application/gzip'
+    }
+)
+
+$globs | ForEach-Object {
+    __exec az storage blob upload-batch `
+        $dryrun `
+        --verbose `
+        --pattern $_.pattern `
+        --content-type $_.contentType `
+        --destination "$ContainerName/korebuild" `
+        --source $korebuildDir
+
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error 'Failed to upload Azure artifacts'
+    }
+}

@@ -8,6 +8,7 @@
   </Target>
 
   <Import Project="$(RepositoryRoot)build\common.props" Condition="Exists('$(RepositoryRoot)build\common.props')" />
+  <Import Project="$(NuspecBasePath)\sharedsources.props" Condition="Exists('$(NuspecBasePath)\sharedsources.props')" />
 
   <Target Name="WarnIfNoCommonProps" BeforeTargets="Pack">
     <Warning Text="Expected a props file in '$(RepositoryRoot)build\common.props'. Shared sources packages may be missing the right version number when this is left out."

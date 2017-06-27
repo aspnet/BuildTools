@@ -26,7 +26,7 @@ namespace NuGetPackageVerifier.Rules
                     do
                     {
                         assemblyPath = Path.ChangeExtension(
-                        Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()), extension);
+                            Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()), extension);
                     } while (File.Exists(assemblyPath));
 
                     var isManagedCode = false;

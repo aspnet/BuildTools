@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -23,8 +23,12 @@ namespace NuGetPackageVerifier.Rules
                 if (extension.Equals(".dll", StringComparison.OrdinalIgnoreCase) ||
                     extension.Equals(".exe", StringComparison.OrdinalIgnoreCase))
                 {
-                    var assemblyPath = Path.ChangeExtension(
-                        Path.Combine(Path.GetTempPath(), Path.GetTempFileName()), extension);
+                    string assemblyPath;
+                    do
+                    {
+                        assemblyPath = Path.ChangeExtension(
+                        Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()), extension);
+                    } while (File.Exists(assemblyPath));
 
                     try
                     {

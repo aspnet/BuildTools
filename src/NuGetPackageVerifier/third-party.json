@@ -33,6 +33,7 @@
     "Microsoft.Web.Administration": [ "7.0.0" ],
     "Microsoft.Web.Xdt": [ "1.4.0" ],
     "Microsoft.Win32.Registry": [ "4.3.0" ],
+    "MsgPack.Cli": ["0.9.0-beta2"],
     "Newtonsoft.Json": [ "10.0.1" ],
     "Newtonsoft.Json.Bson": [ "1.0.1" ],
     "NuGet.Frameworks": [ "3.5.0" ],

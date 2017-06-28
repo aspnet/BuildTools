@@ -6,6 +6,8 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DefineConstants>$(DefineConstants);BuildTools</DefineConstants>
+    <RuntimeFrameworkVersion>2.0.0-*</RuntimeFrameworkVersion>
+    <NoWarn>$(NoWarn);NU1603</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

@@ -10,6 +10,8 @@
     <GenerateCommitHashAttribute Condition="'$(CommitHash)'==''">false</GenerateCommitHashAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <EnableApiCheck>false</EnableApiCheck>
+    <!-- workaround https://github.com/aspnet/CoreCLR/issues/223 -->
+    <NoWarn>$(NoWarn);NU1603</NoWarn>
   </PropertyGroup>
 
   <Import Project="$(_AspNetToolsSdkPath)\build\Internal.AspNetCore.Sdk.props" />

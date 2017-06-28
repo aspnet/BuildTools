@@ -20,7 +20,7 @@
     "Microsoft.ApplicationInsights.AspNetCore": [ "2.1.0-beta3", "2.1.0-beta6" ],
     "Microsoft.AspNet.Identity.EntityFramework": [ "2.2.1" ],
     "Microsoft.AspNet.WebApi.Client": [ "5.2.2" ],
-    "Microsoft.Azure.KeyVault": [ "2.2.1-preview" ],
+    "Microsoft.Azure.KeyVault": [ "2.3.1" ],
     "Microsoft.Build.Runtime": [ "15.2.0-preview-000047-02" ],
     "Microsoft.Build.Tasks.Core": [ "15.1.1012" ],
     "Microsoft.CSharp": [ "4.3.0" ],

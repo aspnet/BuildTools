@@ -33,16 +33,11 @@ When the lockfile is not present, KoreBuild will create one using latest availab
 #>
 [CmdletBinding(PositionalBinding = $false)]
 param(
-    [Alias('p')]
     [string]$Path = $PSScriptRoot,
     [Alias('c')]
     [string]$Channel = 'dev',
     [Alias('d')]
-    [string]$DotNetHome = $(`
-            if ($env:DOTNET_HOME) { $env:DOTNET_HOME } `
-            elseif ($env:USERPROFILE) { Join-Path $env:USERPROFILE '.dotnet'} `
-            elseif ($env:HOME) {Join-Path $env:HOME '.dotnet'}`
-            else { Join-Path $PSScriptRoot '.dotnet'} ),
+    [string]$DotNetHome,
     [Alias('s')]
     [string]$ToolsSource = 'https://aspnetcore.blob.core.windows.net/buildtools',
     [Alias('u')]
@@ -58,32 +53,31 @@ $ErrorActionPreference = 'Stop'
 # Functions
 #
 
-function __get_korebuild {
+function Get-KoreBuild {
 
     $lockFile = Join-Path $Path 'korebuild-lock.txt'
 
     if (!(Test-Path $lockFile) -or $Update) {
-        __fetch "$ToolsSource/korebuild/channels/$Channel/latest.txt" $lockFile
+        Get-RemoteFile "$ToolsSource/korebuild/channels/$Channel/latest.txt" $lockFile
     }
 
     $version = Get-Content $lockFile -Tail 1
-    $korebuildPath = __join_paths $DotNetHome ('buildtools', 'korebuild', $version)
+    $korebuildPath = Join-Paths $DotNetHome ('buildtools', 'korebuild', $version)
 
     if (!(Test-Path $korebuildPath)) {
-        Write-Host "Downloading KoreBuild $version"
+        Write-Host -ForegroundColor Magenta "Downloading KoreBuild $version"
         New-Item -ItemType Directory -Path $korebuildPath | Out-Null
         $remotePath = "$ToolsSource/korebuild/artifacts/$version/korebuild.$version.zip"
 
         try {
-            if ($PSVersionTable.PSVersion -ge '5.0.0.0') {
+            $tmpfile = Join-Path ([IO.Path]::GetTempPath()) "KoreBuild-$([guid]::NewGuid()).zip"
+            Get-RemoteFile $remotePath $tmpfile
+            if (Get-Command -Name 'Expand-Archive' -ErrorAction Ignore) {
                 # Use built-in commands where possible as they are cross-plat compatible
-                $tmpfile = "$(New-TemporaryFile).zip"
-                __fetch $remotePath $tmpfile
                 Expand-Archive -Path $tmpfile -DestinationPath $korebuildPath
-            } else {
+            }
+            else {
                 # Fallback to old approach for old installations of PowerShell
-                $tmpfile = Join-Path $env:TEMP "KoreBuild-$([guid]::NewGuid()).zip"
-                __fetch $remotePath $tmpfile
                 Add-Type -AssemblyName System.IO.Compression.FileSystem
                 [System.IO.Compression.ZipFile]::ExtractToDirectory($tmpfile, $korebuildPath)
             }
@@ -96,12 +90,12 @@ function __get_korebuild {
     return $korebuildPath
 }
 
-function __join_paths($path, $childPaths) {
+function Join-Paths([string]$path, [string[]]$childPaths) {
     $childPaths | ForEach-Object { $path = Join-Path $path $_ }
     return $path
 }
 
-function __fetch($RemotePath, $LocalPath) {
+function Get-RemoteFile([string]$RemotePath, [string]$LocalPath) {
     if ($RemotePath -notlike 'http*') {
         Copy-Item $RemotePath $LocalPath
         return
@@ -129,9 +123,17 @@ function __fetch($RemotePath, $LocalPath) {
 # Main
 #
 
+if (!$DotNetHome) {
+    $DotNetHome = if ($env:DOTNET_HOME) { $env:DOTNET_HOME } `
+        elseif ($env:USERPROFILE) { Join-Path $env:USERPROFILE '.dotnet'} `
+        elseif ($env:HOME) {Join-Path $env:HOME '.dotnet'}`
+        else { Join-Path $PSScriptRoot '.dotnet'}
+}
+
+$korebuildPath = Get-KoreBuild
+Import-Module -Force -Scope Local (Join-Path $korebuildPath 'KoreBuild.psd1')
+
 try {
-    $korebuildPath = __get_korebuild
-    Import-Module -Force -Scope Local (Join-Path $korebuildPath 'KoreBuild.psd1')
     Install-Tools $ToolsSource $DotNetHome
     Invoke-RepositoryBuild $Path @MSBuildArgs
 }

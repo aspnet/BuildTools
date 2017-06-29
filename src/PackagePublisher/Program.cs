@@ -25,7 +25,7 @@ namespace PackagePublisher
         private static string _apiKey;
         private const int _maxRetryCount = 5;
         private const int _maxParallelPackagePushes = 4;
-        private static readonly TimeSpan _packagePushTimeout = TimeSpan.FromSeconds(90);
+        private static readonly TimeSpan _packagePushTimeout = TimeSpan.FromSeconds(180);
         private static ConcurrentBag<PackageInfo> _packages;
         private static readonly CancellationTokenSource _packagePushCancellationTokenSource = new CancellationTokenSource();
 

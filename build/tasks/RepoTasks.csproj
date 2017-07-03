@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <Compile Include="..\..\src\Internal.AspNetCore.BuildTools.Tasks\Utilities\**" />
+    <Compile Include="..\..\src\Internal.AspNetCore.BuildTools.Tasks\GetGitCommitInfo.cs" />
     <Compile Include="..\..\src\Internal.AspNetCore.BuildTools.Tasks\ZipArchive.cs" />
   </ItemGroup>
 

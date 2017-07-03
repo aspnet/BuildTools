@@ -1,14 +1,18 @@
 <Project>
 
   <!-- resolve using git.exe because the GetGitCommitInfoTask isn't available here -->
-  <Target Name="ResolveCommitHashWithExe" Condition="'$(CommitHash)'==''" BeforeTargets="Prepare">
+  <Target Name="ResolveCommitHash" Condition="'$(CommitHash)'==''" BeforeTargets="Prepare">
 
-    <Exec Command="git rev-parse HEAD" ConsoleToMSBuild="true" EchoOff="true" Condition="'$(CommitHash)'==''">
-      <Output TaskParameter="ConsoleOutput" PropertyName="CommitHash" />
-    </Exec>
+    <GetGitCommitInfo WorkingDirectory="$(RepositoryRoot)"
+                      Condition="'$(CommitHash)' == ''"
+                      ContinueOnError="WarnAndContinue">
+      <Output TaskParameter="CommitHash" PropertyName="CommitHash" />
+      <Output TaskParameter="Branch" PropertyName="GitBranch" />
+    </GetGitCommitInfo>
 
     <PropertyGroup>
       <SolutionProperties Condition="'$(CommitHash)' != ''">$(SolutionProperties);CommitHash=$(CommitHash)</SolutionProperties>
+      <SolutionProperties Condition="'$(CommitHash)' != ''">$(SolutionProperties);GitBranch=$(GitBranch)</SolutionProperties>
     </PropertyGroup>
   </Target>
 
@@ -18,11 +22,16 @@
     </BundledTools>
   </ItemDefinitionGroup>
 
-  <Target Name="PackageKoreBuild" DependsOnTargets="ResolveCommitHashWithExe" AfterTargets="Package">
+  <Target Name="PackageKoreBuild" DependsOnTargets="ResolveCommitHash" AfterTargets="Package">
 
     <Error Text="Missing property: KoreBuildChannel" Condition="'$(KoreBuildChannel)' == ''" />
     <Error Text="Missing property: Version" Condition="'$(Version)' == ''" />
     <Error Text="Missing property: CommitHash" Condition="'$(CommitHash)' == ''" />
+
+    <!-- passing /warnaserror:BUILD1001 on CI to prevent channel/branch mismatch -->
+    <Warning Text="Current branch '$(GitBranch)' does not match the value of KoreBuildChannel: '$(KoreBuildChannel)'"
+      Condition="'$(GitBranch)' != '$(KoreBuildChannel)'"
+      Code="BUILD1001" />
 
     <ItemGroup>
       <BundledTools Include="NuGetPackageVerifier" />

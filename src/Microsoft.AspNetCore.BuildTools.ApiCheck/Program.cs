@@ -141,6 +141,7 @@ namespace ApiCheck
                 !assetsJson.HasValue() ||
                 !framework.HasValue())
             {
+                Console.Error.WriteLine("Missing required option.");
                 command.ShowHelp();
                 return Error;
             }

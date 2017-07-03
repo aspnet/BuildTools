@@ -4,6 +4,7 @@
   <PropertyGroup>
     <VersionPrefix>2.0.0</VersionPrefix>
     <VersionSuffix>rc2-$(BuildNumber)</VersionSuffix>
+    <RuntimeFrameworkVersion>2.0.0-preview3-25502-01</RuntimeFrameworkVersion>
 
     <!--
       The netstandard1.0 TFM doesn't actually compile. It's just there so Internal.AspNetCore.Sdk can take a dependency

@@ -53,6 +53,7 @@
     "xunit": [ "2.2.0" ],
     "xunit.abstractions": [ "2.0.1" ],
     "xunit.assert": [ "2.2.0" ],
-    "xunit.extensibility.core": [ "2.2.0" ]
+    "xunit.extensibility.core": [ "2.2.0" ],
+    "YamlDotNet.Signed": [ "4.2.1" ]
   }
 }

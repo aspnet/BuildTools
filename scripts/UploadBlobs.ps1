@@ -33,6 +33,10 @@ function __exec($cmd) {
 
 ## Main
 
+if (!(Get-Command 'az' -ErrorAction Ignore)) {
+    Write-Error 'Missing required command: az. Please install the Azure CLI and ensure it is available on PATH.'
+}
+
 $korebuildDir = Join-Path (Resolve-Path $ArtifactsDir) 'korebuild'
 
 if (!($env:AZURE_STORAGE_ACCOUNT)) {

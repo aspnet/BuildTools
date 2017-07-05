@@ -12,7 +12,6 @@ namespace NuGetPackageVerifier.Rules
             new AssemblyIsBuiltInReleaseConfigurationRule(),
             new AuthenticodeSigningRule(),
             new PowerShellScriptIsSignedRule(),
-            new RequiredNuSpecInfoRule(),
             new PackageOwnershipRule(),
             new DefaultCompositeRule(),
             new PrereleaseDependenciesVersionRule(),

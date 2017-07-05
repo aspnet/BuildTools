@@ -19,6 +19,7 @@ namespace NuGetPackageVerifier.Rules
             new AssemblyHasVersionAttributesRule(),
             new AssemblyStrongNameRule(),
             new RequiredPackageMetadataRule(),
+            new RequiredNuSpecInfoRule(),
             new SatellitePackageRule(),
             new StrictSemanticVersionValidationRule(),
             new DependenciesVersionRangeBoundsRule(),

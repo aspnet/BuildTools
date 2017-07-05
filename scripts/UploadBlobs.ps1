@@ -1,13 +1,17 @@
 #!/usr/bin/env powershell
 #requires -version 4
+[cmdletbinding(SupportsShouldProcess = $true)]
 param (
     [Parameter(Mandatory = $true)]
-    $ArtifactsDir,
-    $ContainerName = 'buildtools'
+    [string]$ArtifactsDir,
+    [Parameter(Mandatory = $true)]
+    [string]$Channel,
+    [string]$ContainerName = 'buildtools',
+    [string]$AzureStorageAccount = $env:AZURE_STORAGE_ACCOUNT
 )
 
 $ErrorActionPreference = 'Stop'
-Set-StrictMode -Version 1
+Set-StrictMode -Version 2
 
 function Join-Paths($path, $childPaths) {
     $childPaths | ForEach-Object { $path = Join-Path $path $_ }
@@ -39,12 +43,12 @@ if (!(Get-Command 'az' -ErrorAction Ignore)) {
 
 $korebuildDir = Join-Path (Resolve-Path $ArtifactsDir) 'korebuild'
 
-if (!($env:AZURE_STORAGE_ACCOUNT)) {
-    Write-Error 'Expected $env:AZURE_STORAGE_ACCOUNT to be set'
+if (!$AzureStorageAccount) {
+    Write-Error 'Expected -AzureStorageAccount or $env:AZURE_STORAGE_ACCOUNT to be set'
 }
 
 if (!($env:AZURE_STORAGE_SAS_TOKEN)) {
-    Write-Error 'Expected $env:AZURE_STORAGE_SAS_TOKEN to be set'
+    Write-Warning 'Expected $env:AZURE_STORAGE_SAS_TOKEN to be set'
 }
 
 if (!(Test-Path $korebuildDir)) {
@@ -52,24 +56,19 @@ if (!(Test-Path $korebuildDir)) {
     exit 0
 }
 
-$dryrun = ''
-if ($env:BUILD_IS_PERSONAL) {
-    Write-Host "Running publish as a dryrun for personal builds"
-    $dryrun = '--dryrun'
-}
-
 $globs = (
     @{
         pattern     = 'artifacts/*.zip'
         contentType = 'application/zip'
+        otherArgs   = @()
     },
     @{
-        pattern     = '*/badge.svg'
+        pattern     = "channels/$Channel/badge.svg"
         contentType = 'image/svg+xml'
         otherArgs   = ('--content-cache-control', 'no-cache, no-store, must-revalidate')
     },
     @{
-        pattern     = '*/latest.txt'
+        pattern     = "channels/$Channel/latest.txt"
         contentType = 'text/plain'
         otherArgs   = ('--content-cache-control', 'no-cache, no-store, must-revalidate')
     }
@@ -77,16 +76,22 @@ $globs = (
 
 $globs | ForEach-Object {
     $otherArgs = $_.otherArgs
-    __exec az storage blob upload-batch `
-        $dryrun `
-        --verbose `
-        --pattern $_.pattern `
-        --content-type $_.contentType `
-        --destination "$ContainerName/korebuild" `
-        --source $korebuildDir `
-        @otherArgs
+    if (!(Get-ChildItem -Recurse (Join-Path $korebuildDir $_.pattern) -ErrorAction Ignore)) {
+        Write-Warning "Expected files in $korebuildDir/$($_.pattern) but found none"
+    }
 
-    if ($LASTEXITCODE -ne 0) {
-        Write-Error 'Failed to upload Azure artifacts'
+    if ($PSCmdlet.ShouldProcess("$korebuildDir/$($_.pattern) as $($_.contentType)", "Push to Azure")) {
+        __exec az storage blob upload-batch `
+            --account-name $AzureStorageAccount `
+            --verbose `
+            --pattern $_.pattern `
+            --content-type $_.contentType `
+            --destination "$ContainerName/korebuild" `
+            --source $korebuildDir `
+            @otherArgs
+
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error 'Failed to upload Azure artifacts'
+        }
     }
 }

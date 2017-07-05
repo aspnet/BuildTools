@@ -218,8 +218,9 @@ function Push-NuGetPackage {
         }
 
         if (!$ApiKey) {
-            Write-Warning 'The parameter -ApiKey was missing and $env:APIKey was not set. The API key may be required to push to the remote feed.'
+            Write-Warning 'The parameter -ApiKey was missing. This may be required to push to the remote feed.'
         }
+
         if ($Packages | ? { $_ -like '*.symbols.nupkg' }) {
             Write-Warning "Push-NuGetPackage does not yet support pushing symbols packages."
         }
@@ -273,6 +274,9 @@ function Push-NuGetPackage {
                     catch {
                         if ($remaining -le 0) {
                             throw
+                        }
+                        else {
+                            Write-Host "Push failed. Retries left $remaining"
                         }
                     }
                     finally {

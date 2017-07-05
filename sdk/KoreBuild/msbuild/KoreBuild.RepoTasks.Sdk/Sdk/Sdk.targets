@@ -1,0 +1,12 @@
+<Project>
+
+  <ItemGroup>
+    <!-- set as private assets all since we don't need this in the publish output folder -->
+    <PackageReference Include="Microsoft.Build.Framework" Version="$(MSBuildPackagesVersion)" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Build.Tasks.Core" Version="$(MSBuildPackagesVersion)" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="$(MSBuildPackagesVersion)" PrivateAssets="All" />
+    <!-- because almost everyone ends up using JSON in repo tasks -->
+    <PackageReference Include="Newtonsoft.Json" Version="$(JsonInMSBuildVersion)" PrivateAssets="All" />
+  </ItemGroup>
+
+</Project>

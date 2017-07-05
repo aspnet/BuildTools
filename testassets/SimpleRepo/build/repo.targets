@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <PrepareDependsOn>$(PrepareDependsOn);Greet</PrepareDependsOn>
+  </PropertyGroup>
+
+  <Target Name="Greet">
+    <RepoTasks.SayHello />
+  </Target>
+</Project>

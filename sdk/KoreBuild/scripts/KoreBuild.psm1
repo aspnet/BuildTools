@@ -221,6 +221,8 @@ function __build_task_project($RepoPath) {
         Remove-Item $publishFolder -Recurse -Force
     }
 
-    __exec $global:dotnet restore $taskProj
-    __exec $global:dotnet publish $taskProj --configuration Release --output $publishFolder /nologo
+    $sdkPath = "/p:RepoTasksSdkPath=$(Join-Paths $PSScriptRoot ('..', 'msbuild', 'KoreBuild.RepoTasks.Sdk', 'Sdk'))"
+
+    __exec $global:dotnet restore $taskProj $sdkPath
+    __exec $global:dotnet publish $taskProj --configuration Release --output $publishFolder /nologo $sdkPath
 }

@@ -85,10 +85,11 @@ __verbose "dotnet = $(which dotnet)"
 task_proj="$repo_path/build/tasks/RepoTasks.csproj"
 
 if [ -f $task_proj ]; then
-    __exec dotnet restore $task_proj
+    sdk_path="/p:RepoTasksSdkPath=$scriptRoot/../msbuild/KoreBuild.RepoTasks.Sdk/Sdk/"
+    __exec dotnet restore $task_proj $sdk_path
     task_publish_dir="$repo_path/build/tasks/bin/publish/"
     rm -rf $task_publish_dir || :
-    __exec dotnet publish $task_proj --configuration Release --output $task_publish_dir /nologo
+    __exec dotnet publish $task_proj --configuration Release --output $task_publish_dir /nologo $sdk_path
 fi
 
 __verbose "Invoking msbuild with '$(<$msbuild_response_file)'"

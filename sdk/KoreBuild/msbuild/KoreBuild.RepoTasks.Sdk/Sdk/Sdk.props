@@ -1,0 +1,18 @@
+<Project>
+
+  <PropertyGroup>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <!-- Set explicitly to make it clear that this is not a console app, even though it targets netcoreapp2.0 -->
+    <OutputType>library</OutputType>
+
+    <!--
+      The dependency versions here don't matter as long as the version is binary compatible with the version of MSBuild and NuGet
+      already embedded in Microsoft.NET.Sdk. These are essentially reference assemblies.
+    -->
+    <MSBuildPackagesVersion>15.3.0-preview-000388-01</MSBuildPackagesVersion>
+    <!-- Version must be less than or equal to what ships in with Microsoft.NET.Sdk. -->
+    <JsonInMSBuildVersion>9.0.1</JsonInMSBuildVersion>
+  </PropertyGroup>
+
+</Project>

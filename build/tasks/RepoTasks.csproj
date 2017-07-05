@@ -1,10 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\dependencies.props" />
+  <Import Project="$(RepoTasksSdkPath)\Sdk.props" Condition="'$(RepoTasksSdkPath)' != '' "/>
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DefineConstants>$(DefineConstants);BuildTools</DefineConstants>
     <RuntimeFrameworkVersion>2.0.0-*</RuntimeFrameworkVersion>
     <NoWarn>$(NoWarn);NU1603</NoWarn>
@@ -16,10 +15,6 @@
     <Compile Include="..\..\src\Internal.AspNetCore.BuildTools.Tasks\ZipArchive.cs" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Framework" Version="$(MsBuildPackageVersions)" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.Build.Tasks.Core" Version="$(MsBuildPackageVersions)" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="$(MsBuildPackageVersions)" PrivateAssets="All" />
-  </ItemGroup>
+  <Import Project="$(RepoTasksSdkPath)\Sdk.targets" Condition="'$(RepoTasksSdkPath)' != '' "/>
 
 </Project>

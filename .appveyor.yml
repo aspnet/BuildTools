@@ -5,6 +5,7 @@ branches:
     - master
     - release
     - dev
+    - /^rel\/.*/
     - /^(.*\/)?ci-.*$/
 build_script:
   - ps: .\build.ps1

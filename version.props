@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <KoreBuildChannel>dev</KoreBuildChannel>
+    <KoreBuildChannel>rel/2.0.0</KoreBuildChannel>
     <VersionPrefix>2.0.0</VersionPrefix>
     <VersionSuffix>rtm</VersionSuffix>
   </PropertyGroup>

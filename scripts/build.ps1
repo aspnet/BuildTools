@@ -35,7 +35,7 @@ When the lockfile is not present, KoreBuild will create one using latest availab
 param(
     [string]$Path = $PSScriptRoot,
     [Alias('c')]
-    [string]$Channel = 'dev',
+    [string]$Channel = 'rel/2.0.0',
     [Alias('d')]
     [string]$DotNetHome,
     [Alias('s')]

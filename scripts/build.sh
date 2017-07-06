@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # korebuild config values
-channel='dev'
+channel='rel/2.0.0'
 tools_source='https://aspnetcore.blob.core.windows.net/buildtools'
 
 #

@@ -4,7 +4,6 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <VersionSuffix>rc2-$(BuildNumber)</VersionSuffix>
     <AssemblyName>VersionTool</AssemblyName>
     <OutputType>exe</OutputType>
   </PropertyGroup>

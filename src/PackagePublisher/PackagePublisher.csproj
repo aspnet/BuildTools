@@ -6,8 +6,6 @@
     <DebugType>portable</DebugType>
     <OutputType>exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <VersionPrefix>2.0.0</VersionPrefix>
-    <VersionSuffix>rc2-$(BuildNumber)</VersionSuffix>
   </PropertyGroup>
 
   <ItemGroup>

@@ -2,9 +2,6 @@
   <Import Project="..\..\build\common.props" />
 
   <PropertyGroup>
-    <VersionPrefix>2.0.0</VersionPrefix>
-    <VersionSuffix>rc2-$(BuildNumber)</VersionSuffix>
-
     <!--
       The netstandard1.0 TFM doesn't actually compile. It's just there so Internal.AspNetCore.Sdk can take a dependency
       on this project.

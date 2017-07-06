@@ -22,8 +22,17 @@
     </BundledTools>
   </ItemDefinitionGroup>
 
-  <Target Name="PackageKoreBuild" DependsOnTargets="ResolveCommitHash" AfterTargets="Package">
+  <PropertyGroup>
+    <_KoreBuildIntermediateDir>$(IntermediateDir)korebuild\</_KoreBuildIntermediateDir>
+    <_KoreBuildOutDir>$(ArtifactsDir)korebuild\artifacts\$(Version)\</_KoreBuildOutDir>
+    <_ChannelOutDir>$(ArtifactsDir)korebuild\channels\$(KoreBuildChannel)\</_ChannelOutDir>
+  </PropertyGroup>
 
+  <Target Name="CleanKoreBuild">
+    <RemoveDir Directories="$(_KoreBuildIntermediateDir);$(ArtifactsDir)korebuild\" />
+  </Target>
+
+  <Target Name="PackageKoreBuild" DependsOnTargets="ResolveCommitHash;CleanKoreBuild" AfterTargets="Package">
     <Error Text="Missing property: KoreBuildChannel" Condition="'$(KoreBuildChannel)' == ''" />
     <Error Text="Missing property: Version" Condition="'$(Version)' == ''" />
     <Error Text="Missing property: CommitHash" Condition="'$(CommitHash)' == ''" />
@@ -39,13 +48,6 @@
       <Content Include="$(RepositoryRoot)sdk\KoreBuild\**\*" />
     </ItemGroup>
 
-    <PropertyGroup>
-      <_KoreBuildIntermediateDir>$(IntermediateDir)korebuild\</_KoreBuildIntermediateDir>
-      <_KoreBuildOutDir>$(ArtifactsDir)korebuild\artifacts\$(Version)\</_KoreBuildOutDir>
-      <_ChannelOutDir>$(ArtifactsDir)korebuild\channels\$(KoreBuildChannel)\</_ChannelOutDir>
-    </PropertyGroup>
-
-    <RemoveDir Directories="$(_KoreBuildIntermediateDir);$(ArtifactsDir)korebuild\" />
     <MakeDir Directories="$(_ChannelOutDir);$(_KoreBuildOutDir);$(_KoreBuildIntermediateDir)" />
     <Copy SourceFiles="%(Content.Identity)" DestinationFiles="$(_KoreBuildIntermediateDir)%(RecursiveDir)%(FileName)%(Extension)" />
 

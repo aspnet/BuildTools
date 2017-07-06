@@ -12,6 +12,7 @@
     <EnableApiCheck>false</EnableApiCheck>
     <!-- workaround https://github.com/aspnet/CoreCLR/issues/223 -->
     <NoWarn>$(NoWarn);NU1603</NoWarn>
+    <Serviceable>false</Serviceable>
   </PropertyGroup>
 
   <Import Project="$(_AspNetToolsSdkPath)\build\Internal.AspNetCore.Sdk.props" />
@@ -19,6 +20,7 @@
   <PropertyGroup>
     <RepositoryUrl>https://github.com/aspnet/BuildTools</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <VersionSuffix Condition="'$(VersionSuffix)' != '' AND '$(BuildNumber)' != ''">$(VersionSuffix)-$(BuildNumber)</VersionSuffix>
   </PropertyGroup>
 
 </Project>

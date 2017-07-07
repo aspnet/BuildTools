@@ -12,7 +12,8 @@ namespace NuGetPackageVerifier.Rules
             new AssemblyIsBuiltInReleaseConfigurationRule(),
             new AuthenticodeSigningRule(),
             new PowerShellScriptIsSignedRule(),
-            new PackageOwnershipRule()
+            new PackageOwnershipRule(),
+            new PrereleaseDependenciesVersionRule(),
         };
 
         public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)

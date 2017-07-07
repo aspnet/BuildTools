@@ -14,6 +14,7 @@ namespace NuGetPackageVerifier.Rules
             new PowerShellScriptIsSignedRule(),
             new PackageOwnershipRule(),
             new DefaultCompositeRule(),
+            new PrereleaseDependenciesVersionRule(),
         };
 
         public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)

@@ -50,24 +50,38 @@ get_korebuild() {
     if [ ! -f $lock_file ] || [ "$update" = true ]; then
         __get_remote_file "$tools_source/korebuild/channels/$channel/latest.txt" $lock_file
     fi
-    local version=$(cat $lock_file | tail -1 | tr -d '[:space:]')
-    local korebuild_path="$DOTNET_HOME/buildtools/korebuild/$version"
-    if [ ! -d "$korebuild_path" ]; then
-        mkdir -p "$korebuild_path"
-        local remote_path="$tools_source/korebuild/artifacts/$version/korebuild.$version.zip"
-        tmpfile="$(mktemp)"
-        echo -e "${MAGENTA}Downloading KoreBuild ${version}${RESET}"
-        __get_remote_file $remote_path $tmpfile
-        unzip -q -d "$korebuild_path" $tmpfile
-        rm $tmpfile || true
+    local version="$(grep 'version:*' -m 1 $lock_file)"
+    if [[ "$version" == '' ]]; then
+        __error "Failed to parse version from $lock_file. Expected a line that begins with 'version:'"
+        return 1
     fi
+    version="$(echo ${version#version:} | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+    local korebuild_path="$DOTNET_HOME/buildtools/korebuild/$version"
 
-    source "$korebuild_path/KoreBuild.sh"
+    {
+        if [ ! -d "$korebuild_path" ]; then
+            mkdir -p "$korebuild_path"
+            local remote_path="$tools_source/korebuild/artifacts/$version/korebuild.$version.zip"
+            tmpfile="$(mktemp)"
+            echo -e "${MAGENTA}Downloading KoreBuild ${version}${RESET}"
+            if __get_remote_file $remote_path $tmpfile; then
+                unzip -q -d "$korebuild_path" $tmpfile
+            fi
+            rm $tmpfile || true
+        fi
+
+        source "$korebuild_path/KoreBuild.sh"
+    } || {
+        if [ -d "$korebuild_path" ]; then
+            echo "Cleaning up after failed installation"
+            rm -rf "$korebuild_path" || true
+        fi
+        return 1
+    }
 }
 
-__fatal() {
+__error() {
     echo -e "${RED}$@${RESET}" 1>&2
-    exit 1
 }
 
 __machine_has() {
@@ -94,7 +108,8 @@ __get_remote_file() {
     fi
 
     if [ "$failed" = true ]; then
-        __fatal "Download failed: $remote_path" 1>&2
+        __error "Download failed: $remote_path" 1>&2
+        return 1
     fi
 }
 
@@ -146,11 +161,13 @@ while [[ $# > 0 ]]; do
 done
 
 if ! __machine_has unzip; then
-    __fatal 'Missing required command: unzip'
+    __error 'Missing required command: unzip'
+    exit 1
 fi
 
 if ! __machine_has curl && ! __machine_has wget; then
-    __fatal 'Missing required command. Either wget or curl is required.'
+    __error 'Missing required command. Either wget or curl is required.'
+    exit 1
 fi
 
 get_korebuild

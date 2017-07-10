@@ -46,12 +46,14 @@
       <BundledTools Include="NuGetPackageVerifier" />
       <BundledTools Include="Internal.AspNetCore.BuildTools.Tasks" AdditionalProperties="TargetFramework=netcoreapp2.0" />
       <Content Include="$(RepositoryRoot)sdk\KoreBuild\**\*" />
+      <VersionFileLines Include="version:$(Version)" />
+      <VersionFileLines Include="commithash:$(CommitHash)" />
     </ItemGroup>
 
     <MakeDir Directories="$(_ChannelOutDir);$(_KoreBuildOutDir);$(_KoreBuildIntermediateDir)" />
     <Copy SourceFiles="%(Content.Identity)" DestinationFiles="$(_KoreBuildIntermediateDir)%(RecursiveDir)%(FileName)%(Extension)" />
 
-    <WriteLinesToFile File="$(_KoreBuildIntermediateDir).version" Lines="$(CommitHash);$(Version)" Overwrite="true" />
+    <WriteLinesToFile File="$(_KoreBuildIntermediateDir).version" Lines="@(VersionFileLines)" Overwrite="true" />
 
     <MSBuild Targets="Publish"
       Projects="$(RepositoryRoot)src\%(BundledTools.Identity)\%(Identity).csproj"
@@ -65,7 +67,7 @@
       <KoreBuildFiles Include="$(_KoreBuildIntermediateDir)**\*" />
     </ItemGroup>
 
-    <WriteLinesToFile File="$(_ChannelOutDir)latest.txt" Lines="$(CommitHash);$(Version)" Overwrite="true"/>
+    <WriteLinesToFile File="$(_ChannelOutDir)latest.txt" Lines="@(VersionFileLines)" Overwrite="true"/>
     <RepoTasks.GenerateBadge File="$(_ChannelOutDir)badge.svg" Version="$(Version)" />
     <ZipArchive WorkingDirectory="$(_KoreBuildIntermediateDir)" File="$(_KoreBuildOutDir)korebuild.$(Version).zip" SourceFiles="@(KoreBuildFiles)" />
   </Target>

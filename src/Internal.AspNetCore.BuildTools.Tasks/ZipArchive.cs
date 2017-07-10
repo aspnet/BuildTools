@@ -3,6 +3,7 @@
 
 using System.IO;
 using System.IO.Compression;
+using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.BuildTools.Utilities;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
@@ -86,8 +87,30 @@ namespace Microsoft.AspNetCore.BuildTools
                         return false;
                     }
 
-                    zip.CreateEntryFromFile(file.ItemSpec, entryName);
-                    Log.LogMessage("Added '{0}' to archive", file.ItemSpec);
+                    var entry = zip.CreateEntryFromFile(file.ItemSpec, entryName);
+#if NET46
+#elif NETCOREAPP2_0
+                    if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    {
+                        // This isn't required when creating a zip on Windows. unzip will check which
+                        // platform was used to create the zip file. If the zip was created on Windows,
+                        // unzip will use a default set of permissions. However, if the zip was created
+                        // on a Unix-y system, it will set the permissions as defined in the external_attr
+                        // field.
+
+                        // Set the file permissions on each entry so they are extracted correctly on Unix.
+                        // Picking -rw-rw-r-- by default because we don't yet have a good way to access existing
+                        // Unix permissions. If we don't set this, files may be extracted as ---------- (0000),
+                        // which means the files are completely unusable.
+
+                        // FYI - this may not be necessary in future versions of .NET Core. See https://github.com/dotnet/corefx/issues/17342.
+                        const int rw_rw_r = (0x8000 + 0x0100 + 0x0080 + 0x0020 + 0x0010 + 0x0004) << 16;
+                        entry.ExternalAttributes = rw_rw_r;
+                    }
+#else
+#error Update target frameworks
+#endif
+                    Log.LogMessage("Added '{0}' to archive", entry.FullName);
                 }
             }
 

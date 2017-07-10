@@ -22,9 +22,8 @@ tools_source=$2
 install_dir=$3
 remote_path="$tools_source/netfx/$netfx_version/netfx.$netfx_version.tar.gz"
 
-
 if [ -d $install_dir ]; then
-    echo "Using cached .NET Framework reference assemblies from $install_dir"
+    echo -e "${GRAY}Using cached .NET Framework reference assemblies from ${install_dir}${RESET}"
     exit 0
 fi
 

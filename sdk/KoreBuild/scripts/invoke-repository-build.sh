@@ -48,11 +48,6 @@ fi
 repo_path="$(cd $repo_path && pwd)"
 __verbose "Building $repo_path"
 
-version_file="$__script_dir/../.version"
-if [ -f "$version_file" ]; then
-    echo -e "${MAGENTA}Using KoreBuild $(cat "$version_file" | tail -1)${RESET}"
-fi
-
 echo "{ \"sdk\": { \"version\": \"$(__get_dotnet_sdk_version)\" } }" > "$repo_path/global.json"
 
 korebuild_proj="$__script_dir/../KoreBuild.proj"
@@ -85,7 +80,7 @@ __verbose "dotnet = $(which dotnet)"
 task_proj="$repo_path/build/tasks/RepoTasks.csproj"
 
 if [ -f $task_proj ]; then
-    sdk_path="/p:RepoTasksSdkPath=$scriptRoot/../msbuild/KoreBuild.RepoTasks.Sdk/Sdk/"
+    sdk_path="/p:RepoTasksSdkPath=$__script_dir/../msbuild/KoreBuild.RepoTasks.Sdk/Sdk/"
     __exec dotnet restore $task_proj $sdk_path
     task_publish_dir="$repo_path/build/tasks/bin/publish/"
     rm -rf $task_publish_dir || :

@@ -52,11 +52,6 @@ function Invoke-RepositoryBuild(
         Write-Verbose "Building $Path"
         Write-Verbose "dotnet = ${global:dotnet}"
 
-        $versionFile = Join-Paths $PSScriptRoot ('..', '.version')
-        if (Test-Path $versionFile) {
-            Write-Host -ForegroundColor Magenta "Using KoreBuild $(Get-Content $versionFile -Tail 1)"
-        }
-
         # Generate global.json to ensure the repo uses the right SDK version
         "{ `"sdk`": { `"version`": `"$(__get_dotnet_sdk_version)`" } }" | Out-File (Join-Path $Path 'global.json') -Encoding ascii
 
@@ -169,11 +164,16 @@ function Install-Tools(
     }
 
     # Install the main CLI
-    Write-Verbose "Installing dotnet $version to $installDir"
-    & $scriptPath -Channel $channel `
-        -Version $version `
-        -Architecture x64 `
-        -InstallDir $installDir
+    if (!(Test-Path (Join-Paths $installDir ('sdk', $version, 'dotnet.dll')))) {
+        Write-Verbose "Installing dotnet $version to $installDir"
+        & $scriptPath -Channel $channel `
+            -Version $version `
+            -Architecture x64 `
+            -InstallDir $installDir
+    }
+    else {
+        Write-Host -ForegroundColor DarkGray ".NET Core SDK $version is already installed. Skipping installation."
+    }
 }
 
 <#
@@ -313,6 +313,9 @@ function __install_shared_runtime($installScript, $installDir, [string] $version
             -Architecture x64 `
             -InstallDir $installDir
     }
+    else {
+        Write-Host -ForegroundColor DarkGray ".NET Core runtime $version is already installed. Skipping installation."
+    }
 }
 
 function __get_dotnet_sdk_version {
@@ -356,3 +359,23 @@ function __build_task_project($RepoPath) {
     __exec $global:dotnet restore $taskProj $sdkPath
     __exec $global:dotnet publish $taskProj --configuration Release --output $publishFolder /nologo $sdkPath
 }
+
+function __show_version_info {
+    $versionFile = Join-Paths $PSScriptRoot ('..', '.version')
+    if (Test-Path $versionFile) {
+        $version = Get-Content $versionFile | Where-Object { $_ -like 'version:*' } | Select-Object -first 1
+        if (!$version) {
+            Write-Host -ForegroundColor Gray "Failed to parse version from $versionFile. Expected a line that begins with 'version:'"
+        }
+        else {
+            $version = $version.TrimStart('version:').Trim()
+            Write-Host -ForegroundColor Magenta "Using KoreBuild $version"
+        }
+    }
+}
+
+try {
+    # show version info on console when KoreBuild is imported
+    __show_version_info
+}
+catch { }

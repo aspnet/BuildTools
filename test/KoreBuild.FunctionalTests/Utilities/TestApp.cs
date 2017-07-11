@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Microsoft.Extensions.CommandLineUtils;
 using Xunit.Abstractions;
 
@@ -26,7 +27,7 @@ namespace KoreBuild.FunctionalTests
 
         public string WorkingDirectory { get; }
 
-        public int ExecuteBuild(ITestOutputHelper output, params string[] args)
+        public async Task<int> ExecuteBuild(ITestOutputHelper output, params string[] args)
         {
             output.WriteLine("Starting in " + WorkingDirectory);
             void Write(object sender, DataReceivedEventArgs e)
@@ -45,7 +46,6 @@ namespace KoreBuild.FunctionalTests
             else
             {
                 cmd = "bash";
-                arguments.Add("-s");
                 arguments.Add("./build.sh");
             }
 
@@ -75,12 +75,18 @@ namespace KoreBuild.FunctionalTests
             };
             process.OutputDataReceived += Write;
             process.ErrorDataReceived += Write;
+            var tcs = new TaskCompletionSource<object>();
+            process.Exited += (o, e) => tcs.TrySetResult(true);
             output.WriteLine($"Starting: {process.StartInfo.FileName} {process.StartInfo.Arguments}");
             process.Start();
             process.BeginErrorReadLine();
             process.BeginOutputReadLine();
 
-            process.WaitForExit();
+            if (!process.HasExited)
+            {
+                await tcs.Task;
+            }
+
             process.OutputDataReceived -= Write;
             process.ErrorDataReceived -= Write;
             return process.ExitCode;

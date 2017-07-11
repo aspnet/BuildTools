@@ -61,7 +61,11 @@ function Get-KoreBuild {
         Get-RemoteFile "$ToolsSource/korebuild/channels/$Channel/latest.txt" $lockFile
     }
 
-    $version = Get-Content $lockFile -Tail 1
+    $version = Get-Content $lockFile | Where-Object { $_ -like 'version:*' } | Select-Object -first 1
+    if (!$version) {
+        Write-Error "Failed to parse version from $lockFile. Expected a line that begins with 'version:'"
+    }
+    $version = $version.TrimStart('version:').Trim()
     $korebuildPath = Join-Paths $DotNetHome ('buildtools', 'korebuild', $version)
 
     if (!(Test-Path $korebuildPath)) {
@@ -81,6 +85,10 @@ function Get-KoreBuild {
                 Add-Type -AssemblyName System.IO.Compression.FileSystem
                 [System.IO.Compression.ZipFile]::ExtractToDirectory($tmpfile, $korebuildPath)
             }
+        }
+        catch {
+            remove-item -Recurse -Force $korebuildPath -ErrorAction Ignore
+            throw
         }
         finally {
             remove-item $tmpfile -ErrorAction Ignore
@@ -106,17 +114,14 @@ function Get-RemoteFile([string]$RemotePath, [string]$LocalPath) {
         $retries -= 1
         try {
             Invoke-WebRequest -UseBasicParsing -Uri $RemotePath -OutFile $LocalPath
-            break
+            return
         }
         catch {
-            if ($retries -le 0) {
-                Write-Error "Download failed: '$RemotePath'."
-            }
-            else {
-                Write-Verbose "Request failed. $retries retries remaining"
-            }
+            Write-Verbose "Request failed. $retries retries remaining"
         }
     }
+
+    Write-Error "Download failed: '$RemotePath'."
 }
 
 #

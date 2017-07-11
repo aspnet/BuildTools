@@ -61,7 +61,7 @@ __ensure_osx_version() {
 }
 
 __get_dotnet_sdk_version() {
-    version=$(cat "$__korebuild_dir/../config/sdk.version" | head -1 | tr -d '[:space:]')
+    version=$(cat "$__korebuild_dir/../config/sdk.version" | head -1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
     # environment override
     [ ! -z "${KOREBUILD_DOTNET_VERSION:-}" ] && version=${KOREBUILD_DOTNET_VERSION:-}
     echo $version

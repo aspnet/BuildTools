@@ -15,7 +15,7 @@ __install_shared_runtime() {
     local runtime_path="$install_dir/shared/Microsoft.NETCore.App/$version"
     if [ ! -d "$runtime_path" ]; then
 
-        __verbose "Installing .NET Core runtime $runtime_path"
+        __verbose "Installing .NET Core runtime to $runtime_path"
 
         $__korebuild_dir/dotnet-install.sh \
             --install-dir $install_dir \
@@ -25,6 +25,8 @@ __install_shared_runtime() {
             --version $version
 
         return $?
+    else
+        echo -e "${GRAY}.NET Core runtime $version is already installed. Skipping installation.${RESET}"
     fi
 }
 
@@ -47,7 +49,7 @@ fi
 channel='preview'
 version=$(__get_dotnet_sdk_version)
 runtime_channel='master'
-runtime_version=$(cat "$__korebuild_dir/../config/runtime.version" | head -1 | tr -d '[:space:]')
+runtime_version=$(cat "$__korebuild_dir/../config/runtime.version" | head -1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
 
 # environment overrides
 [ ! -z "${KOREBUILD_DOTNET_CHANNEL:-}" ] && channel=${KOREBUILD_DOTNET_CHANNEL:-}
@@ -67,8 +69,12 @@ fi
 
 __verbose "Installing .NET Core SDK $version"
 
-$__korebuild_dir/dotnet-install.sh \
-    --install-dir $install_dir \
-    --architecture x64 \
-    --channel $channel \
-    --version $version
+if [ ! -f "$install_dir/sdk/$version/dotnet.dll" ]; then
+    $__korebuild_dir/dotnet-install.sh \
+        --install-dir $install_dir \
+        --architecture x64 \
+        --channel $channel \
+        --version $version
+else
+    echo -e "${GRAY}.NET Core SDK $version is already installed. Skipping installation.${RESET}"
+fi

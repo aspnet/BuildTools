@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -21,11 +22,15 @@ namespace KoreBuild.FunctionalTests
         }
 
         [Fact]
-        public void FullBuildCompletes()
+        public async Task FullBuildCompletes()
         {
             var app = _fixture.CreateTestApp("SimpleRepo");
 
-            Assert.Equal(0, app.ExecuteBuild(_output, "/p:BuildNumber=0001"));
+            var build = app.ExecuteBuild(_output, "/p:BuildNumber=0001");
+            var task = await Task.WhenAny(build, Task.Delay(TimeSpan.FromMinutes(5)));
+
+            Assert.Same(task, build);
+            Assert.Equal(0, build.Result);
 
             Assert.True(File.Exists(Path.Combine(app.WorkingDirectory, "korebuild-lock.txt")), "Should have created the korebuild lock file");
             Assert.True(File.Exists(Path.Combine(app.WorkingDirectory, "artifacts", "build", "Simple.Lib.1.0.0-beta-0001.nupkg")), "Build should have produced a lib nupkg");

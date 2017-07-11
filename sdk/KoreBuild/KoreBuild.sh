@@ -3,6 +3,8 @@
 [ -z "${verbose:-}" ] && verbose=false
 __korebuild_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+# functions
+
 invoke_repository_build() {
     local repo_path=$1
     shift
@@ -35,3 +37,21 @@ install_tools() {
     "$__korebuild_dir/scripts/get-dotnet.sh" $verbose_flag "$install_dir"
     return $?
 }
+
+__show_version_info() {
+    MAGENTA="\033[0;95m"
+    RESET="\033[0m"
+    version_file="$__korebuild_dir/.version"
+    if [ -f "$version_file" ]; then
+        __korebuild_version="$(grep 'version:*' -m 1 $version_file)"
+        if [[ "$__korebuild_version" == '' ]]; then
+            echo "Failed to parse version from $version_file. Expected a line that begins with 'version:'" 1>&2
+        else
+            __korebuild_version="$(echo $__korebuild_version | sed -e 's/^[[:space:]]*version:[[:space:]]*//' -e 's/[[:space:]]*$//')"
+            echo -e "${MAGENTA}Using KoreBuild ${__korebuild_version}${RESET}"
+        fi
+    fi
+}
+
+# Try to show version on console, but don't fail if this is broken
+__show_version_info || true

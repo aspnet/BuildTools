@@ -11,6 +11,8 @@
     <MsBuildPackageVersions>15.1.1012</MsBuildPackageVersions>
     <NetStandardPackageVersion>1.6.1</NetStandardPackageVersion>
     <NuGetPackagesVersion>4.0.0</NuGetPackagesVersion>
+    <SystemCollectionsImmutableVersion>1.4.0-*</SystemCollectionsImmutableVersion>    
+    <SystemReflectionMetadataVersion>1.5.0-*</SystemReflectionMetadataVersion>
     <TestSdkVersion>15.3.0-*</TestSdkVersion>
     <XunitVersion>2.3.0-beta2-*</XunitVersion>
   </PropertyGroup>

@@ -251,12 +251,15 @@ function Push-NuGetPackage {
 
             Write-Verbose "Starting job to push $(Split-Path -Leaf $package)"
             $job = Start-Job -ScriptBlock {
-                param($dotnet, $feed, $package, $remaining)
+                param($dotnet, $feed, $apikey, $package, $remaining)
+
+                $ErrorActionPreference = 'Stop'
+                Set-StrictMode -Version Latest
 
                 while ($remaining -ge 0) {
                     $arguments = @()
-                    if ($ApiKey) {
-                        $arguments = ('--api-key', $ApiKey)
+                    if ($apikey) {
+                        $arguments = ('--api-key', $apikey)
                     }
 
                     try {
@@ -283,7 +286,7 @@ function Push-NuGetPackage {
                         $remaining--
                     }
                 }
-            } -ArgumentList ($global:dotnet, $Feed, $package, $Retries)
+            } -ArgumentList ($global:dotnet, $Feed, $ApiKey, $package, $Retries)
             $jobs += $job
         }
     }

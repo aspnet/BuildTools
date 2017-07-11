@@ -10,6 +10,7 @@ to know the internal details of how config files are layed out in this repo.
 param(
     [string]$DotNetSdkVersion,
     [string]$DotNetRuntimeVersion,
+    [string[]]$GitCommitArgs = @(),
     [switch]$Force
 )
 
@@ -36,8 +37,9 @@ if ($DotNetRuntimeVersion -and $PSCmdlet.ShouldProcess("Update dotnet runtime to
     $updates += "runtime to $DotNetRuntimeVersion"
 }
 
-if ($updates -and $git -and ($Force -or $PSCmdlet.ShouldContinue("Commit changes", "Create a new commit with these changes?"))) {
-    & $git commit -m "Updating $($updates -join ' and ')"
+$message = "Updating $($updates -join ' and ')"
+if ($updates -and $git -and ($Force -or $PSCmdlet.ShouldContinue("Commit: $message", "Create a new commit with these changes?"))) {
+    & $git commit -m $message @GitCommitArgs
 }
 elseif (!$updates) {
     Write-Warning "No changes made"

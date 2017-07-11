@@ -2,10 +2,6 @@
 
 set -euo pipefail
 
-# korebuild config values
-channel='dev'
-tools_source='https://aspnetcore.blob.core.windows.net/buildtools'
-
 #
 # variables
 #
@@ -15,9 +11,12 @@ RED="\033[0;31m"
 MAGENTA="\033[0;95m"
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 [ -z "${DOTNET_HOME:-}"] && DOTNET_HOME="$HOME/.dotnet"
+config_file="$DIR/version.props"
 verbose=false
 update=false
 repo_path="$DIR"
+channel=''
+tools_source=''
 
 #
 # Functions
@@ -30,10 +29,11 @@ __usage() {
     echo ""
     echo "Options:"
     echo "    --verbose                Show verbose output."
-    echo "    -c|--channel <CHANNEL>   The channel of KoreBuild to download. Defaults to '$channel'."
+    echo "    -c|--channel <CHANNEL>   The channel of KoreBuild to download. Overrides the value from the config file.."
+    echo "    --config-file <FILE>     TThe path to the configuration file that stores values. Defaults to version.props."
     echo "    -d|--dotnet-home <DIR>   The directory where .NET Core tools will be stored. Defaults to '\$DOTNET_HOME' or '\$HOME/.dotnet."
     echo "    --path <PATH>            The directory to build. Defaults to the directory containing the script."
-    echo "    -s|--tools-source <URL>  The base url where build tools can be downloaded. Defaults to '$tools_source'."
+    echo "    -s|--tools-source <URL>  The base url where build tools can be downloaded. Overrides the value from the config file."
     echo "    -u|--update              Update to the latest KoreBuild even if the lock file is present."
     echo ""
     echo "Description:"
@@ -113,6 +113,8 @@ __get_remote_file() {
     fi
 }
 
+__read_dom () { local IFS=\> ; read -d \< ENTITY CONTENT ;}
+
 #
 # main
 #
@@ -127,6 +129,11 @@ while [[ $# > 0 ]]; do
             shift
             channel=${1:-}
             [ -z "$channel" ] && __usage
+            ;;
+        --config-file|-ConfigFile)
+            shift
+            config_file="${1:-}"
+            [ -z "$config_file" ] && __usage
             ;;
         -d|--dotnet-home|-DotNetHome)
             shift
@@ -169,6 +176,19 @@ if ! __machine_has curl && ! __machine_has wget; then
     __error 'Missing required command. Either wget or curl is required.'
     exit 1
 fi
+
+if [ -f $config_file ]; then
+    comment=false
+    while __read_dom; do
+        if [ "$comment" = true ]; then [[ $CONTENT == *'-->'* ]] && comment=false ; continue; fi
+        if [[ $ENTITY == '!--'* ]]; then comment=true; continue; fi
+        if [ -z "$channel" ] && [[ $ENTITY == "KoreBuildChannel" ]]; then channel=$CONTENT; fi
+        if [ -z "$tools_source" ] && [[ $ENTITY == "KoreBuildToolsSource" ]]; then tools_source=$CONTENT; fi
+    done < $config_file
+fi
+
+[ -z "$channel" ] && channel='dev'
+[ -z "$tools_source" ] && tools_source='https://aspnetcore.blob.core.windows.net/buildtools'
 
 get_korebuild
 install_tools "$tools_source" "$DOTNET_HOME"

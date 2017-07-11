@@ -12,16 +12,19 @@ Downloads korebuild if required. Then builds the repository.
 The folder to build. Defaults to the folder containing this script.
 
 .PARAMETER Channel
-The channel of KoreBuild to download.
+The channel of KoreBuild to download. Overrides the value from the config file.
 
 .PARAMETER DotNetHome
 The directory where .NET Core tools will be stored.
 
 .PARAMETER ToolsSource
-The base url where build tools can be downloaded.
+The base url where build tools can be downloaded. Overrides the value from the config file.
 
 .PARAMETER Update
 Updates KoreBuild to the latest version even if a lock file is present.
+
+.PARAMETER ConfigFile
+The path to the configuration file that stores values. Defaults to version.props.
 
 .PARAMETER MSBuildArgs
 Arguments to be passed to MSBuild
@@ -30,18 +33,32 @@ Arguments to be passed to MSBuild
 This function will create a file $PSScriptRoot/korebuild-lock.txt. This lock file can be committed to source, but does not have to be.
 When the lockfile is not present, KoreBuild will create one using latest available version from $Channel.
 
+The $ConfigFile is expected to be an XML file. It is optional, and the configuration values in it are optional as well.
+
+.EXAMPLE
+Example config file:
+```xml
+<!-- version.props -->
+<Project>
+  <PropertyGroup>
+    <KoreBuildChannel>dev</KoreBuildChannel>
+    <KoreBuildToolsSource>https://aspnetcore.blob.core.windows.net/buildtools</KoreBuildToolsSource>
+  </PropertyGroup>
+</Project>
+```
 #>
 [CmdletBinding(PositionalBinding = $false)]
 param(
     [string]$Path = $PSScriptRoot,
     [Alias('c')]
-    [string]$Channel = 'dev',
+    [string]$Channel,
     [Alias('d')]
     [string]$DotNetHome,
     [Alias('s')]
-    [string]$ToolsSource = 'https://aspnetcore.blob.core.windows.net/buildtools',
+    [string]$ToolsSource,
     [Alias('u')]
     [switch]$Update,
+    [string]$ConfigFile = (Join-Path $PSScriptRoot 'version.props'),
     [Parameter(ValueFromRemainingArguments = $true)]
     [string[]]$MSBuildArgs
 )
@@ -128,12 +145,25 @@ function Get-RemoteFile([string]$RemotePath, [string]$LocalPath) {
 # Main
 #
 
+# Load configuration or set defaults
+
+if (Test-Path $ConfigFile) {
+    [xml] $config = Get-Content $ConfigFile
+    if (!($Channel)) { [string] $Channel = Select-Xml -Xml $config -XPath '/Project/PropertyGroup/KoreBuildChannel' }
+    if (!($ToolsSource)) { [string] $ToolsSource = Select-Xml -Xml $config -XPath '/Project/PropertyGroup/KoreBuildToolsSource' }
+}
+
 if (!$DotNetHome) {
     $DotNetHome = if ($env:DOTNET_HOME) { $env:DOTNET_HOME } `
         elseif ($env:USERPROFILE) { Join-Path $env:USERPROFILE '.dotnet'} `
         elseif ($env:HOME) {Join-Path $env:HOME '.dotnet'}`
         else { Join-Path $PSScriptRoot '.dotnet'}
 }
+
+if (!$Channel) { $Channel = 'dev' }
+if (!$ToolsSource) { $ToolsSource = 'https://aspnetcore.blob.core.windows.net/buildtools' }
+
+# Execute
 
 $korebuildPath = Get-KoreBuild
 Import-Module -Force -Scope Local (Join-Path $korebuildPath 'KoreBuild.psd1')

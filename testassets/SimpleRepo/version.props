@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup>
+    <KoreBuildChannel>dev</KoreBuildChannel>
+    <VersionPrefix>2.1.0</VersionPrefix>
+    <VersionSuffix>preview1</VersionSuffix>
+  </PropertyGroup>
+</Project>

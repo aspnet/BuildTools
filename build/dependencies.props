@@ -8,7 +8,7 @@
     <JsonNetVersion>10.0.1</JsonNetVersion>
     <!-- Use this for anything that runs as an MSBuild task. Should match this: https://github.com/dotnet/sdk/blob/master/build/DependencyVersions.props#L14 -->
     <JsonNetInMSBuildVersion>9.0.1</JsonNetInMSBuildVersion>
-    <MsBuildPackageVersions>15.1.1012</MsBuildPackageVersions>
+    <MicrosoftBuildVersion>15.3.0-*</MicrosoftBuildVersion>
     <NetStandardPackageVersion>1.6.1</NetStandardPackageVersion>
     <NuGetPackagesVersion>4.0.0</NuGetPackagesVersion>
     <SystemCollectionsImmutableVersion>1.4.0-*</SystemCollectionsImmutableVersion>    

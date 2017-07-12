@@ -16,8 +16,8 @@
   "prefixExclusionList": [ ],
 
   "packages": {
-    "Microsoft.ApplicationInsights": [ "2.4.0-beta3", "2.4.0-beta5" ],
-    "Microsoft.ApplicationInsights.AspNetCore": [ "2.1.0-beta3", "2.1.0-beta6" ],
+    "Microsoft.ApplicationInsights": [ "2.4.0" ],
+    "Microsoft.ApplicationInsights.AspNetCore": [ "2.1.1" ],
     "Microsoft.AspNet.Identity.EntityFramework": [ "2.2.1" ],
     "Microsoft.AspNet.WebApi.Client": [ "5.2.2" ],
     "Microsoft.Azure.KeyVault": [ "2.3.2" ],

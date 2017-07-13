@@ -123,7 +123,11 @@ function Install-Tools(
     $DotNetHome = Resolve-Path $DotNetHome
     $installDir = if ($IS_WINDOWS) { Join-Path $DotNetHome 'x64' } else { $DotNetHome }
     $global:dotnet = Join-Path $installDir "dotnet$EXE_EXT"
-    $env:PATH = "$(Split-Path -Parent $global:dotnet);$env:PATH"
+    $pathPrefix = Split-Path -Parent $global:dotnet
+    if ($env:PATH -notlike "${pathPrefix};*") {
+        # only prepend if PATH doesn't already start with the location of dotnet
+        $env:PATH = "$pathPrefix;$env:PATH"
+    }
 
     if ($env:KOREBUILD_SKIP_RUNTIME_INSTALL -eq "1") {
         Write-Host "Skipping runtime installation because KOREBUILD_SKIP_RUNTIME_INSTALL = 1"

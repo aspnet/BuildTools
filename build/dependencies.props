@@ -6,14 +6,23 @@
     <DotNetProjectModelVersion>1.0.0-rc3-1-003177</DotNetProjectModelVersion>
     <!-- This one is OK for console tools that bundle their own version of JSON.NET -->
     <JsonNetVersion>10.0.1</JsonNetVersion>
-    <!-- Use this for anything that runs as an MSBuild task. Should match this: https://github.com/dotnet/sdk/blob/master/build/DependencyVersions.props#L14 -->
-    <JsonNetInMSBuildVersion>9.0.1</JsonNetInMSBuildVersion>
-    <MicrosoftBuildVersion>15.3.406</MicrosoftBuildVersion>
     <NetStandardPackageVersion>1.6.1</NetStandardPackageVersion>
     <NuGetPackagesVersion>4.0.0</NuGetPackagesVersion>
-    <SystemCollectionsImmutableVersion>1.4.0-*</SystemCollectionsImmutableVersion>    
+    <SystemCollectionsImmutableVersion>1.4.0-*</SystemCollectionsImmutableVersion>
     <SystemReflectionMetadataVersion>1.5.0-*</SystemReflectionMetadataVersion>
     <TestSdkVersion>15.3.0-*</TestSdkVersion>
     <XunitVersion>2.3.0-beta2-*</XunitVersion>
+  </PropertyGroup>
+
+  <!--
+    Attempt to keep these mostly aligned with https://github.com/dotnet/sdk/blob/master/build/DependencyVersions.props
+    and with the version of MSBuild used by KoreBuild.
+    MSBuild will prefer the assemblies that ship in the .NET Core SDK and MSbuild. The dependency versions here don't matter
+    as long as the version we compile for is binary compatible with what the .NET Core SDK uses.
+  -->
+  <PropertyGroup>
+    <MicrosoftBuildVersion>15.3.406</MicrosoftBuildVersion>
+    <JsonNetInMSBuildVersion>9.0.1</JsonNetInMSBuildVersion>
+    <NuGetInMSBuildVersion>4.3.0-*</NuGetInMSBuildVersion>
   </PropertyGroup>
 </Project>

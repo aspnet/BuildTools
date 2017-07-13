@@ -1,0 +1,3 @@
+<Project>
+  <UsingTask TaskName="NuGet.Tasks.PushNuGetPackages" AssemblyFile="$(MSBuildThisFileDirectory)NuGet.Tasks.dll" />
+</Project>

@@ -44,6 +44,7 @@
 
     <ItemGroup>
       <BundledTools Include="NuGetPackageVerifier" />
+      <BundledTools Include="NuGet.Tasks" />
       <BundledTools Include="Internal.AspNetCore.BuildTools.Tasks" AdditionalProperties="TargetFramework=netcoreapp2.0" />
       <Content Include="$(RepositoryRoot)sdk\KoreBuild\**\*" />
       <VersionFileLines Include="version:$(Version)" />

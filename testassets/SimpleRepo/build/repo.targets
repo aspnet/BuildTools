@@ -1,9 +1,18 @@
 <Project>
   <PropertyGroup>
     <PrepareDependsOn>$(PrepareDependsOn);Greet</PrepareDependsOn>
+    <VerifyDependsOn>$(VerifyDependsOn);TestNuGetPush</VerifyDependsOn>
   </PropertyGroup>
 
   <Target Name="Greet">
     <RepoTasks.SayHello />
+  </Target>
+
+  <Target Name="TestNuGetPush">
+    <ItemGroup>
+      <Packages Include="$(BuildDir)*.nupkg" />
+    </ItemGroup>
+    <MakeDir Directories="$(RepositoryRoot)obj\tmp-nuget\" />
+    <PushNuGetPackages Packages="@(Packages)" Feed="$(RepositoryRoot)obj\tmp-nuget\" />
   </Target>
 </Project>

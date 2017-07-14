@@ -48,7 +48,7 @@
     "SQLitePCLRaw.lib.e_sqlite3.linux": [ "1.1.7" ],
     "SQLitePCLRaw.lib.e_sqlite3.osx": [ "1.1.7" ],
     "StackExchange.Redis.StrongName": [ "1.2.4" ],
-    "StreamJsonRpc": [ "1.0.2-rc" ],
+    "StreamJsonRpc": [ "1.1.92" ],
     "WindowsAzure.Storage": [ "8.1.4" ],
     "xunit": [ "2.2.0" ],
     "xunit.abstractions": [ "2.0.1" ],

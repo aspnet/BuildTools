@@ -6,15 +6,17 @@
 The goal of the script is to make it easier for CI to automatically update and make changes to this repository, without needing
 to know the internal details of how config files are layed out in this repo.
 #>
-[cmdletbinding(SupportsShouldProcess = $true)]
+[cmdletbinding(SupportsShouldProcess = $true, PositionalBinding = $false)]
 param(
-    [string]$DotNetSdkVersion,
-    [string]$DotNetRuntimeVersion,
+    [string]$DotNetSdkVersion = $null,
+    [string]$DotNetRuntimeVersion = $null,
     [string[]]$GitCommitArgs = @(),
     [switch]$Force
 )
 
 $ErrorActionPreference = 'Stop'
+Set-StrictMode -Version 2
+
 $git = Get-Command git -ErrorAction Ignore
 
 if (!$git) {

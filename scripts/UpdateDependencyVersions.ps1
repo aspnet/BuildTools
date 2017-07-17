@@ -25,16 +25,22 @@ $updates = @()
 
 if ($DotNetSdkVersion -and $PSCmdlet.ShouldProcess("Update dotnet SDK to $DotNetSdkVersion")) {
     $path = "$PSScriptRoot/../sdk/KoreBuild/config/sdk.version"
-    $DotNetSdkVersion | Set-Content -path $path -Encoding Ascii
-    if ($git) { & git add $path }
-    $updates += "SDK to $DotNetSdkVersion"
+    $currentVersion = (Get-Content -path $path -Encoding Ascii).Trim()
+    if ($currentVersion -ne $DotNetSdkVersion) {
+        $DotNetSdkVersion | Set-Content -path $path -Encoding Ascii
+        if ($git) { & git add $path }
+        $updates += "SDK to $DotNetSdkVersion"
+    }
 }
 
 if ($DotNetRuntimeVersion -and $PSCmdlet.ShouldProcess("Update dotnet runtime to $DotNetRuntimeVersion")) {
     $path = "$PSScriptRoot/../sdk/KoreBuild/config/runtime.version"
-    $DotNetRuntimeVersion | Set-Content -path $path -Encoding Ascii
-    if ($git) { & git add $path }
-    $updates += "runtime to $DotNetRuntimeVersion"
+    $currentVersion = (Get-Content -path $path -Encoding Ascii).Trim()
+    if ($currentVersion -ne $DotNetRuntimeVersion) {
+        $DotNetRuntimeVersion | Set-Content -path $path -Encoding Ascii
+        if ($git) { & git add $path }
+        $updates += "runtime to $DotNetRuntimeVersion"
+    }
 }
 
 $message = "Updating $($updates -join ' and ')"

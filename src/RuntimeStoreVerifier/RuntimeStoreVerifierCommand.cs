@@ -50,6 +50,7 @@ namespace RuntimeStoreVerifier
                 return 1;
             }
 
+            Console.WriteLine("All binaries are signed.");
             return 0;
         }
 

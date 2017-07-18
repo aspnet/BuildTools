@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\build\common.props" />
+
+  <PropertyGroup>
+    <Description>Verifies ASP.NET Core runtime store.</Description>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <AssemblyName>RuntimeStoreVerifier</AssemblyName>
+    <OutputType>exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\WinTrust.Sources\**\*.cs" />
+    <PackageReference Include="Microsoft.Extensions.CommandLineUtils.Sources" Version="$(AspNetCoreVersion)" />
+  </ItemGroup>
+
+  <!-- packaging settings -->
+  <PropertyGroup>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <NuspecFile>$(MSBuildThisFileDirectory)$(MSBuildProjectName).nuspec</NuspecFile>
+  </PropertyGroup>
+
+  <Target Name="SetPackageDependencies" BeforeTargets="GenerateNuspec" DependsOnTargets="Publish">
+    <PropertyGroup>
+      <NuspecProperties>version=$(PackageVersion);publishdir=$(PublishDir)</NuspecProperties>
+    </PropertyGroup>
+  </Target>
+
+</Project>

@@ -36,6 +36,11 @@ namespace Microsoft.AspNetCore.BuildTools
         public string Destination { get; set; }
 
         /// <summary>
+        /// Overwrite <see cref="File"/> if it exists. Defaults to false.
+        /// </summary>
+        public bool Overwrite { get; set; } = false;
+
+        /// <summary>
         /// The files that were unzipped.
         /// </summary>
         [Output]
@@ -60,7 +65,7 @@ namespace Microsoft.AspNetCore.BuildTools
                     var fileDest = Path.Combine(Destination, entry.FullName);
                     var dirName = Path.GetDirectoryName(fileDest);
                     Directory.CreateDirectory(dirName);
-                    entry.ExtractToFile(fileDest);
+                    entry.ExtractToFile(fileDest, Overwrite);
                     Log.LogMessage(MessageImportance.Low, "Extracted '{0}'", fileDest);
                     output.Add(new TaskItem(fileDest));
                 }

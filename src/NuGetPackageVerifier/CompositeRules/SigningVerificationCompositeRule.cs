@@ -12,7 +12,7 @@ namespace NuGetPackageVerifier.Rules
             new AssemblyIsBuiltInReleaseConfigurationRule(),
             new AuthenticodeSigningRule(),
             new PowerShellScriptIsSignedRule(),
-            new PackageOwnershipRule()
+            new PackageOwnershipRule(),
             new PrereleaseDependenciesVersionRule(),
         };
 

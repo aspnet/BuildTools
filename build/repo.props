@@ -1,5 +1,5 @@
 <Project>
-  <Import Project="..\version.props" />
+  <Import Project="..\version.xml" />
 
   <PropertyGroup>
     <Version>$(VersionPrefix)</Version>

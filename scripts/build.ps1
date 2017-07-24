@@ -24,7 +24,7 @@ The base url where build tools can be downloaded. Overrides the value from the c
 Updates KoreBuild to the latest version even if a lock file is present.
 
 .PARAMETER ConfigFile
-The path to the configuration file that stores values. Defaults to version.props.
+The path to the configuration file that stores values. Defaults to version.xml.
 
 .PARAMETER MSBuildArgs
 Arguments to be passed to MSBuild
@@ -38,7 +38,7 @@ The $ConfigFile is expected to be an XML file. It is optional, and the configura
 .EXAMPLE
 Example config file:
 ```xml
-<!-- version.props -->
+<!-- version.xml -->
 <Project>
   <PropertyGroup>
     <KoreBuildChannel>dev</KoreBuildChannel>
@@ -58,7 +58,7 @@ param(
     [string]$ToolsSource,
     [Alias('u')]
     [switch]$Update,
-    [string]$ConfigFile = (Join-Path $PSScriptRoot 'version.props'),
+    [string]$ConfigFile = (Join-Path $PSScriptRoot 'version.xml'),
     [Parameter(ValueFromRemainingArguments = $true)]
     [string[]]$MSBuildArgs
 )
@@ -104,11 +104,11 @@ function Get-KoreBuild {
             }
         }
         catch {
-            remove-item -Recurse -Force $korebuildPath -ErrorAction Ignore
+            Remove-Item -Recurse -Force $korebuildPath -ErrorAction Ignore
             throw
         }
         finally {
-            remove-item $tmpfile -ErrorAction Ignore
+            Remove-Item $tmpfile -ErrorAction Ignore
         }
     }
 

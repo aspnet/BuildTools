@@ -11,7 +11,7 @@ RED="\033[0;31m"
 MAGENTA="\033[0;95m"
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 [ -z "${DOTNET_HOME:-}"] && DOTNET_HOME="$HOME/.dotnet"
-config_file="$DIR/version.props"
+config_file="$DIR/version.xml"
 verbose=false
 update=false
 repo_path="$DIR"
@@ -30,7 +30,7 @@ __usage() {
     echo "Options:"
     echo "    --verbose                Show verbose output."
     echo "    -c|--channel <CHANNEL>   The channel of KoreBuild to download. Overrides the value from the config file.."
-    echo "    --config-file <FILE>     TThe path to the configuration file that stores values. Defaults to version.props."
+    echo "    --config-file <FILE>     TThe path to the configuration file that stores values. Defaults to version.xml."
     echo "    -d|--dotnet-home <DIR>   The directory where .NET Core tools will be stored. Defaults to '\$DOTNET_HOME' or '\$HOME/.dotnet."
     echo "    --path <PATH>            The directory to build. Defaults to the directory containing the script."
     echo "    -s|--tools-source <URL>  The base url where build tools can be downloaded. Overrides the value from the config file."

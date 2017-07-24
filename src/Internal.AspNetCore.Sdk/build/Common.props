@@ -13,7 +13,6 @@ Usage: this should be imported once via NuGet at the top of the file.
     <Authors>Microsoft</Authors>
     <Company>Microsoft Corporation.</Company>
     <Copyright>Copyright © Microsoft Corporation</Copyright>
-    <IncludeSource>true</IncludeSource>
     <IncludeSymbols>true</IncludeSymbols>
     <NeutralLanguage>en-US</NeutralLanguage>
     <NoPackageAnalysis>true</NoPackageAnalysis>

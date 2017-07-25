@@ -77,18 +77,28 @@ __fetch() {
         return 0
     fi
 
-    __verbose "Downloading $remote_path"
-    failed=false
-    if __machine_has 'curl'; then
-        # Only show progress bar if shell is interactive
-        progress_bar=''
-        [ -z "${PS1:-}" ] && progress_bar='-#'
-        __exec curl $progress_bar --retry 10 -sSL -f --create-dirs -o $local_path $remote_path || failed=true
-    elif __machine_has 'wget'; then
-        __exec wget -v --tries 10 -O $local_path $remote_path || failed=true
-    else
+    if ! __machine_has 'curl' && ! __machine_has 'wget'; then
         __error 'wget or curl is required to download assets'
         return 1
+    fi
+
+    __verbose "Downloading $remote_path"
+
+    failed=false
+    if __machine_has 'wget'; then
+        # Try wget first as this has been more reliable than curl.
+        # Travis CI frequently has TLS issues with curl on macOS
+        # Only show progress bar if shell is interactive
+        progress_bar='--quiet'
+        [ "$__is_verbose" = true ] && [ -z "${PS1:-}" ] && progress_bar='--progress=bar --show-progress'
+        __exec wget $progress_bar --tries 10 -O $local_path $remote_path || failed=true
+    fi
+
+    if [ "$failed" = true ] && __machine_has 'curl'; then
+        failed=false
+        progress_bar='-s'
+        [ "$__is_verbose" = true ] && [ -z "${PS1:-}" ] && progress_bar='-#'
+        __exec curl --retry 10 $progress_bar -SL -f --create-dirs -o $local_path $remote_path || failed=true
     fi
 
     if [ "$failed" = true ]; then

@@ -13,7 +13,7 @@ if ! __machine_has 'tar'; then
 fi
 
 if [ "${1:-}" = "--verbose" ]; then
-    verbose=true
+    __is_verbose=true
     shift
 fi
 

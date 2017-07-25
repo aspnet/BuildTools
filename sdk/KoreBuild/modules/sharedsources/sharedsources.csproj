@@ -4,9 +4,11 @@
   <PropertyGroup>
     <BaseOutputPath>$(NuspecBasePath)bin\</BaseOutputPath>
     <BaseIntermediateOutputPath>$(NuspecBasePath)obj\</BaseIntermediateOutputPath>
+    <DirBuildPropsInRepo>$([MSBuild]::GetDirectoryNameOfFileAbove($(NuspecBasePath), Directory.Build.props))\Directory.Build.props</DirBuildPropsInRepo>
+    <DirBuildTargetsInRepo>$([MSBuild]::GetDirectoryNameOfFileAbove($(NuspecBasePath), Directory.Build.targets))\Directory.Build.targets</DirBuildTargetsInRepo>
   </PropertyGroup>
 
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(NuspecBasePath), Directory.Build.props))\Directory.Build.props" Condition="Exists('$([MSBuild]::GetDirectoryNameOfFileAbove($(NuspecBasePath), Directory.Build.props))\Directory.Build.props')" />
+  <Import Project="$(DirBuildPropsInRepo)" Condition="Exists('$(DirBuildPropsInRepo)')" />
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
 
   <Target Name="VerifyProperties" BeforeTargets="Pack">
@@ -19,8 +21,8 @@
   <Import Project="$(NuspecBasePath)\sharedsources.props" Condition="Exists('$(NuspecBasePath)\sharedsources.props')" />
 
   <Target Name="WarnIfNoCommonProps" BeforeTargets="Pack">
-    <Warning Text="Expected a props file in '$(RepositoryRoot)build\common.props' or '$([MSBuild]::GetDirectoryNameOfFileAbove($(NuspecBasePath), Directory.Build.props))\Directory.Build.props')'. Shared sources packages may be missing the right version number when this is left out."
-             Condition="!Exists('$(RepositoryRoot)build\common.props') And !Exists('$([MSBuild]::GetDirectoryNameOfFileAbove($(NuspecBasePath), Directory.Build.props))\Directory.Build.props')"/>
+    <Warning Text="Expected a props file in '$(RepositoryRoot)build\common.props' or '$(DirBuildPropsInRepo)')'. Shared sources packages may be missing the right version number when this is left out."
+             Condition="!Exists('$(RepositoryRoot)build\common.props') And !Exists('$(DirBuildPropsInRepo)')"/>
   </Target>
 
   <PropertyGroup>
@@ -33,14 +35,15 @@
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <ContentTargetFolders>contentFiles</ContentTargetFolders>
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+    <DefaultExcludeItems>$(DefaultExcludeItems);$(BaseOutputPath);$(BaseIntermediateOutputPath);</DefaultExcludeItems>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(NuspecBasePath)'!=''">
-    <Compile Include="$(NuspecBasePath)\**\*.cs" Exclude="$(BaseOutputPath);$(BaseIntermediateOutputPath);">
+    <Compile Include="$(NuspecBasePath)\**\*.cs" Exclude="$(DefaultExcludeItems)">
       <Pack>true</Pack>
       <PackagePath>$(ContentTargetFolders)\cs\netstandard1.0\</PackagePath>
     </Compile>
-    <EmbeddedResource Include="$(NuspecBasePath)\**\*.resx" Exclude="$(BaseOutputPath);$(BaseIntermediateOutputPath);">
+    <EmbeddedResource Include="$(NuspecBasePath)\**\*.resx" Exclude="$(DefaultExcludeItems)">
       <Pack>true</Pack>
       <PackagePath>$(ContentTargetFolders)\any\any\</PackagePath>
     </EmbeddedResource>
@@ -50,6 +53,6 @@
     <PackageReference Remove="@(PackageReference)" />
   </ItemGroup>
 
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(NuspecBasePath), Directory.Build.targets))\Directory.Build.targets" Condition="Exists('$([MSBuild]::GetDirectoryNameOfFileAbove($(NuspecBasePath), Directory.Build.targets))\Directory.Build.targets')" />
+  <Import Project="$(DirBuildTargetsInRepo)" Condition="Exists('$(DirBuildTargetsInRepo)')" />
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 </Project>

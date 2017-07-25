@@ -23,8 +23,7 @@ that matches "$(RepositoryRoot)/shared/*.Sources".
 
     <MSBuild Targets="Restore;Pack"
       Projects="$(MSBuildThisFileDirectory)sharedsources.csproj"
-      Properties="PackageOutputPath=$(BuildDir);RepositoryRoot=$(RepositoryRoot);NuspecBasePath=%(_SharedSourceItems.Identity);PackageId=%(FileName)%(Extension);BuildNumber=$(BuildNumber)"
-      Condition="'@(_SharedSourceItems)' != ''"
-      BuildInParallel="$(BuildInParallel)" />
+      Properties="PackageOutputPath=$(BuildDir);RepositoryRoot=$(RepositoryRoot);NuspecBasePath=$([MSBuild]::EnsureTrailingSlash('%(_SharedSourceItems.Identity)'));PackageId=%(FileName)%(Extension);BuildNumber=$(BuildNumber)"
+      Condition="'@(_SharedSourceItems)' != ''" />
   </Target>
 </Project>

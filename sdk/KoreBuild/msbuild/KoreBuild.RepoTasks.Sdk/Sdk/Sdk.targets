@@ -1,6 +1,6 @@
 <Project>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(DisableImplicitFrameworkReferences)' != 'true'">
     <!-- set as private assets all since we don't need this in the publish output folder -->
     <PackageReference Include="Microsoft.Build" Version="$(MicrosoftBuildVersion)" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Build.Tasks.Core" Version="$(MicrosoftBuildVersion)" PrivateAssets="All" />

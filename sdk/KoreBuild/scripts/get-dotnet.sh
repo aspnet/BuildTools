@@ -17,12 +17,12 @@ __install_shared_runtime() {
 
         __verbose "Installing .NET Core runtime to $runtime_path"
 
-        $__korebuild_dir/dotnet-install.sh \
-            --install-dir $install_dir \
+        "$__script_dir/dotnet-install.sh" \
+            --install-dir "$install_dir" \
             --architecture x64 \
             --shared-runtime \
-            --channel $channel \
-            --version $version \
+            --channel "$channel" \
+            --version "$version" \
             $verbose_flag
 
         return $?
@@ -52,32 +52,32 @@ fi
 channel='preview'
 version=$(__get_dotnet_sdk_version)
 runtime_channel='master'
-runtime_version=$(cat "$__korebuild_dir/../config/runtime.version" | head -1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+runtime_version=$(< "$__script_dir/../config/runtime.version" head -1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
 
 # environment overrides
 [ ! -z "${KOREBUILD_DOTNET_CHANNEL:-}" ] && channel=${KOREBUILD_DOTNET_CHANNEL:-}
 [ ! -z "${KOREBUILD_DOTNET_SHARED_RUNTIME_CHANNEL:-}" ] && runtime_channel=${KOREBUILD_DOTNET_SHARED_RUNTIME_CHANNEL:-}
 [ ! -z "${KOREBUILD_DOTNET_SHARED_RUNTIME_VERSION:-}" ] && runtime_version=${KOREBUILD_DOTNET_SHARED_RUNTIME_VERSION:-}
 
-chmod +x $__korebuild_dir/dotnet-install.sh
+chmod +x "$__script_dir/dotnet-install.sh"
 # Temporarily install these runtimes to prevent build breaks for repos not yet converted
 # 1.0.5 - for tools
-__install_shared_runtime $install_dir "1.0.5" "preview"
+__install_shared_runtime "$install_dir" "1.0.5" "preview"
 # 1.1.2 - for test projects which haven't yet been converted to netcoreapp2.0
-__install_shared_runtime $install_dir "1.1.2" "release/1.1.0"
+__install_shared_runtime "$install_dir" "1.1.2" "release/1.1.0"
 
 if [ "$runtime_version" != "" ]; then
-    __install_shared_runtime $install_dir $runtime_version $runtime_channel
+    __install_shared_runtime "$install_dir" "$runtime_version" "$runtime_channel"
 fi
 
 __verbose "Installing .NET Core SDK $version"
 
 if [ ! -f "$install_dir/sdk/$version/dotnet.dll" ]; then
-    $__korebuild_dir/dotnet-install.sh \
-        --install-dir $install_dir \
+    "$__script_dir/dotnet-install.sh" \
+        --install-dir "$install_dir" \
         --architecture x64 \
-        --channel $channel \
-        --version $version \
+        --channel "$channel" \
+        --version "$version" \
         $verbose_flag
 else
     echo -e "${GRAY}.NET Core SDK $version is already installed. Skipping installation.${RESET}"

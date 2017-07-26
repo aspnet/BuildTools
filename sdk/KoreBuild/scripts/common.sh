@@ -19,7 +19,7 @@ __is_verbose=false
 
 __verbose() {
     if [ "$__is_verbose" = true ]; then
-        echo -e "${GRAY}debug: $@${RESET}"
+        echo -e "${GRAY}debug: $*${RESET}"
     fi
 }
 
@@ -29,14 +29,15 @@ __machine_has() {
 }
 
 __error() {
-    echo -e "${RED}$@${RESET}" 1>&2
+    echo -e "${RED}$*${RESET}" 1>&2
 }
 
 __exec() {
     local cmd=$1
     shift
-    local cmdname=$(basename $cmd)
-    echo -e "${CYAN}>>> $cmdname $@${RESET}"
+    local cmdname
+    cmdname=$(basename "$cmd")
+    echo -e "${CYAN}>>> $cmdname $*${RESET}"
     set +e
     $cmd "$@"
     local exit_code=$?
@@ -52,16 +53,16 @@ __exec() {
 __ensure_osx_version() {
         # Check that OS is 10.12 or newer
     osx_version="$(sw_vers | grep ProductVersion | awk '{print $2}')"
-    minor_version="$(echo $osx_version | awk -F '.' '{print $2}')"
+    minor_version="$(echo "$osx_version" | awk -F '.' '{print $2}')"
     __verbose "Detected macOS version $osx_version"
-    if [ $minor_version -lt 12 ]; then
+    if [ "$minor_version" -lt 12 ]; then
         __error ".NET Core 2.0 requires OSX 10.12 or newer. Current version is $osx_version."
         return 1
     fi
 }
 
 __get_dotnet_sdk_version() {
-    version=$(cat "$__korebuild_dir/../config/sdk.version" | head -1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+    version=$(< "$__korebuild_dir/../config/sdk.version" head -1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
     # environment override
     [ ! -z "${KOREBUILD_DOTNET_VERSION:-}" ] && version=${KOREBUILD_DOTNET_VERSION:-}
     echo $version
@@ -73,7 +74,7 @@ __fetch() {
 
     if [[ "$remote_path" != 'http'* ]]; then
         __verbose "fetching local file $remote_path"
-        cp $remote_path $local_path
+        cp "$remote_path" "$local_path"
         return 0
     fi
 
@@ -91,14 +92,14 @@ __fetch() {
         # Only show progress bar if shell is interactive
         progress_bar='--quiet'
         [ "$__is_verbose" = true ] && [ -z "${PS1:-}" ] && progress_bar='--progress=bar --show-progress'
-        __exec wget $progress_bar --tries 10 -O $local_path $remote_path || failed=true
+        __exec wget $progress_bar --tries 10 -O "$local_path" "$remote_path" || failed=true
     fi
 
     if [ "$failed" = true ] && __machine_has 'curl'; then
         failed=false
         progress_bar='-s'
         [ "$__is_verbose" = true ] && [ -z "${PS1:-}" ] && progress_bar='-#'
-        __exec curl --retry 10 $progress_bar -SL -f --create-dirs -o $local_path $remote_path || failed=true
+        __exec curl --retry 10 $progress_bar -SL -f --create-dirs -o "$local_path" "$remote_path" || failed=true
     fi
 
     if [ "$failed" = true ]; then

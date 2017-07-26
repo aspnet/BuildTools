@@ -2,7 +2,7 @@
 
 set -euo pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-source $DIR/sdk/KoreBuild/KoreBuild.sh
+source "$DIR/sdk/KoreBuild/KoreBuild.sh"
 
 __usage() {
     echo "Usage: $0 [-v|--verbose] [-d|--dotnet-home <DIR>] [-s|--tools-source <URL>] [[--] <MSBUILD_ARG>...]"
@@ -21,10 +21,10 @@ __usage() {
 # main
 #
 
-[ -z "${DOTNET_HOME:-}"] && DOTNET_HOME="$HOME/.dotnet"
+[ -z "${DOTNET_HOME:-}" ] && DOTNET_HOME="$HOME/.dotnet"
 tools_source='https://aspnetcore.blob.core.windows.net/buildtools'
 verbose=false
-while [[ $# > 0 ]]; do
+while [[ $# -gt 0 ]]; do
     case $1 in
         -\?|-h|--help)
             __usage
@@ -53,5 +53,5 @@ while [[ $# > 0 ]]; do
     shift
 done
 
-install_tools $tools_source $DOTNET_HOME
-invoke_repository_build $DIR $@
+install_tools "$tools_source" "$DOTNET_HOME"
+invoke_repository_build "$DIR" "$@"

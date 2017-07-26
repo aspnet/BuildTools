@@ -22,7 +22,8 @@ __install_shared_runtime() {
             --architecture x64 \
             --shared-runtime \
             --channel $channel \
-            --version $version
+            --version $version \
+            $verbose_flag
 
         return $?
     else
@@ -34,8 +35,10 @@ __install_shared_runtime() {
 # Main
 #
 
+verbose_flag=''
 if [ "$1" = "--verbose" ]; then
-    verbose=true
+    __is_verbose=true
+    verbose_flag='--verbose'
     shift
 fi
 
@@ -74,7 +77,8 @@ if [ ! -f "$install_dir/sdk/$version/dotnet.dll" ]; then
         --install-dir $install_dir \
         --architecture x64 \
         --channel $channel \
-        --version $version
+        --version $version \
+        $verbose_flag
 else
     echo -e "${GRAY}.NET Core SDK $version is already installed. Skipping installation.${RESET}"
 fi

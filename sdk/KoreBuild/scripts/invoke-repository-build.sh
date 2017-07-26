@@ -48,7 +48,12 @@ fi
 repo_path="$(cd $repo_path && pwd)"
 __verbose "Building $repo_path"
 
-echo "{ \"sdk\": { \"version\": \"$(__get_dotnet_sdk_version)\" } }" > "$repo_path/global.json"
+sdk_version="$(__get_dotnet_sdk_version)"
+if [ "$sdk_version" -ne 'latest' ]; then
+    echo "{ \"sdk\": { \"version\": \"\" } }" > "$repo_path/global.json"
+else
+    __verbose "Skipping global.json generation because the \$sdk_version = $sdk_version"
+fi
 
 korebuild_proj="$__script_dir/../KoreBuild.proj"
 msbuild_artifacts_dir="$repo_path/artifacts/msbuild"

@@ -44,6 +44,18 @@ fi
 
 install_dir=$1
 
+if [ ! -z "${DOTNET_INSTALL_DIR:-}" ] && [ "${DOTNET_INSTALL_DIR:-}" != "$install_dir" ]; then
+    __verbose "install_dir = $install_dir"
+    __verbose "DOTNET_INSTALL_DIR = $DOTNET_INSTALL_DIR"
+    __warn 'It looks like a deprecated environment variable is set: $DOTNET_INSTALL_DIR. The recommended alternative is $DOTNET_HOME.'
+fi
+
+dotnet_in_path="$(which dotnet 2>/dev/null || true )"
+# The '-ef' condition tests if files are the same inode. This avoids showing the warning if users symlink dotnet into path
+if [ ! -z "$dotnet_in_path" ] && [ ! "$dotnet_in_path" -ef "$install_dir/dotnet" ]; then
+    __warn "dotnet on PATH is '$dotnet_in_path' but KoreBuild will use dotnet from '$install_dir/dotnet'."
+fi
+
 if [ ! -z "${KOREBUILD_SKIP_RUNTIME_INSTALL:-}" ]; then
      echo "Skipping runtime installation because KOREBUILD_SKIP_RUNTIME_INSTALL is set"
      exit 0
@@ -73,6 +85,7 @@ fi
 __verbose "Installing .NET Core SDK $version"
 
 if [ ! -f "$install_dir/sdk/$version/dotnet.dll" ]; then
+
     "$__script_dir/dotnet-install.sh" \
         --install-dir "$install_dir" \
         --architecture x64 \

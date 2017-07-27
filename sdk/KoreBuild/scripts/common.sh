@@ -10,6 +10,7 @@ fi
 # colors
 GREEN="\033[1;32m"
 MAGENTA="\033[0;95m"
+YELLOW="\033[0;33m"
 CYAN="\033[0;36m"
 RESET="\033[0m"
 RED="\033[0;31m"
@@ -19,17 +20,21 @@ __is_verbose=false
 
 __verbose() {
     if [ "$__is_verbose" = true ]; then
-        echo -e "${GRAY}debug: $*${RESET}"
+        echo -e "${GRAY}debug  : $*${RESET}"
     fi
+}
+
+__warn() {
+    echo -e "${YELLOW}warning: $*${RESET}"
+}
+
+__error() {
+    echo -e "${RED}error  : $*${RESET}" 1>&2
 }
 
 __machine_has() {
     hash "$1" > /dev/null 2>&1
     return $?
-}
-
-__error() {
-    echo -e "${RED}$*${RESET}" 1>&2
 }
 
 __exec() {

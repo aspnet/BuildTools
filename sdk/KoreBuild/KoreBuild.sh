@@ -22,20 +22,21 @@ install_tools() {
     local tools_home="$install_dir/buildtools"
     local netfx_version='4.6.1'
 
-    # Set environment variables
-    export ReferenceAssemblyRoot="$tools_home/netfx/$netfx_version"
-    export PATH="$install_dir:$PATH"
-
     verbose_flag=''
     [ "$verbose" = true ] && verbose_flag='--verbose'
 
+    # Instructs MSBuild where to find .NET Framework reference assemblies
+    export ReferenceAssemblyRoot="$tools_home/netfx/$netfx_version"
     chmod +x "$__korebuild_dir/scripts/get-netfx.sh"
     "$__korebuild_dir/scripts/get-netfx.sh" $verbose_flag $netfx_version "$tools_source" "$ReferenceAssemblyRoot" \
         || return 1
 
     chmod +x "$__korebuild_dir/scripts/get-dotnet.sh"
-    "$__korebuild_dir/scripts/get-dotnet.sh" $verbose_flag "$install_dir"
-    return $?
+    "$__korebuild_dir/scripts/get-dotnet.sh" $verbose_flag "$install_dir" \
+        || return 1
+
+    # Set environment variables
+    export PATH="$install_dir:$PATH"
 }
 
 __show_version_info() {

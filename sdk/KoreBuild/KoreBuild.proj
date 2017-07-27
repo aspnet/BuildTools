@@ -1,11 +1,13 @@
+<?xml version="1.0" ?>
 <Project DefaultTargets="Build">
 
   <!-- props -->
   <Import Project="KoreBuild.Common.props" />
 
   <Import Project="modules\*\module.props" />
+
   <!-- CustomKoreBuildModulesPath should not be set by KoreBuild itself, but is instead used to extend KoreBuild externally -->
-  <Import Project="$(CustomKoreBuildModulesPath)\*\module.targets" Condition="Exists('$(CustomKoreBuildModulesPath)')" />
+  <Import Project="$(CustomKoreBuildModulesPath)\*\module.props" Condition="Exists('$(CustomKoreBuildModulesPath)')" />
 
   <Import Project="$(RepositoryRoot)build\repo.props" Condition="Exists('$(RepositoryRoot)build\repo.props')" />
   <Import Project="$(RepositoryRoot)build\tasks\*.tasks" Condition="Exists('$(RepositoryRoot)build\tasks\')" />

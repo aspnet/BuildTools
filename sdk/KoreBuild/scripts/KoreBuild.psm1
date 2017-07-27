@@ -126,11 +126,27 @@ function Install-Tools(
     }
 
     $DotNetHome = Resolve-Path $DotNetHome
-    $installDir = if ($IS_WINDOWS) { Join-Path $DotNetHome 'x64' } else { $DotNetHome }
+    $installDir = $DotNetHome
+    Write-Verbose "Installing tools to '$installDir'"
+    if ($env:DOTNET_INSTALL_DIR -and $env:DOTNET_INSTALL_DIR -ne $installDir) {
+        # DOTNET_INSTALL_DIR is used by dotnet-install.ps1 only, and some repos used it in their automation to isolate dotnet.
+        # DOTNET_HOME is used by the rest of our KoreBuild tools and is set by the bootstrappers.
+        Write-Verbose "installDir = $installDir"
+        Write-Verbose "DOTNET_INSTALL_DIR = ${env:DOTNET_INSTALL_DIR}"
+        Write-Warning 'It looks like a deprecated environment variable is set: $env:DOTNET_INSTALL_DIR. The recommended alternative is $env:DOTNET_HOME.'
+    }
+
     $global:dotnet = Join-Path $installDir "dotnet$EXE_EXT"
+
+    $dotnetOnPath = Get-Command dtnet -ErrorAction Ignore
+    if ($dotnetOnPath -and ($dotnetOnPath.Path -ne $global:dotnet)) {
+        Write-Warning "dotnet on PATH is '$($dotnetOnPath.Path)' but KoreBuild will use dotnet: '${global:dotnet}'"
+    }
+
     $pathPrefix = Split-Path -Parent $global:dotnet
     if ($env:PATH -notlike "${pathPrefix};*") {
         # only prepend if PATH doesn't already start with the location of dotnet
+        Write-Host "Adding $pathPrefix to PATH"
         $env:PATH = "$pathPrefix;$env:PATH"
     }
 
@@ -174,6 +190,7 @@ function Install-Tools(
 
     # Install the main CLI
     if (!(Test-Path (Join-Paths $installDir ('sdk', $version, 'dotnet.dll')))) {
+
         Write-Verbose "Installing dotnet $version to $installDir"
         & $scriptPath -Channel $channel `
             -Version $version `

@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="$(MSBuildThisFileDirectory)..\build\Internal.AspNetCore.BuildTools.Tasks.props" />
-</Project>

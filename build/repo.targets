@@ -16,12 +16,6 @@
     </PropertyGroup>
   </Target>
 
-  <ItemDefinitionGroup>
-    <BundledTools>
-      <AdditionalProperties></AdditionalProperties>
-    </BundledTools>
-  </ItemDefinitionGroup>
-
   <PropertyGroup>
     <_KoreBuildIntermediateDir>$(IntermediateDir)korebuild\</_KoreBuildIntermediateDir>
     <_KoreBuildOutDir>$(ArtifactsDir)korebuild\artifacts\$(Version)\</_KoreBuildOutDir>
@@ -45,7 +39,8 @@
     <ItemGroup>
       <BundledTools Include="NuGetPackageVerifier" />
       <BundledTools Include="NuGet.Tasks" />
-      <BundledTools Include="Internal.AspNetCore.BuildTools.Tasks" AdditionalProperties="TargetFramework=netcoreapp2.0" />
+      <BundledTools Include="Internal.AspNetCore.BuildTools.Tasks" />
+
       <Content Include="$(RepositoryRoot)sdk\KoreBuild\**\*" />
       <VersionFileLines Include="version:$(Version)" />
       <VersionFileLines Include="commithash:$(CommitHash)" />
@@ -58,7 +53,7 @@
 
     <MSBuild Targets="Publish"
       Projects="$(RepositoryRoot)src\%(BundledTools.Identity)\%(Identity).csproj"
-      Properties="$(SolutionProperties);PublishDir=$(_KoreBuildIntermediateDir)modules\%(Identity)\;%(AdditionalProperties)" />
+      Properties="$(SolutionProperties);PublishDir=$(_KoreBuildIntermediateDir)modules\%(Identity)\" />
 
     <MSBuild Targets="Publish"
       Projects="$(RepositoryRoot)src\NuGetPackageVerifier.Task\NuGetPackageVerifier.Task.csproj"

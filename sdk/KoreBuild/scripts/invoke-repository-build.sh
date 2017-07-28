@@ -26,11 +26,16 @@ if [[ $# -gt 0 ]]; then
     shift
 fi
 
-msbuild_args=""
+noop=false
+msbuild_args=''
 while [[ $# -gt 0 ]]; do
     case $1 in
         --verbose)
             __is_verbose=true
+            ;;
+        /t:[Cc]ow|/t:[Nn]oop)
+            noop=true
+            msbuild_args+="\"$1\"\n"
             ;;
         *)
             msbuild_args+="\"$1\"\n"
@@ -84,7 +89,10 @@ __verbose "dotnet = $(which dotnet)"
 
 task_proj="$repo_path/build/tasks/RepoTasks.csproj"
 
-if [ -f "$task_proj" ]; then
+__verbose "Noop = $noop"
+if [ "${noop}" = true ]; then
+    export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
+elif [ -f "$task_proj" ]; then
     sdk_path="/p:RepoTasksSdkPath=$__script_dir/../msbuild/KoreBuild.RepoTasks.Sdk/Sdk/"
     __exec dotnet restore "$task_proj" "$sdk_path"
     task_publish_dir="$repo_path/build/tasks/bin/publish/"

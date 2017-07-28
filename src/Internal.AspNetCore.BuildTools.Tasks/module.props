@@ -2,8 +2,9 @@
 
   <PropertyGroup>
     <_BuildToolsAssembly>$(MSBuildThisFileDirectory)Internal.AspNetCore.BuildTools.Tasks.dll</_BuildToolsAssembly>
+    <_BuildTasksPrefix></_BuildTasksPrefix>
   </PropertyGroup>
 
-  <Import Project="build\Tasks.tasks" />
+  <Import Project="BuildToolsTasks.props" />
 
 </Project>

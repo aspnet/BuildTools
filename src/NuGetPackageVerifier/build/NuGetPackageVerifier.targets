@@ -1,4 +1,0 @@
-<Project>
-    <UsingTask AssemblyFile="$(MSBuildThisFileDirectory)..\tools\netcoreapp2.0\NuGetPackageVerifier.Task.dll"
-               TaskName="NuGetPackagerVerifier.VerifyPackages" />
-</Project>

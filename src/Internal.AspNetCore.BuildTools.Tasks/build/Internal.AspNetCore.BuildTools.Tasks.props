@@ -1,9 +1,0 @@
-﻿<Project>
-  <PropertyGroup>
-    <_BuildToolsAssemblyTfm Condition="'$(MSBuildRuntimeType)' == 'Core'">netcoreapp2.0</_BuildToolsAssemblyTfm>
-    <_BuildToolsAssemblyTfm Condition="'$(MSBuildRuntimeType)' != 'Core'">net46</_BuildToolsAssemblyTfm>
-    <_BuildToolsAssembly>$(MSBuildThisFileDirectory)..\tools\$(_BuildToolsAssemblyTfm)\Internal.AspNetCore.BuildTools.Tasks.dll</_BuildToolsAssembly>
-  </PropertyGroup>
-
-  <Import Project="$(MSBuildThisFileDirectory)Tasks.tasks" />
-</Project>

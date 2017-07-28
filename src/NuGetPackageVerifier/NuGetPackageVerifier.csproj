@@ -7,15 +7,13 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <AssemblyName>NuGetPackageVerifier</AssemblyName>
     <OutputType>exe</OutputType>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="already-owned-packages.txt" />
     <EmbeddedResource Include="third-party.json" />
-    <Content Include="build\*.targets">
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <None Include="module.targets" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="module.targets" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,17 +22,5 @@
     <PackageReference Include="Newtonsoft.Json" Version="$(JsonNetVersion)" />
     <PackageReference Include="NuGet.Packaging" Version="$(NuGetPackagesVersion)" />
   </ItemGroup>
-
- <!-- packaging settings -->
-  <PropertyGroup>
-    <NoPackageAnalysis>true</NoPackageAnalysis>
-    <NuspecFile>$(MSBuildThisFileDirectory)$(MSBuildProjectName).nuspec</NuspecFile>
-  </PropertyGroup>
-
-  <Target Name="SetPackageDependencies" BeforeTargets="GenerateNuspec" DependsOnTargets="Publish">
-    <PropertyGroup>
-      <NuspecProperties>version=$(PackageVersion);publishdir=$(PublishDir);taskbuilddir=$(MSBuildThisFileDirectory)..\NuGetPackageVerifier.Task\bin\$(Configuration)</NuspecProperties>
-    </PropertyGroup>
-  </Target>
 
 </Project>

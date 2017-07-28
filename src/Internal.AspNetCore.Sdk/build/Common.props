@@ -44,6 +44,6 @@ Usage: this should be imported once via NuGet at the top of the file.
     <_BuildToolsAssembly>$(MSBuildThisFileDirectory)..\tools\$(_BuildToolsAssemblyTfm)\Internal.AspNetCore.Sdk.dll</_BuildToolsAssembly>
   </PropertyGroup>
 
-  <Import Project="$(MSBuildThisFileDirectory)Tasks.tasks" Condition="Exists('$(MSBuildThisFileDirectory)Tasks.tasks')"/>
+  <Import Project="$(MSBuildThisFileDirectory)BuildToolsTasks.props" Condition="Exists('$(MSBuildThisFileDirectory)BuildToolsTasks.props')"/>
 
 </Project>

@@ -89,7 +89,15 @@ function Invoke-RepositoryBuild(
 
         $msBuildArguments | Out-File -Encoding ASCII -FilePath $msBuildResponseFile
 
-        __build_task_project $Path
+        $noop = ($MSBuildArgs -contains '/t:Noop' -or $MSBuildArgs -contains '/t:Cow')
+        Write-Verbose "Noop = $noop"
+        $firstTime = $env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE
+        if ($noop) {
+            $env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE = 'true'
+        }
+        else {
+            __build_task_project $Path
+        }
 
         Write-Verbose "Invoking msbuild with '$(Get-Content $msBuildResponseFile)'"
 
@@ -97,6 +105,7 @@ function Invoke-RepositoryBuild(
     }
     finally {
         Pop-Location
+        $env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE = $firstTime
     }
 }
 

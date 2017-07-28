@@ -1,0 +1,23 @@
+<!-- Don't do anything. Useful for scripts that need to initialize KoreBuild without building anything. -->
+<Project>
+
+  <Target Name="Noop" />
+
+  <Target Name="Cow" DependsOnTargets="Noop">
+    <PropertyGroup>
+      <CowSay>
+ ______
+( Moo! )
+ ------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+      </CowSay>
+    </PropertyGroup>
+
+    <Message Text="$(CowSay)" Importance="High" />
+  </Target>
+
+</Project>

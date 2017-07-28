@@ -4,7 +4,20 @@
   <Target Name="Noop" />
 
   <Target Name="Cow" DependsOnTargets="Noop">
-    <Message Text="Moo!" Importance="High" />
+    <PropertyGroup>
+      <CowSay>
+ ______
+( Moo! )
+ ------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+      </CowSay>
+    </PropertyGroup>
+
+    <Message Text="$(CowSay)" Importance="High" />
   </Target>
 
 </Project>

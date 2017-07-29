@@ -69,11 +69,11 @@ namespace NuGet.Tasks
 
             _packages = new ConcurrentBag<PackageInfo>(packages);
 
-            Log.LogMessage(MessageImportance.High, "Attempting to push {0} package(s)", Packages.Length);
+            Log.LogMessage(MessageImportance.High, "Attempting to push {0} package(s) to {1}", Packages.Length, Feed);
             try
             {
                 PublishToFeedAsync().GetAwaiter().GetResult();
-                Log.LogMessage(MessageImportance.High, "Successfully pushed {0} package(s)", Packages.Length);
+                Log.LogMessage(MessageImportance.High, "Successfully pushed {0} package(s) to {1}", Packages.Length, Feed);
                 return true;
             }
             catch (Exception ex)

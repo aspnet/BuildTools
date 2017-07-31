@@ -37,7 +37,7 @@
     "Newtonsoft.Json": [ "10.0.1" ],
     "Newtonsoft.Json.Bson": [ "1.0.1" ],
     "NuGet.Frameworks": [ "4.0.0" ],
-    "Remotion.Linq": [ "2.1.1" ],
+    "Remotion.Linq": [ "2.2.0-alpha-002" ],
     "Serilog.Extensions.Logging": [ "1.4.0" ],
     "Serilog.Sinks.File": [ "3.2.0" ],
     "Serilog.Sinks.PeriodicBatching": [ "2.1.0" ],

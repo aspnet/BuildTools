@@ -39,7 +39,6 @@ Default layout and configuration.
     <IntermediateDir>$(RepositoryRoot)obj\</IntermediateDir>
   </PropertyGroup>
 
-
   <!-- Use build number from CI if available -->
   <PropertyGroup Condition=" '$(BuildNumber)' == '' ">
     <!--
@@ -50,8 +49,19 @@ Default layout and configuration.
   </PropertyGroup>
 
   <!-- Create a temporary build number if not assigned by the CI server -->
+  <PropertyGroup Condition=" '$(BuildNumber)' == '' AND '$(IncrementalVersion)' == 'true' ">
+    <!--
+      Create second-based build number for local builds.
+      635556672000000000 is Jan 1, 2015.
+    -->
+    <_SecondBasedTimeStamp>$([System.DateTime]::UtcNow.Subtract($([System.DateTime]::FromBinary(635556672000000000))).TotalSeconds.ToString("F0"))</_SecondBasedTimeStamp>
+    <_SecondBasedTimeStamp>t$([System.Int64]::Parse($(_SecondBasedTimeStamp)).ToString("x9"))</_SecondBasedTimeStamp>
+    <BuildNumber>$(_SecondBasedTimeStamp)</BuildNumber>
+  </PropertyGroup>
+
   <PropertyGroup Condition=" '$(BuildNumber)' == '' ">
-    <BuildNumber>dev-0000</BuildNumber>
+    <BuildNumber>t000</BuildNumber>
+    <UsingLocalBuildNumber>true</UsingLocalBuildNumber>
   </PropertyGroup>
 
   <PropertyGroup>

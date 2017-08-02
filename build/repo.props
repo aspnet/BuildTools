@@ -1,16 +1,6 @@
 <Project>
   <Import Project="..\version.xml" />
 
-  <PropertyGroup Condition=" '$(BuildNumber)' == 'dev-0000' ">
-    <!--
-      Create second-based build number for local builds.
-      635556672000000000 is Jan 1, 2015.
-    -->
-    <_SecondBasedTimeStamp>$([System.DateTime]::UtcNow.Subtract($([System.DateTime]::FromBinary(635556672000000000))).TotalSeconds.ToString("F0"))</_SecondBasedTimeStamp>
-    <_SecondBasedTimeStamp>t$([System.Int64]::Parse($(_SecondBasedTimeStamp)).ToString("x9"))</_SecondBasedTimeStamp>
-    <BuildNumber>$(_SecondBasedTimeStamp)</BuildNumber>
-  </PropertyGroup>
-
   <PropertyGroup>
     <Version>$(VersionPrefix)</Version>
     <Version Condition="'$(VersionSuffix)' != ''">$(Version)-$(VersionSuffix)</Version>

@@ -135,7 +135,8 @@ function Install-Tools(
     }
 
     $DotNetHome = Resolve-Path $DotNetHome
-    $installDir = if ($IS_WINDOWS) { Join-Path $DotNetHome 'x64' } else { $DotNetHome }
+    $arch = __get_dotnet_arch
+    $installDir = if ($IS_WINDOWS) { Join-Path $DotNetHome $arch } else { $DotNetHome }
     Write-Verbose "Installing tools to '$installDir'"
     if ($env:DOTNET_INSTALL_DIR -and $env:DOTNET_INSTALL_DIR -ne $installDir) {
         # DOTNET_INSTALL_DIR is used by dotnet-install.ps1 only, and some repos used it in their automation to isolate dotnet.
@@ -189,20 +190,21 @@ function Install-Tools(
 
     # Temporarily install these runtimes to prevent build breaks for repos not yet converted
     # 1.0.5 - for tools
-    __install_shared_runtime $scriptPath $installDir -version "1.0.5" -channel "preview"
+    __install_shared_runtime $scriptPath $installDir -arch $arch -version "1.0.5" -channel "preview"
     # 1.1.2 - for test projects which haven't yet been converted to netcoreapp2.0
-    __install_shared_runtime $scriptPath $installDir -version "1.1.2" -channel "release/1.1.0"
+    __install_shared_runtime $scriptPath $installDir -arch $arch -version "1.1.2" -channel "release/1.1.0"
 
     if ($runtimeVersion) {
-        __install_shared_runtime $scriptPath $installDir -version $runtimeVersion -channel $runtimeChannel
+        __install_shared_runtime $scriptPath $installDir -arch $arch -version $runtimeVersion -channel $runtimeChannel
     }
 
     # Install the main CLI
     if (!(Test-Path (Join-Paths $installDir ('sdk', $version, 'dotnet.dll')))) {
         Write-Verbose "Installing dotnet $version to $installDir"
-        & $scriptPath -Channel $channel `
+        & $scriptPath `
+            -Channel $channel `
             -Version $version `
-            -Architecture x64 `
+            -Architecture $arch `
             -InstallDir $installDir
     }
     else {
@@ -336,15 +338,23 @@ function Push-NuGetPackage {
 # Private functions
 #
 
-function __install_shared_runtime($installScript, $installDir, [string] $version, [string] $channel) {
+function __get_dotnet_arch {
+    if ($env:KOREBUILD_DOTNET_ARCH) {
+        return $env:KOREBUILD_DOTNET_ARCH
+    }
+    return 'x64'
+}
+
+function __install_shared_runtime($installScript, $installDir, [string]$arch, [string] $version, [string] $channel) {
     $sharedRuntimePath = Join-Paths $installDir ('shared', 'Microsoft.NETCore.App', $version)
     # Avoid redownloading the CLI if it's already installed.
     if (!(Test-Path $sharedRuntimePath)) {
         Write-Verbose "Installing .NET Core runtime $version"
-        & $installScript -Channel $channel `
+        & $installScript `
+            -Channel $channel `
             -SharedRuntime `
             -Version $version `
-            -Architecture x64 `
+            -Architecture $arch `
             -InstallDir $installDir
     }
     else {

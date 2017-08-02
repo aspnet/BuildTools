@@ -1,0 +1,8 @@
+<Project>
+  <Import Project="..\build\common.props" />
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+</Project>

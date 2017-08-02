@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Microsoft.AspNetCore.BuildTools.ApiCheck\Microsoft.AspNetCore.BuildTools.ApiCheck.csproj" />
+    <ProjectReference Include="..\..\src\ApiCheck.Console\ApiCheck.Console.csproj" />
     <ProjectReference Include="..\ApiCheckBaseline.V1\ApiCheckBaseline.V1.csproj" />
     <ProjectReference Include="..\ApiCheckBaseline.V2\ApiCheckBaseline.V2.csproj" />
   </ItemGroup>

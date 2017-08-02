@@ -5,6 +5,6 @@
     <_BuildTasksPrefix></_BuildTasksPrefix>
   </PropertyGroup>
 
-  <Import Project="BuildToolsTasks.props" />
+  <Import Project="BuildTools.Tasks.props" />
 
 </Project>

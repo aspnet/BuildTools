@@ -1,18 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <!-- Most modifications to this file need to also be made to Internal.AspNetCore.Sdk.Tasks.csproj. -->
-  <Import Project="..\..\build\common.props" />
 
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);BuildTools</DefineConstants>
     <Description>MSBuild tasks. This package is intended for Microsoft use only</Description>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <RootNamespace>Microsoft.AspNetCore.BuildTools</RootNamespace>
-    <IsPackable>false</IsPackable>
+    <AssemblyName>Internal.AspNetCore.BuildTools.Tasks</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="module.props" CopyToPublishDirectory="PreserveNewest" />
-    <None Include="BuildToolsTasks.props" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="BuildTools.Tasks.props" CopyToPublishDirectory="PreserveNewest" />
     <None Include="*.targets" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 

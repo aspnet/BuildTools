@@ -19,7 +19,7 @@ param(
 $ErrorActionPreference = 'Stop'
 
 try {
-    Import-Module -Force -Scope Local $PSScriptRoot/sdk/KoreBuild/KoreBuild.psd1
+    Import-Module -Force -Scope Local $PSScriptRoot/files/KoreBuild/KoreBuild.psd1
     Install-Tools $ToolsSource $DotNetHome
     Invoke-RepositoryBuild $Path @MSBuildArgs
 }

@@ -9,9 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\src\Internal.AspNetCore.BuildTools.Tasks\Utilities\**" />
-    <Compile Include="..\..\src\Internal.AspNetCore.BuildTools.Tasks\GetGitCommitInfo.cs" />
-    <Compile Include="..\..\src\Internal.AspNetCore.BuildTools.Tasks\ZipArchive.cs" />
+    <Compile Include="..\..\modules\BuildTools.Tasks\Utilities\**" />
+    <Compile Include="..\..\modules\BuildTools.Tasks\GetGitCommitInfo.cs" />
+    <Compile Include="..\..\modules\BuildTools.Tasks\ZipArchive.cs" />
   </ItemGroup>
 
   <Import Project="$(RepoTasksSdkPath)\Sdk.targets" Condition="'$(RepoTasksSdkPath)' != '' "/>

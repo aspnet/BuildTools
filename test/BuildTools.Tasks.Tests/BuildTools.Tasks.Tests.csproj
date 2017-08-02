@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Internal.AspNetCore.BuildTools.Tasks\Internal.AspNetCore.BuildTools.Tasks.csproj" />
+    <ProjectReference Include="..\..\modules\BuildTools.Tasks\BuildTools.Tasks.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,14 @@
+<Project>
+  <Target Name="Publish">
+    <ItemGroup>
+      <Projects Include="$(MSBuildThisFileDirectory)console\NuGetPackageVerifier.Console.csproj" />
+      <Projects Include="$(MSBuildThisFileDirectory)msbuild\NuGetPackageVerifier.Task.csproj" />
+    </ItemGroup>
+
+    <MSBuild Projects="@(Projects)"
+      Targets="Publish"
+      Properties="PublishDir=$(PublishDir);Configuration=$(Configuration)" />
+
+    <Copy SourceFiles="module.targets" DestinationFolder="$(PublishDir)" />
+  </Target>
+</Project>

@@ -147,7 +147,7 @@ function Install-Tools(
 
     $global:dotnet = Join-Path $installDir "dotnet$EXE_EXT"
 
-    $dotnetOnPath = Get-Command dtnet -ErrorAction Ignore
+    $dotnetOnPath = Get-Command dotnet -ErrorAction Ignore
     if ($dotnetOnPath -and ($dotnetOnPath.Path -ne $global:dotnet)) {
         Write-Warning "dotnet found on the system PATH is '$($dotnetOnPath.Path)' but KoreBuild will use '${global:dotnet}'"
     }

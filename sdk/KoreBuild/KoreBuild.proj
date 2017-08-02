@@ -2,6 +2,8 @@
 <Project DefaultTargets="Build">
 
   <!-- props -->
+  <Import Project="$(RepositoryRoot)build\repo.beforecommon.props" Condition="Exists('$(RepositoryRoot)build\repo.beforecommon.props')" />
+
   <Import Project="KoreBuild.Common.props" />
 
   <Import Project="modules\*\module.props" />

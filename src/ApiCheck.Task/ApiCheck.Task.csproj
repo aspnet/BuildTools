@@ -4,6 +4,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.6</TargetFramework>
     <IsPackable>false</IsPackable>
+    <AssemblyName>Microsoft.AspNetCore.BuildTools.ApiCheck.Task</AssemblyName>
+    <RootNamespace>Microsoft.AspNetCore.BuildTools.ApiCheck.Task</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

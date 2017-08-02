@@ -14,7 +14,7 @@ if ($env:BUILD_IS_PERSONAL) {
     Write-Host -ForegroundColor Yellow 'Automatically setting -WhatIf for personal builds'
 }
 
-Import-Module -Force -Scope Local $PSScriptRoot/sdk/KoreBuild/KoreBuild.psd1
+Import-Module -Force -Scope Local $PSScriptRoot/files/KoreBuild/KoreBuild.psd1
 
 $artifacts = Join-Path $PSScriptRoot 'artifacts'
 

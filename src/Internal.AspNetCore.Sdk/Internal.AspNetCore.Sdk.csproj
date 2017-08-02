@@ -10,7 +10,7 @@
     <Description>Build targets and extensions to Microsoft.NET.Sdk. This package is intended for Microsoft use only.</Description>
     <RootNamespace>Microsoft.AspNetCore.BuildTools</RootNamespace>
     <NoPackageAnalysis>true</NoPackageAnalysis>
-    <BuildToolsPath>..\Internal.AspNetCore.BuildTools.Tasks\</BuildToolsPath>
+    <BuildToolsPath>..\..\modules\BuildTools.Tasks\</BuildToolsPath>
     <NuspecFile>$(MSBuildThisFileDirectory)$(MSBuildProjectName).nuspec</NuspecFile>
   </PropertyGroup>
 
@@ -37,7 +37,7 @@
   </ItemGroup>
 
   <Target Name="SetPackageDependencies" BeforeTargets="GenerateNuspec">
-    <MSBuild Projects="..\Microsoft.AspNetCore.BuildTools.ApiCheck\Microsoft.AspNetCore.BuildTools.ApiCheck.csproj" Targets="GetPackageVersion">
+    <MSBuild Projects="..\ApiCheck.Console\ApiCheck.Console.csproj" Targets="GetPackageVersion">
       <Output TaskParameter="TargetOutputs" PropertyName="ApiCheckPackageVersion" />
     </MSBuild>
 

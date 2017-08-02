@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\build\common.props" />
 
   <PropertyGroup>
@@ -7,6 +7,8 @@
       on this project.
     -->
     <TargetFrameworks>netcoreapp2.0;net46;netstandard1.0</TargetFrameworks>
+    <AssemblyName>Microsoft.AspNetCore.BuildTools.ApiCheck</AssemblyName>
+    <RootNamespace>Microsoft.AspNetCore.BuildTools.ApiCheck</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
@@ -23,7 +25,7 @@
   <!-- packaging settings-->
   <PropertyGroup>
     <NoPackageAnalysis>true</NoPackageAnalysis>
-    <NuspecFile>$(MSBuildThisFileDirectory)$(MSBuildProjectName).nuspec</NuspecFile>
+    <NuspecFile>$(MSBuildThisFileDirectory)Microsoft.AspNetCore.BuildTools.ApiCheck.nuspec</NuspecFile>
     <IntermediatePackDir>$(MSBuildThisFileDirectory)bin\$(Configuration)\publish\</IntermediatePackDir>
     <PublishDir>$(IntermediatePackDir)$(TargetFramework)\</PublishDir>
   </PropertyGroup>
@@ -50,7 +52,7 @@
   <Target Name="SetPackageDependencies" BeforeTargets="GenerateNuspec" DependsOnTargets="PublishAll">
     <PropertyGroup>
       <NuspecProperties>$(NuspecProperties);publishDir=$(IntermediatePackDir)</NuspecProperties>
-      <NuspecProperties>$(NuspecProperties);taskBuildDir=$(MSBuildThisFileDirectory)..\Microsoft.AspNetCore.BuildTools.ApiCheck.Task\bin\$(Configuration)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);taskBuildDir=$(MSBuildThisFileDirectory)..\ApiCheck.Task\bin\$(Configuration)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);version=$(PackageVersion)</NuspecProperties>
     </PropertyGroup>
   </Target>

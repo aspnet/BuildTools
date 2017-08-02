@@ -26,7 +26,7 @@ if (!$git) {
 $updates = @()
 
 if ($DotNetSdkVersion -and $PSCmdlet.ShouldProcess("Update dotnet SDK to $DotNetSdkVersion")) {
-    $path = "$PSScriptRoot/../sdk/KoreBuild/config/sdk.version"
+    $path = "$PSScriptRoot/../files/KoreBuild/config/sdk.version"
     $currentVersion = (Get-Content -path $path -Encoding Ascii).Trim()
     if ($currentVersion -ne $DotNetSdkVersion) {
         $DotNetSdkVersion | Set-Content -path $path -Encoding Ascii
@@ -36,7 +36,7 @@ if ($DotNetSdkVersion -and $PSCmdlet.ShouldProcess("Update dotnet SDK to $DotNet
 }
 
 if ($DotNetRuntimeVersion -and $PSCmdlet.ShouldProcess("Update dotnet runtime to $DotNetRuntimeVersion")) {
-    $path = "$PSScriptRoot/../sdk/KoreBuild/config/runtime.version"
+    $path = "$PSScriptRoot/../files/KoreBuild/config/runtime.version"
     $currentVersion = (Get-Content -path $path -Encoding Ascii).Trim()
     if ($currentVersion -ne $DotNetRuntimeVersion) {
         $DotNetRuntimeVersion | Set-Content -path $path -Encoding Ascii

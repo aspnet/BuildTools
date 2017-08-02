@@ -1,19 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\..\build\common.props" />
-
   <PropertyGroup>
     <Description>Verifies Asp.Net Core NuGet packages.</Description>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <AssemblyName>NuGetPackageVerifier</AssemblyName>
     <OutputType>exe</OutputType>
-    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="already-owned-packages.txt" />
     <EmbeddedResource Include="third-party.json" />
-    <Content Include="module.targets" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

@@ -13,6 +13,7 @@
     <!-- workaround https://github.com/aspnet/CoreCLR/issues/223 -->
     <NoWarn>$(NoWarn);NU1603</NoWarn>
     <Serviceable>false</Serviceable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <Import Project="$(_AspNetToolsSdkPath)\build\Internal.AspNetCore.Sdk.props" />

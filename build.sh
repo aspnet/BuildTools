@@ -2,7 +2,7 @@
 
 set -euo pipefail
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-source "$DIR/sdk/KoreBuild/KoreBuild.sh"
+source "$DIR/files/KoreBuild/KoreBuild.sh"
 
 __usage() {
     echo "Usage: $0 [-v|--verbose] [-d|--dotnet-home <DIR>] [-s|--tools-source <URL>] [[--] <MSBUILD_ARG>...]"

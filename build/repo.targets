@@ -37,11 +37,7 @@
       Code="BUILD1001" />
 
     <ItemGroup>
-      <BundledTools Include="NuGetPackageVerifier" />
-      <BundledTools Include="NuGet.Tasks" />
-      <BundledTools Include="Internal.AspNetCore.BuildTools.Tasks" />
-
-      <Content Include="$(RepositoryRoot)sdk\KoreBuild\**\*" />
+      <Content Include="$(RepositoryRoot)files\KoreBuild\**\*" />
       <VersionFileLines Include="version:$(Version)" />
       <VersionFileLines Include="commithash:$(CommitHash)" />
     </ItemGroup>
@@ -51,13 +47,15 @@
 
     <WriteLinesToFile File="$(_KoreBuildIntermediateDir).version" Lines="@(VersionFileLines)" Overwrite="true" />
 
-    <MSBuild Targets="Publish"
-      Projects="$(RepositoryRoot)src\%(BundledTools.Identity)\%(Identity).csproj"
-      Properties="$(SolutionProperties);PublishDir=$(_KoreBuildIntermediateDir)modules\%(Identity)\" />
+    <ItemGroup>
+      <_ModuleProjects Include="$(RepositoryRoot)modules\%(KoreBuildModule.Identity)\%(Identity).*proj">
+        <AdditionalProperties>PublishDir=$(_KoreBuildIntermediateDir)modules\%(Identity)\</AdditionalProperties>
+      </_ModuleProjects>
+    </ItemGroup>
 
     <MSBuild Targets="Publish"
-      Projects="$(RepositoryRoot)src\NuGetPackageVerifier.Task\NuGetPackageVerifier.Task.csproj"
-      Properties="$(SolutionProperties);PublishDir=$(_KoreBuildIntermediateDir)modules\NuGetPackageVerifier\" />
+      Projects="@(_ModuleProjects)"
+      Properties="$(SolutionProperties)" />
 
     <ItemGroup>
       <KoreBuildFiles Include="$(_KoreBuildIntermediateDir)**\*" />

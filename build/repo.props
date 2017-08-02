@@ -10,4 +10,10 @@
   <ItemGroup>
     <ExcludeFromTest Include="$(RepositoryRoot)test\ApiCheckBaseline*\*.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <KoreBuildModule Include="NuGetPackageVerifier" />
+    <KoreBuildModule Include="NuGet.Tasks" />
+    <KoreBuildModule Include="BuildTools.Tasks" />
+  </ItemGroup>
 </Project>

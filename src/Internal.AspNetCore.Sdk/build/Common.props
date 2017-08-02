@@ -43,6 +43,6 @@ Usage: this should be imported once via NuGet at the top of the file.
     <_BuildToolsAssembly>$(MSBuildThisFileDirectory)..\tools\$(_BuildToolsAssemblyTfm)\Internal.AspNetCore.Sdk.dll</_BuildToolsAssembly>
   </PropertyGroup>
 
-  <Import Project="$(MSBuildThisFileDirectory)BuildToolsTasks.props" Condition="Exists('$(MSBuildThisFileDirectory)BuildToolsTasks.props')"/>
+  <Import Project="$(MSBuildThisFileDirectory)BuildTools.Tasks.props" Condition="Exists('$(MSBuildThisFileDirectory)BuildTools.Tasks.props')"/>
 
 </Project>

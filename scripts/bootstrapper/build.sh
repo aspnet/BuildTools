@@ -99,9 +99,11 @@ __get_remote_file() {
         return 0
     fi
 
-    failed=false
+    local failed=false
     if __machine_has wget; then
         wget --tries 10 --quiet -O "$local_path" "$remote_path" || failed=true
+    else
+        failed=true
     fi
 
     if [ "$failed" = true ] && __machine_has curl; then

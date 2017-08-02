@@ -90,7 +90,7 @@ __fetch() {
 
     __verbose "Downloading $remote_path"
 
-    failed=false
+    local failed=false
     if __machine_has 'wget'; then
         # Try wget first as this has been more reliable than curl.
         # Travis CI frequently has TLS issues with curl on macOS
@@ -98,6 +98,8 @@ __fetch() {
         progress_bar='--quiet'
         [ "$__is_verbose" = true ] && [ -z "${PS1:-}" ] && progress_bar='--progress=bar --show-progress'
         __exec wget $progress_bar --tries 10 -O "$local_path" "$remote_path" || failed=true
+    else
+        failed=true
     fi
 
     if [ "$failed" = true ] && __machine_has 'curl'; then

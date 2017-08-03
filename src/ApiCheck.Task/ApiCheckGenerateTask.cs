@@ -1,46 +1,42 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+
 using System;
 using System.IO;
-using System.Reflection;
 using Microsoft.Build.Framework;
+using System.Reflection;
 
 namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
 {
     /// <summary>
-    /// An MSBuild task that acts as a shim to <c>Microsoft.AspNetCore.BuildTools.ApiCheck.exe compare ...</c> or
-    /// <c>dotnet Microsoft.AspNetCore.BuildTools.ApiCheck.dll compare ...</c>.
+    /// An MSBuild task that acts as a shim to <c>Microsoft.AspNetCore.BuildTools.ApiCheck.exe generate ...</c> or
+    /// <c>dotnet Microsoft.AspNetCore.BuildTools.ApiCheck.dll generate ...</c>.
     /// </summary>
-    public class ApiCheckTask : ApiCheckTasksBase
+    public class ApiCheckGenerateTask : ApiCheckTasksBase
     {
-        public ApiCheckTask()
+        public ApiCheckGenerateTask()
         {
-            // Tool does not use stderr for anything. Treat everything that appears there as an error.
+            /// Tool does not use stderr for anything. Treat everything that appears there as an error.
             LogStandardErrorAsError = true;
         }
-
-        /// <summary>
-        /// Path to the API listing file to use as reference.
-        /// </summary>
-        [Required]
-        public string ApiListingPath { get; set; }
-
-        /// <summary>
-        /// Exclude types defined in .Internal namespaces from the comparison, ignoring breaking changes in such types.
-        /// </summary>
-        public bool ExcludePublicInternalTypes { get; set; }
-
-        /// <summary>
-        /// Path to the exclusions file that narrows <see cref="ApiListingPath"/>, ignoring listed breaking changes.
-        /// </summary>
-        public string ExclusionsPath { get; set; }
 
         /// <summary>
         /// Path to the project.assets.json file created when building <see cref="AssemblyPath"/>.
         /// </summary>
         [Required]
-        public string ProjetAssetsPath { get; set; }
+        public string ProjectAssetsPath { get; set; }
+
+        /// <summary>
+        /// Path to the API listing file to be generated.
+        /// </summary>
+        [Required]
+        public string ApiListingDestination { get; set; }
+
+        /// <summary>
+        /// Exclude types defined in .Internal namespaces from the comparison, ignoring breaking changes in such types.
+        /// </summary>
+        public bool ExcludePublicInternalTypes { get; set; }
 
         /// <inheritdoc />
         protected override MessageImportance StandardErrorLoggingImportance => MessageImportance.High;
@@ -48,13 +44,11 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
         /// <inheritdoc />
         protected override MessageImportance StandardOutputLoggingImportance => MessageImportance.High;
 
-
-        /// <inheritdoc />
         protected override bool ValidateParameters()
         {
-            if (string.IsNullOrEmpty(ApiListingPath) || !File.Exists(ApiListingPath))
+            if (string.IsNullOrEmpty(ApiListingDestination) || !File.Exists(ApiListingDestination))
             {
-                Log.LogError($"API listing file '{ApiListingPath}' not specified or does not exist.");
+                Log.LogError($"API listing file '{ApiListingDestination}' not specified or does not exist.");
                 return false;
             }
 
@@ -70,22 +64,15 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
                 return false;
             }
 
-            if (string.IsNullOrEmpty(ProjetAssetsPath) || !File.Exists(ProjetAssetsPath))
+            if (string.IsNullOrEmpty(ProjectAssetsPath) || !File.Exists(ProjectAssetsPath))
             {
-                Log.LogError($"Project assets file '{ProjetAssetsPath}' not specified or does not exist.");
-                return false;
-            }
-
-            if (!string.IsNullOrEmpty(ExclusionsPath) && !File.Exists(ExclusionsPath))
-            {
-                Log.LogError($"Exclusions file '{ExclusionsPath}' does not exist.");
+                Log.LogError($"Project assets file '{ProjectAssetsPath}' not specified or does not exist.");
                 return false;
             }
 
             return base.ValidateParameters();
         }
 
-        /// <inheritdoc />
         protected override string GenerateCommandLineCommands()
         {
             var arguments = string.Empty;
@@ -96,19 +83,15 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
                 arguments = $@"""{Path.GetFullPath(toolPath)}"" ";
             }
 
-            arguments += "compare";
+            arguments += "generate";
             if (ExcludePublicInternalTypes)
             {
                 arguments += " --exclude-public-internal";
             }
 
             arguments += $@" --assembly ""{AssemblyPath}"" --framework {Framework}";
-            arguments += $@" --project ""{ProjetAssetsPath}"" --api-listing ""{ApiListingPath}""";
-            if (!string.IsNullOrEmpty(ExclusionsPath))
-            {
-                arguments += $@" --exclusions ""{ExclusionsPath}""";
-            }
-
+            arguments += $@" --project ""{ProjectAssetsPath}"" --api-listing ""{ApiListingDestination}""";
+            
             return arguments;
         }
     }

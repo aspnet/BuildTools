@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using Microsoft.AspNetCore.BuildTools.Utilities;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
@@ -18,6 +19,8 @@ namespace Microsoft.AspNetCore.BuildTools
 #endif
     {
         private const string HeadContentStart = "ref: refs/heads/";
+        private const string WorkTreeContentStart = "gitdir:";
+
         private const int CommitShaLength = 40;
 
         /// <summary>
@@ -48,14 +51,41 @@ namespace Microsoft.AspNetCore.BuildTools
 
         public override bool Execute()
         {
-            RepositoryRootPath = FileHelpers.EnsureTrailingSlash(GetRepositoryRoot(WorkingDirectory));
+            var repoRoot = GetRepositoryRoot(WorkingDirectory);
+            RepositoryRootPath = FileHelpers.EnsureTrailingSlash(repoRoot.FullName);
             if (RepositoryRootPath == null)
             {
                 Log.LogError("Could not find the git directory for '{0}'", WorkingDirectory);
                 return false;
             }
 
-            var headFile = Path.Combine(RepositoryRootPath, ".git", "HEAD");
+            string gitDir;
+            string headFile;
+            switch (repoRoot.GetFileSystemInfos(".git").FirstOrDefault())
+            {
+                case DirectoryInfo d:
+                    gitDir = d.FullName;
+                    headFile = Path.Combine(gitDir, "HEAD");
+                    break;
+                case FileInfo f:
+                    var contents = File.ReadAllText(f.FullName);
+                    if (contents.StartsWith(WorkTreeContentStart, StringComparison.OrdinalIgnoreCase))
+                    {
+                        var worktreeRoot = contents.Substring(WorkTreeContentStart.Length).Trim();
+                        headFile = Path.Combine(worktreeRoot, "HEAD");
+                        gitDir = Path.GetDirectoryName(Path.GetDirectoryName(worktreeRoot));
+                    }
+                    else
+                    {
+                        Log.LogError("Unable to determine the location of the .git directory. Unrecognized file format: {0}", f.FullName);
+                        return false;
+                    }
+                    break;
+                case null:
+                default:
+                    throw new ArgumentOutOfRangeException("Unrecognized implementation of FileSystemInfo");
+            }
+
             if (!File.Exists(headFile))
             {
                 Log.LogError("Unable to determine active git branch.");
@@ -65,7 +95,7 @@ namespace Microsoft.AspNetCore.BuildTools
             var content = File.ReadAllText(headFile).Trim();
             if (content.StartsWith(HeadContentStart, StringComparison.OrdinalIgnoreCase))
             {
-                return ResolveFromBranch(content);
+                return ResolveFromBranch(gitDir, content);
             }
             if (content.Length == CommitShaLength)
             {
@@ -76,7 +106,7 @@ namespace Microsoft.AspNetCore.BuildTools
             return false;
         }
 
-        private bool ResolveFromBranch(string head)
+        private bool ResolveFromBranch(string gitDir, string head)
         {
             Branch = head.Substring(HeadContentStart.Length);
 
@@ -85,7 +115,7 @@ namespace Microsoft.AspNetCore.BuildTools
                 Log.LogMessage("Current branch appears to be empty. Failed to retrieve current branch.");
             }
 
-            var branchFile = Path.Combine(RepositoryRootPath, ".git", "refs", "heads", Branch);
+            var branchFile = Path.Combine(gitDir, "refs", "heads", Branch);
             if (!File.Exists(branchFile))
             {
                 Log.LogError("Unable to determine current git commit hash");
@@ -103,18 +133,17 @@ namespace Microsoft.AspNetCore.BuildTools
             return true;
         }
 
-        private static string GetRepositoryRoot(string start)
+        private static DirectoryInfo GetRepositoryRoot(string start)
         {
-            var dir = start;
+            var dir = new DirectoryInfo(start);
             while (dir != null)
             {
-                var gitDir = Path.Combine(dir, ".git");
-                if (Directory.Exists(gitDir))
+                var dotGit = dir.GetFileSystemInfos(".git").FirstOrDefault();
+                if (dotGit != null)
                 {
                     return dir;
                 }
-
-                dir = Path.GetDirectoryName(dir);
+                dir = dir.Parent;
             }
             return null;
         }

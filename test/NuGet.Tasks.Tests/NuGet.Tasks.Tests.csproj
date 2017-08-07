@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <Import Project="..\..\build\common.props" />
 
@@ -7,23 +7,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Remove="Resources\Strings.resx" />
     <Compile Include="..\shared\*" />
-    <Content Include="Resources\**\*" CopyToOutputDirectory="Always" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Build.Framework" Version="$(MicrosoftBuildVersion)" />
-    <PackageReference Include="Microsoft.Build.Tasks.Core" Version="$(MicrosoftBuildVersion)" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="$(MicrosoftBuildVersion)" />
-    <PackageReference Include="Microsoft.DotNet.Cli.Utils" Version="$(DotNetCliUtilsVersion)" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(TestSdkVersion)" />
+    <PackageReference Include="NuGet.Packaging" Version="$(NuGetInMSBuildVersion)" />
     <PackageReference Include="xunit" Version="$(XunitVersion)" />
     <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitVersion)" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\modules\BuildTools.Tasks\BuildTools.Tasks.csproj" />
+    <ProjectReference Include="..\..\modules\NuGet.Tasks\NuGet.Tasks.csproj" />
   </ItemGroup>
 
 </Project>

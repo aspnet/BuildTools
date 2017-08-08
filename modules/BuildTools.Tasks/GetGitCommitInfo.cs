@@ -52,12 +52,13 @@ namespace Microsoft.AspNetCore.BuildTools
         public override bool Execute()
         {
             var repoRoot = GetRepositoryRoot(WorkingDirectory);
-            RepositoryRootPath = FileHelpers.EnsureTrailingSlash(repoRoot.FullName);
-            if (RepositoryRootPath == null)
+            if (repoRoot == null)
             {
                 Log.LogError("Could not find the git directory for '{0}'", WorkingDirectory);
                 return false;
             }
+
+            RepositoryRootPath = FileHelpers.EnsureTrailingSlash(repoRoot.FullName);
 
             string gitDir;
             string headFile;

@@ -53,5 +53,6 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-install_tools "$tools_source" "$DOTNET_HOME"
-invoke_repository_build "$DIR" "$@"
+set_korebuildsettings "$tools_source" "$DOTNET_HOME" "$DIR"
+
+invoke_korebuild_command "default-build" "$@"

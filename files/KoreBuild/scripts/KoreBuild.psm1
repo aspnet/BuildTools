@@ -2,13 +2,11 @@
 
 Set-StrictMode -Version 2
 
+$CommonModule = "$PSScriptRoot/common.psm1"
+Import-Module -Force -Scope Local $CommonModule
+
 if (Get-Command 'dotnet' -ErrorAction Ignore) {
     $global:dotnet = (Get-Command 'dotnet').Path
-}
-
-function Join-Paths($path, $childPaths) {
-    $childPaths | ForEach-Object { $path = Join-Path $path $_ }
-    return $path
 }
 
 ### constants
@@ -30,9 +28,6 @@ Arguments to be passed to the main MSBuild invocation
 
 .EXAMPLE
 Invoke-RepositoryBuild $PSScriptRoot /p:Configuration=Release /t:Verify
-
-.NOTES
-This is the main function used by most repos.
 #>
 function Invoke-RepositoryBuild(
     [Parameter(Mandatory = $true)]
@@ -120,10 +115,8 @@ The base url where build tools can be downloaded.
 The directory where tools will be stored on the local machine.
 #>
 function Install-Tools(
-    [Parameter(Mandatory = $true)]
-    [string]$ToolsSource,
-    [Parameter(Mandatory = $true)]
-    [string]$DotNetHome) {
+    [string] $ToolsSource = $global:KoreBuildSettings.ToolsSource,
+    [string] $DotNetHome = $global:KoreBuildSettings.DotNetHome) {
 
     $ErrorActionPreference = 'Stop'
     if (-not $PSBoundParameters.ContainsKey('Verbose')) {
@@ -206,6 +199,133 @@ function Install-Tools(
     else {
         Write-Host -ForegroundColor DarkGray ".NET Core SDK $version is already installed. Skipping installation."
     }
+}
+
+<#
+.SYNOPSIS
+Ensure that Dotnet exists.
+
+.DESCRIPTION
+Check if a dotnet of at least 2.0.0 exists, and install it if it doesn't.
+#>
+function Ensure-Dotnet()
+{
+    $dotnetVersion = Get-DotnetMajorVersion
+    if($dotnetVersion -lt 2)
+    {
+        Write-Verbose "Ensuring dotnet because $dotnetVersion wasn't >= 2.0.0"
+        Install-Tools
+    }
+}
+
+function Get-DotnetMajorVersion() {
+    if(Get-Variable "dotnet" -Scope Global -ErrorAction SilentlyContinue)
+    {
+        $infoOutput = dotnet --version
+
+        $version = $infoOutput.SubString(0, $infoOutput.IndexOf('.'))
+        $versionInt = [convert]::ToInt32($version, 10)
+        return $versionInt
+    }
+    else {
+        return 0
+    }
+}
+
+<#
+.SYNOPSIS
+Set the settings.
+
+.DESCRIPTION
+Set the settings which will be used by other commands
+
+.PARAMETER ToolsSource
+The base url where build tools can be downloaded.
+
+.PARAMETER DotNetHome
+The directory where tools will be stored on the local machine.
+
+.PARAMETER RepoPath
+The directory to execute the command against.
+#>
+function Set-KoreBuildSettings(
+    [string]$ToolsSource,
+    [string]$DotNetHome,
+    [string]$RepoPath
+)
+{
+    if (!$DotNetHome) {
+        $DotNetHome = if ($env:DOTNET_HOME) { $env:DOTNET_HOME } `
+            elseif ($env:USERPROFILE) { Join-Path $env:USERPROFILE '.dotnet'} `
+            elseif ($env:HOME) {Join-Path $env:HOME '.dotnet'}`
+            else { Join-Path $PSScriptRoot '.dotnet'}
+    }
+
+    if (!$ToolsSource) { $ToolsSource = 'https://aspnetcore.blob.core.windows.net/buildtools' }
+
+    $global:KoreBuildSettings = @{
+        ToolsSource = $ToolsSource
+        DotNetHome = $DotNetHome
+        RepoPath = $RepoPath
+    }
+}
+
+<#
+.SYNOPSIS
+Execute the given command.
+
+.PARAMETER Command
+The command to be executed.
+
+.PARAMETER Arguments
+Arguments to be passed to the command.
+
+.EXAMPLE
+Invoke-KoreBuildCommand "docker-build" /t:Package
+
+.NOTES
+Set-KoreBuildSettings must be called before Invoke-KoreBuildCommand.
+#>
+function Invoke-KoreBuildCommand(
+    [Parameter(Mandatory=$true)]
+    [string]$Command,
+    [Parameter(ValueFromRemainingArguments = $true)]
+    [string[]]$Arguments
+)
+{
+    if(!(Get-Variable KoreBuildSettings -Scope Global -ErrorAction SilentlyContinue))
+    {
+        throw "Set-KoreBuildSettings must be called before Invoke-KoreBuildCommand."
+    }
+
+    if($Command -eq "default-build")
+    {
+        Install-Tools
+        Invoke-RepositoryBuild $global:KoreBuildSettings.RepoPath @Arguments
+    }
+    elseif($Command -eq "msbuild")
+    {
+        Invoke-RepositoryBuild $global:KoreBuildSettings.RepoPath @Arguments
+    }
+    elseif ($Command -eq "install-tools") {
+        Install-Tools
+    }
+    else {
+        Ensure-Dotnet
+
+        $korebuildConsoleDll = Get-KoreBuildConsole
+
+        & dotnet $korebuildConsoleDll $Command `
+            --tools-source $global:KoreBuildSettings.ToolsSource `
+            --dotnet-home $global:KoreBuildSettings.DotNetHome `
+            --repo-path $global:KoreBuildSettings.RepoPath `
+            $Arguments
+    }
+}
+
+function Get-KoreBuildConsole()
+{
+    return Join-Paths $PSScriptRoot ("..", "tools", "KoreBuild.Console.dll")
 }
 
 <#
@@ -363,23 +483,6 @@ function __get_dotnet_sdk_version {
         return $env:KOREBUILD_DOTNET_VERSION
     }
     return Get-Content (Join-Paths $PSScriptRoot ('..', 'config', 'sdk.version'))
-}
-
-function __exec($cmd) {
-    $cmdName = [IO.Path]::GetFileName($cmd)
-
-    Write-Host -ForegroundColor Cyan ">>> $cmdName $args"
-    $originalErrorPref = $ErrorActionPreference
-    $ErrorActionPreference = 'Continue'
-    & $cmd @args
-    $exitCode = $LASTEXITCODE
-    $ErrorActionPreference = $originalErrorPref
-    if ($exitCode -ne 0) {
-        Write-Error "$cmdName failed with exit code: $exitCode"
-    }
-    else {
-        Write-Verbose "<<< $cmdName [$exitCode]"
-    }
 }
 
 function __build_task_project($RepoPath) {

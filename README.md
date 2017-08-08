@@ -22,3 +22,9 @@ rel/2.0.0    | ![badge][rel-2.0.0-badge]
 [rel-2.0.0-badge]: https://aspnetcore.blob.core.windows.net/buildtools/korebuild/channels/rel/2.0.0/badge.svg
 
 This tool contains build scripts, console tools, MSBuild targets, and other settings required to build ASP.NET Core.
+
+### Local testing
+To test changes to this project locally we recomend you do:
+```
+./test.ps1 -Command $CommandToTest -RepoPath C:\repo\to\test\against\
+```

@@ -72,11 +72,15 @@ runtime_version=$(< "$__script_dir/../config/runtime.version" head -1 | sed -e '
 [ ! -z "${KOREBUILD_DOTNET_SHARED_RUNTIME_VERSION:-}" ] && runtime_version=${KOREBUILD_DOTNET_SHARED_RUNTIME_VERSION:-}
 
 chmod +x "$__script_dir/dotnet-install.sh"
-# Temporarily install these runtimes to prevent build breaks for repos not yet converted
-# 1.0.5 - for tools
-__install_shared_runtime "$install_dir" "1.0.5" "preview"
-# 1.1.2 - for test projects which haven't yet been converted to netcoreapp2.0
-__install_shared_runtime "$install_dir" "1.1.2" "release/1.1.0"
+
+# Hack to enable runtimestore on Ubuntu 10. A low-cost alternative until we implement https://github.com/aspnet/BuildTools/issues/347
+if [ -z "${KOREBUILD_SKIP_OLD_RUNTIME_INSTALL:-}" ]; then
+    # Temporarily install these runtimes to prevent build breaks for repos not yet converted
+    # 1.0.5 - for tools
+    __install_shared_runtime "$install_dir" "1.0.5" "preview"
+    # 1.1.2 - for test projects which haven't yet been converted to netcoreapp2.0
+    __install_shared_runtime "$install_dir" "1.1.2" "release/1.1.0"
+fi
 
 if [ "$runtime_version" != "" ]; then
     __install_shared_runtime "$install_dir" "$runtime_version" "$runtime_channel"

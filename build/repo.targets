@@ -37,13 +37,23 @@
       Code="BUILD1001" />
 
     <ItemGroup>
+      <_ToolsProjects Include="$(RepositoryRoot)tools\KoreBuild.Console\KoreBuild.Console.csproj">
+        <AdditionalProperties>PublishDir=$(_KoreBuildIntermediateDir)\tools\%(Identity)\</AdditionalProperties>
+      </_ToolsProjects>
+    </ItemGroup>
+
+    <MSBuild Targets="Publish"
+      Projects="@(_ToolsProjects)"
+      Properties="$(SolutionProperties)" />
+
+    <ItemGroup>
       <Content Include="$(RepositoryRoot)files\KoreBuild\**\*" />
       <VersionFileLines Include="version:$(Version)" />
       <VersionFileLines Include="commithash:$(CommitHash)" />
     </ItemGroup>
 
     <MakeDir Directories="$(_ChannelOutDir);$(_KoreBuildOutDir);$(_KoreBuildIntermediateDir)" />
-    <Copy SourceFiles="%(Content.Identity)" DestinationFiles="$(_KoreBuildIntermediateDir)%(RecursiveDir)%(FileName)%(Extension)" />
+    <Copy SourceFiles="%(Content.Identity)" DestinationFiles="$(_KoreBuildIntermediateDir)\%(RecursiveDir)%(FileName)%(Extension)" />
 
     <WriteLinesToFile File="$(_KoreBuildIntermediateDir).version" Lines="@(VersionFileLines)" Overwrite="true" />
 

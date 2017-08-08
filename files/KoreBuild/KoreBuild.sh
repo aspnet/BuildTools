@@ -6,6 +6,47 @@ source "$__korebuild_dir/scripts/common.sh"
 
 # functions
 
+set_korebuildsettings() {
+    tools_source=$1
+    dotnet_home=$2
+    repo_path=$3
+
+    [ -z "${dot_net_home:-}" ] && dot_net_home="$HOME/.dotnet"
+    [ -z "${tools_source:-}" ] && tools_source='https://aspnetcore.blob.core.windows.net/buildtools'
+
+    return 0
+}
+
+invoke_korebuild_command(){
+    local command=$1
+    shift
+
+    if [ "$command" = "default-build" ]; then
+        install_tools "$tools_source" "$dot_net_home"
+        invoke_repository_build "$repo_path" "$@"
+    elif [ "$command" = "msbuild" ]; then
+        invoke_repository_build "$repo_path" "$@"
+    elif [ "$command" = "install-tools" ]; then
+        install_tools "$tools_source" "$dot_net_home"
+    else
+        ensure_dotnet
+
+        kore_build_console_dll="$__korebuild_dir/tools/KoreBuild.Console.dll"
+
+        __exec dotnet "$kore_build_console_dll" "$command" \
+            --tools-source "$tools_source" \
+            --dotnet-home "$dot_net_home" \
+            --repo-path "$repo_path" \
+            "$@"
+    fi
+}
+
+ensure_dotnet() {
+    if ! __machine_has dotnet; then
+        install_tools
+    fi
+}
+
 invoke_repository_build() {
     local repo_path=$1
     shift

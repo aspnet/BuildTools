@@ -13,15 +13,17 @@ param(
     [Alias('s')]
     [string]$ToolsSource = 'https://aspnetcore.blob.core.windows.net/buildtools',
     [Parameter(ValueFromRemainingArguments = $true)]
-    [string[]]$MSBuildArgs
+    [string[]]$Arguments
 )
 
 $ErrorActionPreference = 'Stop'
 
 try {
     Import-Module -Force -Scope Local $PSScriptRoot/files/KoreBuild/KoreBuild.psd1
-    Install-Tools $ToolsSource $DotNetHome
-    Invoke-RepositoryBuild $Path @MSBuildArgs
+
+    Set-KoreBuildSettings -ToolsSource $ToolsSource -DotNetHome $DotNetHome -RepoPath $Path
+
+    Invoke-KoreBuildCommand "default-build" @Arguments
 }
 finally {
     Remove-Module 'KoreBuild' -ErrorAction Ignore

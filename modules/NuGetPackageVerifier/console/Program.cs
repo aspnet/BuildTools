@@ -208,11 +208,6 @@ namespace NuGetPackageVerifier
 
             if (unlistedPackages.Any())
             {
-                logger.LogNormal(
-                    "Found {0} unlisted packages. Every package in the repo should be listed in exactly " +
-                    "one package set. Running default or all rules on unlisted packages.",
-                    unlistedPackages.Count());
-
                 // For unlisted packages we run the rules from 'Default' package set if present
                 // or we run all rules (because we have no idea what exactly to run)
                 var analyzer = new PackageAnalyzer();

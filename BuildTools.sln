@@ -9,6 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		build\common.props = build\common.props
 		build\dependencies.props = build\dependencies.props
 		global.json = global.json
+		NuGet.Config = NuGet.Config
 		build\repo.props = build\repo.props
 		build\repo.targets = build\repo.targets
 	EndProjectSection
@@ -40,6 +41,13 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KoreBuild.FunctionalTests", "test\KoreBuild.FunctionalTests\KoreBuild.FunctionalTests.csproj", "{D5D1BD88-1781-4448-89DD-3E62C95D3A77}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{76ABA507-B453-43BA-BA98-FA3FDDC6DD39}"
+	ProjectSection(SolutionItems) = preProject
+		build\common.props = build\common.props
+		build\dependencies.props = build\dependencies.props
+		build\repo.beforecommon.props = build\repo.beforecommon.props
+		build\repo.props = build\repo.props
+		build\repo.targets = build\repo.targets
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RepoTasks", "build\tasks\RepoTasks.csproj", "{F3CAD1F9-68DB-49EA-88A7-573AE7FFE047}"
 EndProject
@@ -55,6 +63,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGetPackageVerifier", "NuG
 		modules\NuGetPackageVerifier\module.targets = modules\NuGetPackageVerifier\module.targets
 		modules\NuGetPackageVerifier\NuGetPackageVerifier.proj = modules\NuGetPackageVerifier\NuGetPackageVerifier.proj
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NuGet.Tasks.Tests", "test\NuGet.Tasks.Tests\NuGet.Tasks.Tests.csproj", "{A3A81E93-0157-406F-A43C-C163F7F781A9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -116,6 +126,10 @@ Global
 		{020ED083-4076-4711-A52B-2F89EA884F9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{020ED083-4076-4711-A52B-2F89EA884F9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{020ED083-4076-4711-A52B-2F89EA884F9B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3A81E93-0157-406F-A43C-C163F7F781A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3A81E93-0157-406F-A43C-C163F7F781A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3A81E93-0157-406F-A43C-C163F7F781A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3A81E93-0157-406F-A43C-C163F7F781A9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -136,6 +150,7 @@ Global
 		{F3CAD1F9-68DB-49EA-88A7-573AE7FFE047} = {76ABA507-B453-43BA-BA98-FA3FDDC6DD39}
 		{020ED083-4076-4711-A52B-2F89EA884F9B} = {BD3545FB-5520-43DF-B4F9-83BEA3A38ECA}
 		{C0E43505-F8EB-4B7F-B84D-5961F9763945} = {BD3545FB-5520-43DF-B4F9-83BEA3A38ECA}
+		{A3A81E93-0157-406F-A43C-C163F7F781A9} = {60A938B2-D95A-403C-AA7A-3683AD64DFA0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1B8809C8-A6C3-4761-BC91-B12841F49AE1}

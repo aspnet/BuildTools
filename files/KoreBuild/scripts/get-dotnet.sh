@@ -54,6 +54,7 @@ dotnet_in_path="$(which dotnet 2>/dev/null || true )"
 # The '-ef' condition tests if files are the same inode. This avoids showing the warning if users symlink dotnet into path
 if [ ! -z "$dotnet_in_path" ] && [ ! "$dotnet_in_path" -ef "$install_dir/dotnet" ]; then
     __warn "dotnet found on the system PATH is '$dotnet_in_path' but KoreBuild will use '$install_dir/dotnet'."
+    __warn "Adding '$install_dir' to system PATH permanently may be required for applications like Visual Studio for Mac or VS Code to work correctly."
 fi
 
 if [ ! -z "${KOREBUILD_SKIP_RUNTIME_INSTALL:-}" ]; then

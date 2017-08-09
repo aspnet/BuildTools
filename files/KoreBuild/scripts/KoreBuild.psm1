@@ -150,7 +150,9 @@ function Install-Tools(
 
     $dotnetOnPath = Get-Command dotnet -ErrorAction Ignore
     if ($dotnetOnPath -and ($dotnetOnPath.Path -ne $global:dotnet)) {
-        Write-Warning "dotnet found on the system PATH is '$($dotnetOnPath.Path)' but KoreBuild will use '${global:dotnet}'"
+        $dotnetDir = Split-Path -Parent $global:dotnet
+        Write-Warning "dotnet found on the system PATH is '$($dotnetOnPath.Path)' but KoreBuild will use '${global:dotnet}'."
+        Write-Warning "Adding '$dotnetDir' to system PATH permanently may be required for applications like Visual Studio or VS Code to work correctly."
     }
 
     $pathPrefix = Split-Path -Parent $global:dotnet

@@ -1,0 +1,5 @@
+<Project InitialTargets="EnsureKoreBuildRestored">
+  <Target Name="EnsureKoreBuildRestored" Condition=" '$(KoreBuildRestoreTargetsImported)' != 'true'">
+    <Error Text="Package references have not been pinned. Run 'build.cmd /t:Restore'." />
+  </Target>
+</Project>

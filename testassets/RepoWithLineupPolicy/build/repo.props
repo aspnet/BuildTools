@@ -1,0 +1,11 @@
+<Project>
+  <ItemGroup>
+    <PackageLineup Include="TestLineup" Version="1.0.0" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <PolicyRestoreSources>$(BuildDir)</PolicyRestoreSources>
+    <PolicyRestorePackagesPath>$(RepositoryRoot)packages\</PolicyRestorePackagesPath>
+  </PropertyGroup>
+
+</Project>

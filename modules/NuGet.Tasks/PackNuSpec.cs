@@ -9,6 +9,7 @@ using Microsoft.Build.Utilities;
 using NuGet.Frameworks;
 using NuGet.Packaging;
 using NuGet.Packaging.Core;
+using NuGet.Tasks.Utilties;
 using NuGet.Versioning;
 
 namespace NuGet.Tasks
@@ -50,21 +51,7 @@ namespace NuGet.Tasks
                 return false;
             }
 
-            var properties = new Dictionary<string, string>();
-            if (!string.IsNullOrEmpty(Properties))
-            {
-                foreach (var item in Properties.Split(';'))
-                {
-                    var splitIdx = item.IndexOf('=');
-                    if (splitIdx <= 0)
-                    {
-                        continue;
-                    }
-                    var key = item.Substring(0, splitIdx);
-                    var value = item.Substring(splitIdx + 1);
-                    properties[key] = value;
-                }
-            }
+            var properties = MSBuildListSplitter.GetNamedProperties(Properties);
 
             string PropertyProvider(string name)
             {

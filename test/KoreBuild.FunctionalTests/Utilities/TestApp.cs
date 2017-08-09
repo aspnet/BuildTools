@@ -55,6 +55,7 @@ namespace KoreBuild.FunctionalTests
                 "-Update"
             });
 
+            arguments.Add("/v:n");
             arguments.AddRange(args);
 
             var process = new Process

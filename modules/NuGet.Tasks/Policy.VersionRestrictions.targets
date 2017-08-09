@@ -1,0 +1,32 @@
+<!-- This target should be imported into the project to verify the result of the package policies. -->
+<Project>
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+  </PropertyGroup>
+
+  <Target Name="VerifyPackageVersionRestrictions"
+          BeforeTargets="PrepareForBuild">
+
+    <ItemGroup>
+      <PackageReferenceWithVersion Include="@(PackageReference)" />
+      <PackageReferenceWithVersion Remove="@(PackageReferenceWithVersion->WithMetadataValue('IsImplicitlyDefined', 'true'))" />
+      <PackageReferenceWithVersion Remove="@(PackageReferenceWithVersion->WithMetadataValue('NoWarn', 'true'))" />
+    </ItemGroup>
+
+    <PropertyGroup>
+      <_PackageWithVersionMessage>This project has the 'NoVersions' policy applied but an explicit versions found on some PackageReference items.</_PackageWithVersionMessage>
+      <_PackageWithVersionMessage>$(_PackageWithVersionMessage)%0AAdd 'NoWarn="true"' to the PackageReference to ignore this warning.</_PackageWithVersionMessage>
+      <_PackageWithVersionMessage>$(_PackageWithVersionMessage)%0A - @(PackageReferenceWithVersion->'%(Identity)/%(Version)', '%0A - ')</_PackageWithVersionMessage>
+    </PropertyGroup>
+
+    <Warning Text="$(_PackageWithVersionMessage)"
+             Code="KRB4002"
+             File="$(MSBuildProjectFullPath)"
+             Condition=" @(PackageReferenceWithVersion->Count()) != 0 AND '$(TreatPackageVersionAsWarning)' == 'true' " />
+
+    <Error Text="$(_PackageWithVersionMessage)"
+           Code="KRB4002"
+           File="$(MSBuildProjectFullPath)"
+           Condition=" @(PackageReferenceWithVersion->Count()) != 0 AND '$(TreatPackageVersionAsError)' == 'true' " />
+  </Target>
+</Project>

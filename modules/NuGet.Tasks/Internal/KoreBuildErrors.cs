@@ -6,5 +6,14 @@ namespace NuGet.Tasks
     public static class KoreBuildErrors
     {
         public const int InvalidNuspecFile = 4001;
+
+        // see Policy.NoVersions.targets
+        public const int PackageReferenceHasVersion = 4002;
+        public const int DotNetCliReferenceReferenceHasVersion = 4003;
+
+        public const int PackageVersionNotFoundInLineup = 4004;
+
+        public const int PolicyFailedToApply = 5000;
+        public const int UnknownPolicyType = 5001;
     }
 }

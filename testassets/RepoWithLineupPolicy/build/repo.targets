@@ -1,0 +1,18 @@
+<Project>
+  <ItemGroup>
+    <TestLineupDeps Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
+    <TestLineupDeps Include="Moq" Version="4.7.99" />
+    <TestLineupDeps Include="xunit" Version="2.2.0" />
+    <TestLineupDeps Include="xunit.runner.visualstudio" Version="2.2.0" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <ApplyNuGetPoliciesDependsOn>$(ApplyNuGetPoliciesDependsOn);CreateLineupPackage</ApplyNuGetPoliciesDependsOn>
+  </PropertyGroup>
+
+  <Target Name="CreateLineupPackage">
+    <PackNuSpec NuSpecPath="$(MSBuildThisFileDirectory)TestLineup.nuspec"
+                DestinationFolder="$(PolicyRestoreSources)"
+                Dependencies="@(TestLineupDeps)" />
+  </Target>
+</Project>

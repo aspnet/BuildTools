@@ -1,0 +1,41 @@
+<Project>
+
+  <PropertyGroup>
+    <RestoreDependsOn>ApplyNuGetPolicies;$(RestoreDependsOn)</RestoreDependsOn>
+    <ApplyNuGetPoliciesDependsOn>
+      $(ApplyNuGetPoliciesDependsOn);
+      ResolveSolutions;
+      $(PrepareDependsOn);
+    </ApplyNuGetPoliciesDependsOn>
+  </PropertyGroup>
+
+  <ItemGroup Condition="@(PackageLineup->Count()) != 0 AND '$(RestrictVersionOnPackageReference)' != 'false' ">
+    <!-- Automatically warn about package reference's that have a non-empty version, but only when lineups are used. -->
+    <DisallowPackageReferenceVersion Include="Debug" ErrorLevel="warn"/>
+    <DisallowPackageReferenceVersion Include="Release" ErrorLevel="error"/>
+    <DisallowPackageReferenceVersion Include="Any" ErrorLevel="error" />
+  </ItemGroup>
+
+  <Target Name="GetLineups"
+          Returns="@(PackageLineup)" />
+
+  <Target Name="ApplyNuGetPolicies"
+          DependsOnTargets="$(ApplyNuGetPoliciesDependsOn)"
+          Condition="@(Solutions->Count()) != 0">
+
+    <ApplyNuGetPolicies
+      Policies="@(PackageLineup);@(AdditionalRestoreSources);@(DisallowPackageReferenceVersion)"
+      Projects="@(Solutions)"
+      ProjectProperties="$(SolutionProperties)"
+      SolutionDirectory="$(RepositoryRoot)"
+      RestoreSources="$(PolicyRestoreSources)"
+      RestoreAdditionalSources="$(PolicyRestoreAdditionalSources)"
+      RestorePackagesPath="$(PolicyRestorePackagesPath)"
+      RestoreDisableParallel="$(PolicyRestoreDisableParallel)"
+      RestoreConfigFile="$(PolicyRestoreConfigFile)"
+      RestoreNoCache="$(PolicyRestoreNoCache)"
+      RestoreIgnoreFailedSources="$(PolicyRestoreIgnoreFailedSources)" />
+
+  </Target>
+
+</Project>

@@ -65,9 +65,14 @@ namespace Microsoft.AspNetCore.BuildTools
                     var fileDest = Path.Combine(Destination, entry.FullName);
                     var dirName = Path.GetDirectoryName(fileDest);
                     Directory.CreateDirectory(dirName);
-                    entry.ExtractToFile(fileDest, Overwrite);
-                    Log.LogMessage(MessageImportance.Low, "Extracted '{0}'", fileDest);
-                    output.Add(new TaskItem(fileDest));
+
+                    // Do not try to extract directories
+                    if (Path.GetFileName(fileDest) != string.Empty)
+                    {
+                        entry.ExtractToFile(fileDest, Overwrite);
+                        Log.LogMessage(MessageImportance.Low, "Extracted '{0}'", fileDest);
+                        output.Add(new TaskItem(fileDest));
+                    }
                 }
             }
 

@@ -13,7 +13,6 @@
     <!-- Automatically warn about package reference's that have a non-empty version, but only when lineups are used. -->
     <DisallowPackageReferenceVersion Include="Debug" ErrorLevel="warn"/>
     <DisallowPackageReferenceVersion Include="Release" ErrorLevel="error"/>
-    <DisallowPackageReferenceVersion Include="Any" ErrorLevel="error" />
   </ItemGroup>
 
   <Target Name="GetLineups"

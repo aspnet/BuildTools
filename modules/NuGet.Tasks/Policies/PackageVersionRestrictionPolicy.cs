@@ -33,11 +33,7 @@ namespace NuGet.Tasks.Policies
                 foreach (var project in context.Projects)
                 {
                     var propGroup = project.TargetsExtension.AddPropertyGroup(propName, "true");
-
-                    if (!config.Equals("Any", StringComparison.OrdinalIgnoreCase))
-                    {
-                        propGroup.Add(new XAttribute("Condition", $" '$(Configuration)' == '{config}' "));
-                    }
+                    propGroup.Add(new XAttribute("Condition", $" '$(Configuration)' == '{config}' "));
                 }
             }
 

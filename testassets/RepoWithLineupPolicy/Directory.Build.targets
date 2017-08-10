@@ -1,5 +1,11 @@
 <Project InitialTargets="EnsureKoreBuildRestored">
   <Target Name="EnsureKoreBuildRestored" Condition=" '$(KoreBuildRestoreTargetsImported)' != 'true'">
-    <Error Text="Package references have not been pinned. Run 'build.cmd /t:Restore'." />
+
+    <PropertyGroup>
+      <_BootstrapperFile Condition=" $([MSBuild]::IsOSUnixLike()) ">build.sh</_BootstrapperFile>
+      <_BootstrapperFile Condition="! $([MSBuild]::IsOSUnixLike()) ">build.cmd</_BootstrapperFile>
+    </PropertyGroup>
+
+    <Error Text="Package references have not been pinned. Run './$(_BootstrapperFile) /t:Pin'. Or, './$(_BootstrapperFile) /t:Restore' to pin and restore packages. '$(_BootstrapperFile)' can be found in '$(MSBuildThisFileDirectory)'." />
   </Target>
 </Project>

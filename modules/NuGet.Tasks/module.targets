@@ -5,7 +5,6 @@
     <ApplyNuGetPoliciesDependsOn>
       $(ApplyNuGetPoliciesDependsOn);
       ResolveSolutions;
-      $(PrepareDependsOn);
     </ApplyNuGetPoliciesDependsOn>
   </PropertyGroup>
 
@@ -17,6 +16,10 @@
 
   <Target Name="GetLineups"
           Returns="@(PackageLineup)" />
+
+  <Target Name="Pin" DependsOnTargets="ApplyNuGetPolicies">
+    <Message Text="Pinning done. Run /t:Restore to install the updated versions." Importance="High" />
+  </Target>
 
   <Target Name="ApplyNuGetPolicies"
           DependsOnTargets="$(ApplyNuGetPoliciesDependsOn)"

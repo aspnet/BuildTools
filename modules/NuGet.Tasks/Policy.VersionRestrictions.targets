@@ -8,23 +8,25 @@
           BeforeTargets="PrepareForBuild">
 
     <ItemGroup>
-      <PackageReferenceWithVersion Include="@(PackageReference)" />
+      <PackageReferenceWithVersion Include="@(PackageReference->HasMetadata('Version'))" />
       <PackageReferenceWithVersion Remove="@(PackageReferenceWithVersion->WithMetadataValue('IsImplicitlyDefined', 'true'))" />
       <PackageReferenceWithVersion Remove="@(PackageReferenceWithVersion->WithMetadataValue('NoWarn', 'true'))" />
     </ItemGroup>
 
     <PropertyGroup>
-      <_PackageWithVersionMessage>This project has the 'NoVersions' policy applied but an explicit versions found on some PackageReference items.</_PackageWithVersionMessage>
-      <_PackageWithVersionMessage>$(_PackageWithVersionMessage)%0AAdd 'NoWarn="true"' to the PackageReference to ignore this warning.</_PackageWithVersionMessage>
-      <_PackageWithVersionMessage>$(_PackageWithVersionMessage)%0A - @(PackageReferenceWithVersion->'%(Identity)/%(Version)', '%0A - ')</_PackageWithVersionMessage>
+      <_PackageWithVersionMessage>
+This project has restricted adding versions to PackageReference items, but the following items have a version.
+  - @(PackageReferenceWithVersion->'%(Identity)/%(Version)', '%0A - ')
+Add 'NoWarn="true"' to the PackageReference to ignore this warning.
+      </_PackageWithVersionMessage>
     </PropertyGroup>
 
-    <Warning Text="$(_PackageWithVersionMessage)"
+    <Warning Text="$(_PackageWithVersionMessage.Trim())"
              Code="KRB4002"
              File="$(MSBuildProjectFullPath)"
              Condition=" @(PackageReferenceWithVersion->Count()) != 0 AND '$(TreatPackageVersionAsWarning)' == 'true' " />
 
-    <Error Text="$(_PackageWithVersionMessage)"
+    <Error Text="$(_PackageWithVersionMessage.Trim())"
            Code="KRB4002"
            File="$(MSBuildProjectFullPath)"
            Condition=" @(PackageReferenceWithVersion->Count()) != 0 AND '$(TreatPackageVersionAsError)' == 'true' " />

@@ -64,22 +64,7 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
         /// <inheritdoc />
         protected override string GenerateCommandLineCommands()
         {
-            var arguments = string.Empty;
-            if (!Framework.StartsWith("net4", StringComparison.OrdinalIgnoreCase))
-            {
-                var taskAssemblyFolder = Path.GetDirectoryName(GetType().GetTypeInfo().Assembly.Location);
-                var toolPath = Path.Combine(taskAssemblyFolder, "..", "netcoreapp2.0", ApiCheckToolName + ".dll");
-                arguments = $@"""{Path.GetFullPath(toolPath)}"" ";
-            }
-
-            arguments += "compare";
-            if (ExcludePublicInternalTypes)
-            {
-                arguments += " --exclude-public-internal";
-            }
-
-            arguments += $@" --assembly ""{AssemblyPath}"" --framework {Framework}";
-            arguments += $@" --project ""{ProjectAssetsPath}"" --api-listing ""{ApiListingPath}""";
+            var arguments = base.GenerateCommandLineCommands();
             if (!string.IsNullOrEmpty(ExclusionsPath))
             {
                 arguments += $@" --exclusions ""{ExclusionsPath}""";

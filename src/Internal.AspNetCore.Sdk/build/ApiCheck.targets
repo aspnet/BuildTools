@@ -14,7 +14,8 @@
 
   <Target
       Name="Generate-ApiCheck-Baselines"
-      DependsOnTargets="_GetApiListingFile" >
+      DependsOnTargets="_GetApiListingFile"
+      Condition=" '$(EnableApiCheck)' == 'true' " >
     <ApiCheckGenerateTask
       ApiListingPath="$(_ApiListingFile)"
       AssemblyPath="$(TargetPath)"
@@ -41,7 +42,7 @@
       Framework="$(TargetFramework)"
       ExcludePublicInternalTypes="$(ExcludePublicInternalTypes_InApiCheck)"
       ExclusionsPath="$(_ApiExclusionsFile)"
-      ProjetAssetsPath="$(ProjectAssetsFile)" />
+      ProjectAssetsPath="$(ProjectAssetsFile)" />
 
     <Warning Condition=" '$(_ApiListingFile)' == '' "
       Text="No baseline file for $(TargetFramework) found in $(MSBuildProjectName)." />

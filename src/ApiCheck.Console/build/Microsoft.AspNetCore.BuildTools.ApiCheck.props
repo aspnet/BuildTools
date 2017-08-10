@@ -10,4 +10,7 @@
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.ApiCheck.Task.ApiCheckTask"
     AssemblyFile="$(_ApiCheckTaskAssembly)"
     Condition=" '$(MSBuildRuntimeType)' == 'Core' " />
+  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.ApiCheck.Task.ApiCheckGenerateTask"
+    AssemblyFile="$(_ApiCheckTaskAssembly)"
+    Condition=" '$(MSBuildRuntimeType)' == 'Core'" />
 </Project>

@@ -17,38 +17,15 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
     {
         public ApiCheckGenerateTask()
         {
-            /// Tool does not use stderr for anything. Treat everything that appears there as an error.
+            // Tool does not use stderr for anything. Treat everything that appears there as an error.
             LogStandardErrorAsError = true;
         }
 
-        /// <summary>
-        /// Path to the project.assets.json file created when building <see cref="AssemblyPath"/>.
-        /// </summary>
-        [Required]
-        public string ProjectAssetsPath { get; set; }
-
-        /// <summary>
-        /// Path to the API listing file to be generated.
-        /// </summary>
-        [Required]
-        public string ApiListingDestination { get; set; }
-
-        /// <summary>
-        /// Exclude types defined in .Internal namespaces from the comparison, ignoring breaking changes in such types.
-        /// </summary>
-        public bool ExcludePublicInternalTypes { get; set; }
-
-        /// <inheritdoc />
-        protected override MessageImportance StandardErrorLoggingImportance => MessageImportance.High;
-
-        /// <inheritdoc />
-        protected override MessageImportance StandardOutputLoggingImportance => MessageImportance.High;
-
         protected override bool ValidateParameters()
         {
-            if (string.IsNullOrEmpty(ApiListingDestination) || !File.Exists(ApiListingDestination))
+            if (string.IsNullOrEmpty(ApiListingPath) || !File.Exists(ApiListingPath))
             {
-                Log.LogError($"API listing file '{ApiListingDestination}' not specified or does not exist.");
+                Log.LogError($"API listing file '{ApiListingPath}' not specified or does not exist.");
                 return false;
             }
 
@@ -90,7 +67,7 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
             }
 
             arguments += $@" --assembly ""{AssemblyPath}"" --framework {Framework}";
-            arguments += $@" --project ""{ProjectAssetsPath}"" --api-listing ""{ApiListingDestination}""";
+            arguments += $@" --project ""{ProjectAssetsPath}"" --api-listing ""{ApiListingPath}""";
             
             return arguments;
         }

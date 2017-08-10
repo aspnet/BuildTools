@@ -21,33 +21,9 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
         }
 
         /// <summary>
-        /// Path to the API listing file to use as reference.
-        /// </summary>
-        [Required]
-        public string ApiListingPath { get; set; }
-
-        /// <summary>
-        /// Exclude types defined in .Internal namespaces from the comparison, ignoring breaking changes in such types.
-        /// </summary>
-        public bool ExcludePublicInternalTypes { get; set; }
-
-        /// <summary>
         /// Path to the exclusions file that narrows <see cref="ApiListingPath"/>, ignoring listed breaking changes.
         /// </summary>
         public string ExclusionsPath { get; set; }
-
-        /// <summary>
-        /// Path to the project.assets.json file created when building <see cref="AssemblyPath"/>.
-        /// </summary>
-        [Required]
-        public string ProjetAssetsPath { get; set; }
-
-        /// <inheritdoc />
-        protected override MessageImportance StandardErrorLoggingImportance => MessageImportance.High;
-
-        /// <inheritdoc />
-        protected override MessageImportance StandardOutputLoggingImportance => MessageImportance.High;
-
 
         /// <inheritdoc />
         protected override bool ValidateParameters()
@@ -70,9 +46,9 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
                 return false;
             }
 
-            if (string.IsNullOrEmpty(ProjetAssetsPath) || !File.Exists(ProjetAssetsPath))
+            if (string.IsNullOrEmpty(this.ProjectAssetsPath) || !File.Exists(ProjectAssetsPath))
             {
-                Log.LogError($"Project assets file '{ProjetAssetsPath}' not specified or does not exist.");
+                Log.LogError($"Project assets file '{ProjectAssetsPath}' not specified or does not exist.");
                 return false;
             }
 
@@ -103,7 +79,7 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
             }
 
             arguments += $@" --assembly ""{AssemblyPath}"" --framework {Framework}";
-            arguments += $@" --project ""{ProjetAssetsPath}"" --api-listing ""{ApiListingPath}""";
+            arguments += $@" --project ""{ProjectAssetsPath}"" --api-listing ""{ApiListingPath}""";
             if (!string.IsNullOrEmpty(ExclusionsPath))
             {
                 arguments += $@" --exclusions ""{ExclusionsPath}""";

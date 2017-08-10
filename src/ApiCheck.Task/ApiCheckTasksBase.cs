@@ -16,10 +16,27 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
         protected const string ApiCheckToolName = "Microsoft.AspNetCore.BuildTools.ApiCheck";
 
         /// <summary>
+        /// Path to the project.assets.json file created when building <see cref="AssemblyPath"/>.
+        /// </summary>
+        [Required]
+        public string ProjectAssetsPath { get; set; }
+
+        /// <summary>
+        /// Path for the API listing file.
+        /// </summary>
+        [Required]
+        public string ApiListingPath { get; set; }
+
+        /// <summary>
         /// Path to the assembly to consider.
         /// </summary>
         [Required]
         public string AssemblyPath { get; set; }
+
+        /// <summary>
+        /// Exclude types defined in .Internal namespaces from the comparison, ignoring breaking changes in such types.
+        /// </summary>
+        public bool ExcludePublicInternalTypes { get; set; }
 
         /// <summary>
         /// The framework moniker for <see cref="AssemblyPath"/>.

@@ -26,7 +26,7 @@
           Condition="@(Solutions->Count()) != 0">
 
     <ApplyNuGetPolicies
-      Policies="@(PackageLineup);@(AdditionalRestoreSources);@(DisallowPackageReferenceVersion)"
+      Policies="@(PackageLineup);@(AdditionalRestoreSources);@(DisallowPackageReferenceVersion);@(FolderLineup)"
       Projects="@(Solutions)"
       ProjectProperties="$(SolutionProperties)"
       SolutionDirectory="$(RepositoryRoot)"

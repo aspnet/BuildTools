@@ -9,6 +9,8 @@
     <TargetFrameworks>netcoreapp2.0;net46;netstandard1.0</TargetFrameworks>
     <AssemblyName>Microsoft.AspNetCore.BuildTools.ApiCheck</AssemblyName>
     <RootNamespace>Microsoft.AspNetCore.BuildTools.ApiCheck</RootNamespace>
+    <IncludeSymbols>false</IncludeSymbols>
+    <IncludeSource>false</IncludeSource>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">

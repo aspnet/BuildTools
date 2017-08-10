@@ -8,40 +8,51 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
 using NuGet.Build;
+using NuGet.Frameworks;
+using NuGet.Packaging;
+using NuGet.Packaging.Core;
 using NuGet.Tasks.Lineup;
 using NuGet.Tasks.ProjectModel;
 using NuGet.Versioning;
+using Task = System.Threading.Tasks.Task;
 
 namespace NuGet.Tasks.Policies
 {
     internal class PackageLineupPolicy : INuGetPolicy
     {
-        private readonly IEnumerable<ITaskItem> _items;
+        private readonly IReadOnlyList<ITaskItem> _items;
         private readonly IRestoreLineupCommand _command;
+        private readonly TaskLoggingHelper _logger;
         private int _pinned;
+        private readonly List<string> _additionalSources = new List<string>();
+        private readonly List<PackageLineupRequest> _restoreLineupRequests = new List<PackageLineupRequest>();
 
-        public PackageLineupPolicy(ITaskItem[] items)
-            : this(items, new RestoreLineupsCommand())
+        public PackageLineupPolicy(IReadOnlyList<ITaskItem> items, TaskLoggingHelper logger)
+            : this(items, new RestoreLineupsCommand(), logger)
         {
         }
 
         // for testing
-        internal PackageLineupPolicy(ITaskItem[] items, IRestoreLineupCommand command)
+        internal PackageLineupPolicy(IReadOnlyList<ITaskItem> items, IRestoreLineupCommand command, TaskLoggingHelper logger)
         {
-            _items = items;
-            _command = command;
+            _items = items ?? throw new ArgumentNullException(nameof(items));
+            _command = command ?? throw new ArgumentNullException(nameof(command));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task ApplyAsync(PolicyContext context, CancellationToken cancellationToken)
         {
-            var logger = new MSBuildLogger(context.Log);
-            var versionSource = new PackageVersionSource(logger);
-            var lineupRequests = CreateRequests(context);
-            if (lineupRequests.Count == 0)
+            if (_items.Count == 0)
             {
                 return;
             }
+
+            var logger = new MSBuildLogger(context.Log);
+            var versionSource = new PackageVersionSource(logger);
+
+            InitializeRequests(context, versionSource);
 
             logger.LogInformation("Beginning lineup package restore.");
 
@@ -49,34 +60,37 @@ namespace NuGet.Tasks.Policies
 
             try
             {
-                var restoreContext = new RestoreContext
+                if (_restoreLineupRequests.Count > 0)
                 {
-                    Log = logger,
-                    PackageLineups = lineupRequests,
-                    VersionSource = versionSource,
-                    Policy = context,
-                    ProjectDirectory = context.SolutionDirectory
-                };
+                    var restoreContext = new RestoreContext
+                    {
+                        Log = logger,
+                        PackageLineups = _restoreLineupRequests,
+                        VersionSource = versionSource,
+                        Policy = context,
+                        ProjectDirectory = context.SolutionDirectory
+                    };
 
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    return;
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        return;
+                    }
+
+                    var success = await _command.ExecuteAsync(restoreContext, cancellationToken);
+
+                    if (!success)
+                    {
+                        stopwatch.Stop();
+                        logger.LogError($"Failed to pin packages. Time elapsed = {stopwatch.ElapsedMilliseconds}ms");
+                        return;
+                    }
                 }
 
-                var success = await _command.ExecuteAsync(restoreContext, cancellationToken);
-
-                if (!success)
-                {
-                    stopwatch.Stop();
-                    logger.LogError($"Failed to pin packages. Time elapsed = {stopwatch.ElapsedMilliseconds}ms");
-                    return;
-                }
-
-                var lineupCount = 0;
+                var _lineupCount = 0;
                 foreach (var lineup in versionSource.Lineups)
                 {
                     logger.LogMinimal($"Using lineup {lineup.Id} {lineup.Version.ToNormalizedString()}");
-                    lineupCount++;
+                    _lineupCount++;
                 }
 
                 _pinned = 0;
@@ -86,7 +100,7 @@ namespace NuGet.Tasks.Policies
                 });
 
                 stopwatch.Stop();
-                logger.LogMinimal($"Pinned {_pinned} package(s) from {lineupCount} lineup(s) in {stopwatch.ElapsedMilliseconds}ms");
+                logger.LogMinimal($"Pinned {_pinned} package(s) from {_lineupCount} lineup(s) in {stopwatch.ElapsedMilliseconds}ms");
             }
             catch (Exception ex)
             {
@@ -101,7 +115,7 @@ namespace NuGet.Tasks.Policies
 
         private void GeneratePinFile(PolicyContext context, ProjectInfo project, PackageVersionSource versionSource)
         {
-            var builder = new MSBuildLineupFileBuilder(project.TargetsExtension);
+            var builder = project.TargetsExtension;
 
             foreach (var lineup in versionSource.Lineups)
             {
@@ -110,7 +124,7 @@ namespace NuGet.Tasks.Policies
 
             foreach (var framework in project.Frameworks)
             {
-                foreach (var package in framework.Dependencies)
+                foreach (var package in framework.Dependencies.Values)
                 {
                     var shouldOverride =
                         // true for references that come from the SDK, like Microsoft.NETCore.App
@@ -125,7 +139,7 @@ namespace NuGet.Tasks.Policies
 
                     if (versionSource.TryGetPackageVersion(package.Id, out string version))
                     {
-                        builder.PinPackageReference(package, version, framework.TargetFramework);
+                        builder.PinPackageReference(package.Id, version, framework.TargetFramework);
                         Interlocked.Increment(ref _pinned);
                     }
                     else if (!package.IsImplicitlyDefined && !package.NoWarn)
@@ -154,33 +168,82 @@ namespace NuGet.Tasks.Policies
                         $"DotNetCliToolReference to {toolPackage.Id} did not specify a version and was not found in any lineup.");
                 }
             }
+
+            foreach (var source in _additionalSources)
+            {
+                project.TargetsExtension.AddAdditionalRestoreSource(source);
+            }
         }
 
-        private List<PackageLineupRequest> CreateRequests(PolicyContext context)
+        private void InitializeRequests(PolicyContext context, PackageVersionSource versionSource)
         {
-            var lineupRequest = new List<PackageLineupRequest>();
-
             foreach (var item in _items)
             {
-                var packageId = item.ItemSpec;
-                var version = item.GetMetadata("Version");
+                var type = item.GetMetadata("LineupType") ?? string.Empty;
 
-                if (string.IsNullOrEmpty(version))
+                switch (type.ToLowerInvariant())
                 {
-                    context.Log.LogError($"Missing required metadata 'Version' on lineup policy for {packageId}.");
-                    continue;
+                    case "directory":
+                        InitializeDirectoryLineup(item, versionSource);
+                        break;
+                    case "package":
+                    default:
+                        InitializePackageLineup(item);
+                        break;
                 }
 
-                if (!VersionRange.TryParse(version, out var versionRange))
-                {
-                    context.Log.LogError($"Invalid version range '{version}' on package lineup '{packageId}'");
-                    continue;
-                }
+            }
+        }
 
-                lineupRequest.Add(new PackageLineupRequest(packageId, versionRange));
+        private void InitializeDirectoryLineup(ITaskItem item, PackageVersionSource versionSource)
+        {
+            if (!Directory.Exists(item.ItemSpec))
+            {
+                _logger.LogWarning($"Expected directory of packages '{item.ItemSpec}' to exist but it was not found. Skipping.");
+                return;
             }
 
-            return lineupRequest;
+            _additionalSources.Add(item.ItemSpec);
+
+            foreach (var packageFile in Directory.GetFiles(item.ItemSpec, "*.nupkg", SearchOption.TopDirectoryOnly))
+            {
+                if (Path.GetFileName(packageFile).EndsWith(".symbols.nupkg", StringComparison.OrdinalIgnoreCase))
+                {
+                    _logger.LogMessage(MessageImportance.Low, $"Skipping symbols package {packageFile} from folder lineup");
+                    continue;
+                }
+
+                PackageIdentity identity;
+                using (var reader = new PackageArchiveReader(packageFile))
+                {
+                    identity = reader.GetIdentity();
+                }
+
+                if (versionSource.TryAddPackage(new PackageDependency(identity.Id, new VersionRange(identity.Version))))
+                {
+                    _logger.LogMessage($"Using package {identity.Id} {identity.Version} from {packageFile}");
+                }
+            }
+        }
+
+        private void InitializePackageLineup(ITaskItem item)
+        {
+            var packageId = item.ItemSpec;
+            var version = item.GetMetadata("Version");
+
+            if (string.IsNullOrEmpty(version))
+            {
+                _logger.LogError($"Missing required metadata 'Version' on lineup policy for {packageId}.");
+                return;
+            }
+
+            if (!VersionRange.TryParse(version, out var versionRange))
+            {
+                _logger.LogError($"Invalid version range '{version}' on package lineup '{packageId}'");
+                return;
+            }
+
+            _restoreLineupRequests.Add(new PackageLineupRequest(packageId, versionRange));
         }
     }
 }

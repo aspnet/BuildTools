@@ -3,19 +3,24 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NuGet.Frameworks;
 
 namespace NuGet.Tasks.ProjectModel
 {
     internal class ProjectFrameworkInfo
     {
-        public ProjectFrameworkInfo(NuGetFramework targetFramework, IReadOnlyList<PackageReferenceInfo> dependencies)
+        public ProjectFrameworkInfo(NuGetFramework targetFramework, IEnumerable<PackageReferenceInfo> dependencies)
+            : this(targetFramework, dependencies.ToDictionary(i => i.Id, i => i, StringComparer.OrdinalIgnoreCase))
+        { }
+
+        public ProjectFrameworkInfo(NuGetFramework targetFramework, IReadOnlyDictionary<string, PackageReferenceInfo> dependencies)
         {
             TargetFramework = targetFramework ?? throw new ArgumentNullException(nameof(targetFramework));
             Dependencies = dependencies ?? throw new ArgumentNullException(nameof(dependencies));
         }
 
         public NuGetFramework TargetFramework { get; }
-        public IReadOnlyList<PackageReferenceInfo> Dependencies { get; }
+        public IReadOnlyDictionary<string, PackageReferenceInfo> Dependencies { get; }
     }
 }

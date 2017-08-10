@@ -150,14 +150,14 @@ EndGlobal
 
             void AssertAbc(ProjectFrameworkInfo tfm)
             {
-                var abc = Assert.Single(tfm.Dependencies, d => d.Id == "Abc");
+                Assert.True(tfm.Dependencies.TryGetValue("Abc", out var abc));
                 Assert.True(abc.NoWarn, "Abc should not have NoWarn set");
                 Assert.Equal("1.1.0", abc.Version);
             }
 
             void AssertXyz(ProjectFrameworkInfo tfm)
             {
-                var xyz = Assert.Single(tfm.Dependencies, d => d.Id == "Xyz");
+                Assert.True(tfm.Dependencies.TryGetValue("Xyz", out var xyz));
                 Assert.False(xyz.NoWarn, "Xyz should have NoWarn set");
                 Assert.Empty(xyz.Version);
             }
@@ -172,7 +172,7 @@ EndGlobal
                     AssertAbc(tfm);
                     AssertXyz(tfm);
 
-                    var nslibrary = Assert.Single(tfm.Dependencies, d => d.Id == "NETStandard.Library");
+                    Assert.True(tfm.Dependencies.TryGetValue("NETStandard.Library", out var nslibrary));
                     Assert.True(nslibrary.IsImplicitlyDefined, "NETStandard.Library should be implicitly defined");
                 },
                 tfm =>

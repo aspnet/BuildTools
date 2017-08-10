@@ -175,7 +175,7 @@ namespace NuGet.Tasks
             foreach (var policyItems in Policies.GroupBy(g => g.GetMetadata("PolicyType") ?? string.Empty, StringComparer.OrdinalIgnoreCase))
             {
                 var type = policyItems.Key;
-                var policy = _policyFactory.Create(type, policyItems);
+                var policy = _policyFactory.Create(type, policyItems, Log);
                 if (policy == null)
                 {
                     Log.LogKoreBuildError(KoreBuildErrors.UnknownPolicyType, $"Unrecognized package policy type: '{policyItems.Key}'");

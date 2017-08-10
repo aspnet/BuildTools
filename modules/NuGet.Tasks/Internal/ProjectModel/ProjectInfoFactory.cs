@@ -42,7 +42,7 @@ namespace NuGet.Tasks.ProjectModel
                     project.SetGlobalProperty("TargetFramework", tfm);
                     var innerBuild = project.CreateProjectInstance(ProjectInstanceSettings.ImmutableWithFastItemLookup);
 
-                    var tfmInfo = new ProjectFrameworkInfo(NuGetFramework.Parse(tfm), GetDependencies(innerBuild).ToArray());
+                    var tfmInfo = new ProjectFrameworkInfo(NuGetFramework.Parse(tfm), GetDependencies(innerBuild));
 
                     frameworks.Add(tfmInfo);
                 }
@@ -51,7 +51,7 @@ namespace NuGet.Tasks.ProjectModel
             }
             else if (!string.IsNullOrEmpty(targetFramework))
             {
-                var tfmInfo = new ProjectFrameworkInfo(NuGetFramework.Parse(targetFramework), GetDependencies(instance).ToArray());
+                var tfmInfo = new ProjectFrameworkInfo(NuGetFramework.Parse(targetFramework), GetDependencies(instance));
 
                 frameworks.Add(tfmInfo);
             }

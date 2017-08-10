@@ -11,8 +11,8 @@
     <NuGetPackagesVersion>4.0.0</NuGetPackagesVersion>
     <SystemCollectionsImmutableVersion>1.4.0-*</SystemCollectionsImmutableVersion>
     <SystemReflectionMetadataVersion>1.5.0-*</SystemReflectionMetadataVersion>
-    <TestSdkVersion>15.3.0-*</TestSdkVersion>
-    <XunitVersion>2.3.0-beta2-*</XunitVersion>
+    <TestSdkVersion>15.3.0</TestSdkVersion>
+    <XunitVersion>2.3.0-beta3-build3705</XunitVersion>
   </PropertyGroup>
 
   <!--
@@ -24,6 +24,6 @@
   <PropertyGroup>
     <MicrosoftBuildVersion>15.3.409</MicrosoftBuildVersion>
     <JsonNetInMSBuildVersion>9.0.1</JsonNetInMSBuildVersion>
-    <NuGetInMSBuildVersion>4.3.0-*</NuGetInMSBuildVersion>
+    <NuGetInMSBuildVersion>4.3.0</NuGetInMSBuildVersion>
   </PropertyGroup>
 </Project>

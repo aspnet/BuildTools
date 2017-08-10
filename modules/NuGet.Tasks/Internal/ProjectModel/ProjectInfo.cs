@@ -28,7 +28,7 @@ namespace NuGet.Tasks.ProjectModel
             ProjectExtensionsPath = projectExtensionsPath ?? Path.Combine(Directory, "obj");
 
             const string extension = ".nugetpolicy.g.targets";
-            TargetsExtension = new MSBuildProjectBuilder(Path.Combine(ProjectExtensionsPath, FileName + extension));
+            TargetsExtension = new MSBuildProjectExtension(Path.Combine(ProjectExtensionsPath, FileName + extension));
         }
 
         public string FullPath { get; }
@@ -39,6 +39,6 @@ namespace NuGet.Tasks.ProjectModel
         public IReadOnlyList<ProjectFrameworkInfo> Frameworks { get; }
         public IReadOnlyList<DotNetCliReferenceInfo> Tools { get; }
 
-        public MSBuildProjectBuilder TargetsExtension { get; }
+        public MSBuildProjectExtension TargetsExtension { get; }
     }
 }

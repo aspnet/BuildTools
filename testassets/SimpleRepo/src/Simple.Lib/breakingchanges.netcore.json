@@ -1,0 +1,7 @@
+[
+  {
+    "TypeId": "public class Simple.Lib.Api",
+    "MemberId": "public System.String get_OldName()",
+    "Kind": "Removal"
+  }
+]

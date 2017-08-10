@@ -5,18 +5,28 @@
 
   <ItemDefinitionGroup>
 
+    <BundledPackage>
+      <PolicyType>BundledPackage</PolicyType>
+    </BundledPackage>
+
     <DisallowPackageReferenceVersion>
       <PolicyType>DisallowPackageReferenceVersion</PolicyType>
     </DisallowPackageReferenceVersion>
-    
+
     <PackageLineup>
       <PolicyType>Lineup</PolicyType>
+      <LineupType>Package</LineupType>
     </PackageLineup>
-    
+
+    <FolderLineup>
+      <PolicyType>Lineup</PolicyType>
+      <LineupType>Directory</LineupType>
+    </FolderLineup>
+
     <AdditionalRestoreSources>
       <PolicyType>AdditionalRestoreSource</PolicyType>
     </AdditionalRestoreSources>
-    
+
   </ItemDefinitionGroup>
 
 </Project>

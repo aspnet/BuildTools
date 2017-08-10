@@ -12,6 +12,8 @@
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <BuildToolsPath>..\..\modules\BuildTools.Tasks\</BuildToolsPath>
     <NuspecFile>$(MSBuildThisFileDirectory)$(MSBuildProjectName).nuspec</NuspecFile>
+    <IncludeSymbols>false</IncludeSymbols>
+    <IncludeSource>false</IncludeSource>
   </PropertyGroup>
 
   <ItemGroup>

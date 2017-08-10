@@ -1,0 +1,6 @@
+<Project>
+  <!-- for now, limit this to repos that have upgraded into lineups. _EnableKoreBuildBundledPackages will go away when this default is lifted. -->
+  <ItemGroup Condition=" 'DisableKoreBuildBundledPackages' != 'true' AND ( @(PackageLineup->Count()) != 0 OR '$(_EnableKoreBuildBundledPackages)' == 'true' ) ">
+    <FolderLineup Include="$(MSBuildThisFileDirectory)" />
+  </ItemGroup>
+</Project>

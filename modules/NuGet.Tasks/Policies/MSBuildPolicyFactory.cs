@@ -4,20 +4,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
 using NuGet.Tasks.Policies;
 
 namespace NuGet.Tasks
 {
     internal class MSBuildPolicyFactory
     {
-        public virtual INuGetPolicy Create(string type, IEnumerable<ITaskItem> items)
+        public virtual INuGetPolicy Create(string type, IEnumerable<ITaskItem> items, TaskLoggingHelper logger)
         {
             switch (type.ToLowerInvariant())
             {
                 case "additionalrestoresource":
                     return new AdditionalProjectRestoreSourcePolicy(items.ToArray());
                 case "lineup":
-                    return new PackageLineupPolicy(items.ToArray());
+                    return new PackageLineupPolicy(items.ToArray(), logger);
                 case "disallowpackagereferenceversion":
                     return new PackageVersionRestrictionPolicy(items.ToArray());
                 default:

@@ -1,0 +1,18 @@
+<Project>
+
+  <Target Name="Publish">
+
+    <ItemGroup>
+      <Projects Include="$(MSBuildThisFileDirectory)..\..\src\Internal.AspNetCore.Sdk\Internal.AspNetCore.Sdk.csproj" />
+      <Projects Include="$(MSBuildThisFileDirectory)..\..\src\ApiCheck.Console\ApiCheck.Console.csproj" />
+    </ItemGroup>
+
+    <MSBuild Projects="@(Projects)"
+      Targets="Pack"
+      Properties="PackageOutputPath=$(PublishDir);Configuration=$(Configuration);BuildNumber=$(BuildNumber)"
+      RemoveProperties="PublishDir" />
+
+    <Copy SourceFiles="module.targets" DestinationFolder="$(PublishDir)" />
+  </Target>
+
+</Project>

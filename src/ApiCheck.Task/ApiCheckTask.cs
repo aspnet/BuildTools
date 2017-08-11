@@ -28,24 +28,6 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
                 return false;
             }
 
-            if (string.IsNullOrEmpty(AssemblyPath) || !File.Exists(AssemblyPath))
-            {
-                Log.LogError($"Assembly '{AssemblyPath}' not specified or does not exist.");
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(Framework))
-            {
-                Log.LogError("Framework moniker must be specified.");
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(ProjectAssetsPath) || !File.Exists(ProjectAssetsPath))
-            {
-                Log.LogError($"Project assets file '{ProjectAssetsPath}' not specified or does not exist.");
-                return false;
-            }
-
             if (!string.IsNullOrEmpty(ExclusionsPath) && !File.Exists(ExclusionsPath))
             {
                 Log.LogError($"Exclusions file '{ExclusionsPath}' does not exist.");

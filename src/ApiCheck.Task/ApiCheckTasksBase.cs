@@ -15,6 +15,12 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
     {
         protected const string ApiCheckToolName = "Microsoft.AspNetCore.BuildTools.ApiCheck";
 
+        public ApiCheckTasksBase()
+        {
+            // Tool does not use stderr for anything. Treat everything that appears there as an error.
+            LogStandardErrorAsError = true;
+        }
+
         /// <summary>
         /// Path to the project.assets.json file created when building <see cref="AssemblyPath"/>.
         /// </summary>
@@ -63,12 +69,6 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
                 var exeExtension = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".exe" : string.Empty;
                 return "dotnet" + exeExtension;
             }
-        }
-
-        public ApiCheckTasksBase()
-        {
-            // Tool does not use stderr for anything. Treat everything that appears there as an error.
-            LogStandardErrorAsError = true;
         }
 
         protected override bool ValidateParameters()

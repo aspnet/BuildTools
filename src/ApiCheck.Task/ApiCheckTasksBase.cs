@@ -65,6 +65,35 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
             }
         }
 
+        public ApiCheckTasksBase()
+        {
+            // Tool does not use stderr for anything. Treat everything that appears there as an error.
+            LogStandardErrorAsError = true;
+        }
+
+        protected override bool ValidateParameters()
+        {
+            if (string.IsNullOrEmpty(AssemblyPath) || !File.Exists(AssemblyPath))
+            {
+                Log.LogError($"Assembly '{AssemblyPath}' not specified or does not exist.");
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(Framework))
+            {
+                Log.LogError("Framework moniker must be specified.");
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(ProjectAssetsPath) || !File.Exists(ProjectAssetsPath))
+            {
+                Log.LogError($"Project assets file '{ProjectAssetsPath}' not specified or does not exist.");
+                return false;
+            }
+
+            return base.ValidateParameters();
+        }
+
         /// <inheritdoc />
         protected override string GenerateFullPathToTool()
         {
@@ -94,7 +123,7 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
             }
         }
 
-        protected override string GenerateCommandLineCommands()
+        protected string GenerateCommandLineCommands(string command)
         {
             var arguments = string.Empty;
             if (!Framework.StartsWith("net4", StringComparison.OrdinalIgnoreCase))
@@ -104,7 +133,8 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
                 arguments = $@"""{Path.GetFullPath(toolPath)}"" ";
             }
 
-            arguments += "generate";
+            arguments += command;
+
             if (ExcludePublicInternalTypes)
             {
                 arguments += " --exclude-public-internal";
@@ -114,6 +144,13 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
             arguments += $@" --project ""{ProjectAssetsPath}"" --api-listing ""{ApiListingPath}""";
 
             return arguments;
+        }
+
+        /// <inheritdoc />
+        protected override string GetWorkingDirectory()
+        {
+            // Working directory should not matter. Use project folder because it is a well-known location.
+            return Path.GetDirectoryName(ApiListingPath);
         }
     }
 }

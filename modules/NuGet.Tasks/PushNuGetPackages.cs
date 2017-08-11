@@ -33,7 +33,7 @@ namespace NuGet.Tasks
         // not be required if pushing to the filesystem
         public string ApiKey { get; set; }
 
-        public int Timeout { get; set; } = 90;
+        public int TimeoutSeconds { get; set; } = 90;
 
         public void Cancel()
         {
@@ -122,7 +122,7 @@ namespace NuGet.Tasks
                     await packageUpdateResource.Push(
                         package.PackagePath,
                         symbolSource: null,
-                        timeoutInSecond: Timeout,
+                        timeoutInSecond: TimeoutSeconds,
                         disableBuffering: false,
                         getApiKey: _ => ApiKey,
                         getSymbolApiKey: _ => null,

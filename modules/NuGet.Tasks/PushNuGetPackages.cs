@@ -20,7 +20,6 @@ namespace NuGet.Tasks
     {
         private const int _maxRetryCount = 5;
         private const int _maxParallelPackagePushes = 4;
-        private static readonly TimeSpan _packagePushTimeout = TimeSpan.FromSeconds(90);
 
         private ConcurrentBag<PackageInfo> _packages;
         private readonly CancellationTokenSource _packagePushCancellationTokenSource = new CancellationTokenSource();
@@ -33,6 +32,8 @@ namespace NuGet.Tasks
 
         // not be required if pushing to the filesystem
         public string ApiKey { get; set; }
+
+        public int TimeoutSeconds { get; set; } = 90;
 
         public void Cancel()
         {
@@ -121,7 +122,7 @@ namespace NuGet.Tasks
                     await packageUpdateResource.Push(
                         package.PackagePath,
                         symbolSource: null,
-                        timeoutInSecond: (int)_packagePushTimeout.TotalSeconds,
+                        timeoutInSecond: TimeoutSeconds,
                         disableBuffering: false,
                         getApiKey: _ => ApiKey,
                         getSymbolApiKey: _ => null,

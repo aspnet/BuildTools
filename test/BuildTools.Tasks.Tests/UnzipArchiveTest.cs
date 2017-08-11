@@ -55,6 +55,40 @@ namespace BuildTools.Tasks.Tests
         }
 
         [Fact]
+        public void UnzipsSubdirectories()
+        {
+            var files = new[]
+            {
+                "a/b/c/d.dll",
+                "e/f/j/k/l.json",
+                "e/f/m/n/o.json"
+            };
+
+            var dest = CreateZip(files);
+            var outDir = Path.Combine(_tempDir, "out");
+
+            var task = new UnzipArchive
+            {
+                File = dest,
+                Destination = outDir,
+                BuildEngine = new MockEngine(),
+            };
+
+            Assert.True(task.Execute(), "The task failed but should have passed.");
+            Assert.True(Directory.Exists(outDir), outDir + " does not exist");
+            Assert.Equal(files.Length, task.OutputFiles.Length);
+
+            Assert.All(task.OutputFiles,
+                f => Assert.True(Path.IsPathRooted(f.ItemSpec), $"Entry {f} should be a fullpath rooted"));
+
+            foreach (var file in files)
+            {
+                var outFile = Path.Combine(outDir, file);
+                Assert.True(File.Exists(outFile), outFile + " does not exist");
+            }
+        }
+
+        [Fact]
         public void Overwrites()
         {
             var files = new[]

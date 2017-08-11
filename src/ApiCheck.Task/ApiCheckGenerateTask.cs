@@ -15,39 +15,20 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
     /// </summary>
     public class ApiCheckGenerateTask : ApiCheckTasksBase
     {
-        public ApiCheckGenerateTask()
-        {
-            // Tool does not use stderr for anything. Treat everything that appears there as an error.
-            LogStandardErrorAsError = true;
-        }
-
         protected override bool ValidateParameters()
         {
-            if (string.IsNullOrEmpty(ApiListingPath) || !File.Exists(ApiListingPath))
+            if (string.IsNullOrEmpty(ApiListingPath))
             {
-                Log.LogError($"API listing file '{ApiListingPath}' not specified or does not exist.");
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(AssemblyPath) || !File.Exists(AssemblyPath))
-            {
-                Log.LogError($"Assembly '{AssemblyPath}' not specified or does not exist.");
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(Framework))
-            {
-                Log.LogError("Framework moniker must be specified.");
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(ProjectAssetsPath) || !File.Exists(ProjectAssetsPath))
-            {
-                Log.LogError($"Project assets file '{ProjectAssetsPath}' not specified or does not exist.");
+                Log.LogError($"API listing file '{ApiListingPath}' not specified.");
                 return false;
             }
 
             return base.ValidateParameters();
+        }
+
+        protected override string GenerateCommandLineCommands()
+        {
+            return GenerateCommandLineCommands("generate");
         }
     }
 }

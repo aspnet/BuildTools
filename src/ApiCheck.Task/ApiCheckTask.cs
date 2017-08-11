@@ -14,12 +14,6 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
     /// </summary>
     public class ApiCheckTask : ApiCheckTasksBase
     {
-        public ApiCheckTask()
-        {
-            // Tool does not use stderr for anything. Treat everything that appears there as an error.
-            LogStandardErrorAsError = true;
-        }
-
         /// <summary>
         /// Path to the exclusions file that narrows <see cref="ApiListingPath"/>, ignoring listed breaking changes.
         /// </summary>
@@ -46,7 +40,7 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
                 return false;
             }
 
-            if (string.IsNullOrEmpty(this.ProjectAssetsPath) || !File.Exists(ProjectAssetsPath))
+            if (string.IsNullOrEmpty(ProjectAssetsPath) || !File.Exists(ProjectAssetsPath))
             {
                 Log.LogError($"Project assets file '{ProjectAssetsPath}' not specified or does not exist.");
                 return false;
@@ -64,7 +58,8 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
         /// <inheritdoc />
         protected override string GenerateCommandLineCommands()
         {
-            var arguments = base.GenerateCommandLineCommands();
+            var arguments = GenerateCommandLineCommands("compare");
+
             if (!string.IsNullOrEmpty(ExclusionsPath))
             {
                 arguments += $@" --exclusions ""{ExclusionsPath}""";

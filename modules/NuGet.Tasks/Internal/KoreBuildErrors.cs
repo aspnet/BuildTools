@@ -5,6 +5,9 @@ namespace NuGet.Tasks
 {
     public static class KoreBuildErrors
     {
+        // Typically used in repos in Directory.Build.targets
+        public const int PackagesHaveNotYetBeenPinned = 1001;
+
         public const int InvalidNuspecFile = 4001;
 
         // see Policy.NoVersions.targets

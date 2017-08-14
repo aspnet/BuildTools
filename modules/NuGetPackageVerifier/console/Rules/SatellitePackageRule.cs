@@ -10,7 +10,7 @@ namespace NuGetPackageVerifier.Rules
     {
         public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
-            if (PackageHelper.IsSatellitePackage(context.PackageReader, out var _, out var _))
+            if (context.PackageReader.IsSatellitePackage())
             {
                 if (context.Metadata.Summary.Contains("{"))
                 {

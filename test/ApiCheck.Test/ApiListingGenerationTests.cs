@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reflection;
 using ApiCheck.Description;
@@ -178,7 +178,7 @@ namespace ApiCheck.Test
             Assert.NotNull(report);
             Assert.NotNull(report.Types);
             var type = Assert.Single(report.Types, t => t.Id == "public class Scenarios.MethodTypesClass");
-            Assert.False(type.Members.Any(m => m.Id == "protected internal System.String ProtectedInternalStringReturningMethodWithStringParameter(System.String stringParameter)"));
+            Assert.DoesNotContain(type.Members, m => m.Id == "protected internal System.String ProtectedInternalStringReturningMethodWithStringParameter(System.String stringParameter)");
         }
 
         [Fact]
@@ -210,7 +210,7 @@ namespace ApiCheck.Test
             Assert.NotNull(report);
             Assert.NotNull(report.Types);
             var type = Assert.Single(report.Types, t => t.Id == "public class Scenarios.MethodTypesClass");
-            Assert.False(type.Members.Any(m => m.Id == "private System.Boolean PrivateBoolReturningMethodWithOptionalCharParameter(System.Char charParameter = 'c')"));
+            Assert.DoesNotContain(type.Members, m => m.Id == "private System.Boolean PrivateBoolReturningMethodWithOptionalCharParameter(System.Char charParameter = 'c')");
         }
 
         [Fact]
@@ -336,7 +336,7 @@ namespace ApiCheck.Test
             // Assert
             Assert.NotNull(report);
             Assert.NotNull(report.Types);
-            Assert.False(report.Types.Any(t => t.Id == "internal class Scenarios.NestedTypesClass+InternalNestedClass"));
+            Assert.DoesNotContain(report.Types, t => t.Id == "internal class Scenarios.NestedTypesClass+InternalNestedClass");
         }
 
         [Fact]
@@ -351,7 +351,7 @@ namespace ApiCheck.Test
             // Assert
             Assert.NotNull(report);
             Assert.NotNull(report.Types);
-            Assert.False(report.Types.Any(t => t.Id == "private class Scenarios.NestedTypesClass+PrivateNestedClass"));
+            Assert.DoesNotContain(report.Types, t => t.Id == "private class Scenarios.NestedTypesClass+PrivateNestedClass");
         }
 
         [Fact]
@@ -646,7 +646,7 @@ namespace ApiCheck.Test
             Assert.NotNull(report);
             Assert.NotNull(report.Types);
             var type = Assert.Single(report.Types, t => t.Id == "public class Scenarios.ExplicitImplementationClass : Scenarios.IInterfaceForExplicitImplementation");
-            Assert.False(type.Members.Any(m => m.Id == "System.Void Scenarios.IInterfaceForExplicitImplementation.ExplicitImplementationMethod()"));
+            Assert.DoesNotContain(type.Members, m => m.Id == "System.Void Scenarios.IInterfaceForExplicitImplementation.ExplicitImplementationMethod()");
         }
 
         [Fact]
@@ -662,7 +662,7 @@ namespace ApiCheck.Test
             Assert.NotNull(report);
             Assert.NotNull(report.Types);
             var type = Assert.Single(report.Types, t => t.Id == "public class Scenarios.ClassDerivingClassReimplementingInterface : Scenarios.OriginalClassImplementingInterface, Scenarios.IBasicInterfaceForInterfaceReimplementation");
-            Assert.False(type.Members.Any(m => m.Id == "System.Void Scenarios.IBasicInterfaceForInterfaceReimplementation.A()"));
+            Assert.DoesNotContain(type.Members, m => m.Id == "System.Void Scenarios.IBasicInterfaceForInterfaceReimplementation.A()");
         }
 
         [Fact]

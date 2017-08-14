@@ -19,7 +19,7 @@ namespace NuGetPackageVerifier.Rules
                 yield break;
             }
 
-            if (!PackageHelper.IsSatellitePackage(context.PackageReader, out var _, out var _))
+            if (!context.PackageReader.IsSatellitePackage())
             {
                 var allXmlFiles =
                     from item in context.PackageReader.GetLibItems()

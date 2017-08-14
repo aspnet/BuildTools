@@ -157,8 +157,9 @@ namespace NuGet.Tasks.Tests
                 Assert.Single(noTfmGroup.Packages, p => p.Id == "AlreadyInNuspec" && p.VersionRange.Equals(VersionRange.Parse("[2.0.0]")));
 
                 var netstandard10Group = Assert.Single(metadata.DependencyGroups, d => d.TargetFramework.Equals(FrameworkConstants.CommonFrameworks.NetStandard10));
-                Assert.Equal(1, netstandard10Group.Packages.Count());
-                Assert.Single(netstandard10Group.Packages, p => p.Id == "PackageInTfm" && p.VersionRange.Equals(VersionRange.Parse("0.1.0-beta")));
+                var package = Assert.Single(netstandard10Group.Packages);
+                Assert.Equal("PackageInTfm", package.Id);
+                Assert.Equal(VersionRange.Parse("0.1.0-beta"), package.VersionRange);
             }
         }
 

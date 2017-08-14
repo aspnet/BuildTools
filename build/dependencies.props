@@ -1,16 +1,16 @@
 <Project>
   <PropertyGroup>
-    <AspNetCoreVersion>2.0.0-*</AspNetCoreVersion>
-    <CoreFxVersion>4.3.0</CoreFxVersion>
     <DotNetCliUtilsVersion>1.0.1</DotNetCliUtilsVersion>
     <DotNetProjectModelVersion>1.0.0-rc3-1-003177</DotNetProjectModelVersion>
+    <HtmlAgilityPackVersion>1.5.0-beta8</HtmlAgilityPackVersion>
     <!-- This one is OK for console tools that bundle their own version of JSON.NET -->
     <JsonNetVersion>10.0.1</JsonNetVersion>
+    <MicrosoftDotNetPlatformAbstractionsVersion>1.1.0</MicrosoftDotNetPlatformAbstractionsVersion>
+    <MonoCecilVersion>0.10.0-beta1-v2</MonoCecilVersion>
     <MoqVersion>4.7.99</MoqVersion>
-    <NetStandardPackageVersion>1.6.1</NetStandardPackageVersion>
     <NuGetPackagesVersion>4.0.0</NuGetPackagesVersion>
-    <SystemCollectionsImmutableVersion>1.4.0-*</SystemCollectionsImmutableVersion>
-    <SystemReflectionMetadataVersion>1.5.0-*</SystemReflectionMetadataVersion>
+    <SystemCollectionsImmutableVersion>1.4.0</SystemCollectionsImmutableVersion>
+    <SystemReflectionMetadataVersion>1.5.0</SystemReflectionMetadataVersion>
     <TestSdkVersion>15.3.0</TestSdkVersion>
     <XunitVersion>2.3.0-beta3-build3705</XunitVersion>
   </PropertyGroup>

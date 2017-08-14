@@ -9,10 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\..\shared\Microsoft.Extensions.CommandLineUtils.Sources\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Pinned while we wait for https://github.com/aspnet/BuildTools/issues/270 -->
     <PackageReference Include="Microsoft.DotNet.Cli.Utils" Version="1.0.0-preview2-1-003177" />
     <PackageReference Include="Microsoft.DotNet.ProjectModel" Version="$(DotNetProjectModelVersion)" />
-    <PackageReference Include="Microsoft.Extensions.CommandLineUtils.Sources" Version="$(AspNetCoreVersion)" />
   </ItemGroup>
 
  <!-- packaging settings -->

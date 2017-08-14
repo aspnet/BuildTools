@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <!-- Makes CSC error links clickable in the VS Code integrated terminal. -->
+    <SolutionProperties Condition=" '$(VSCODE_PID)' != 'true' ">$(SolutionProperties);GenerateFullPaths=true</SolutionProperties>
+  </PropertyGroup>
+</Project>

@@ -4,7 +4,7 @@
 -->
 <Project>
   <PropertyGroup>
-    <_ApiCheckTaskAssembly>$(MSBuildThisFileDirectory)..\tools\netstandard1.6\Microsoft.AspNetCore.BuildTools.ApiCheck.Task.dll</_ApiCheckTaskAssembly>
+    <_ApiCheckTaskAssembly>$(MSBuildThisFileDirectory)..\tools\netstandard2.0\Microsoft.AspNetCore.BuildTools.ApiCheck.Task.dll</_ApiCheckTaskAssembly>
   </PropertyGroup>
 
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.ApiCheck.Task.ApiCheckTask"

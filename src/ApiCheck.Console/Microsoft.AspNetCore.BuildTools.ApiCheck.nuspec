@@ -13,6 +13,6 @@
     <file src="build\**" target="build\" />
     <file src="$publishDir$\net46\**" target="tools\net46\" />
     <file src="$publishDir$\netcoreapp2.0\**" target="tools\netcoreapp2.0\" />
-    <file src="$taskBuildDir$\netstandard1.6\*.dll" target="tools\netstandard1.6\" />
+    <file src="$taskBuildDir$\netstandard2.0\*.dll" target="tools\netstandard2.0\" />
   </files>
 </package>

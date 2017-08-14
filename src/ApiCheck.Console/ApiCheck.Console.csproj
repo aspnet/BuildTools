@@ -12,8 +12,6 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
-    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
-
     <!-- Don't try to compile the *.cs files on netstandard1.0. -->
     <EnableDefaultItems>false</EnableDefaultItems>
   </PropertyGroup>
@@ -30,15 +28,12 @@
     <PublishDir>$(IntermediatePackDir)$(TargetFramework)\</PublishDir>
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
-    <PackageReference Include="NETStandard.Library" Version="$(NetStandardPackageVersion)" PrivateAssets="All" />
-  </ItemGroup>
-
   <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard1.0' ">
-    <PackageReference Include="Microsoft.Extensions.CommandLineUtils.Sources" Version="$(AspNetCoreVersion)" PrivateAssets="All" />
+    <Compile Include="..\..\shared\Microsoft.Extensions.CommandLineUtils.Sources\**\*.cs" />
+
     <PackageReference Include="Newtonsoft.Json" Version="$(JsonNetVersion)" />
     <PackageReference Include="NuGet.ProjectModel" Version="$(NuGetPackagesVersion)" />
-    <PackageReference Include="Microsoft.DotNet.PlatformAbstractions" Version="1.1.0" />
+    <PackageReference Include="Microsoft.DotNet.PlatformAbstractions" Version="$(MicrosoftDotNetPlatformAbstractionsVersion)" />
   </ItemGroup>
 
   <Target Name="PublishAll">

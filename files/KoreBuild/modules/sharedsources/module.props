@@ -3,7 +3,7 @@
     <SharedSourcesFolder>$(RepositoryRoot)shared/</SharedSourcesFolder>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition=" '$(DisableSharedSources)' != 'true' ">
     <SharedSourceDirectories Include="$([System.IO.Directory]::GetDirectories(&quot;$(SharedSourcesFolder)&quot;, '*.Sources'))"
       Condition="Exists('$(SharedSourcesFolder)')"
       Exclude="@(ExcludeSharedSourceDirectories)" />

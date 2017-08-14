@@ -7,13 +7,12 @@
 
   <ItemGroup>
     <Content Include="build\**\*.targets" CopyToOutputDirectory="PreserveNewest" />
+    <Compile Include="..\..\..\shared\Microsoft.Extensions.CommandLineUtils.Sources\**\*.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Build.Framework" Version="$(MicrosoftBuildVersion)" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.Build.Tasks.Core" Version="$(MicrosoftBuildVersion)" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="$(MicrosoftBuildVersion)" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.Extensions.CommandLineUtils.Sources" Version="$(AspNetCoreVersion)" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>

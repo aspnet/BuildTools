@@ -2,6 +2,7 @@
 <Project>
 
   <PropertyGroup>
+    <KoreBuildRestoreTargetsImported>true</KoreBuildRestoreTargetsImported>
     <BaseOutputPath>$(NuspecBasePath)bin\</BaseOutputPath>
     <BaseIntermediateOutputPath>$(NuspecBasePath)obj\</BaseIntermediateOutputPath>
     <DirBuildPropsInRepo>$([MSBuild]::GetDirectoryNameOfFileAbove($(NuspecBasePath), Directory.Build.props))\Directory.Build.props</DirBuildPropsInRepo>

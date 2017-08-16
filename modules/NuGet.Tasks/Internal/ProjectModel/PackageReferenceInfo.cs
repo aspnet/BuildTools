@@ -2,12 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 
 namespace NuGet.Tasks.ProjectModel
 {
     internal class PackageReferenceInfo
     {
-        public PackageReferenceInfo(string id, string version, bool isImplicitlyDefined, bool noWarn)
+        public PackageReferenceInfo(string id, string version, bool isImplicitlyDefined, IReadOnlyList<string> noWarn)
         {
             if (string.IsNullOrEmpty(id))
             {
@@ -23,6 +24,6 @@ namespace NuGet.Tasks.ProjectModel
         public string Id { get; }
         public string Version { get; }
         public bool IsImplicitlyDefined { get; }
-        public bool NoWarn { get; }
+        public IReadOnlyList<string> NoWarn { get; }
     }
 }

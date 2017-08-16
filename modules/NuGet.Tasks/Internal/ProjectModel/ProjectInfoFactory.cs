@@ -9,6 +9,7 @@ using Microsoft.Build.Construction;
 using Microsoft.Build.Evaluation;
 using Microsoft.Build.Execution;
 using NuGet.Frameworks;
+using NuGet.Tasks.Utilties;
 
 namespace NuGet.Tasks.ProjectModel
 {
@@ -68,9 +69,12 @@ namespace NuGet.Tasks.ProjectModel
             return project.GetItems("PackageReference").Select(item =>
             {
                 bool.TryParse(item.GetMetadataValue("IsImplicitlyDefined"), out var isImplicit);
-                bool.TryParse(item.GetMetadataValue("NoWarn"), out var noWarn);
+                var noWarn = item.GetMetadataValue("NoWarn");
+                IReadOnlyList<string> noWarnItems = string.IsNullOrEmpty(noWarn)
+                    ? Array.Empty<string>()
+                    : MSBuildListSplitter.SplitItemList(noWarn).ToArray();
 
-                return new PackageReferenceInfo(item.EvaluatedInclude, item.GetMetadataValue("Version"), isImplicit, noWarn);
+                return new PackageReferenceInfo(item.EvaluatedInclude, item.GetMetadataValue("Version"), isImplicit, noWarnItems);
             });
         }
 

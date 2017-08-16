@@ -10,14 +10,14 @@
     <ItemGroup>
       <PackageReferenceWithVersion Include="@(PackageReference->HasMetadata('Version'))" />
       <PackageReferenceWithVersion Remove="@(PackageReferenceWithVersion->WithMetadataValue('IsImplicitlyDefined', 'true'))" />
-      <PackageReferenceWithVersion Remove="@(PackageReferenceWithVersion->WithMetadataValue('NoWarn', 'true'))" />
+      <PackageReferenceWithVersion Remove="@(PackageReferenceWithVersion->WithMetadataValue('NoWarn', 'KRB4002'))" />
     </ItemGroup>
 
     <PropertyGroup>
       <_PackageWithVersionMessage>
 This project has restricted adding versions to PackageReference items, but the following items have a version.
-  - @(PackageReferenceWithVersion->'%(Identity)/%(Version)', '%0A - ')
-Add 'NoWarn="true"' to the PackageReference to ignore this warning.
+ - @(PackageReferenceWithVersion->'%(Identity)/%(Version)', '%0A - ')
+Add 'NoWarn="KRB4002"' to the PackageReference to ignore this warning.
       </_PackageWithVersionMessage>
     </PropertyGroup>
 

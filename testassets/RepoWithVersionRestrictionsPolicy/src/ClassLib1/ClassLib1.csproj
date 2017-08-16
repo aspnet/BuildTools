@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
-    <PackageReference Include="Moq" Version="4.7.49" NoWarn="true" />
+    <PackageReference Include="Moq" Version="4.7.49" NoWarn="KRB4002" />
   </ItemGroup>
 
 </Project>

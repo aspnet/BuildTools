@@ -5,12 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using NuGet.Build;
-using NuGet.Frameworks;
 using NuGet.Packaging;
 using NuGet.Packaging.Core;
 using NuGet.Tasks.Lineup;
@@ -22,6 +22,8 @@ namespace NuGet.Tasks.Policies
 {
     internal class PackageLineupPolicy : INuGetPolicy
     {
+        private readonly static string NoWarn = KoreBuildErrors.Prefix + KoreBuildErrors.PackageReferenceHasVersion;
+
         private readonly IReadOnlyList<ITaskItem> _items;
         private readonly IRestoreLineupCommand _command;
         private readonly TaskLoggingHelper _logger;
@@ -142,7 +144,8 @@ namespace NuGet.Tasks.Policies
                         builder.PinPackageReference(package.Id, version, framework.TargetFramework);
                         Interlocked.Increment(ref _pinned);
                     }
-                    else if (!package.IsImplicitlyDefined && !package.NoWarn)
+                    else if (!package.IsImplicitlyDefined
+                        && (package.NoWarn.Count == 0 || !package.NoWarn.Any(i => i.Equals(NoWarn, StringComparison.Ordinal))))
                     {
                         context.Log.LogKoreBuildError(project.FullPath, KoreBuildErrors.PackageVersionNotFoundInLineup,
                             $"PackageReference to {package.Id} did not specify a version and was not found in any lineup.");

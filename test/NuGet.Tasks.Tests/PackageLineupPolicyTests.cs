@@ -95,9 +95,9 @@ namespace NuGet.Tasks.Tests
 
             var packageRef = new[]
             {
-                new PackageReferenceInfo("Microsoft.NETCore.App", "2.0.0", isImplicitlyDefined: true, noWarn: false),
-                new PackageReferenceInfo("Microsoft.AspNetCore", string.Empty, false, false),
-                new PackageReferenceInfo("xunit", "2.2.0", false, false),
+                new PackageReferenceInfo("Microsoft.NETCore.App", "2.0.0", isImplicitlyDefined: true, noWarn: Array.Empty<string>()),
+                new PackageReferenceInfo("Microsoft.AspNetCore", string.Empty, false, Array.Empty<string>()),
+                new PackageReferenceInfo("xunit", "2.2.0", false, Array.Empty<string>()),
             };
 
             var framework = new[] { new ProjectFrameworkInfo(FrameworkConstants.CommonFrameworks.NetCoreApp20, packageRef) };
@@ -126,13 +126,13 @@ namespace NuGet.Tasks.Tests
             Assert.Contains("<PackageLineup Include=\"SampleLineup\" Version=\"1.0.0\" />", xml);
 
             // Should pin for PackageRef that has no version on it
-            Assert.Contains("<PackageReference Update=\"Microsoft.AspNetCore\" Version=\"2.0.0\" AutoVersion=\"true\" IsImplicitlyDefined=\"true\" />", xml);
+            Assert.Contains("<PackageReference Update=\"Microsoft.AspNetCore\" Version=\"2.0.0\" IsImplicitlyDefined=\"true\" />", xml);
 
             // Should not overwrite for PackageRef that have Version
             Assert.DoesNotContain("xunit", xml);
 
             // May overwrite for PackageRef that have Version but are defined by the SDK
-            Assert.Contains("<PackageReference Update=\"Microsoft.NETCore.App\" Version=\"99.99.99\" AutoVersion=\"true\" IsImplicitlyDefined=\"true\" />", xml);
+            Assert.Contains("<PackageReference Update=\"Microsoft.NETCore.App\" Version=\"99.99.99\" IsImplicitlyDefined=\"true\" />", xml);
         }
 
         [Fact]
@@ -157,8 +157,8 @@ namespace NuGet.Tasks.Tests
                         {
                             new ProjectFrameworkInfo(FrameworkConstants.CommonFrameworks.NetCoreApp20, new[]
                             {
-                                new PackageReferenceInfo("TestBundledPkg", string.Empty, false, false),
-                                new PackageReferenceInfo("AnotherBundledPkg", "1.0.0", false, false)
+                                new PackageReferenceInfo("TestBundledPkg", string.Empty, false, Array.Empty<string>()),
+                                new PackageReferenceInfo("AnotherBundledPkg", "1.0.0", false, Array.Empty<string>())
                             })
                         },
                         Array.Empty<DotNetCliReferenceInfo>());
@@ -179,7 +179,7 @@ namespace NuGet.Tasks.Tests
             var xml = sb.ToString();
 
             // assert
-            Assert.Contains("<PackageReference Update=\"TestBundledPkg\" Version=\"0.0.1\" AutoVersion=\"true\" IsImplicitlyDefined=\"true\" />", xml);
+            Assert.Contains("<PackageReference Update=\"TestBundledPkg\" Version=\"0.0.1\" IsImplicitlyDefined=\"true\" />", xml);
             Assert.DoesNotContain("AnotherBundledPkg", xml);
 
             Assert.Contains(packageDir + "</RestoreAdditionalProjectSources>", xml);

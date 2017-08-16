@@ -125,7 +125,7 @@ EndGlobal
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include=`Abc` Version=`1.1.0` NoWarn=`true` />
+        <PackageReference Include=`Abc` Version=`1.1.0` NoWarn=`KRB4002` />
         <PackageReference Include=`Xyz` />
     </ItemGroup>
 </Project>".Replace('`', '"'));
@@ -151,14 +151,14 @@ EndGlobal
             void AssertAbc(ProjectFrameworkInfo tfm)
             {
                 Assert.True(tfm.Dependencies.TryGetValue("Abc", out var abc));
-                Assert.True(abc.NoWarn, "Abc should not have NoWarn set");
+                Assert.Contains("KRB4002", abc.NoWarn);
                 Assert.Equal("1.1.0", abc.Version);
             }
 
             void AssertXyz(ProjectFrameworkInfo tfm)
             {
                 Assert.True(tfm.Dependencies.TryGetValue("Xyz", out var xyz));
-                Assert.False(xyz.NoWarn, "Xyz should have NoWarn set");
+                Assert.Empty(xyz.NoWarn);
                 Assert.Empty(xyz.Version);
             }
 

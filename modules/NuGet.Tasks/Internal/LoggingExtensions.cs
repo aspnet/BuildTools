@@ -7,14 +7,12 @@ namespace NuGet.Tasks
 {
     public static class LoggingExtensions
     {
-        private const string Prefix = "KRB";
-
         public static void LogKoreBuildError(this TaskLoggingHelper logger, int code, string message, params object[] messageArgs)
             => LogKoreBuildError(logger, null, code, message, messageArgs: messageArgs);
 
         public static void LogKoreBuildError(this TaskLoggingHelper logger, string filename, int code, string message, params object[] messageArgs)
         {
-            logger.LogError(null, Prefix + code, null, filename, 0, 0, 0, 0, message, messageArgs: messageArgs);
+            logger.LogError(null, KoreBuildErrors.Prefix + code, null, filename, 0, 0, 0, 0, message, messageArgs: messageArgs);
         }
     }
 }

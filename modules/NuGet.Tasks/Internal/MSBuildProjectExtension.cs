@@ -104,8 +104,7 @@ namespace NuGet.Tasks
             return new XElement(type,
                   new XAttribute("Update", itemSpec),
                   new XAttribute("Version", version),
-                  new XAttribute("AutoVersion", "true"),
-                  // Prevents upgrades from the NuGet GUI in VS, and the NoVersions policy can filter this reference.
+                  // Prevents upgrades from the NuGet GUI in VS, and the version restriction policy can filter this reference.
                   new XAttribute("IsImplicitlyDefined", "true"));
         }
 

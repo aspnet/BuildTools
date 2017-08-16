@@ -5,12 +5,13 @@ namespace NuGet.Tasks
 {
     public static class KoreBuildErrors
     {
+        public const string Prefix = "KRB";
+
         // Typically used in repos in Directory.Build.targets
         public const int PackagesHaveNotYetBeenPinned = 1001;
 
         public const int InvalidNuspecFile = 4001;
 
-        // see Policy.NoVersions.targets
         public const int PackageReferenceHasVersion = 4002;
         public const int DotNetCliReferenceReferenceHasVersion = 4003;
 

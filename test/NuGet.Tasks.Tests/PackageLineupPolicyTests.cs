@@ -39,7 +39,7 @@ namespace NuGet.Tasks.Tests
         {
             var requests = new[]
             {
-                new TaskItem("Example.Lineup", new Hashtable{ ["Version"] = "1.0.0-*" })
+                new TaskItem("Example.Lineup", new Hashtable{ ["Version"] = "1.0.0-*", ["LineupType"] = "Package" })
             };
 
             RestoreContext restoreArgs = null;
@@ -88,7 +88,7 @@ namespace NuGet.Tasks.Tests
 
             var policy = new PackageLineupPolicy(new[]
             {
-                new TaskItem("Example.Lineup", new Hashtable{ ["Version"] = "1.0.0-*" })
+                new TaskItem("Example.Lineup", new Hashtable{ ["Version"] = "1.0.0-*", ["LineupType"] = "Package" })
             },
             mockCommand.Object,
             _logger);
@@ -147,7 +147,7 @@ namespace NuGet.Tasks.Tests
             var policy = new PackageLineupPolicy(
                 new[]
                 {
-                    new TaskItem(packageDir, new Hashtable { ["LineupType"] = "Directory" }),
+                    new TaskItem(packageDir, new Hashtable { ["LineupType"] = "Folder" }),
                 },
                 _logger);
 

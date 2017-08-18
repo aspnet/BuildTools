@@ -11,8 +11,6 @@ using System.Threading.Tasks;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using NuGet.Build;
-using NuGet.Packaging;
-using NuGet.Packaging.Core;
 using NuGet.Tasks.Lineup;
 using NuGet.Tasks.ProjectModel;
 using NuGet.Versioning;
@@ -88,11 +86,11 @@ namespace NuGet.Tasks.Policies
                     }
                 }
 
-                var _lineupCount = 0;
+                var lineupCount = 0;
                 foreach (var lineup in versionSource.Lineups)
                 {
                     logger.LogMinimal($"Using lineup {lineup.Id} {lineup.Version.ToNormalizedString()}");
-                    _lineupCount++;
+                    lineupCount++;
                 }
 
                 _pinned = 0;
@@ -102,7 +100,7 @@ namespace NuGet.Tasks.Policies
                 });
 
                 stopwatch.Stop();
-                logger.LogMinimal($"Pinned {_pinned} package(s) from {_lineupCount} lineup(s) in {stopwatch.ElapsedMilliseconds}ms");
+                logger.LogMinimal($"Pinned {_pinned} package(s) from {lineupCount} lineup(s) in {stopwatch.ElapsedMilliseconds}ms");
             }
             catch (Exception ex)
             {
@@ -186,19 +184,21 @@ namespace NuGet.Tasks.Policies
 
                 switch (type.ToLowerInvariant())
                 {
-                    case "directory":
-                        InitializeDirectoryLineup(item, versionSource);
+                    case "folder":
+                        InitializeFolderLineup(item, versionSource);
                         break;
                     case "package":
-                    default:
                         InitializePackageLineup(item);
+                        break;
+                    default:
+                        _logger.LogError($"Unrecognized value of LineupType '{type}' on {item.ItemSpec}");
                         break;
                 }
 
             }
         }
 
-        private void InitializeDirectoryLineup(ITaskItem item, PackageVersionSource versionSource)
+        private void InitializeFolderLineup(ITaskItem item, PackageVersionSource versionSource)
         {
             if (!Directory.Exists(item.ItemSpec))
             {
@@ -208,25 +208,7 @@ namespace NuGet.Tasks.Policies
 
             _additionalSources.Add(item.ItemSpec);
 
-            foreach (var packageFile in Directory.GetFiles(item.ItemSpec, "*.nupkg", SearchOption.TopDirectoryOnly))
-            {
-                if (Path.GetFileName(packageFile).EndsWith(".symbols.nupkg", StringComparison.OrdinalIgnoreCase))
-                {
-                    _logger.LogMessage(MessageImportance.Low, $"Skipping symbols package {packageFile} from folder lineup");
-                    continue;
-                }
-
-                PackageIdentity identity;
-                using (var reader = new PackageArchiveReader(packageFile))
-                {
-                    identity = reader.GetIdentity();
-                }
-
-                if (versionSource.TryAddPackage(new PackageDependency(identity.Id, new VersionRange(identity.Version))))
-                {
-                    _logger.LogMessage($"Using package {identity.Id} {identity.Version} from {packageFile}");
-                }
-            }
+            versionSource.AddPackagesFromFolder(item.ItemSpec);
         }
 
         private void InitializePackageLineup(ITaskItem item)

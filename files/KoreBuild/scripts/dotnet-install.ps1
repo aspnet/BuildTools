@@ -10,14 +10,22 @@
     Installs dotnet cli. If dotnet installation already exists in the given directory
     it will update it only if the requested version differs from the one already installed.
 .PARAMETER Channel
-    Default: release/1.0.0
-    Download from the Channel specified
+    Default: LTS
+    Download from the Channel specified. Possible values:
+    - Current - most current release
+    - LTS - most current supported release
+    - 2-part version in a format A.B - represents a specific release
+          examples: 2.0; 1.0
+    - Branch name
+          examples: release/2.0.0; Master
 .PARAMETER Version
     Default: latest
     Represents a build version on specific channel. Possible values:
     - latest - most latest build on specific channel
+    - coherent - most latest coherent build on specific channel
+          coherent applies only to SDK downloads
     - 3-part version in a format A.B.C - represents specific version of build
-      examples: 2.0.0-preview2-006120; 1.1.0
+          examples: 2.0.0-preview2-006120; 1.1.0
 .PARAMETER InstallDir
     Default: %LocalAppData%\Microsoft\dotnet
     Path to where to install dotnet. Note that binaries will be placed directly in a given directory.
@@ -28,8 +36,6 @@
 .PARAMETER SharedRuntime
     Default: false
     Installs just the shared runtime bits, not the entire SDK
-.PARAMETER DebugSymbols
-    If set the installer will include symbols in the installation.
 .PARAMETER DryRun
     If set it will not perform installation but instead display what command line to use to consistently install
     currently requested version of dotnet cli. In example if you specify version 'latest' it will display a link
@@ -55,12 +61,11 @@
 #>
 [cmdletbinding()]
 param(
-   [string]$Channel="release/1.0.0",
+   [string]$Channel="LTS",
    [string]$Version="Latest",
    [string]$InstallDir="<auto>",
    [string]$Architecture="<auto>",
    [switch]$SharedRuntime,
-   [switch]$DebugSymbols, # TODO: Switch does not work yet. Symbols zip is not being uploaded yet.
    [switch]$DryRun,
    [switch]$NoPath,
    [string]$AzureFeed="https://dotnetcli.azureedge.net/dotnet",
@@ -80,7 +85,7 @@ $VersionRegEx="/\d+\.\d+[^/]+/"
 $OverrideNonVersionedFiles=$true
 
 function Say($str) {
-    Write-Host "dotnet-install: $str"
+    Write-Output "dotnet-install: $str"
 }
 
 function Say-Verbose($str) {
@@ -177,7 +182,7 @@ function GetHTTPResponse([Uri] $Uri)
                 $HttpClientHandler = New-Object System.Net.Http.HttpClientHandler
                 $HttpClientHandler.Proxy =  New-Object System.Net.WebProxy -Property @{Address=$ProxyAddress;UseDefaultCredentials=$ProxyUseDefaultCredentials}
                 $HttpClient = New-Object System.Net.Http.HttpClient -ArgumentList $HttpClientHandler
-            }
+            } 
             else {
                 $HttpClient = New-Object System.Net.Http.HttpClient
             }
@@ -203,11 +208,11 @@ function GetHTTPResponse([Uri] $Uri)
                 $HttpClient.Dispose()
             }
         }
-    })
+    })  
 }
 
 
-function Get-Latest-Version-Info([string]$AzureFeed, [string]$Channel) {
+function Get-Latest-Version-Info([string]$AzureFeed, [string]$Channel, [bool]$Coherent) {
     Say-Invocation $MyInvocation
 
     $VersionFileUrl = $null
@@ -215,14 +220,19 @@ function Get-Latest-Version-Info([string]$AzureFeed, [string]$Channel) {
         $VersionFileUrl = "$UncachedFeed/Runtime/$Channel/latest.version"
     }
     else {
-        $VersionFileUrl = "$UncachedFeed/Sdk/$Channel/latest.version"
+        if ($Coherent) {
+            $VersionFileUrl = "$UncachedFeed/Sdk/$Channel/latest.coherent.version"
+        }
+        else {
+            $VersionFileUrl = "$UncachedFeed/Sdk/$Channel/latest.version"
+        }
     }
-
+    
     $Response = GetHTTPResponse -Uri $VersionFileUrl
     $StringContent = $Response.Content.ReadAsStringAsync().Result
 
     switch ($Response.Content.Headers.ContentType) {
-        { ($_ -eq "application/octet-stream") } { $VersionText = [Text.Encoding]::UTF8.GetString($StringContent) }
+        { ($_ -eq "application/octet-stream") } { $VersionText = $StringContent }
         { ($_ -eq "text/plain") } { $VersionText = $StringContent }
         { ($_ -eq "text/plain; charset=UTF-8") } { $VersionText = $StringContent }
         default { throw "``$Response.Content.Headers.ContentType`` is an unknown .version file content type." }
@@ -239,7 +249,11 @@ function Get-Specific-Version-From-Version([string]$AzureFeed, [string]$Channel,
 
     switch ($Version.ToLower()) {
         { $_ -eq "latest" } {
-            $LatestVersionInfo = Get-Latest-Version-Info -AzureFeed $AzureFeed -Channel $Channel
+            $LatestVersionInfo = Get-Latest-Version-Info -AzureFeed $AzureFeed -Channel $Channel -Coherent $False
+            return $LatestVersionInfo.Version
+        }
+        { $_ -eq "coherent" } {
+            $LatestVersionInfo = Get-Latest-Version-Info -AzureFeed $AzureFeed -Channel $Channel -Coherent $True
             return $LatestVersionInfo.Version
         }
         default { return $Version }
@@ -248,7 +262,7 @@ function Get-Specific-Version-From-Version([string]$AzureFeed, [string]$Channel,
 
 function Get-Download-Link([string]$AzureFeed, [string]$Channel, [string]$SpecificVersion, [string]$CLIArchitecture) {
     Say-Invocation $MyInvocation
-
+    
     if ($SharedRuntime) {
         $PayloadURL = "$AzureFeed/Runtime/$SpecificVersion/dotnet-runtime-$SpecificVersion-win-$CLIArchitecture.zip"
     }
@@ -261,9 +275,9 @@ function Get-Download-Link([string]$AzureFeed, [string]$Channel, [string]$Specif
     return $PayloadURL
 }
 
-function Get-AltDownload-Link([string]$AzureFeed, [string]$Channel, [string]$SpecificVersion, [string]$CLIArchitecture) {
+function Get-LegacyDownload-Link([string]$AzureFeed, [string]$Channel, [string]$SpecificVersion, [string]$CLIArchitecture) {
     Say-Invocation $MyInvocation
-
+    
     if ($SharedRuntime) {
         $PayloadURL = "$AzureFeed/Runtime/$SpecificVersion/dotnet-win-$CLIArchitecture.$SpecificVersion.zip"
     }
@@ -271,7 +285,7 @@ function Get-AltDownload-Link([string]$AzureFeed, [string]$Channel, [string]$Spe
         $PayloadURL = "$AzureFeed/Sdk/$SpecificVersion/dotnet-dev-win-$CLIArchitecture.$SpecificVersion.zip"
     }
 
-    Say-Verbose "Constructed alternate payload URL: $PayloadURL"
+    Say-Verbose "Constructed legacy payload URL: $PayloadURL"
 
     return $PayloadURL
 }
@@ -300,7 +314,7 @@ function Get-Version-Info-From-Version-File([string]$InstallRoot, [string]$Relat
 
     $VersionFile = Join-Path -Path $InstallRoot -ChildPath $RelativePathToVersionFile
     Say-Verbose "Local version file: $VersionFile"
-
+    
     if (Test-Path $VersionFile) {
         $VersionText = cat $VersionFile
         Say-Verbose "Local version file text: $VersionText"
@@ -314,7 +328,7 @@ function Get-Version-Info-From-Version-File([string]$InstallRoot, [string]$Relat
 
 function Is-Dotnet-Package-Installed([string]$InstallRoot, [string]$RelativePathToPackage, [string]$SpecificVersion) {
     Say-Invocation $MyInvocation
-
+    
     $DotnetPackagePath = Join-Path -Path $InstallRoot -ChildPath $RelativePathToPackage | Join-Path -ChildPath $SpecificVersion
     Say-Verbose "Is-Dotnet-Package-Installed: Path to a package: $DotnetPackagePath"
     return Test-Path $DotnetPackagePath -PathType Container
@@ -332,13 +346,13 @@ function Get-Path-Prefix-With-Version($path) {
     if ($match.Success) {
         return $entry.FullName.Substring(0, $match.Index + $match.Length)
     }
-
+    
     return $null
 }
 
 function Get-List-Of-Directories-And-Versions-To-Unpack-From-Dotnet-Package([System.IO.Compression.ZipArchive]$Zip, [string]$OutPath) {
     Say-Invocation $MyInvocation
-
+    
     $ret = @()
     foreach ($entry in $Zip.Entries) {
         $dir = Get-Path-Prefix-With-Version $entry.FullName
@@ -349,12 +363,12 @@ function Get-List-Of-Directories-And-Versions-To-Unpack-From-Dotnet-Package([Sys
             }
         }
     }
-
+    
     $ret = $ret | Sort-Object | Get-Unique
-
+    
     $values = ($ret | foreach { "$_" }) -join ";"
     Say-Verbose "Directories to unpack: $values"
-
+    
     return $ret
 }
 
@@ -378,9 +392,9 @@ function Extract-Dotnet-Package([string]$ZipPath, [string]$OutPath) {
     Set-Variable -Name Zip
     try {
         $Zip = [System.IO.Compression.ZipFile]::OpenRead($ZipPath)
-
+        
         $DirectoriesToUnpack = Get-List-Of-Directories-And-Versions-To-Unpack-From-Dotnet-Package -Zip $Zip -OutPath $OutPath
-
+        
         foreach ($entry in $Zip.Entries) {
             $PathWithVersion = Get-Path-Prefix-With-Version $entry.FullName
             if (($PathWithVersion -eq $null) -Or ($DirectoriesToUnpack -contains $PathWithVersion)) {
@@ -432,12 +446,12 @@ function Prepend-Sdk-InstallRoot-To-Path([string]$InstallRoot, [string]$BinFolde
 $CLIArchitecture = Get-CLIArchitecture-From-Architecture $Architecture
 $SpecificVersion = Get-Specific-Version-From-Version -AzureFeed $AzureFeed -Channel $Channel -Version $Version
 $DownloadLink = Get-Download-Link -AzureFeed $AzureFeed -Channel $Channel -SpecificVersion $SpecificVersion -CLIArchitecture $CLIArchitecture
-$AltDownloadLink = Get-AltDownload-Link -AzureFeed $AzureFeed -Channel $Channel -SpecificVersion $SpecificVersion -CLIArchitecture $CLIArchitecture
+$LegacyDownloadLink = Get-LegacyDownload-Link -AzureFeed $AzureFeed -Channel $Channel -SpecificVersion $SpecificVersion -CLIArchitecture $CLIArchitecture
 
 if ($DryRun) {
     Say "Payload URLs:"
     Say "Primary - $DownloadLink"
-    Say "Alternate - $AltDownloadLink"
+    Say "Legacy - $LegacyDownloadLink"
     Say "Repeatable invocation: .\$($MyInvocation.MyCommand) -Version $SpecificVersion -Channel $Channel -Architecture $CLIArchitecture -InstallDir $InstallDir"
     exit 0
 }
@@ -456,6 +470,7 @@ if ($IsSdkInstalled) {
 New-Item -ItemType Directory -Force -Path $InstallRoot | Out-Null
 
 $installDrive = $((Get-Item $InstallRoot).PSDrive.Name);
+Write-Output "${installDrive}:";
 $free = Get-CimInstance -Class win32_logicaldisk | where Deviceid -eq "${installDrive}:"
 if ($free.Freespace / 1MB -le 100 ) {
     Say "There is not enough disk space on drive ${installDrive}:"
@@ -463,14 +478,17 @@ if ($free.Freespace / 1MB -le 100 ) {
 }
 
 $ZipPath = [System.IO.Path]::GetTempFileName()
-Say "Downloading $DownloadLink"
+Say-Verbose "Zip path: $ZipPath"
+Say "Downloading link: $DownloadLink"
 try {
     DownloadFile -Uri $DownloadLink -OutPath $ZipPath
 }
 catch {
-    $DownloadLink = $AltDownloadLink
+    Say "Cannot download: $DownloadLink"
+    $DownloadLink = $LegacyDownloadLink
     $ZipPath = [System.IO.Path]::GetTempFileName()
-    Say "Downloading $DownloadLink"
+    Say-Verbose "Legacy zip path: $ZipPath"
+    Say "Downloading legacy link: $DownloadLink"
     DownloadFile -Uri $DownloadLink -OutPath $ZipPath
 }
 

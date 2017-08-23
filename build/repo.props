@@ -14,8 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <KoreBuildModule Include="NuGetPackageVerifier" />
-    <KoreBuildModule Include="NuGet.Tasks" />
     <KoreBuildModule Include="BuildTools.Tasks" />
+    <KoreBuildModule Include="KoreBuild.Tasks" />
+    <KoreBuildModule Include="NuGetPackageVerifier" />
   </ItemGroup>
 </Project>

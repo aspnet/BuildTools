@@ -12,7 +12,7 @@ using NuGet.Packaging;
 using NuGet.Versioning;
 using Xunit;
 
-namespace NuGet.Tasks.Tests
+namespace KoreBuild.Tasks.Tests
 {
     public class PackNuSpecTests : IDisposable
     {

@@ -3,7 +3,7 @@
 
 using Microsoft.Build.Utilities;
 
-namespace NuGet.Tasks
+namespace KoreBuild.Tasks
 {
     public static class LoggingExtensions
     {

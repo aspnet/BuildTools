@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\modules\NuGet.Tasks\NuGet.Tasks.csproj" />
+    <ProjectReference Include="..\..\modules\KoreBuild.Tasks\KoreBuild.Tasks.csproj" />
   </ItemGroup>
 
 </Project>

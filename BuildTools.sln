@@ -51,7 +51,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{76ABA507
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RepoTasks", "build\tasks\RepoTasks.csproj", "{F3CAD1F9-68DB-49EA-88A7-573AE7FFE047}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NuGet.Tasks", "modules\NuGet.Tasks\NuGet.Tasks.csproj", "{020ED083-4076-4711-A52B-2F89EA884F9B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KoreBuild.Tasks", "modules\KoreBuild.Tasks\KoreBuild.Tasks.csproj", "{020ED083-4076-4711-A52B-2F89EA884F9B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "modules", "modules", "{BD3545FB-5520-43DF-B4F9-83BEA3A38ECA}"
 	ProjectSection(SolutionItems) = preProject
@@ -64,7 +64,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGetPackageVerifier", "NuG
 		modules\NuGetPackageVerifier\NuGetPackageVerifier.proj = modules\NuGetPackageVerifier\NuGetPackageVerifier.proj
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NuGet.Tasks.Tests", "test\NuGet.Tasks.Tests\NuGet.Tasks.Tests.csproj", "{A3A81E93-0157-406F-A43C-C163F7F781A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KoreBuild.Tasks.Tests", "test\KoreBuild.Tasks.Tests\KoreBuild.Tasks.Tests.csproj", "{A3A81E93-0157-406F-A43C-C163F7F781A9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

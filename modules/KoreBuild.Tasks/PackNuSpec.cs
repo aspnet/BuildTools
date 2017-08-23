@@ -9,9 +9,10 @@ using Microsoft.Build.Utilities;
 using NuGet.Frameworks;
 using NuGet.Packaging;
 using NuGet.Packaging.Core;
+using KoreBuild.Tasks.Utilities;
 using NuGet.Versioning;
 
-namespace NuGet.Tasks
+namespace KoreBuild.Tasks
 {
     public class PackNuSpec : Microsoft.Build.Utilities.Task
     {

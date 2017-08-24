@@ -2,6 +2,7 @@
 
 [ -z "${verbose:-}" ] && verbose=false
 __korebuild_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "$__korebuild_dir/scripts/common.sh"
 
 # functions
 
@@ -56,3 +57,9 @@ __show_version_info() {
 
 # Try to show version on console, but don't fail if this is broken
 __show_version_info || true
+
+if [ "$(uname)" = "Darwin" ]; then
+    __ensure_macos_version
+    # increase file descriptor limit
+    ulimit -n 5000
+fi

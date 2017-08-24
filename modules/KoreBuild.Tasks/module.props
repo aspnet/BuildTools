@@ -4,6 +4,11 @@
   <UsingTask TaskName="KoreBuild.Tasks.PackNuSpec" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
   <UsingTask TaskName="KoreBuild.Tasks.PushNuGetPackages" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
 
+  <PropertyGroup>
+    <DefaultDotNetAssetArch>$(KOREBUILD_DOTNET_ARCH)</DefaultDotNetAssetArch>
+    <DefaultDotNetAssetArch Condition="'$(DefaultDotNetAssetArch)' == ''">x64</DefaultDotNetAssetArch>
+  </PropertyGroup>
+
   <ItemDefinitionGroup>
     <!--
       Specifies a required .NET Core runtime.
@@ -14,7 +19,7 @@
         <DotNetCoreRuntime Include="2.0.0" Arch="x64" InstallDir="C:\custom\" />
     -->
     <DotNetCoreRuntime>
-      <Arch>x64</Arch>
+      <Arch>$(DefaultDotNetAssetArch)</Arch>
       <SharedRuntime>true</SharedRuntime>
       <Channel></Channel>
       <InstallDir></InstallDir>
@@ -27,12 +32,12 @@
         <DotNetCoreSdk Include="coherent" Channel="master" InstallDir="$(RepositoryRoot)\.siteextension\" />
     -->
     <DotNetCoreSdk>
-      <Arch>x64</Arch>
+      <Arch>$(DefaultDotNetAssetArch)</Arch>
       <SharedRuntime>false</SharedRuntime>
       <Channel></Channel>
       <InstallDir></InstallDir>
     </DotNetCoreSdk>
-    
+
     <!--
       Adds an import to Policy.VersionRestrictions.targets and configures the error level based on the project configuration. This restricts using "Version" on PackageReference
 

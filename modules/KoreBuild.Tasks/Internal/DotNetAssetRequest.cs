@@ -13,9 +13,9 @@ namespace KoreBuild.Tasks
         }
 
         public string Version { get; }
-        public bool IsSharedRuntime { get; internal set; }
-        public string Channel { get; internal set; }
-        public string InstallDir { get; internal set; }
-        public string Arch { get; internal set; }
+        public bool IsSharedRuntime { get; set; }
+        public string Channel { get; set; }
+        public string InstallDir { get; set; }
+        public string Arch { get; set; }
     }
 }

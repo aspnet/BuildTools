@@ -251,7 +251,7 @@ namespace KoreBuild.Tasks
                 all.Add(request);
             }
 
-            // installs SDKs first, which often bundle a shared runtime...making the shared runtime download unecessary.
+            // installs SDKs first, which often bundle a shared runtime...making the shared runtime download unnecessary.
             return all.Where(r => !r.IsSharedRuntime)
                 .Concat(all.Where(r => r.IsSharedRuntime));
         }

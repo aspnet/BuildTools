@@ -8,6 +8,7 @@
   <ItemGroup>
     <Content Include="*.props" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="*.targets" CopyToPublishDirectory="PreserveNewest" />
+    <Compile Include="..\..\shared\Microsoft.Extensions.CommandLineUtils.Sources\Utilities\*.cs" />
   </ItemGroup>
 
   <ItemGroup>

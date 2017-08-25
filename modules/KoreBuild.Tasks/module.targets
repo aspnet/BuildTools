@@ -1,7 +1,7 @@
 <Project>
 
   <PropertyGroup>
-    <RestoreDependsOn>ApplyNuGetPolicies;$(RestoreDependsOn)</RestoreDependsOn>
+    <RestoreDependsOn>ApplyNuGetPolicies;InstallDotNet;$(RestoreDependsOn)</RestoreDependsOn>
     <ApplyNuGetPoliciesDependsOn>
       $(ApplyNuGetPoliciesDependsOn);
       ResolveSolutions;
@@ -38,6 +38,19 @@
       RestoreNoCache="$(PolicyRestoreNoCache)"
       RestoreIgnoreFailedSources="$(PolicyRestoreIgnoreFailedSources)" />
 
+  </Target>
+
+  <Target Name="InstallDotNet">
+    <PropertyGroup>
+      <_DotNetInstall>$(MSBuildThisFileDirectory)..\..\scripts\dotnet-install</_DotNetInstall>
+      <_DotNetInstall Condition="$([MSBuild]::IsOSUnixLike())">$(_DotNetInstall).sh</_DotNetInstall>
+      <_DotNetInstall Condition="$([MSBuild]::IsOSPlatform('Windows'))">$(_DotNetInstall).cmd</_DotNetInstall>
+    </PropertyGroup>
+
+    <InstallDotNet
+      Assets="@(DotNetCoreSdk);@(DotNetCoreRuntime)"
+      DotNetHome="$(DOTNET_HOME)"
+      InstallScript="$(_DotNetInstall)"/>
   </Target>
 
 </Project>

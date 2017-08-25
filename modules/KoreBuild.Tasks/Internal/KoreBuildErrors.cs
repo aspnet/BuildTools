@@ -10,13 +10,16 @@ namespace KoreBuild.Tasks
         // Typically used in repos in Directory.Build.targets
         public const int PackagesHaveNotYetBeenPinned = 1001;
 
-        public const int InvalidNuspecFile = 4001;
+        // Warnings
+        public const int DotNetAssetVersionIsFloating = 2000;
 
+        // NuGet errors
+        public const int InvalidNuspecFile = 4001;
         public const int PackageReferenceHasVersion = 4002;
         public const int DotNetCliReferenceReferenceHasVersion = 4003;
-
         public const int PackageVersionNotFoundInLineup = 4004;
 
+        // Other unknown errors
         public const int PolicyFailedToApply = 5000;
         public const int UnknownPolicyType = 5001;
     }

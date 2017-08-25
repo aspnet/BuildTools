@@ -2,4 +2,8 @@
   <PropertyGroup>
     <_EnableKoreBuildBundledPackages>true</_EnableKoreBuildBundledPackages>
   </PropertyGroup>
+
+  <ItemGroup>
+    <DotNetCoreRuntime Include="1.1.2" />
+  </ItemGroup>
 </Project>

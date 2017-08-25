@@ -1,6 +1,7 @@
 <Project>
   <ItemGroup>
     <PackageLineup Include="TestLineup" Version="1.0.0" />
+    <DotNetCoreRuntime Include="1.1.2" />
   </ItemGroup>
 
   <PropertyGroup>

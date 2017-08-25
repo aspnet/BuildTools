@@ -1,0 +1,5 @@
+<Project>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

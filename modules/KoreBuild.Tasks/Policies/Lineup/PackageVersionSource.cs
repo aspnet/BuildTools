@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using NuGet.Common;
+using NuGet.Frameworks;
 using NuGet.Packaging;
 using NuGet.Packaging.Core;
 using NuGet.Versioning;
@@ -14,25 +15,25 @@ namespace KoreBuild.Tasks.Lineup
     internal class PackageVersionSource
     {
         private readonly ILogger _logger;
-        private Dictionary<string, (string lineup, PackageIdentity identity)> _packageLineupMap;
+        private IDictionary<string, IDictionary<NuGetFramework, LineupVersion>> _packageLineupMap;
         private List<PackageIdentity> _lineups;
 
         public PackageVersionSource(ILogger logger)
         {
             _logger = logger;
-            _packageLineupMap = new Dictionary<string, (string, PackageIdentity)>(StringComparer.OrdinalIgnoreCase);
+            _packageLineupMap = new Dictionary<string, IDictionary<NuGetFramework, LineupVersion>>(StringComparer.OrdinalIgnoreCase);
             _lineups = new List<PackageIdentity>();
         }
 
         public IEnumerable<PackageIdentity> Lineups => _lineups;
 
-        public void AddPackagesFromLineup(string lineupId, NuGetVersion lineupVersion, List<PackageDependencyGroup> dependencies)
+        public void AddPackagesFromLineup(string lineupId, NuGetVersion lineupVersion, IReadOnlyCollection<PackageDependencyGroup> dependencyGroups)
         {
             _lineups.Add(new PackageIdentity(lineupId, lineupVersion));
 
-            foreach (var dep in dependencies)
+            foreach (var depGroup in dependencyGroups)
             {
-                foreach (var package in dep.Packages)
+                foreach (var package in depGroup.Packages)
                 {
                     if (!package.VersionRange.HasLowerBound)
                     {
@@ -41,7 +42,7 @@ namespace KoreBuild.Tasks.Lineup
                     }
 
                     var packageIdentity = new PackageIdentity(package.Id, package.VersionRange.MinVersion);
-                    AddPackage(packageIdentity, lineupId);
+                    AddPackage(packageIdentity, depGroup.TargetFramework, lineupId);
                 }
             }
         }
@@ -70,33 +71,51 @@ namespace KoreBuild.Tasks.Lineup
                     continue;
                 }
 
-                AddPackage(package, folder);
+                AddPackage(package, NuGetFramework.AnyFramework, folder);
                 _logger.LogVerbose($"Using package {package.Id} {package.Version} from {packageFile}");
             }
         }
 
-        public bool TryGetPackageVersion(string id, out string version)
+        public bool TryGetPackageVersion(string id, NuGetFramework targetFramework, out string version)
         {
-            version = null;
-            if (_packageLineupMap.TryGetValue(id, out var info))
+            if (!_packageLineupMap.TryGetValue(id, out var versions))
             {
-                version = info.identity.Version.ToNormalizedString();
-                return true;
+                version = null;
+                return false;
             }
 
-            return false;
+            var lineupFramework = NuGetFrameworkUtility.GetNearest(versions.Keys, targetFramework, f => f);
+            if (lineupFramework == null)
+            {
+                version = null;
+                return false;
+            }
+
+            version = versions[lineupFramework].Package.Version.ToNormalizedString();
+            return true;
         }
 
-        private void AddPackage(PackageIdentity package, string lineupName)
+        private void AddPackage(PackageIdentity package, NuGetFramework framework, string lineupName)
         {
-            if (_packageLineupMap.TryGetValue(package.Id, out var existingLineup))
+            if (!_packageLineupMap.TryGetValue(package.Id, out var lineups))
             {
-                _logger.LogError($"Packages versions for '{package.Id}' found from multiple lineups: {lineupName} and {existingLineup.lineup}. Cannot determine which one to use.");
+                lineups = _packageLineupMap[package.Id] = new Dictionary<NuGetFramework, LineupVersion>(new NuGetFrameworkFullComparer());
+            }
+
+            if (lineups.TryGetValue(framework, out var existingLineup))
+            {
+                _logger.LogError($"Packages version for '{package.Id}'/{framework} found from multiple lineups: {lineupName} and {existingLineup.LineupName}. Cannot determine which one to use.");
             }
             else
             {
-                _packageLineupMap.Add(package.Id, (lineupName, package));
+                lineups.Add(framework, new LineupVersion { LineupName = lineupName, Package = package });
             }
+        }
+
+        private class LineupVersion
+        {
+            public string LineupName { get; set; }
+            public PackageIdentity Package { get; set; }
         }
     }
 }

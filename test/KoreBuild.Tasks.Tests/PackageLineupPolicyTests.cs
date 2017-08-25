@@ -3,19 +3,18 @@
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
 using BuildTools.Tasks.Tests;
+using KoreBuild.Tasks.Lineup;
+using KoreBuild.Tasks.Policies;
+using KoreBuild.Tasks.ProjectModel;
 using Microsoft.Build.Utilities;
 using Moq;
 using NuGet.Frameworks;
 using NuGet.Packaging;
 using NuGet.Packaging.Core;
-using KoreBuild.Tasks.Lineup;
-using KoreBuild.Tasks.Policies;
-using KoreBuild.Tasks.ProjectModel;
 using NuGet.Versioning;
 using Xunit;
 using Task = System.Threading.Tasks.Task;
@@ -73,16 +72,16 @@ namespace KoreBuild.Tasks.Tests
                 {
                     ctx.VersionSource.AddPackagesFromLineup("SampleLineup",
                         NuGetVersion.Parse("1.0.0"),
-                        new List<PackageDependencyGroup>
-                    {
-                        new PackageDependencyGroup(
-                            NuGetFramework.AnyFramework,
-                            new [] {
-                                new PackageDependency("Microsoft.AspNetCore", VersionRange.Parse("2.0.0")),
-                                new PackageDependency("xunit", VersionRange.Parse("2.3.0")),
-                                new PackageDependency("Microsoft.NETCore.App", VersionRange.Parse("99.99.99")),
-                            }),
-                    });
+                        new[]
+                        {
+                            new PackageDependencyGroup(
+                                NuGetFramework.AnyFramework,
+                                new [] {
+                                    new PackageDependency("Microsoft.AspNetCore", VersionRange.Parse("2.0.0")),
+                                    new PackageDependency("xunit", VersionRange.Parse("2.3.0")),
+                                    new PackageDependency("Microsoft.NETCore.App", VersionRange.Parse("99.99.99")),
+                                }),
+                        });
                 })
                 .Returns(Task.FromResult(true));
 
@@ -134,6 +133,74 @@ namespace KoreBuild.Tasks.Tests
             // May overwrite for PackageRef that have Version but are defined by the SDK
             Assert.Contains("<PackageReference Update=\"Microsoft.NETCore.App\" Version=\"99.99.99\" IsImplicitlyDefined=\"true\" />", xml);
         }
+
+        [Theory]
+        [MemberData(nameof(NetCoreAppProjectData))]
+        public async Task SelectsTheRightPackageBasedOnProjectFramework(NuGetFramework projectFramework, string expectedVersion)
+        {
+            // arrange
+            var mockCommand = new Mock<IRestoreLineupCommand>();
+            mockCommand.Setup(i => i.ExecuteAsync(It.IsAny<RestoreContext>(), It.IsAny<CancellationToken>()))
+                .Callback<RestoreContext, CancellationToken>((ctx, _) =>
+                {
+                    ctx.VersionSource.AddPackagesFromLineup("SampleLineup",
+                        NuGetVersion.Parse("1.0.0"),
+                        new[]
+                        {
+                            new PackageDependencyGroup(
+                                FrameworkConstants.CommonFrameworks.NetCoreApp10, new [] { new PackageDependency("Microsoft.NETCore.App", VersionRange.Parse("1.0.5")), }),
+                            new PackageDependencyGroup(
+                                FrameworkConstants.CommonFrameworks.NetCoreApp11, new [] { new PackageDependency("Microsoft.NETCore.App", VersionRange.Parse("1.1.2")), }),
+                            new PackageDependencyGroup(
+                                FrameworkConstants.CommonFrameworks.NetCoreApp20, new [] { new PackageDependency("Microsoft.NETCore.App", VersionRange.Parse("2.0.3")), }),
+                            new PackageDependencyGroup(
+                                MyFrameworks.NetCoreApp21, new [] { new PackageDependency("Microsoft.NETCore.App", VersionRange.Parse("2.1.9")), }),
+                        });
+                })
+                .Returns(Task.FromResult(true));
+
+            var policy = new PackageLineupPolicy(new[]
+            {
+                new TaskItem("Example.Lineup", new Hashtable{ ["Version"] = "1.0.0-*", ["LineupType"] = "Package" })
+            },
+            mockCommand.Object,
+            _logger);
+
+            var frameworks = new[] {
+                new ProjectFrameworkInfo(projectFramework, new[] { new PackageReferenceInfo("Microsoft.NETCore.App", "99.99.99", isImplicitlyDefined: true, noWarn: Array.Empty<string>()) }),
+            };
+            var projectDir = AppContext.BaseDirectory;
+            var project = new ProjectInfo(Path.Combine(projectDir, "Test.csproj"), null, frameworks, Array.Empty<DotNetCliReferenceInfo>());
+
+            var context = new PolicyContext
+            {
+                Log = _logger,
+                Projects = new[] { project },
+            };
+
+            // act
+            await policy.ApplyAsync(context, default(CancellationToken));
+
+            var sb = new StringBuilder();
+            using (var writer = new StringWriter(sb))
+            {
+                project.TargetsExtension.Project.Save(writer);
+            }
+
+            var xml = sb.ToString();
+
+            // assert
+            Assert.Contains($"<PackageReference Update=\"Microsoft.NETCore.App\" Version=\"{expectedVersion}\" IsImplicitlyDefined=\"true\" />", xml);
+        }
+
+        public static TheoryData<NuGetFramework, string> NetCoreAppProjectData
+            => new TheoryData<NuGetFramework, string>
+            {
+                { FrameworkConstants.CommonFrameworks.NetCoreApp10, "1.0.5" },
+                { FrameworkConstants.CommonFrameworks.NetCoreApp11, "1.1.2" },
+                { FrameworkConstants.CommonFrameworks.NetCoreApp20, "2.0.3" },
+                { MyFrameworks.NetCoreApp21, "2.1.9" },
+            };
 
         [Fact]
         public async Task SupportsFolderLineups()

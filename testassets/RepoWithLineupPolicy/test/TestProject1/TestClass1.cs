@@ -9,7 +9,13 @@ namespace TestProject1
         [Fact]
         public void HasVersion220()
         {
+#if NETCOREAPP1_1
+            var xunitVersion = typeof(FactAttribute).GetTypeInfo().Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+#elif NETCOREAPP2_0
             var xunitVersion = typeof(FactAttribute).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+#else
+#error Update target frameworks
+#endif
             Assert.Equal("2.2.0", xunitVersion);
         }
 

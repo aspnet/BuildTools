@@ -8,11 +8,12 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using KoreBuild.Tasks.Lineup;
+using KoreBuild.Tasks.ProjectModel;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using NuGet.Build;
-using KoreBuild.Tasks.Lineup;
-using KoreBuild.Tasks.ProjectModel;
+using NuGet.Frameworks;
 using NuGet.Versioning;
 using Task = System.Threading.Tasks.Task;
 
@@ -137,7 +138,7 @@ namespace KoreBuild.Tasks.Policies
                         continue;
                     }
 
-                    if (versionSource.TryGetPackageVersion(package.Id, out string version))
+                    if (versionSource.TryGetPackageVersion(package.Id, framework.TargetFramework, out string version))
                     {
                         builder.PinPackageReference(package.Id, version, framework.TargetFramework);
                         Interlocked.Increment(ref _pinned);
@@ -158,7 +159,7 @@ namespace KoreBuild.Tasks.Policies
                     continue;
                 }
 
-                if (versionSource.TryGetPackageVersion(toolPackage.Id, out string version))
+                if (versionSource.TryGetPackageVersion(toolPackage.Id, FrameworkConstants.CommonFrameworks.NetCoreApp20, out string version))
                 {
                     builder.PinCliToolReference(toolPackage, version);
                     Interlocked.Increment(ref _pinned);

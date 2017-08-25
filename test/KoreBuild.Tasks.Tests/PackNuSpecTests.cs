@@ -141,6 +141,7 @@ namespace KoreBuild.Tasks.Tests
                 {
                     new TaskItem("OtherPackage", new Hashtable { ["Version"] = "[1.0.0, 2.0.0)"}),
                     new TaskItem("PackageInTfm", new Hashtable { ["TargetFramework"] = "netstandard1.0", ["Version"] = "0.1.0-beta" }),
+                    new TaskItem("PackageInTfm", new Hashtable { ["TargetFramework"] = "netstandard1.1", ["Version"] = "0.2.0-beta" }),
                 }
             };
 
@@ -157,9 +158,14 @@ namespace KoreBuild.Tasks.Tests
                 Assert.Single(noTfmGroup.Packages, p => p.Id == "AlreadyInNuspec" && p.VersionRange.Equals(VersionRange.Parse("[2.0.0]")));
 
                 var netstandard10Group = Assert.Single(metadata.DependencyGroups, d => d.TargetFramework.Equals(FrameworkConstants.CommonFrameworks.NetStandard10));
-                var package = Assert.Single(netstandard10Group.Packages);
-                Assert.Equal("PackageInTfm", package.Id);
-                Assert.Equal(VersionRange.Parse("0.1.0-beta"), package.VersionRange);
+                var package1 = Assert.Single(netstandard10Group.Packages);
+                Assert.Equal("PackageInTfm", package1.Id);
+                Assert.Equal(VersionRange.Parse("0.1.0-beta"), package1.VersionRange);
+
+                var netstandard11Group = Assert.Single(metadata.DependencyGroups, d => d.TargetFramework.Equals(FrameworkConstants.CommonFrameworks.NetStandard11));
+                var package2 = Assert.Single(netstandard11Group.Packages);
+                Assert.Equal("PackageInTfm", package2.Id);
+                Assert.Equal(VersionRange.Parse("0.2.0-beta"), package2.VersionRange);
             }
         }
 

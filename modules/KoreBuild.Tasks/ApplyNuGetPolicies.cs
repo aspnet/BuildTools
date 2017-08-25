@@ -234,9 +234,12 @@ namespace KoreBuild.Tasks
                     solutionProperties.TryGetValue("Configuration", out config);
                 }
 
+                Log.LogMessage(MessageImportance.Low, $"Parsing solution {projectFilePath} with config {config}");
                 var sln = SolutionInfoFactory.Create(projectFilePath, config);
+
                 foreach (var project in sln.Projects)
                 {
+                    Log.LogMessage(MessageImportance.Low, $"Found project {project} from solution file {projectFilePath}");
                     yield return project;
                 }
             }

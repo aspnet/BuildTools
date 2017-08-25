@@ -30,7 +30,8 @@ namespace KoreBuild.Tasks.ProjectModel
             foreach (var project in sln.ProjectsInOrder
                 .Where(p =>
                     p.ProjectType == SolutionProjectType.KnownToBeMSBuildFormat // skips solution folders
-                    && p.ProjectConfigurations.TryGetValue(config.FullName, out var projectConfig)))
+                    && p.ProjectConfigurations.TryGetValue(config.FullName, out var projectConfig)
+                    && projectConfig.IncludeInBuild))
             {
                 projects.Add(project.AbsolutePath.Replace('\\', '/'));
             }

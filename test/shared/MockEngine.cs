@@ -4,13 +4,26 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Build.Framework;
+using Xunit.Abstractions;
 using Xunit.Sdk;
 
 namespace BuildTools.Tasks.Tests
 {
     public class MockEngine : IBuildEngine5
     {
+        private readonly ITestOutputHelper _output;
+
+        public MockEngine()
+        {
+        }
+
+        public MockEngine(ITestOutputHelper output)
+        {
+            _output = output;
+        }
+
         public ICollection<BuildMessageEventArgs> Messages { get; } = new List<BuildMessageEventArgs>();
         public ICollection<BuildWarningEventArgs> Warnings { get; } = new List<BuildWarningEventArgs>();
         public ICollection<BuildErrorEventArgs> Errors { get; } = new List<BuildErrorEventArgs>();
@@ -26,17 +39,37 @@ namespace BuildTools.Tasks.Tests
         public string ProjectFileOfTaskNode => "<test>";
 
         public void LogMessageEvent(BuildMessageEventArgs e)
-            => Messages.Add(e);
+        {
+            _output?.WriteLine($"{e.Importance} : {e.Message}");
+            Messages.Add(e);
+        }
 
         public void LogWarningEvent(BuildWarningEventArgs e)
-            => Warnings.Add(e);
+        {
+            _output?.WriteLine($"warning {e.Code}: {e.Message}");
+            Warnings.Add(e);
+        }
 
         public void LogErrorEvent(BuildErrorEventArgs e)
         {
+            _output?.WriteLine($"error {e.Code}: {e.Message}");
             Errors.Add(e);
             if (!ContinueOnError)
             {
                 throw new XunitException("Task error: " + e.Message);
+            }
+        }
+
+        public void LogCustomEvent(CustomBuildEventArgs e)
+        {
+            _output?.WriteLine(e.Message ?? string.Empty);
+        }
+
+        public void LogTelemetry(string eventName, IDictionary<string, string> properties)
+        {
+            if (_output != null)
+            {
+                _output?.WriteLine($"telemetry {eventName}: {properties.Aggregate(string.Empty, (sum, piece) => $"{sum}, {piece.Key} = {piece.Value}")}");
             }
         }
 
@@ -63,16 +96,6 @@ namespace BuildTools.Tasks.Tests
         }
 
         public object GetRegisteredTaskObject(object key, RegisteredTaskObjectLifetime lifetime)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void LogCustomEvent(CustomBuildEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void LogTelemetry(string eventName, IDictionary<string, string> properties)
         {
             throw new NotImplementedException();
         }

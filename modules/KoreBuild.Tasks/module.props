@@ -1,4 +1,40 @@
 <Project>
+  <UsingTask TaskName="KoreBuild.Tasks.InstallDotNet" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
   <UsingTask TaskName="KoreBuild.Tasks.PackNuSpec" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
   <UsingTask TaskName="KoreBuild.Tasks.PushNuGetPackages" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
+
+  <PropertyGroup>
+    <DefaultDotNetAssetArch>$(KOREBUILD_DOTNET_ARCH)</DefaultDotNetAssetArch>
+    <DefaultDotNetAssetArch Condition="'$(DefaultDotNetAssetArch)' == ''">x64</DefaultDotNetAssetArch>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup>
+    <!--
+      Specifies a required .NET Core runtime.
+
+      Examples:
+        <DotNetCoreRuntime Include="1.0.5" />
+        <DotNetCoreRuntime Include="latest" Channel="1.0" />
+        <DotNetCoreRuntime Include="2.0.0" Arch="x64" InstallDir="C:\custom\" />
+    -->
+    <DotNetCoreRuntime>
+      <Arch>$(DefaultDotNetAssetArch)</Arch>
+      <SharedRuntime>true</SharedRuntime>
+      <Channel></Channel>
+      <InstallDir></InstallDir>
+    </DotNetCoreRuntime>
+
+    <!--
+      Specifies a required .NET Core SDK.
+
+      Examples:
+        <DotNetCoreSdk Include="coherent" Channel="master" InstallDir="$(RepositoryRoot)\.siteextension\" />
+    -->
+    <DotNetCoreSdk>
+      <Arch>$(DefaultDotNetAssetArch)</Arch>
+      <SharedRuntime>false</SharedRuntime>
+      <Channel></Channel>
+      <InstallDir></InstallDir>
+    </DotNetCoreSdk>
+  </ItemDefinitionGroup>
 </Project>

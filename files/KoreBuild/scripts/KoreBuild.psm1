@@ -190,12 +190,6 @@ function Install-Tools(
         $runtimeVersion = $env:KOREBUILD_DOTNET_SHARED_RUNTIME_VERSION
     }
 
-    # Temporarily install these runtimes to prevent build breaks for repos not yet converted
-    # 1.0.5 - for tools
-    __install_shared_runtime $scriptPath $installDir -arch $arch -version "1.0.5" -channel "preview"
-    # 1.1.2 - for test projects which haven't yet been converted to netcoreapp2.0
-    __install_shared_runtime $scriptPath $installDir -arch $arch -version "1.1.2" -channel "release/1.1.0"
-
     if ($runtimeVersion) {
         __install_shared_runtime $scriptPath $installDir -arch $arch -version $runtimeVersion -channel $runtimeChannel
     }

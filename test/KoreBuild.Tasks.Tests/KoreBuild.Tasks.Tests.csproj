@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <Compile Include="..\shared\*" />
+    <Content Include="..\..\files\KoreBuild\scripts\dotnet-install.*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

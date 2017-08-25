@@ -5,9 +5,10 @@ namespace KoreBuild.Tasks
 {
     public static class KoreBuildErrors
     {
-        // Typically used in repos in Directory.Build.targets
-        public const int PackagesHaveNotYetBeenPinned = 1001;
+        // Warnings
+        public const int DotNetAssetVersionIsFloating = 2000;
 
+        // NuGet errors
         public const int InvalidNuspecFile = 4001;
     }
 }

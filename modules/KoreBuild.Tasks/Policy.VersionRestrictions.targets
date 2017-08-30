@@ -4,8 +4,9 @@
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
   </PropertyGroup>
 
-  <Target Name="VerifyPackageVersionRestrictions"
-          BeforeTargets="PrepareForBuild">
+  <Target Name="VerifyPackageReferenceVersionRestrictions"
+          BeforeTargets="PrepareForBuild"
+          Condition=" '$(DisablePackageReferenceVersionRestrictions)' != 'true' ">
 
     <ItemGroup>
       <PackageReferenceWithVersion Include="@(PackageReference->HasMetadata('Version'))" />

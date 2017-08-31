@@ -105,7 +105,9 @@ Microsoft.AspNetCore.Server.WebListener
 Microsoft.AspNetCore.Session
 Microsoft.AspNetCore.SignalR
 Microsoft.AspNetCore.SignalR.Client
+Microsoft.AspNetCore.SignalR.Client.Core
 Microsoft.AspNetCore.SignalR.Common
+Microsoft.AspNetCore.SignalR.Core
 Microsoft.AspNetCore.SignalR.Redis
 Microsoft.AspNetCore.Sockets
 Microsoft.AspNetCore.Sockets.Client

@@ -205,7 +205,7 @@ namespace KoreBuild.Tasks
 
                 try
                 {
-                    projects.Add(ProjectInfoFactory.Create(projectFile));
+                    projects.Add(new ProjectInfoFactory(Log).Create(projectFile));
                 }
                 catch (Exception ex)
                 {

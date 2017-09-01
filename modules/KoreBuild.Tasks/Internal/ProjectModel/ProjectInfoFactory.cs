@@ -10,12 +10,20 @@ using Microsoft.Build.Evaluation;
 using Microsoft.Build.Execution;
 using NuGet.Frameworks;
 using KoreBuild.Tasks.Utilties;
+using Microsoft.Build.Utilities;
 
 namespace KoreBuild.Tasks.ProjectModel
 {
     internal class ProjectInfoFactory
     {
-        public static ProjectInfo Create(string path)
+        private readonly TaskLoggingHelper _logger;
+
+        public ProjectInfoFactory(TaskLoggingHelper logger)
+        {
+           _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        public ProjectInfo Create(string path)
         {
             var xml = ProjectRootElement.Open(path, ProjectCollection.GlobalProjectCollection);
             var globalProps = new Dictionary<string, string>()
@@ -64,9 +72,10 @@ namespace KoreBuild.Tasks.ProjectModel
             return new ProjectInfo(path, projExtPath, frameworks, tools);
         }
 
-        private static IEnumerable<PackageReferenceInfo> GetDependencies(ProjectInstance project)
+        private IReadOnlyDictionary<string, PackageReferenceInfo> GetDependencies(ProjectInstance project)
         {
-            return project.GetItems("PackageReference").Select(item =>
+            var references = new Dictionary<string, PackageReferenceInfo>(StringComparer.OrdinalIgnoreCase);
+            foreach (var item in  project.GetItems("PackageReference"))
             {
                 bool.TryParse(item.GetMetadataValue("IsImplicitlyDefined"), out var isImplicit);
                 var noWarn = item.GetMetadataValue("NoWarn");
@@ -74,8 +83,17 @@ namespace KoreBuild.Tasks.ProjectModel
                     ? Array.Empty<string>()
                     : MSBuildListSplitter.SplitItemList(noWarn).ToArray();
 
-                return new PackageReferenceInfo(item.EvaluatedInclude, item.GetMetadataValue("Version"), isImplicit, noWarnItems);
-            });
+                var info = new PackageReferenceInfo(item.EvaluatedInclude, item.GetMetadataValue("Version"), isImplicit, noWarnItems);
+
+                if (references.ContainsKey(info.Id))
+                {
+                    _logger.LogKoreBuildWarning(project.ProjectFileLocation.File, KoreBuildErrors.DuplicatePackageReference, $"Found a duplicate PackageReference for {info.Id}. Restore results may be unpredictable.");
+                }
+
+                references[info.Id] = info;
+            }
+
+            return references;
         }
 
         private static IEnumerable<DotNetCliReferenceInfo> GetTools(ProjectInstance project)

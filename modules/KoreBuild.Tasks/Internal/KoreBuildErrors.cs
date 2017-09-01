@@ -12,6 +12,7 @@ namespace KoreBuild.Tasks
 
         // Warnings
         public const int DotNetAssetVersionIsFloating = 2000;
+        public const int DuplicatePackageReference = 2003;
 
         // NuGet errors
         public const int InvalidNuspecFile = 4001;

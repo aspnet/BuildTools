@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using BuildTools.Tasks.Tests;
@@ -97,7 +99,7 @@ namespace KoreBuild.Tasks.Tests
                 new PackageReferenceInfo("Microsoft.NETCore.App", "2.0.0", isImplicitlyDefined: true, noWarn: Array.Empty<string>()),
                 new PackageReferenceInfo("Microsoft.AspNetCore", string.Empty, false, Array.Empty<string>()),
                 new PackageReferenceInfo("xunit", "2.2.0", false, Array.Empty<string>()),
-            };
+            }.ToDictionary(i => i.Id, i => i);
 
             var framework = new[] { new ProjectFrameworkInfo(FrameworkConstants.CommonFrameworks.NetCoreApp20, packageRef) };
             var projectDir = AppContext.BaseDirectory;
@@ -167,7 +169,7 @@ namespace KoreBuild.Tasks.Tests
             _logger);
 
             var frameworks = new[] {
-                new ProjectFrameworkInfo(projectFramework, new[] { new PackageReferenceInfo("Microsoft.NETCore.App", "99.99.99", isImplicitlyDefined: true, noWarn: Array.Empty<string>()) }),
+                new ProjectFrameworkInfo(projectFramework, new [] { new PackageReferenceInfo("Microsoft.NETCore.App", "99.99.99", isImplicitlyDefined: true, noWarn: Array.Empty<string>()) }.ToDictionary(i => i.Id, i => i)),
             };
             var projectDir = AppContext.BaseDirectory;
             var project = new ProjectInfo(Path.Combine(projectDir, "Test.csproj"), null, frameworks, Array.Empty<DotNetCliReferenceInfo>());
@@ -226,7 +228,7 @@ namespace KoreBuild.Tasks.Tests
                             {
                                 new PackageReferenceInfo("TestBundledPkg", string.Empty, false, Array.Empty<string>()),
                                 new PackageReferenceInfo("AnotherBundledPkg", "1.0.0", false, Array.Empty<string>())
-                            })
+                            }.ToDictionary(i => i.Id, i => i))
                         },
                         Array.Empty<DotNetCliReferenceInfo>());
             var context = new PolicyContext

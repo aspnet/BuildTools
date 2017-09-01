@@ -248,12 +248,19 @@ The directory where tools will be stored on the local machine.
 
 .PARAMETER RepoPath
 The directory to execute the command against.
+
+.PARAMETER ConfigFile
+The korebuild.json file. (Ignored right now: may be used in the future)
 #>
 function Set-KoreBuildSettings(
+    [Parameter()]
     [string]$ToolsSource,
+    [Parameter()]
     [string]$DotNetHome,
-    [string]$RepoPath
-)
+    [Parameter()]
+    [string]$RepoPath,
+    [Parameter()]
+    [string]$ConfigFile = $null)
 {
     if (!$DotNetHome) {
         $DotNetHome = if ($env:DOTNET_HOME) { $env:DOTNET_HOME } `

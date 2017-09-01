@@ -1,6 +1,6 @@
 <Project>
   <Import Project="dependencies.props" />
-  <Import Project="..\version.xml" />
+  <Import Project="..\version.props" />
 
   <PropertyGroup>
     <!-- these imports substitute for a package reference to Internal.AspNetCore.Sdk -->

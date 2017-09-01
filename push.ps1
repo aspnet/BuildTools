@@ -20,7 +20,7 @@ $artifacts = Join-Path $PSScriptRoot 'artifacts'
 
 Get-ChildItem "$artifacts/build/*.nupkg" | Push-NuGetPackage -Feed $NuGetFeed -ApiKey $env:APIKEY -WhatIf:$WhatIfPreference
 
-$settings = [xml] (Get-Content (Join-Path $PSScriptRoot 'version.xml'))
+$settings = [xml] (Get-Content (Join-Path $PSScriptRoot 'version.props'))
 $channelName = $settings.Project.PropertyGroup.KoreBuildChannel
 
 Write-Host "Pushing azure artifacts for '$channelName' channel"

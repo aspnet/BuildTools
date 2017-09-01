@@ -41,7 +41,7 @@ __exec() {
     local exit_code=$?
     set -e
     if [ $exit_code -ne 0 ]; then
-        __error "<<< $cmdname failed with exit code $exit_code"
+        __error "$cmdname failed with exit code $exit_code"
     elif [ "$__is_verbose" = true ]; then
         echo -e "${GREEN}<<< $cmdname [$exit_code]${RESET}"
     fi

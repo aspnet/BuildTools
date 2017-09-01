@@ -1,0 +1,21 @@
+{
+  "title": "Config file for KoreBuild",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "toolsSource": {
+      "description": "The remote source used to download KoreBuild. Can be a file path.",
+      "type": "string",
+      "default": "https://aspnetcore.blob.core.windows.net/buildtools"
+    },
+    "channel": {
+      "description": "The channel of KoreBuild used to select a version when korebuild-lock.txt is not present.",
+      "type": "string",
+      "default": "dev",
+      "enum": [
+        "dev",
+        "rel/2.0.0"
+      ]
+    }
+  }
+}

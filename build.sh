@@ -22,6 +22,7 @@ __usage() {
 #
 
 [ -z "${DOTNET_HOME:-}" ] && DOTNET_HOME="$HOME/.dotnet"
+config_file="$DIR/korebuild.json"
 tools_source='https://aspnetcore.blob.core.windows.net/buildtools'
 verbose=false
 while [[ $# -gt 0 ]]; do
@@ -53,6 +54,6 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-set_korebuildsettings "$tools_source" "$DOTNET_HOME" "$DIR"
+set_korebuildsettings "$tools_source" "$DOTNET_HOME" "$DIR" "$config_file"
 
 invoke_korebuild_command "default-build" "$@"

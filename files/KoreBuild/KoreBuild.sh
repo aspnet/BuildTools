@@ -10,6 +10,7 @@ set_korebuildsettings() {
     tools_source=$1
     dotnet_home=$2
     repo_path=$3
+    local config_file="${4:-}" # optional. Not used yet.
 
     [ -z "${dot_net_home:-}" ] && dot_net_home="$HOME/.dotnet"
     [ -z "${tools_source:-}" ] && tools_source='https://aspnetcore.blob.core.windows.net/buildtools'
@@ -18,7 +19,7 @@ set_korebuildsettings() {
 }
 
 invoke_korebuild_command(){
-    local command=$1
+    local command="${1:-}"
     shift
 
     if [ "$command" = "default-build" ]; then

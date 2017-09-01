@@ -1,6 +1,6 @@
 <Project>
-  <Import Project="..\version.xml" />
   <PropertyGroup>
+    <VersionPrefix>1.0.0</VersionPrefix>
     <VersionSuffix>beta-$(BuildNumber)</VersionSuffix>
   </PropertyGroup>
 </Project>

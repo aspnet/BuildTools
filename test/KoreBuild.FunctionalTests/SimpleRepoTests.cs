@@ -43,5 +43,17 @@ namespace KoreBuild.FunctionalTests
             Assert.True(File.Exists(Path.Combine(app.WorkingDirectory, "obj", "tmp-nuget", "Simple.Lib.1.0.0-beta-0001.nupkg")), "Build done a test push of all the packages");
             Assert.True(File.Exists(Path.Combine(app.WorkingDirectory, "obj", "tmp-nuget", "Simple.Sources.1.0.0-beta-0001.nupkg")), "Build done a test push of all the packages");
         }
+
+        [Fact]
+        public async Task BuildShouldReturnNonZeroCode()
+        {
+            var app = _fixture.CreateTestApp("RepoThatShouldFailToBuild");
+
+            var build = app.ExecuteBuild(_output);
+            var task = await Task.WhenAny(build, Task.Delay(TimeSpan.FromMinutes(5)));
+
+            Assert.Same(task, build);
+            Assert.NotEqual(0, build.Result);
+        }
     }
 }

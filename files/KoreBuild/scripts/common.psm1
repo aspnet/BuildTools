@@ -8,7 +8,7 @@ function __exec($cmd) {
     $exitCode = $LASTEXITCODE
     $ErrorActionPreference = $originalErrorPref
     if ($exitCode -ne 0) {
-        Write-Error "$cmdName failed with exit code: $exitCode"
+        throw "$cmdName failed with exit code: $exitCode"
     }
     else {
         Write-Verbose "<<< $cmdName [$exitCode]"

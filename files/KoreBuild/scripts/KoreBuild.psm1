@@ -2,8 +2,7 @@
 
 Set-StrictMode -Version 2
 
-$CommonModule = "$PSScriptRoot/common.psm1"
-Import-Module -Force -Scope Local $CommonModule
+Import-Module -Force -Scope Local "$PSScriptRoot/common.psm1"
 
 if (Get-Command 'dotnet' -ErrorAction Ignore) {
     $global:dotnet = (Get-Command 'dotnet').Path

@@ -115,7 +115,9 @@ The base url where build tools can be downloaded.
 The directory where tools will be stored on the local machine.
 #>
 function Install-Tools(
+    [Parameter(Mandatory = $false)]
     [string] $ToolsSource = $global:KoreBuildSettings.ToolsSource,
+    [Parameter(Mandatory = $false)]
     [string] $DotNetHome = $global:KoreBuildSettings.DotNetHome) {
 
     $ErrorActionPreference = 'Stop'

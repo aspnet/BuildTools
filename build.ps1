@@ -19,10 +19,9 @@ param(
 $ErrorActionPreference = 'Stop'
 
 try {
-    Import-Module -Force -Scope Local $PSScriptRoot/files/KoreBuild/KoreBuild.psd1
+    Import-Module -Force -Scope Local "$PSScriptRoot/files/KoreBuild/KoreBuild.psd1"
 
     Set-KoreBuildSettings -ToolsSource $ToolsSource -DotNetHome $DotNetHome -RepoPath $Path
-
     Invoke-KoreBuildCommand "default-build" @Arguments
 }
 finally {

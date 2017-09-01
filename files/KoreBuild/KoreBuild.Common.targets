@@ -2,6 +2,26 @@
 
 <!--
 ###################################################################
+Standard lifecycle properties.
+
+This is intentionally in .targets as these properties are evaluated
+after all other property imports.
+###################################################################
+-->
+  <PropertyGroup Condition=" '$(Version)' == '' ">
+    <VersionPrefix Condition=" '$(VersionPrefix)' == '' ">1.0.0</VersionPrefix>
+    <Version Condition=" '$(VersionSuffix)' != '' ">$(VersionPrefix)-$(VersionSuffix)</Version>
+    <Version Condition=" '$(Version)' == '' ">$(VersionPrefix)</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageVersion Condition="'$(PackageVersion)' == '' AND '$(Version)' != '' ">$(Version)</PackageVersion>
+    <SolutionProperties>$(SolutionProperties);RepoVersion=$(Version);RepoPackageVersion=$(PackageVersion)</SolutionProperties>
+    <SolutionProperties Condition=" ! Exists('$(RepositoryRoot)version.props') ">$(SolutionProperties);VerifyVersion=false</SolutionProperties>
+  </PropertyGroup>
+
+<!--
+###################################################################
 Standard lifecycle targets.
 
 When extending the solution build, chain off one of these by
@@ -21,5 +41,15 @@ extending the *DependsOn property
   <!-- Additional common targets. -->
   <Target Name="Clean"   DependsOnTargets="$(CleanDependsOn)" />
   <Target Name="Rebuild" DependsOnTargets="$(RebuildDependsOn)" />
+
+  <Target Name="GetRepoInfo" Returns="@(RepoInfo)">
+    <ItemGroup>
+      <RepoInfo Include="$(RepositoryRoot)">
+        <Version>$(Version)</Version>
+        <PackageVersion>$(PackageVersion)</PackageVersion>
+        <BuildNumber>$(BuildNumber)</BuildNumber>
+      </RepoInfo>
+    </ItemGroup>
+  </Target>
 
 </Project>

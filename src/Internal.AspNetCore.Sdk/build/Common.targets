@@ -14,9 +14,17 @@ For single-tfm projects, this will be imported from build/Internal.AspNetCore.Sd
   <PropertyGroup>
     <IncludeSymbols Condition="'$(NuspecFile)'!=''">false</IncludeSymbols>
   </PropertyGroup>
-  
+
   <Target Name="_ShowBuildVersion" BeforeTargets="PrepareForBuild">
     <Message Text="Build version: $(AssemblyName)/$(TargetFramework)/$(Version)" Importance="normal" />
+
+    <Warning Text="Version does not match RepoVersion. Version = '$(Version)' and RepoVersion = '$(RepoVersion)'."
+             Code="KRB2001"
+             Condition="'$(RepoVersion)' != '' AND '$(RepoVersion)' != '$(Version)' AND '$(VerifyVersion)' != 'false' " />
+
+    <Warning Text="PackageVersion does not match RepoPackageVersion. PackageVersion = '$(PackageVersion)' and RepoPackageVersion = '$(RepoPackageVersion)'"
+             Code="KRB2002"
+             Condition="'$(RepoPackageVersion)' != '' AND '$(RepoPackageVersion)' != '$(PackageVersion)' AND '$(VerifyVersion)' != 'false' " />
   </Target>
 
   <Target Name="_CoreGenerateCSharpForResources">

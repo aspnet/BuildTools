@@ -12,6 +12,8 @@ namespace KoreBuild.Tasks
 
         // Warnings
         public const int DotNetAssetVersionIsFloating = 2000;
+        public const int RepoVersionDoesNotMatchProjectVersion = 2001;
+        public const int RepoPackageVersionDoesNotMatchProjectPackageVersion = 2002;
         public const int DuplicatePackageReference = 2003;
 
         // NuGet errors

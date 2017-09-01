@@ -1,4 +1,3 @@
-<?xml version="1.0" ?>
 <Project DefaultTargets="Build">
   <!--
     Usage Notes:
@@ -15,6 +14,8 @@
   <Import Project="KoreBuild.Common.props" />
   <Import Project="modules\*\module.props" />
   <Import Project="$(CustomKoreBuildModulesPath)\*\module.props" Condition="Exists('$(CustomKoreBuildModulesPath)')" />
+
+  <Import Project="$(RepositoryRoot)version.props" Condition="Exists('$(RepositoryRoot)version.props')" />
   <Import Project="$(RepositoryRoot)build\repo.props" Condition="Exists('$(RepositoryRoot)build\repo.props')" />
   <Import Project="$(RepositoryRoot)build\tasks\*.tasks" Condition="Exists('$(RepositoryRoot)build\tasks\')" />
 

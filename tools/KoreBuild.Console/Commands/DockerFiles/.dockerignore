@@ -1,0 +1,4 @@
+korebuild-lock.txt
+**/bin
+**/obj
+artifacts

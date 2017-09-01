@@ -327,7 +327,7 @@ function Invoke-KoreBuildCommand(
             --tools-source $global:KoreBuildSettings.ToolsSource `
             --dotnet-home $global:KoreBuildSettings.DotNetHome `
             --repo-path $global:KoreBuildSettings.RepoPath `
-            $Arguments
+            @Arguments
     }
 }
 

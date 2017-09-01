@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <Content Include="Commands\DockerFiles\*.dockerfile" CopyToPublishDirectory="PreserveNewest" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Commands\DockerFiles\.dockerignore" CopyToPublishDirectory="PreserveNewest" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

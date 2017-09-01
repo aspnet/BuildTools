@@ -5,6 +5,7 @@ __korebuild_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$__korebuild_dir/scripts/common.sh"
 
 # functions
+default_tools_source='https://aspnetcore.blob.core.windows.net/buildtools'
 
 set_korebuildsettings() {
     tools_source=$1
@@ -13,7 +14,7 @@ set_korebuildsettings() {
     local config_file="${4:-}" # optional. Not used yet.
 
     [ -z "${dot_net_home:-}" ] && dot_net_home="$HOME/.dotnet"
-    [ -z "${tools_source:-}" ] && tools_source='https://aspnetcore.blob.core.windows.net/buildtools'
+    [ -z "${tools_source:-}" ] && tools_source="$default_tools_source"
 
     return 0
 }
@@ -71,10 +72,11 @@ install_tools() {
 
     # Instructs MSBuild where to find .NET Framework reference assemblies
     export ReferenceAssemblyRoot="$tools_home/netfx/$netfx_version"
-    
+
     # Call "sync" between "chmod" and execution to prevent "text file busy" error in Docker (aufs)
     chmod +x "$__korebuild_dir/scripts/get-netfx.sh"; sync
-    "$__korebuild_dir/scripts/get-netfx.sh" $verbose_flag $netfx_version "$tools_source" "$ReferenceAssemblyRoot" \
+    # we don't include netfx in the BuildTools artifacts currently, it ends up on the blob store through other means, so we'll only look for it in the default_tools_source
+    "$__korebuild_dir/scripts/get-netfx.sh" $verbose_flag $netfx_version "$default_tools_source" "$ReferenceAssemblyRoot" \
         || return 1
 
     # Call "sync" between "chmod" and execution to prevent "text file busy" error in Docker (aufs)

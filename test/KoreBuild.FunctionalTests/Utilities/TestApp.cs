@@ -27,7 +27,17 @@ namespace KoreBuild.FunctionalTests
 
         public string WorkingDirectory { get; }
 
-        public async Task<int> ExecuteBuild(ITestOutputHelper output, params string[] args)
+        public async Task<int> ExecuteRun(ITestOutputHelper output, string[] koreBuildArgs, params string[] commandArgs)
+        {
+            return await ExecuteScript(output, "run", koreBuildArgs, commandArgs);
+        }
+
+        public async Task<int> ExecuteBuild(ITestOutputHelper output, params string[] commandArgs)
+        {
+            return await ExecuteScript(output, "build", new string[0], commandArgs);
+        }
+
+        private async Task<int> ExecuteScript(ITestOutputHelper output, string script, string[] koreBuildArgs, params string[] commandArgs)
         {
             output.WriteLine("Starting in " + WorkingDirectory);
             void Write(object sender, DataReceivedEventArgs e)
@@ -41,13 +51,15 @@ namespace KoreBuild.FunctionalTests
             {
                 cmd = "cmd.exe";
                 arguments.Add("/C");
-                arguments.Add(@".\build.cmd");
+                arguments.Add($@".\{script}.cmd");
             }
             else
             {
                 cmd = "bash";
-                arguments.Add("./build.sh");
+                arguments.Add($"./{script}.sh");
             }
+
+            arguments.AddRange(koreBuildArgs);
 
             arguments.AddRange(new[]
             {
@@ -55,8 +67,9 @@ namespace KoreBuild.FunctionalTests
                 "-Update"
             });
 
+            arguments.AddRange(commandArgs);
+
             arguments.Add("/v:n");
-            arguments.AddRange(args);
 
             var process = new Process
             {

@@ -198,13 +198,16 @@ namespace SplitPackages
         private string GetFinalVersion(string version)
         {
             var frameworkVersion = new NuGetVersion(version);
-            if (frameworkVersion.Release.Contains("rtm"))
+            if (string.IsNullOrEmpty(frameworkVersion.Release) || frameworkVersion.Release.Contains("rtm"))
             {
                 return new NuGetVersion(frameworkVersion.Version).ToNormalizedString();
             }
-            var prefix = frameworkVersion.Release.Substring(0, frameworkVersion.Release.IndexOf('-'));
-            var releaseLabel = $"{prefix}-final";
-            return new NuGetVersion(frameworkVersion.Version, releaseLabel).ToNormalizedString();
+            else
+            {
+                var prefix = frameworkVersion.Release.Substring(0, frameworkVersion.Release.IndexOf('-'));
+                var releaseLabel = $"{prefix}-final";
+                return new NuGetVersion(frameworkVersion.Version, releaseLabel).ToNormalizedString();
+            }
         }
 
         private CsprojFileBuilder CreateBaseCsprojFileBuilderForCache(string destinationPath, string projectName)

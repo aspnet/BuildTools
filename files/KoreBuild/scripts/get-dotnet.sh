@@ -72,7 +72,8 @@ runtime_version=$(< "$__script_dir/../config/runtime.version" head -1 | sed -e '
 [ ! -z "${KOREBUILD_DOTNET_SHARED_RUNTIME_CHANNEL:-}" ] && runtime_channel=${KOREBUILD_DOTNET_SHARED_RUNTIME_CHANNEL:-}
 [ ! -z "${KOREBUILD_DOTNET_SHARED_RUNTIME_VERSION:-}" ] && runtime_version=${KOREBUILD_DOTNET_SHARED_RUNTIME_VERSION:-}
 
-chmod +x "$__script_dir/dotnet-install.sh"
+# Call "sync" between "chmod" and execution to prevent "text file busy" error in Docker (aufs)
+chmod +x "$__script_dir/dotnet-install.sh"; sync
 
 if [ "$runtime_version" != "" ]; then
     __install_shared_runtime "$install_dir" "$runtime_version" "$runtime_channel"

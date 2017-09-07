@@ -54,7 +54,8 @@ invoke_repository_build() {
     verbose_flag=''
     [ "$verbose" = true ] && verbose_flag='--verbose'
 
-    chmod +x "$__korebuild_dir/scripts/invoke-repository-build.sh"
+    # Call "sync" between "chmod" and execution to prevent "text file busy" error in Docker (aufs)
+    chmod +x "$__korebuild_dir/scripts/invoke-repository-build.sh"; sync
     "$__korebuild_dir/scripts/invoke-repository-build.sh" "$repo_path" $verbose_flag "$@"
     return $?
 }
@@ -70,11 +71,14 @@ install_tools() {
 
     # Instructs MSBuild where to find .NET Framework reference assemblies
     export ReferenceAssemblyRoot="$tools_home/netfx/$netfx_version"
-    chmod +x "$__korebuild_dir/scripts/get-netfx.sh"
+    
+    # Call "sync" between "chmod" and execution to prevent "text file busy" error in Docker (aufs)
+    chmod +x "$__korebuild_dir/scripts/get-netfx.sh"; sync
     "$__korebuild_dir/scripts/get-netfx.sh" $verbose_flag $netfx_version "$tools_source" "$ReferenceAssemblyRoot" \
         || return 1
 
-    chmod +x "$__korebuild_dir/scripts/get-dotnet.sh"
+    # Call "sync" between "chmod" and execution to prevent "text file busy" error in Docker (aufs)
+    chmod +x "$__korebuild_dir/scripts/get-dotnet.sh"; sync
     "$__korebuild_dir/scripts/get-dotnet.sh" $verbose_flag "$install_dir" \
         || return 1
 

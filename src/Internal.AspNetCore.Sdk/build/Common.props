@@ -35,6 +35,13 @@ Usage: this should be imported once via NuGet at the top of the file.
     <AssemblyRevision>$(_TwoDigitYear)$(_ThreeDigitDayOfYear)</AssemblyRevision>
   </PropertyGroup>
 
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute" Condition="'$(BuildNumber)' != ''">
+      <_Parameter1>BuildNumber</_Parameter1>
+      <_Parameter2>$(BuildNumber)</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+
   <PropertyGroup>
     <!-- Detect this package inclusion. For use by other targets and properties. -->
     <InternalAspNetCoreSdkImported>true</InternalAspNetCoreSdkImported>

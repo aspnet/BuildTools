@@ -37,6 +37,7 @@ Default layout and configuration.
     <ArtifactsDir>$(RepositoryRoot)artifacts\</ArtifactsDir>
     <BuildDir>$(ArtifactsDir)build\</BuildDir>
     <IntermediateDir>$(RepositoryRoot)obj\</IntermediateDir>
+    <ProjectType>Solution</ProjectType>
   </PropertyGroup>
 
 

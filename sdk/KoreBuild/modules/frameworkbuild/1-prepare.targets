@@ -1,0 +1,56 @@
+<Project>
+  <PropertyGroup>
+    <!-- CleanArtifacts is defined in KoreBuild already  -->
+    <PrepareDependsOn>
+      $(PrepareDependsOn);
+      CleanArtifacts;
+      PrepareSourceCode;
+      PrepareProjects;
+    </PrepareDependsOn>
+  </PropertyGroup>
+
+  <Target Name="PrepareProjects" DependsOnTargets="PrepareSourceCode">
+    <!-- TODO implement task -->
+    <ResolveBuildGraph
+      Repositories="@(Repository)"
+      Properties="$(RepoBuildProps)">
+
+      <!--
+      Identity = RepoDir
+      Metadata:
+        - Name
+        - RepoDir
+        - CommitHash
+      -->
+      <Output TaskParameter="KoreBuildProjects" ItemGroup="KoreBuildProject" />
+
+      <!-- A list of the individual csproj files that will be compiled. -->
+      <Output TaskParameter="MSBuildProjects" ItemGroup="MSBuildProjects" />
+
+      <!-- A list of any PackageReferences that are not being produced by these other projects -->
+      <Output TaskParameter="ExternalPackageReferences" ItemGroup="ExternalPackageReferences" />
+
+      <!-- Packages to be produced (Id/Version) -->
+      <!-- TODO later verify these are actually produced -->
+      <Output TaskParameter="OutputPackages" ItemGroup="ProducedPackages" />
+    </ResolveBuildGraph>
+
+    <Error
+      Text="Currently we only build korebuild projects."
+      Condition="@(Repository->Count()) != @(KoreBuildProject->Count())" />
+
+    <!-- Pins floating PackageReference versions to versions matching the projects that will build them. -->
+    <LinkPackageReferences
+      Projects="@(MSBuildProjects)"
+      Packages="@(ProducedPackages)" />
+  </Target>
+
+  <Target Name="PrepareSourceCode">
+    <!-- Does the needful git clone, checkout, clean, etc. to ensure we have source code ready. -->
+    <GetSourceCode
+      Repositories="@(Repository)"
+      BaseDir="$(IntermediateDir)src\"
+      EnsureCleanCheckout="false" />
+  </Target>
+
+</Project>

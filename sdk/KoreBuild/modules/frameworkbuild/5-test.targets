@@ -1,0 +1,18 @@
+<Project>
+  <PropertyGroup>
+    <TestDependsOn>$(TestDependsOn);TestProjects;TestRuntimeStore</TestDependsOn>
+  </PropertyGroup>
+
+  <Target Name="TestProjects" DependsOnTargets="PrepareProjects">
+    <!-- TODO Parallel? NoBuild? -->
+    <KoreBuild
+      Projects="@(KoreBuildProject)"
+      Targets="TestProjects"
+      BuildInParallel="false"
+      Properties="$(RepoBuildProps);NoBuild=true" />
+  </Target>
+
+  <Target Name="TestRuntimeStore">
+    <!-- TODO add tests for the runtime store here -->
+  </Target>
+</Project>

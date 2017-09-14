@@ -1,0 +1,10 @@
+<Project>
+  <ImportGroup Condition=" '$(ProjectType)' == 'Framework' ">
+    <Import Project="1-prepare.targets" />
+    <Import Project="2-restore.targets" />
+    <Import Project="3-compile.targets" />
+    <Import Project="4-package.targets" />
+    <Import Project="5-test.targets" />
+    <Import Project="6-verify.targets" />
+  </ImportGroup>
+</Project>

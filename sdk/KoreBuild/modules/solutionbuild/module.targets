@@ -4,12 +4,16 @@ FYI: targets, properties, and items that begin with an underscore are meant to b
 -->
 <Project>
 
+  <PropertyGroup>
+    <DisableDefaultItems Condition="'$(ProjectType)' != 'Solution'">true</DisableDefaultItems>
+  </PropertyGroup>
+
   <ItemGroup Condition="'$(DisableDefaultItems)' != 'true'">
     <Solutions Include="$(RepositoryRoot)*.sln" Exclude="@(ExcludeSolutions)" />
     <ProjectsToPack Include="$(RepositoryRoot)src\*\*.csproj" Exclude="@(ExcludeFromPack)" />
   </ItemGroup>
 
-  <PropertyGroup Condition="'$(DisableDefaultTargets)' != 'true'">
+  <PropertyGroup Condition="'$(ProjectType)' == 'Solution'">
     <PrepareDependsOn>$(PrepareDependsOn);CleanArtifacts;_PrepareOutputPaths</PrepareDependsOn>
     <RestoreDependsOn>$(RestoreDependsOn);_BeforeRestore;RestoreSolutions</RestoreDependsOn>
     <CompileDependsOn>$(CompileDependsOn);_CreateCommitHashArtifact;BuildSolutions</CompileDependsOn>

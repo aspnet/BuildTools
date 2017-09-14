@@ -1,0 +1,17 @@
+<Project>
+  <PropertyGroup>
+    <VerifyDependsOn>$(VerifyDependsOn);VerifyPackages</VerifyDependsOn>
+  </PropertyGroup>
+
+  <Target Name="VerifyPackages" DependsOnTargets="PrepareProjects">
+
+    <KoreBuild
+      Projects="@(KoreBuildProject)"
+      Targets="VerifyPackages"
+      BuildInParallel="true"
+      Properties="$(RepoBuildProps)" />
+
+    <!-- Ensures self-consistent versions -->
+    <VerifyCoherentVersions Packages="@(ShippingPackage)" />
+  </Target>
+</Project>

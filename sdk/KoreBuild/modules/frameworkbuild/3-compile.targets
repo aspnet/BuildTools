@@ -1,0 +1,75 @@
+<Project>
+  <PropertyGroup>
+  	<CompileDependsOn>$(CompileDependsOn);CompileProjects;CompileRuntimeStore</CompileDependsOn>
+  </PropertyGroup>
+
+  <Target Name="CompileProjects" DependsOnTargets="PrepareProjects">
+    <KoreBuild
+      Projects="@(KoreBuildProject)"
+      Targets="Package"
+      BuildInParallel="true"
+      Properties="$(RepoBuildProps)" />
+
+    <PropertyGroup>
+      <!-- compilation done! Skip in future invocations -->
+      <RepoBuildProps>$(RepoBuildProps);NoBuild=true</RepoBuildProps>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <SymbolsPackageArtifactFile Include="%(KoreBuildProject.RootDir)artifacts\build\*.symbols.nupkg" />
+      <PackageArtifactFile Include="%(KoreBuildProject.RootDir)artifacts\build\*.nupkg" Exclude="@(SymbolsPackageArtifactFile)" />
+      <AdditionalArtifactFiles Include="%(KoreBuildProject.RootDir)artifacts\**\*" Exclude="@(PackageArtifactFile)" Repository="%(KoreBuildProject.Name)" />
+    </ItemGroup>
+
+    <!-- TODO do we still need this? -->
+    <Copy SourceFiles="@(PackageArtifactFile)" DestinationFolder="$(BuildDir)" />
+    <Copy SourceFiles="@(SymbolsPackageArtifactFile)" DestinationFolder="$(ArtifactsDir)symbols\" />
+
+    <Copy
+      SourceFiles="%(AdditionalArtifactFiles.Identity)"
+      DestinationFolder="$(ArtifactsDir)%(Repository)\%(RecursiveDir)%(FileName)%(Extension)" />
+
+    <!-- TODO implement task. Reads a nupkg file and creates and item with metadata about its id, version, and file location -->
+    <GetPackageIdentity Files="@(PackageArtifactFile)">
+
+      <Output TaskParameter="PackageIdentity" ItemName="PackageReference" />
+    </GetPackageIdentity>
+
+    <!-- TODO maybe we can make this more generic? e.g. just assign a Category metadata? -->
+    <!-- TODO implement task -->
+    <!-- Categories packages -->
+    <ClassifyPackages
+      CsvFile="$(RepositoryRoot)packages.csv"
+      Packages="@(PackageReference)">
+
+      <!-- Translate the package file into Id/Version/Source (directory) -->
+      <Output TaskParameter="PartnerPackages" ItemName="PartnerPackage" />
+      <Output TaskParameter="ShippingPackages" ItemName="ShippingPackage" />
+      <Output TaskParameter="ShipOobPackages" ItemName="ShipOobPackage" />
+      <Output TaskParameter="NonshippingPackages" ItemName="NonshippingPackage" />
+      <Output TaskParameter="RuntimeStorePackages" ItemName="RuntimeStorePackage" />
+      <Output TaskParameter="SymbolsPackages" ItemName="SymbolsPackage" />
+    </ClassifyPackages>
+
+    <!-- Also copy other files based on their category-->
+    <Copy SourceFiles="@(SymbolsPackageArtifactFile->'%(FullPath)')" DestinationFolder="$(ArtifactsDir)symbols\" />
+    <Copy SourceFiles="@(ShippingPackage->'%(FullPath)')" DestinationFolder="$(ArtifactsDir)ship\" />
+    <Copy SourceFiles="@(ShipOobPackage->'%(FullPath)')" DestinationFolder="$(ArtifactsDir)shipoob\" />
+    <Copy SourceFiles="@(NonshippingPackage->'%(FullPath)')" DestinationFolder="$(ArtifactsDir)noship\" />
+    <Copy SourceFiles="@(PartnerPackage->'%(FullPath)')" DestinationFolder="$(ArtifactsDir)ext\" />
+  </Target>
+
+  <Target Name="CompileRuntimeStore" DependsOnTargets="CompileProjects">
+  	<!-- TODO implement the task in buildtools. -->
+    <CompileRuntimeStore
+      Packages="@(RuntimeStorePackage)"
+      RestoreSources="$(BuildDir);@(RuntimeStorePackage->'%(ParentDirectory)')"
+      RuntimeIdentifier="$(RuntimeIdentifier)"
+      WorkingDirectory="$(IntermediateDir).rs\">
+
+      <Output TaskParameter="ArchiveFiles" ItemName="RuntimeStoreFiles" />
+      <Output TaskParameter="ManifestFiles" ItemName="RuntimeStoreManifestFiles" />
+    </CompileRuntimeStore>
+  </Target>
+
+</Project>

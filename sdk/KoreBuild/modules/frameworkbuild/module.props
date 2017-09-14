@@ -1,0 +1,7 @@
+<Project>
+
+  <PropertyGroup Condition=" '$(ProjectType)' == 'Framework' ">
+    <RepoBuildProps>BuildNumber=$(BuildNumber);Configuration=$(Configuration);SolutionVersion=$(Version)</RepoBuildProps>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,64 @@
+<Project>
+  <PropertyGroup>
+    <PackageDependsOn>$(PackageDependsOn);PackageRuntimeStore;PackageMetaPackage</PackageDependsOn>
+  </PropertyGroup>
+
+  <Target Name="PackageRuntimeStore" DependsOnTargets="CompileRuntimeStore">
+    <ZipArchive
+      File="$(ArtifactsDir)runtimestore\$(RuntimeStoreFileName).zip"
+      WorkingDirectory="$(IntermediateDir).rs\"
+      SourceFiles="@(RuntimeStoreFiles)"
+      Condition="'$(IsLinux)' != 'true'" />
+
+    <!-- TODO implement in buildtools. -->
+    <TarballArchive
+      File="$(ArtifactsDir)runtimestore\$(RuntimeStoreFileName).tar.gz"
+      WorkingDirectory="$(IntermediateDir).rs\"
+      Gzip="true"
+      SourceFiles="@(RuntimeStoreFiles)"
+      Condition="'$(IsLinux)' == 'true' OR '$(IsMacOs)' == 'true'" />
+
+    <!-- TODO add other properties to this task for the package manifest. -->
+    <CreateDebianPackage
+      Files="@(RuntimeStoreFiles)"
+      WorkingDirectory="$(IntermediateDir).rs\"
+      OutputPath="$(ArtifactsDir)$(RuntimeStoreFileName).deb"
+      Condition="'$(IsLinux)' == 'true'"  />
+
+    <!-- TODO add other properties to this task for the package manifest. -->
+    <CreateRpmPackage
+      Files="@(RuntimeStoreFiles)"
+      WorkingDirectory="$(IntermediateDir).rs\"
+      OutputPath="$(ArtifactsDir)$(RuntimeStoreFileName).rpm"
+      Condition="'$(IsLinux)' == 'true'"  />
+  </Target>
+
+  <Target Name="PackageMetaPackage">
+    <ItemGroup>
+      <RuntimeStorePackage Include="@(ExternalDependency->WithMetadataValue('IncludeInMetapackage', 'true'))" />
+    </ItemGroup>
+
+    <PropertyGroup>
+      <IntermediateNuspecFile>$(IntermediateDir)$(RuntimeStoreNuGetPackageId).$(Version).nuspec</IntermediateNuspecFile>
+    </PropertyGroup>
+
+    <!-- TODO ensure RuntimeStoreManifestFiles end up in the right folder by assigning the 'PackagePath' metadata -->
+    <GenerateNuspec
+      Id="$(RuntimeStoreNuGetPackageId)"
+      Dependencies="@(RuntimeStorePackage)"
+      Files="@(RuntimeStoreManifestFiles);@(RuntimeStorePackageFile)"
+      Version="$(Version)"
+      OutputPath="$(IntermediateNuspecFile)"/>
+
+    <PackNuSpec NuspecFile="$(IntermediateNuspecFile)"
+      DestinationFolder="$(ArtifactsDir)ship\">
+      <Output TaskParameter="Packages" ItemGroup="MetaPackageFile" />
+    </PackNuSpec>
+
+    <!--  TODO implement task -->
+    <GetPackageIdentity Files="@(MetaPackageFile)">
+
+      <Output TaskParameter="PackageIdentity" ItemName="ShippingPackage" />
+    </GetPackageIdentity>
+  </Target>
+</Project>

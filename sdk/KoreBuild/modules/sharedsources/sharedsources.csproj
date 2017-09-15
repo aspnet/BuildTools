@@ -50,7 +50,6 @@
         <TargetFramework>$(TargetFramework)</TargetFramework>
       </ArtifactInfo>
     </ItemGroup>
-    <Message Text="%()"
   </Target>
 
 </Project>

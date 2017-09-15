@@ -61,9 +61,7 @@ Executes /t:{Target} on all solutions
     <BuildInParallel>true</BuildInParallel>
   </PropertyGroup>
 
-  <Target Name="ResolveSolutions"
-    DependsOnTargets="Prepare"
-    Returns="@(Solutions)">
+  <Target Name="ResolveSolutions" Returns="@(Solutions)">
 
     <ItemGroup>
       <_Temp Remove="@(_Temp)" />

@@ -134,7 +134,7 @@ Target: PackageProjects
 Executes /t:Pack on all projects matching src/*/*.csproj.
 ###################################################################
 -->
-  <Target Name="PackageProjects" DependsOnTargets="ResolveSolutions;ResolveProjectsToPack">
+  <Target Name="PackageProjects" DependsOnTargets="ResolveSolutions">
     <PropertyGroup>
       <PackageNoBuild Condition="'$(PackageNoBuild)' == ''">$(_SolutionWasBuilt)</PackageNoBuild>
     </PropertyGroup>

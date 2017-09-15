@@ -8,15 +8,17 @@
         <Version>$(PackageVersion)</Version>
         <TargetFramework>$(TargetFramework)</TargetFramework>
         <TargetFrameworks>$(TargetFrameworks)</TargetFrameworks>
+        <PackageType>$(PackageType)</PackageType>
       </ArtifactInfo>
 
-      <ArtifactInfo Include="$(PackageOutputPath)$(PackageId.ToLowerInvariant()).$(PackageVersion).symbols.nupkg" Condition="'$(IncludeSymbols)' == 'true' ">
+      <ArtifactInfo Include="$(PackageOutputPath)$(PackageId.ToLowerInvariant()).$(PackageVersion).symbols.nupkg" Condition="'$(IncludeSymbols)' == 'true' AND '$(NuspecFile)' == ''">
         <ArtifactType>NuGetSymbolsPackage</ArtifactType>
         <PackageId>$(PackageId)</PackageId>
         <Version>$(PackageVersion)</Version>
         <TargetFramework>$(TargetFramework)</TargetFramework>
         <TargetFrameworks>$(TargetFrameworks)</TargetFrameworks>
         <SourceIncluded>$(IncludeSource)</SourceIncluded>
+        <PackageType>$(PackageType)</PackageType>
       </ArtifactInfo>
     </ItemGroup>
   </Target>

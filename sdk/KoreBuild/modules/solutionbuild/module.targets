@@ -155,7 +155,7 @@ Executes /t:Pack on all projects matching src/*/*.csproj.
     <MSBuild Targets="GetArtifactInfo"
       Projects="@(ProjectsToPack)"
       Condition="@(ProjectsToPack->Count()) != 0"
-      Properties="$(SolutionProperties);PackageOutputPath=$(BuildDir);CustomAfterMicrosoftCommonTargets=$(_InspectionTargetsFile);CustomAfterMicrosoftCommonCrossTargetingTargets=$(_InspectionTargetsFile)"
+      Properties="$(SolutionProperties);RepositoryRoot=$(RepositoryRoot);PackageOutputPath=$(BuildDir);CustomAfterMicrosoftCommonTargets=$(_InspectionTargetsFile);CustomAfterMicrosoftCommonCrossTargetingTargets=$(_InspectionTargetsFile)"
       BuildInParallel="$(BuildInParallel)"
       RemoveProperties="$(_BuildPropertiesToRemove);PackageNoBuild">
       <Output TaskParameter="TargetOutputs" ItemName="ArtifactInfo" />

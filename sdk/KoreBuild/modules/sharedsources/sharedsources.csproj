@@ -48,6 +48,7 @@
         <PackageId>$(PackageId)</PackageId>
         <Version>$(PackageVersion)</Version>
         <TargetFramework>$(TargetFramework)</TargetFramework>
+        <RepositoryRoot>$(RepositoryRoot)</RepositoryRoot>
       </ArtifactInfo>
     </ItemGroup>
   </Target>

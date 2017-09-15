@@ -22,4 +22,7 @@ extending the *DependsOn property
   <Target Name="Clean"   DependsOnTargets="$(CleanDependsOn)" />
   <Target Name="Rebuild" DependsOnTargets="$(RebuildDependsOn)" />
 
+  <!-- For external analysis of inputs/outputs. -->
+  <Target Name="GetArtifactInfo" DependsOnTargets="$(GetArtifactInfoDependsOn)" Returns="@(ArtifactInfo)" />
+
 </Project>

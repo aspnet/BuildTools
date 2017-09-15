@@ -41,4 +41,16 @@
     <PackageReference Remove="@(PackageReference)" />
   </ItemGroup>
 
+  <Target Name="GetArtifactInfo" Returns="@(ArtifactInfo)">
+    <ItemGroup>
+      <ArtifactInfo Include="$(PackageOutputPath)$(PackageId.ToLowerInvariant()).$(PackageVersion).nupkg">
+        <ArtifactType>NuGetPackage</ArtifactType>
+        <PackageId>$(PackageId)</PackageId>
+        <Version>$(PackageVersion)</Version>
+        <TargetFramework>$(TargetFramework)</TargetFramework>
+      </ArtifactInfo>
+    </ItemGroup>
+    <Message Text="%()"
+  </Target>
+
 </Project>

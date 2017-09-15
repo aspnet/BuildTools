@@ -1,0 +1,24 @@
+<Project>
+
+  <Target Name="GetArtifactInfo" Returns="@(ArtifactInfo)">
+    <ItemGroup>
+      <ArtifactInfo Include="$(PackageOutputPath)$(PackageId.ToLowerInvariant()).$(PackageVersion).nupkg">
+        <ArtifactType>NuGetPackage</ArtifactType>
+        <PackageId>$(PackageId)</PackageId>
+        <Version>$(PackageVersion)</Version>
+        <TargetFramework>$(TargetFramework)</TargetFramework>
+        <TargetFrameworks>$(TargetFrameworks)</TargetFrameworks>
+      </ArtifactInfo>
+
+      <ArtifactInfo Include="$(PackageOutputPath)$(PackageId.ToLowerInvariant()).$(PackageVersion).symbols.nupkg" Condition="'$(IncludeSymbols)' == 'true' ">
+        <ArtifactType>NuGetSymbolsPackage</ArtifactType>
+        <PackageId>$(PackageId)</PackageId>
+        <Version>$(PackageVersion)</Version>
+        <TargetFramework>$(TargetFramework)</TargetFramework>
+        <TargetFrameworks>$(TargetFrameworks)</TargetFrameworks>
+        <SourceIncluded>$(IncludeSource)</SourceIncluded>
+      </ArtifactInfo>
+    </ItemGroup>
+  </Target>
+
+</Project>

@@ -22,6 +22,8 @@ Usage: this should be imported once via NuGet at the top of the file.
     <PackageProjectUrl>https://asp.net</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Serviceable Condition="'$(Configuration)' == 'Release'">true</Serviceable>
+    <DebugType>Portable</DebugType>
+    <SourceLinkCreate>true</SourceLinkCreate>
   </PropertyGroup>
 
   <!-- common build options -->

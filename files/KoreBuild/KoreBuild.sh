@@ -9,7 +9,7 @@ default_tools_source='https://aspnetcore.blob.core.windows.net/buildtools'
 
 set_korebuildsettings() {
     tools_source=$1
-    dotnet_home=$2
+    dot_net_home=$2
     repo_path=$3
     local config_file="${4:-}" # optional. Not used yet.
 

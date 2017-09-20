@@ -15,6 +15,12 @@ For single-tfm projects, this will be imported from build/Internal.AspNetCore.Sd
     <IncludeSymbols Condition="'$(NuspecFile)'!=''">false</IncludeSymbols>
   </PropertyGroup>
 
+  <Target Name="_EnableSourceLink" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <SourceLinkCreate Condition="'$(SourceLinkCreate)' == '' AND  '$(IsPackable)' == 'true'">true</SourceLinkCreate>
+    </PropertyGroup>
+  </Target>
+
   <Target Name="_ShowBuildVersion" BeforeTargets="PrepareForBuild">
     <Message Text="Build version: $(AssemblyName)/$(TargetFramework)/$(Version)" Importance="normal" />
 

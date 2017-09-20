@@ -9,6 +9,7 @@
     <copyright>$copyright$</copyright>
     <dependencies>
       <dependency id="Microsoft.AspNetCore.BuildTools.ApiCheck" version="$apicheckversion$" />
+      <dependency id="SourceLink.Create.CommandLine" version="2.2.1" />
     </dependencies>
   </metadata>
   <files>

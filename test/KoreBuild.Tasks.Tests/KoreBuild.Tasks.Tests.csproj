@@ -18,7 +18,6 @@
     <PackageReference Include="Moq" Version="$(MoqVersion)" />
     <PackageReference Include="NuGet.Build.Tasks" Version="$(NuGetInMSBuildVersion)" />
     <PackageReference Include="xunit" Version="$(XunitVersion)" />
-    <PackageReference Include="xunit.analyzers" Version="$(XunitAnalyzersVersion)" />
     <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitVersion)" />
   </ItemGroup>
 

@@ -21,7 +21,10 @@ namespace ApiCheck
         {
             try
             {
-                var app = new CommandLineApplication();
+                var app = new CommandLineApplication
+                {
+                    Name = "ApiCheck"
+                };
 
                 app.Command("generate", c =>
                 {

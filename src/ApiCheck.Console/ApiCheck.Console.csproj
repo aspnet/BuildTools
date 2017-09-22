@@ -2,24 +2,12 @@
   <Import Project="..\..\build\common.props" />
 
   <PropertyGroup>
-    <!--
-      The netstandard1.0 TFM doesn't actually compile. It's just there so Internal.AspNetCore.Sdk can take a dependency
-      on this project.
-    -->
-    <TargetFrameworks>netcoreapp2.0;net46;netstandard1.0</TargetFrameworks>
-    <AssemblyName>Microsoft.AspNetCore.BuildTools.ApiCheck</AssemblyName>
+    <TargetFrameworks>netcoreapp2.0;net46</TargetFrameworks>
+    <AssemblyName>ApiCheck</AssemblyName>
     <RootNamespace>Microsoft.AspNetCore.BuildTools.ApiCheck</RootNamespace>
+    <OutputType>exe</OutputType>
     <IncludeSymbols>false</IncludeSymbols>
     <IncludeSource>false</IncludeSource>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
-    <!-- Don't try to compile the *.cs files on netstandard1.0. -->
-    <EnableDefaultItems>false</EnableDefaultItems>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(TargetFramework)' != 'netstandard1.0' ">
-    <OutputType>exe</OutputType>
   </PropertyGroup>
 
   <!-- packaging settings-->
@@ -30,7 +18,7 @@
     <PublishDir>$(IntermediatePackDir)$(TargetFramework)\</PublishDir>
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' != 'netstandard1.0' ">
+  <ItemGroup>
     <Compile Include="..\..\shared\Microsoft.Extensions.CommandLineUtils.Sources\**\*.cs" />
 
     <PackageReference Include="Newtonsoft.Json" Version="$(JsonNetVersion)" />
@@ -40,10 +28,9 @@
 
   <Target Name="PublishAll">
     <ItemGroup>
-      <_TargetFrameworks Remove="@(_TargetFrameworks)" />
-      <_TargetFrameworks Include="$(TargetFrameworks)" Exclude="netstandard1.0" />
+      <_TargetFramework Include="$(TargetFrameworks)" />
     </ItemGroup>
-    <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="Publish" Properties="TargetFramework=%(_TargetFrameworks.Identity)" />
+    <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="Publish" Properties="TargetFramework=%(_TargetFramework.Identity)" />
   </Target>
 
   <Target Name="SetPackageDependencies" BeforeTargets="GenerateNuspec" DependsOnTargets="PublishAll">

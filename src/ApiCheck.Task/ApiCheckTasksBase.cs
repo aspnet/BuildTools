@@ -13,7 +13,7 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
 {
     public abstract class ApiCheckTasksBase : ToolTask
     {
-        protected const string ApiCheckToolName = "Microsoft.AspNetCore.BuildTools.ApiCheck";
+        protected const string ApiCheckToolName = "ApiCheck";
 
         public ApiCheckTasksBase()
         {

@@ -15,7 +15,7 @@ that matches "$(RepositoryRoot)/shared/*.Sources".
   <Target Name="PackSharedSources" DependsOnTargets="_SetSharedSourcesProperties">
     <MSBuild Targets="Restore;Pack"
       Projects="$(MSBuildThisFileDirectory)sharedsources.csproj"
-      Properties="$(_SharedSourcesPackageProperties);NuspecBasePath=%(SharedSourceDirectories.Identity);PackageId=%(FileName)%(Extension);"
+      Properties="$(_SharedSourcesPackageProperties);NuspecBasePath=$([MSBuild]::NormalizeDirectory('%(SharedSourceDirectories.Identity)'));PackageId=%(FileName)%(Extension);"
       Condition="@(SharedSourceDirectories->Count()) != 0"
       BuildInParallel="true" />
   </Target>
@@ -23,7 +23,7 @@ that matches "$(RepositoryRoot)/shared/*.Sources".
   <Target Name="ResolveSharedSourcesPackageInfo" DependsOnTargets="_SetSharedSourcesProperties" Returns="@(ArtifactInfo)">
     <MSBuild Targets="GetArtifactInfo"
       Projects="$(MSBuildThisFileDirectory)sharedsources.csproj"
-      Properties="$(_SharedSourcesPackageProperties);NuspecBasePath=%(SharedSourceDirectories.Identity);PackageId=%(FileName)%(Extension);"
+      Properties="$(_SharedSourcesPackageProperties);NuspecBasePath=$([MSBuild]::NormalizeDirectory('%(SharedSourceDirectories.Identity)'));PackageId=%(FileName)%(Extension);"
       Condition="@(SharedSourceDirectories->Count()) != 0"
       BuildInParallel="true">
       <Output TaskParameter="TargetOutputs" ItemName="ArtifactInfo" />

@@ -19,7 +19,7 @@
   </Target>
 
   <Import Project="$(RepositoryRoot)build\common.props" Condition="Exists('$(RepositoryRoot)build\common.props')" />
-  <Import Project="$(NuspecBasePath)\sharedsources.props" Condition="Exists('$(NuspecBasePath)\sharedsources.props')" />
+  <Import Project="$(NuspecBasePath)sharedsources.props" Condition="Exists('$(NuspecBasePath)sharedsources.props')" />
 
   <Target Name="WarnIfNoCommonProps" BeforeTargets="Pack">
     <Warning Text="Expected a props file in '$(RepositoryRoot)build\common.props' or '$(DirBuildPropsInRepo)')'. The package $(PackageId) may be missing the right version number when this is left out."
@@ -40,11 +40,11 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(NuspecBasePath)'!=''">
-    <Compile Include="$(NuspecBasePath)\**\*.cs" Exclude="$(DefaultExcludeItems)">
+    <Compile Include="$(NuspecBasePath)**\*.cs" Exclude="$(DefaultExcludeItems)">
       <Pack>true</Pack>
       <PackagePath>$(ContentTargetFolders)\cs\netstandard1.0\</PackagePath>
     </Compile>
-    <EmbeddedResource Include="$(NuspecBasePath)\**\*.resx" Exclude="$(DefaultExcludeItems)">
+    <EmbeddedResource Include="$(NuspecBasePath)**\*.resx" Exclude="$(DefaultExcludeItems)">
       <Pack>true</Pack>
       <PackagePath>$(ContentTargetFolders)\any\any\</PackagePath>
     </EmbeddedResource>

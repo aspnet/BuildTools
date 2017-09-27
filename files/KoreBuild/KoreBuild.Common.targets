@@ -52,4 +52,7 @@ extending the *DependsOn property
     </ItemGroup>
   </Target>
 
+  <!-- For external analysis of inputs/outputs. -->
+  <Target Name="GetArtifactInfo" DependsOnTargets="$(GetArtifactInfoDependsOn)" Returns="@(ArtifactInfo)" />
+
 </Project>

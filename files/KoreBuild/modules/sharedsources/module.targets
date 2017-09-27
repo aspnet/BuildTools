@@ -9,21 +9,31 @@ that matches "$(RepositoryRoot)/shared/*.Sources".
 <Project>
   <PropertyGroup>
     <PackageDependsOn>$(PackageDependsOn);PackSharedSources</PackageDependsOn>
+    <GetArtifactInfoDependsOn>$(GetArtifactInfoDependsOn);ResolveSharedSourcesPackageInfo</GetArtifactInfoDependsOn>
   </PropertyGroup>
 
-
-  <Target Name="PackSharedSources" Condition="Exists('$(SharedSourcesFolder)') OR '@(SharedSourceDirectories)' != ''">
-    <RemoveDuplicates Inputs="@(SharedSourceDirectories)">
-      <Output TaskParameter="Filtered" ItemName="_SharedSourceItems" />
-    </RemoveDuplicates>
-
-    <Message Importance="normal"
-      Text="Producing shared source package for %(_SharedSourceItems.Identity)"
-      Condition="'@(_SharedSourceItems)' != ''" />
-
+  <Target Name="PackSharedSources" DependsOnTargets="_SetSharedSourcesProperties">
     <MSBuild Targets="Restore;Pack"
       Projects="$(MSBuildThisFileDirectory)sharedsources.csproj"
-      Properties="PackageOutputPath=$(BuildDir);RepositoryRoot=$(RepositoryRoot);NuspecBasePath=$([MSBuild]::EnsureTrailingSlash('%(_SharedSourceItems.Identity)'));PackageId=%(FileName)%(Extension);BuildNumber=$(BuildNumber)"
-      Condition="'@(_SharedSourceItems)' != ''" />
+      Properties="$(_SharedSourcesPackageProperties);NuspecBasePath=%(SharedSourceDirectories.Identity);PackageId=%(FileName)%(Extension);"
+      Condition="@(SharedSourceDirectories->Count()) != 0"
+      BuildInParallel="true" />
   </Target>
+
+  <Target Name="ResolveSharedSourcesPackageInfo" DependsOnTargets="_SetSharedSourcesProperties" Returns="@(ArtifactInfo)">
+    <MSBuild Targets="GetArtifactInfo"
+      Projects="$(MSBuildThisFileDirectory)sharedsources.csproj"
+      Properties="$(_SharedSourcesPackageProperties);NuspecBasePath=%(SharedSourceDirectories.Identity);PackageId=%(FileName)%(Extension);"
+      Condition="@(SharedSourceDirectories->Count()) != 0"
+      BuildInParallel="true">
+      <Output TaskParameter="TargetOutputs" ItemName="ArtifactInfo" />
+    </MSBuild>
+  </Target>
+
+  <Target Name="_SetSharedSourcesProperties">
+    <PropertyGroup>
+      <_SharedSourcesPackageProperties>PackageOutputPath=$(BuildDir);RepositoryRoot=$(RepositoryRoot);BuildNumber=$(BuildNumber);</_SharedSourcesPackageProperties>
+    </PropertyGroup>
+  </Target>
+
 </Project>

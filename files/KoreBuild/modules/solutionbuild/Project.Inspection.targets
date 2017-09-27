@@ -1,0 +1,28 @@
+<Project>
+
+  <Target Name="GetArtifactInfo" Returns="@(ArtifactInfo)">
+    <ItemGroup Condition="'$(IsPackable)' == 'true' ">
+      <ArtifactInfo Include="$(PackageOutputPath)$(PackageId.ToLowerInvariant()).$(PackageVersion).nupkg">
+        <ArtifactType>NuGetPackage</ArtifactType>
+        <PackageId>$(PackageId)</PackageId>
+        <Version>$(PackageVersion)</Version>
+        <TargetFramework>$(TargetFramework)</TargetFramework>
+        <TargetFrameworks>$(TargetFrameworks)</TargetFrameworks>
+        <PackageType>$(PackageType)</PackageType>
+        <RepositoryRoot>$(RepositoryRoot)</RepositoryRoot>
+      </ArtifactInfo>
+
+      <ArtifactInfo Include="$(PackageOutputPath)$(PackageId.ToLowerInvariant()).$(PackageVersion).symbols.nupkg" Condition="'$(IncludeSymbols)' == 'true' AND '$(NuspecFile)' == ''">
+        <ArtifactType>NuGetSymbolsPackage</ArtifactType>
+        <PackageId>$(PackageId)</PackageId>
+        <Version>$(PackageVersion)</Version>
+        <TargetFramework>$(TargetFramework)</TargetFramework>
+        <TargetFrameworks>$(TargetFrameworks)</TargetFrameworks>
+        <SourceIncluded>$(IncludeSource)</SourceIncluded>
+        <PackageType>$(PackageType)</PackageType>
+        <RepositoryRoot>$(RepositoryRoot)</RepositoryRoot>
+      </ArtifactInfo>
+    </ItemGroup>
+  </Target>
+
+</Project>

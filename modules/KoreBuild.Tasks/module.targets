@@ -4,6 +4,7 @@
     <RestoreDependsOn>ApplyNuGetPolicies;InstallDotNet;$(RestoreDependsOn)</RestoreDependsOn>
     <ApplyNuGetPoliciesDependsOn>
       $(ApplyNuGetPoliciesDependsOn);
+      Prepare;
       ResolveSolutions;
     </ApplyNuGetPoliciesDependsOn>
   </PropertyGroup>

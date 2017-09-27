@@ -16,6 +16,7 @@ FYI: targets, properties, and items that begin with an underscore are meant to b
     <PackageDependsOn>$(PackageDependsOn);PackageProjects;PackSharedSources</PackageDependsOn>
     <CleanDependsOn>$(CleanDependsOn);CleanArtifacts;CleanSolutions</CleanDependsOn>
     <RebuildDependsOn>$(RebuildDependsOn);RebuildSolutions</RebuildDependsOn>
+    <GetArtifactInfoDependsOn>$(GetArtifactInfoDependsOn);GetProjectPackageInfo</GetArtifactInfoDependsOn>
   </PropertyGroup>
 
   <Target Name="CleanArtifacts">
@@ -61,10 +62,7 @@ Executes /t:{Target} on all solutions
     <BuildInParallel>true</BuildInParallel>
   </PropertyGroup>
 
-  <Target Name="ResolveSolutions"
-    DependsOnTargets="Prepare"
-    Returns="@(Solutions)">
-
+  <Target Name="ResolveSolutions" Returns="@(Solutions)">
     <ItemGroup>
       <_Temp Remove="@(_Temp)" />
       <_Temp Include="@(Solutions)"/>
@@ -77,7 +75,7 @@ Executes /t:{Target} on all solutions
   </Target>
 
   <Target Name="_EnsureSolutions">
-    <Error Text="No solutions found to build in '$(RepositoryRoot)'" Condition="'@(Solutions)' == ''" />
+    <Error Text="No solutions found to build in '$(RepositoryRoot)'" Condition="@(Solutions->Count()) == 0" />
   </Target>
 
   <Target Name="_BeforeRestore">
@@ -136,20 +134,31 @@ Executes /t:Pack on all projects matching src/*/*.csproj.
 ###################################################################
 -->
   <Target Name="PackageProjects" DependsOnTargets="ResolveSolutions">
-    <RemoveDuplicates Inputs="@(ProjectsToPack)">
-      <Output TaskParameter="Filtered" ItemName="_PackProjectItems" />
-    </RemoveDuplicates>
-
     <PropertyGroup>
       <PackageNoBuild Condition="'$(PackageNoBuild)' == ''">$(_SolutionWasBuilt)</PackageNoBuild>
     </PropertyGroup>
 
     <MSBuild Targets="Pack"
-      Projects="@(_PackProjectItems)"
-      Condition="'@(_PackProjectItems)' != ''"
+      Projects="@(ProjectsToPack)"
+      Condition="@(ProjectsToPack->Count()) != 0"
       Properties="$(SolutionProperties);PackageOutputPath=$(BuildDir);NoBuild=$(PackageNoBuild)"
       BuildInParallel="$(BuildInParallel)"
       RemoveProperties="$(_BuildPropertiesToRemove);PackageNoBuild" />
+  </Target>
+
+  <Target Name="GetProjectPackageInfo" Returns="@(ArtifactInfo)">
+    <PropertyGroup>
+      <_InspectionTargetsFile>$(MSBuildThisFileDirectory)Project.Inspection.targets</_InspectionTargetsFile>
+    </PropertyGroup>
+
+    <MSBuild Targets="GetArtifactInfo"
+      Projects="@(ProjectsToPack)"
+      Condition="@(ProjectsToPack->Count()) != 0"
+      Properties="$(SolutionProperties);RepositoryRoot=$(RepositoryRoot);PackageOutputPath=$(BuildDir);CustomAfterMicrosoftCommonTargets=$(_InspectionTargetsFile);CustomAfterMicrosoftCommonCrossTargetingTargets=$(_InspectionTargetsFile)"
+      BuildInParallel="$(BuildInParallel)"
+      RemoveProperties="$(_BuildPropertiesToRemove);PackageNoBuild">
+      <Output TaskParameter="TargetOutputs" ItemName="ArtifactInfo" />
+    </MSBuild>
   </Target>
 
 </Project>

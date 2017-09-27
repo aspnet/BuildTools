@@ -1,5 +1,5 @@
 <!-- this is a dummy project designed to produce contentFiles packages -->
-<Project>
+<Project InitialTargets="VerifyProperties">
 
   <PropertyGroup>
     <KoreBuildRestoreTargetsImported>true</KoreBuildRestoreTargetsImported>
@@ -12,7 +12,7 @@
   <Import Project="$(DirBuildPropsInRepo)" Condition="Exists('$(DirBuildPropsInRepo)')" />
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
 
-  <Target Name="VerifyProperties" BeforeTargets="Pack">
+  <Target Name="VerifyProperties">
     <Error Text="Missing property: RepositoryRoot" Condition="'$(RepositoryRoot)'==''"/>
     <Error Text="Missing property: PackageId" Condition="'$(PackageId)'==''"/>
     <Error Text="Missing property: NuspecBasePath" Condition="'$(NuspecBasePath)'==''"/>
@@ -22,7 +22,7 @@
   <Import Project="$(NuspecBasePath)\sharedsources.props" Condition="Exists('$(NuspecBasePath)\sharedsources.props')" />
 
   <Target Name="WarnIfNoCommonProps" BeforeTargets="Pack">
-    <Warning Text="Expected a props file in '$(RepositoryRoot)build\common.props' or '$(DirBuildPropsInRepo)')'. Shared sources packages may be missing the right version number when this is left out."
+    <Warning Text="Expected a props file in '$(RepositoryRoot)build\common.props' or '$(DirBuildPropsInRepo)')'. The package $(PackageId) may be missing the right version number when this is left out."
              Condition="!Exists('$(RepositoryRoot)build\common.props') And !Exists('$(DirBuildPropsInRepo)')"/>
   </Target>
 
@@ -53,6 +53,18 @@
   <ItemGroup>
     <PackageReference Remove="@(PackageReference)" />
   </ItemGroup>
+
+  <Target Name="GetArtifactInfo" Returns="@(ArtifactInfo)">
+    <ItemGroup>
+      <ArtifactInfo Include="$(PackageOutputPath)$(PackageId.ToLowerInvariant()).$(PackageVersion).nupkg">
+        <ArtifactType>NuGetPackage</ArtifactType>
+        <PackageId>$(PackageId)</PackageId>
+        <Version>$(PackageVersion)</Version>
+        <TargetFramework>$(TargetFramework)</TargetFramework>
+        <RepositoryRoot>$(RepositoryRoot)</RepositoryRoot>
+      </ArtifactInfo>
+    </ItemGroup>
+  </Target>
 
   <Import Project="$(DirBuildTargetsInRepo)" Condition="Exists('$(DirBuildTargetsInRepo)')" />
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />

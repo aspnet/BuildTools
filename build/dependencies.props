@@ -11,7 +11,7 @@
     <SystemCollectionsImmutableVersion>1.4.0</SystemCollectionsImmutableVersion>
     <SystemReflectionMetadataVersion>1.5.0</SystemReflectionMetadataVersion>
     <TestSdkVersion>15.3.0</TestSdkVersion>
-    <XunitVersion>2.3.0-beta5-build3769</XunitVersion>
+    <XunitVersion>2.3.0-rc1-build3809</XunitVersion>
   </PropertyGroup>
 
   <!--

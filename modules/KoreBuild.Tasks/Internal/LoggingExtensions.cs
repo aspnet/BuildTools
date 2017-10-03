@@ -22,7 +22,7 @@ namespace KoreBuild.Tasks
 
         public static void LogKoreBuildWarning(this TaskLoggingHelper logger, string filename, int code, string message, params object[] messageArgs)
         {
-            logger.LogWarning(null, KoreBuildErrors.Prefix + code, null, filename, 0, 0, 0, 0, message, messageArgs: messageArgs);
+            logger.LogWarning(null, Prefix + code, null, filename, 0, 0, 0, 0, message, messageArgs: messageArgs);
         }
     }
 }

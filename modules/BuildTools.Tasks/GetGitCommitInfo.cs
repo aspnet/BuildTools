@@ -19,7 +19,7 @@ namespace Microsoft.AspNetCore.BuildTools
 #endif
     {
         private const string HeadContentStart = "ref: refs/heads/";
-        private const string WorkTreeContentStart = "gitdir:";
+        private const string GitDirRefContentStart = "gitdir:";
 
         private const int CommitShaLength = 40;
 
@@ -65,16 +65,36 @@ namespace Microsoft.AspNetCore.BuildTools
             switch (repoRoot.GetFileSystemInfos(".git").FirstOrDefault())
             {
                 case DirectoryInfo d:
+                    // regular git working directories
                     gitDir = d.FullName;
                     headFile = Path.Combine(gitDir, "HEAD");
                     break;
                 case FileInfo f:
+                    // submodules and worktrees
                     var contents = File.ReadAllText(f.FullName);
-                    if (contents.StartsWith(WorkTreeContentStart, StringComparison.OrdinalIgnoreCase))
+                    if (contents.StartsWith(GitDirRefContentStart, StringComparison.OrdinalIgnoreCase))
                     {
-                        var worktreeRoot = contents.Substring(WorkTreeContentStart.Length).Trim();
-                        headFile = Path.Combine(worktreeRoot, "HEAD");
-                        gitDir = Path.GetDirectoryName(Path.GetDirectoryName(worktreeRoot));
+                        var gitdirRef = contents.Substring(GitDirRefContentStart.Length).Trim();
+                        var gitDirRoot = Path.IsPathRooted(gitdirRef)
+                            ? new DirectoryInfo(gitdirRef)
+                            : new DirectoryInfo(Path.Combine(f.Directory.FullName, gitdirRef));
+
+                        headFile = Path.Combine(gitDirRoot.FullName, "HEAD");
+
+                        var commonDir = gitDirRoot.GetFiles("commondir").FirstOrDefault();
+                        if (commonDir != null)
+                        {
+                            // happens in worktrees
+                            var commonDirRef = File.ReadAllText(commonDir.FullName).Trim();
+                            gitDir = Path.IsPathRooted(commonDirRef)
+                            ? commonDirRef
+                            : Path.Combine(gitDirRoot.FullName, commonDirRef);
+                        }
+                        else
+                        {
+                            // happens with submodules
+                            gitDir = gitDirRoot.FullName;
+                        }
                     }
                     else
                     {

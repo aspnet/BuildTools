@@ -22,7 +22,7 @@ Usage: this should be imported once via NuGet at the top of the file.
     <PackageProjectUrl>https://asp.net</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Serviceable Condition="'$(Configuration)' == 'Release'">true</Serviceable>
-    <LangVersion>7.1</LangVersion>
+    <LangVersion Condition="'$(LangVersion)' == ''">7.1</LangVersion>
   </PropertyGroup>
 
   <!-- common build options -->

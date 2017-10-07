@@ -4,12 +4,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.AspNetCore.BuildTools;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using NuGet.Frameworks;
 using NuGet.Packaging;
 using NuGet.Packaging.Core;
-using KoreBuild.Tasks.Utilities;
 using NuGet.Versioning;
 
 namespace KoreBuild.Tasks
@@ -26,7 +26,7 @@ namespace KoreBuild.Tasks
 
         public ITaskItem[] Dependencies { get; set; }
 
-        public string Properties { get; set; }
+        public string[] Properties { get; set; }
 
         public bool IncludeEmptyDirectories { get; set; } = false;
 
@@ -51,21 +51,7 @@ namespace KoreBuild.Tasks
                 return false;
             }
 
-            var properties = new Dictionary<string, string>();
-            if (!string.IsNullOrEmpty(Properties))
-            {
-                foreach (var item in Properties.Split(';'))
-                {
-                    var splitIdx = item.IndexOf('=');
-                    if (splitIdx <= 0)
-                    {
-                        continue;
-                    }
-                    var key = item.Substring(0, splitIdx);
-                    var value = item.Substring(splitIdx + 1);
-                    properties[key] = value;
-                }
-            }
+            var properties = MSBuildListSplitter.GetNamedProperties(Properties);
 
             string PropertyProvider(string name)
             {

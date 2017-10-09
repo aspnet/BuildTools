@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\..\shared\Utilities\MSBuildListSplitter.cs" />
     <Compile Include="..\..\shared\Microsoft.Extensions.CommandLineUtils.Sources\**\*.cs" />
     <None Include="module.props" CopyToPublishDirectory="PreserveNewest" />
     <None Include="BuildTools.Tasks.props" CopyToPublishDirectory="PreserveNewest" />

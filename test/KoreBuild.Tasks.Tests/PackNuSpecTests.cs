@@ -98,7 +98,7 @@ namespace KoreBuild.Tasks.Tests
                 BasePath = _tempDir,
                 BuildEngine = new MockEngine(),
                 DestinationFolder = _tempDir,
-                Properties = $"version={version};;description={description};copyright=;;;;",
+                Properties = new[] { $"version={version}", "", "", $" description ={description}", "copyright=", },
             };
 
             Assert.True(task.Execute(), "The task should have passed");

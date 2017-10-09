@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -45,9 +44,10 @@ namespace Microsoft.AspNetCore.BuildTools
         public string TemplateFile { get; set; }
 
         /// <summary>
-        /// The desitnation for the generated file.
+        /// The destination for the generated file.
         /// </summary>
         [Required]
+        [Output]
         public string OutputPath { get; set; }
 
         /// <summary>
@@ -121,7 +121,6 @@ namespace Microsoft.AspNetCore.BuildTools
                     else
                     {
                         // Found the end of the variable substitution
-
                         var varName = varNameSb.ToString();
                         if (values.TryGetValue(varName, out var value))
                         {

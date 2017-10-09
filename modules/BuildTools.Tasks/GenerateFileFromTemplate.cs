@@ -55,19 +55,13 @@ namespace Microsoft.AspNetCore.BuildTools
         [Required]
         public string[] Properties { get; set; }
 
-        /// <summary>
-        /// The full path of the file written.
-        /// </summary>
-        [Output]
-        public string FileWrites { get; set; }
-
         public override bool Execute()
         {
             var outputPath = Path.GetFullPath(OutputPath.Replace('\\', '/'));
 
             if (!File.Exists(TemplateFile))
             {
-                Log.LogError("File {0} does not exist", TemplateFile);
+                Log.LogError($"File {TemplateFile} does not exist");
                 return false;
             }
 
@@ -78,23 +72,25 @@ namespace Microsoft.AspNetCore.BuildTools
             Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
             File.WriteAllText(outputPath, result);
 
-            FileWrites = Path.GetFullPath(outputPath);
-
             return true;
         }
 
         internal string Replace(string template, IDictionary<string, string> values)
         {
             var sb = new StringBuilder();
+            var varNameSb = new StringBuilder();
             var line = 1;
             for (var i = 0; i < template.Length; i++)
             {
                 var ch = template[i];
+
+                // count lines in the template file
                 if (ch == '\n')
                 {
                     line++;
                 }
 
+                // potentially an escape character
                 if (ch == '`')
                 {
                     i++;
@@ -135,9 +131,9 @@ namespace Microsoft.AspNetCore.BuildTools
                     continue;
                 }
 
-                var varNameSb = new StringBuilder();
+                varNameSb.Clear();
                 i++;
-                for (; i < template.Length; i++)
+                while (i < template.Length)
                 {
                     var nextCh = template[i];
                     if (nextCh != '}')
@@ -155,13 +151,13 @@ namespace Microsoft.AspNetCore.BuildTools
                         {
                             Log.LogWarning(null, null, null, TemplateFile,
                                 line, 0, 0, 0,
-                                message: "No property value is available for '{0}'",
-                                messageArgs: new[] { varName });
+                                message: $"No property value is available for '{varName}'");
                         }
 
                         varNameSb.Clear();
                         break;
                     }
+                    i++;
                 }
 
                 if (varNameSb.Length > 0)

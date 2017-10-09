@@ -25,7 +25,7 @@ namespace Microsoft.AspNetCore.BuildTools
                 }
 
                 var key = item.Substring(0, splitIdx).Trim();
-                if (string.IsNullOrWhiteSpace(key))
+                if (string.IsNullOrEmpty(key))
                 {
                     continue;
                 }

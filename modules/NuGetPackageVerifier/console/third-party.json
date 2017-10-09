@@ -26,7 +26,7 @@
     "Microsoft.CSharp": [ "4.4.0-*" ],
     "Microsoft.DotNet.InternalAbstractions": [ "1.0.0" ],
     "Microsoft.IdentityModel.Clients.ActiveDirectory": [ "3.14.1" ],
-    "Microsoft.IdentityModel.Protocols.OpenIdConnect": [ "2.1.4" ],
+    "Microsoft.IdentityModel.Protocols.OpenIdConnect": [ "5.2.0-preview1-408290725" ],
     "Microsoft.NETCore.Windows.ApiSets": [ "1.0.1" ],
     "Microsoft.Owin.Security": [ "3.0.1" ],
     "Microsoft.Owin.Security.Cookies": [ "3.0.1" ],

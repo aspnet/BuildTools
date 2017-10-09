@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -83,6 +84,9 @@ namespace Microsoft.AspNetCore.BuildTools
             for (var i = 0; i < template.Length; i++)
             {
                 var ch = template[i];
+                var nextCh = i + 1 >= template.Length
+                        ? '\0'
+                        : template[i + 1];
 
                 // count lines in the template file
                 if (ch == '\n')
@@ -90,58 +94,34 @@ namespace Microsoft.AspNetCore.BuildTools
                     line++;
                 }
 
-                // potentially an escape character
-                if (ch == '`')
+                if (ch == '`' && (nextCh == '$' || nextCh == '`'))
                 {
+                    // skip the backtick for known escape characters
                     i++;
-                    if (i >= template.Length)
-                    {
-                        // slash ends doc
-                        sb.Append(ch);
-                        break;
-                    }
-
-                    ch = template[i];
-                    if (ch != '$' && ch != '`')
-                    {
-                        // Not a known escape character
-                        sb.Append('`');
-                    }
-
-                    sb.Append(ch);
+                    sb.Append(nextCh);
                     continue;
                 }
 
-                if (ch != '$')
+                if (ch != '$' || nextCh != '{')
                 {
+                    // variables begin with ${. Moving on.
                     sb.Append(ch);
-                    continue;
-                }
-
-                i++;
-                if (i >= template.Length)
-                {
-                    sb.Append('$');
-                    break;
-                }
-
-                if (template[i] != '{')
-                {
-                    sb.Append('$').Append(template[i]);
                     continue;
                 }
 
                 varNameSb.Clear();
-                i++;
-                while (i < template.Length)
+                i += 2;
+                for (; i < template.Length; i++)
                 {
-                    var nextCh = template[i];
-                    if (nextCh != '}')
+                    ch = template[i];
+                    if (ch != '}')
                     {
-                        varNameSb.Append(nextCh);
+                        varNameSb.Append(ch);
                     }
                     else
                     {
+                        // Found the end of the variable substitution
+
                         var varName = varNameSb.ToString();
                         if (values.TryGetValue(varName, out var value))
                         {
@@ -157,7 +137,6 @@ namespace Microsoft.AspNetCore.BuildTools
                         varNameSb.Clear();
                         break;
                     }
-                    i++;
                 }
 
                 if (varNameSb.Length > 0)

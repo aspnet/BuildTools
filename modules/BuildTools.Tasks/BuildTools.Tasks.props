@@ -15,5 +15,6 @@
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)UnzipArchive" AssemblyFile="$(_BuildToolsAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)FindUnusedReferences" AssemblyFile="$(_BuildToolsAssembly)"
     Condition="'$(MSBuildRuntimeType)' == 'Core'" />
+  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)CreateSourceLink" AssemblyFile="$(_BuildToolsAssembly)" />
 
 </Project>

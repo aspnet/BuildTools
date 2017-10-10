@@ -20,40 +20,83 @@ Runs the VSTest on all projects in the ProjectsToTest itemgroup.
 -->
   <PropertyGroup>
     <TestDependsOn>$(TestDependsOn);TestProjects;ValidateBenchmarks</TestDependsOn>
-    <VSTestLogger Condition=" '$(VSTestLogger)' == '' AND '$(TEAMCITY_VERSION)' != '' ">trx</VSTestLogger>
-    <VSTestAutoReporters Condition=" '$(VSTestAutoReporters)' == '' AND '$(VSTestLogger)' != '' ">false</VSTestAutoReporters>
-    <VSTestAutoReporters Condition=" '$(VSTestAutoReporters)' == '' ">true</VSTestAutoReporters>
     <IgnoreFailingTestProjects>false</IgnoreFailingTestProjects>
     <IgnoreFailingTestProjects Condition="'$(KOREBUILD_IGNORE_DOTNET_TEST_EXIT_CODE)' == '1'">true</IgnoreFailingTestProjects>
   </PropertyGroup>
 
-  <Target Name="TestProjects" DependsOnTargets="ResolveSolutions">
-    <RemoveDuplicates Inputs="@(ProjectsToTest)">
-      <Output TaskParameter="Filtered" ItemName="_TestProjectItems" />
-    </RemoveDuplicates>
-
-    <Message Text="%0ARunning tests for:%0A@(_TestProjectItems -> '%(FileName)','%0A')%0A"
-      Importance="High"
-      Condition="'@(_TestProjectItems)' != ''" />
-
+  <Target Name="GetTestAssemblies" DependsOnTargets="ResolveSolutions" Returns="@(TestAssembly)">
     <PropertyGroup>
-      <!--
-        Disable other test reporters if trx logging is enabled.
-        VSTestCLIRunSettings is a space-separated list of key=value pairs.
-      -->
-      <VSTestCLIRunSettings Condition=" '$(VSTestAutoReporters)' != 'true' ">RunConfiguration.NoAutoReporters=true $(VSTestCLIRunSettings)</VSTestCLIRunSettings>
-      <VSTestNoBuild Condition="'$(VSTestNoBuild)' == ''">$(_SolutionWasBuilt)</VSTestNoBuild>
+      <_InspectionTargetsFile>$(MSBuildThisFileDirectory)Project.Inspection.targets</_InspectionTargetsFile>
+    </PropertyGroup>
+
+    <MSBuild Projects="@(ProjectsToTest)"
+      Targets="GetTestAssembly"
+      Properties="$(SolutionProperties);CustomAfterMicrosoftCommonTargets=$(_InspectionTargetsFile);CustomAfterMicrosoftCommonCrossTargetingTargets=$(_InspectionTargetsFile);%(ProjectsToTest.AdditionalProperties)"
+      Condition="@(ProjectsToTest->Count()) != 0"
+      RemoveProperties="$(_BuildPropertiesToRemove)">
+      <Output TaskParameter="TargetOutputs" ItemName="TestAssembly" />
+    </MSBuild>
+  </Target>
+
+  <Target Name="TestProjects" DependsOnTargets="GetTestAssemblies">
+    <PropertyGroup>
       <_TestContinueOnError Condition="'$(IgnoreFailingTestProjects)' == 'true'">ErrorAndContinue</_TestContinueOnError>
       <_TestContinueOnError Condition="'$(IgnoreFailingTestProjects)' != 'true'">ErrorAndStop</_TestContinueOnError>
     </PropertyGroup>
 
-    <!-- Intentional use of batching ('%') instead of passing items ('@') so that tests fail sooner -->
-    <MSBuild Projects="%(_TestProjectItems.Identity)"
-      Targets="VSTest"
-      Properties="$(SolutionProperties);VSTestLogger=$(VSTestLogger);VSTestNoBuild=$(VSTestNoBuild);VSTestCLIRunSettings=$([MSBuild]::Escape('$(VSTestCLIRunSettings)'));%(_TestProjectItems.AdditionalProperties)"
-      Condition="'@(_TestProjectItems)' != ''"
-      ContinueOnError="$(_TestContinueOnError)"
-      RemoveProperties="$(_BuildPropertiesToRemove)" />
+    <Message Text="%0ATest plan:" Importance="High" />
+    <Message Text="  - %(TestAssembly.TestGroupName)/%(TestAssembly.TargetFramework)%0A    - @(TestAssembly->'%(FileName)', '%0A    - ')" Importance="High" Condition="@(TestAssembly->Count()) != 0" />
+    <Message Text="  - (No test projects found)" Importance="High" Condition="@(TestAssembly->Count()) == 0"  />
+
+    <ItemGroup>
+      <TestGroups Include="$(MSBuildProjectFullPath)" Condition="'%(TestAssembly.TestGroupName)' != ''">
+        <AdditionalProperties>Assemblies=@(TestAssembly);TestGroupName=%(TestAssembly.TestGroupName);TargetFramework=%(TestAssembly.TargetFramework);TargetFrameworkIdentifier=%(TestAssembly.TargetFrameworkIdentifier);TargetFrameworkVersion=%(TestAssembly.TargetFrameworkVersion)</AdditionalProperties>
+      </TestGroups>
+    </ItemGroup>
+
+    <MSBuild Projects="@(TestGroups)"
+             Targets="_ExecuteTestAssemblies"
+             Condition="@(TestGroups->Count()) != 0"
+             ContinueOnError="$(_TestContinueOnError)" />
+  </Target>
+
+  <!-- The 'inner-build' -->
+  <PropertyGroup>
+    <TrxFile>$(ArtifactsDir)tests\$(TestGroupName)-$(TargetFramework)-$(BuildNumber).trx</TrxFile>
+    <VSTestLogger Condition=" '$(VSTestLogger)' == '' AND '$(TEAMCITY_VERSION)' != '' ">trx;LogFileName=$(TrxFile)</VSTestLogger>
+    <VSTestAutoReporters Condition=" '$(VSTestAutoReporters)' == '' AND '$(VSTestLogger)' != '' ">false</VSTestAutoReporters>
+    <VSTestAutoReporters Condition=" '$(VSTestAutoReporters)' == '' ">true</VSTestAutoReporters>
+    <!--
+      Disable other test reporters if trx logging is enabled.
+      VSTestCLIRunSettings is a space-separated list of key=value pairs.
+    -->
+    <VSTestCLIRunSettings Condition=" '$(VSTestAutoReporters)' != 'true' ">RunConfiguration.NoAutoReporters=true $(VSTestCLIRunSettings)</VSTestCLIRunSettings>
+  </PropertyGroup>
+
+  <Target Name="_ExecuteTestAssemblies">
+    <ItemGroup>
+      <TestAssemblies Include="$(Assemblies)" />
+    </ItemGroup>
+
+    <PropertyGroup>
+      <VSTestArgs />
+      <VSTestArgs>--Parallel</VSTestArgs>
+      <VSTestArgs>$(VSTestArgs) --Framework:$(TargetFrameworkIdentifier),Version=v$(TargetFrameworkVersion)</VSTestArgs>
+      <VSTestArgs Condition="'$(VSTestLogger)' != ''">$(VSTestArgs) --Logger:$(VSTestLogger)</VSTestArgs>
+      <TestAdapterPath>%(TestAssemblies.RootDir)%(TestAssemblies.Directory)</TestAdapterPath>
+      <VSTestArgs Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">$(VSTestArgs) --TestAdapterPath:$(TestAdapterPath)</VSTestArgs>
+      <VSTestArgs>$(VSTestArgs) @(TestAssemblies, ' ')</VSTestArgs>
+      <VSTestArgs Condition="'$(VSTestCLIRunSettings)' != ''">$(VSTestArgs) -- $(VSTestCLIRunSettings)</VSTestArgs>
+    </PropertyGroup>
+
+    <Message Text="%0AStarting test group: $(TestGroupName)/$(TargetFramework)" Importance="High" />
+
+    <Exec Command="dotnet vstest $(VSTestArgs)" UseCommandProcessor="false" IgnoreStandardErrorWarningFormat="true" IgnoreExitCode="true">
+      <Output TaskParameter="ExitCode" PropertyName="VsTestExitCode" />
+    </Exec>
+
+    <Message Text="##teamcity[importData type='vstest' path='$(TrxFile)']" Condition="'$(TEAMCITY_VERSION)' != ''" Importance="High" />
+    <Error Text="Test group $(TestGroupName)/$(TargetFramework) failed" Condition=" $(VsTestExitCode) != 0 " />
   </Target>
 
   <Target Name="ValidateBenchmarks" DependsOnTargets="ResolveSolutions" Condition=" '$(EnableBenchmarkValidation)' == 'true' ">
@@ -68,4 +111,5 @@ Runs the VSTest on all projects in the ProjectsToTest itemgroup.
 
     <Exec Command="dotnet $(ExecPath) * --validate-fast" IgnoreStandardErrorWarningFormat="true" />
   </Target>
+
 </Project>

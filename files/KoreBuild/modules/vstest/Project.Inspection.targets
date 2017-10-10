@@ -1,0 +1,28 @@
+<Project>
+
+  <PropertyGroup>
+    <GetTestAssemblyDependsOn Condition="'$(TargetFramework)' != ''">GetTargetPath</GetTestAssemblyDependsOn>
+    <TestGroupName Condition="'$(TestGroupName)' == ''">UnitTests</TestGroupName>
+  </PropertyGroup>
+
+  <Target Name="GetTestAssembly" DependsOnTargets="$(GetTestAssemblyDependsOn)" Returns="@(TestAssembly)">
+    <ItemGroup Condition=" '$(IsTestProject)' == 'true' ">
+      <TestAssembly Include="@(TargetPathWithTargetPlatformMoniker)">
+        <TargetFramework>$(TargetFramework)</TargetFramework>
+        <TestGroupName>$(TestGroupName)</TestGroupName>
+      </TestAssembly>
+    </ItemGroup>
+
+    <ItemGroup>
+      <_TargetFramework Include="$(TargetFrameworks)" />
+    </ItemGroup>
+
+    <MSBuild Targets="GetTestAssembly"
+             Projects="$(MSBuildProjectFullPath)"
+             Properties="TargetFramework=%(_TargetFramework.Identity)"
+             Condition=" '$(TargetFrameworks)' != '' AND '$(TargetFramework)' == '' ">
+      <Output TaskParameter="TargetOutputs" ItemName="TestAssembly" />
+    </MSBuild>
+  </Target>
+
+</Project>

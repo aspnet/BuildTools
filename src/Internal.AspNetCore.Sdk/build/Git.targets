@@ -1,8 +1,11 @@
-﻿<Project>
+<Project>
 
   <PropertyGroup>
     <GenerateCommitHashAttribute Condition="'$(GenerateCommitHashAttribute)'==''">true</GenerateCommitHashAttribute>
     <GeneratedCommitHashAttributeFile Condition="'$(GeneratedCommitHashAttributeFile)'==''">$(IntermediateOutputPath)$(AssemblyName).CommitHash$(DefaultLanguageSourceExtension)</GeneratedCommitHashAttributeFile>
+    <SourceLinkDestination Condition="'$(SourceLinkDestination)' == ''">$(IntermediateOutputPath)sourcelink.json</SourceLinkDestination>
+    <SourceDirectory>$([System.IO.Path]::Combine($(RepositoryRoot.Trim('/')), 'src'))</SourceDirectory>
+    <GenerateSourceLinkFile Condition="'$(GenerateSourceLinkFile)' == '' AND '$(IsPackable)' != 'false'">true</GenerateSourceLinkFile>
   </PropertyGroup>
 
   <Target Name="ResolveCommitHash" Condition="'$(CommitHash)'==''">
@@ -19,6 +22,28 @@
     </Sdk_GetGitCommitInfo>
   </Target>
 
+  <Target Name="CreateSourceLink"
+          Condition="'$(SourceLink)'=='' AND '$(GenerateSourceLinkFile)' != 'false' "
+          Inputs="$(IntermediateCommitHash);$(MSBuildAllProjects)"
+          Outputs="$(SourceLinkDestination)" >
+
+    <Warning Text="RepositoryUrl should be set on all repositories which use SourceLink."
+             Condition="'$(RepositoryUrl)' == ''" />
+
+    <Sdk_CreateSourceLink
+          RootDirectory="$(RepositoryRoot)"
+          OriginUrl="$(RepositoryUrl)"
+          Commit="$(CommitHash)"
+          DestinationFile="$(SourceLinkDestination)"
+          ContinueOnError="WarnAndContinue"
+          Condition="'$(CommitHash)' != '' AND '$(RepositoryUrl)' != ''">
+      <Output TaskParameter="SourceLinkFile" PropertyName="SourceLink" />
+    </Sdk_CreateSourceLink>
+
+    <Warning Text="SourceLink not enabled because this is not a git repo."
+             Condition="'$(CommitHash)' == ''" />
+  </Target>
+
 <!--
 ********************************************************************************************
 Target: GenerateCommitHashAttribute
@@ -27,7 +52,7 @@ Generates an assembly attribute with commit hash
 -->
   <Target Name="GenerateCommitHashAttribute"
           BeforeTargets="CoreCompile"
-          DependsOnTargets="ResolveCommitHash;PrepareForBuild;GenerateIntermediateCommitHash;CoreGenerateCommitHashAttribute"
+          DependsOnTargets="ResolveCommitHash;PrepareForBuild;GenerateIntermediateCommitHash;CoreGenerateCommitHashAttribute;CreateSourceLink"
           Condition="'$(GenerateCommitHashAttribute)'=='true' and '$(DesignTimeBuild)'!='true'" >
     <Warning Text="Property 'CommitHash' was not set"
              Condition="'$(CommitHash)'==''" />

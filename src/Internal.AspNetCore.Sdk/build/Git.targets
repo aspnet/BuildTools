@@ -1,4 +1,4 @@
-<Project>
+﻿<Project>
 
   <PropertyGroup>
     <GenerateCommitHashAttribute Condition="'$(GenerateCommitHashAttribute)'==''">true</GenerateCommitHashAttribute>
@@ -27,21 +27,24 @@
           Inputs="$(IntermediateCommitHash);$(MSBuildAllProjects)"
           Outputs="$(SourceLinkDestination)" >
 
-    <Warning Text="RepositoryUrl should be set on all repositories which use SourceLink."
-             Condition="'$(RepositoryUrl)' == ''" />
-
     <Sdk_CreateSourceLink
           RootDirectory="$(RepositoryRoot)"
           OriginUrl="$(RepositoryUrl)"
           Commit="$(CommitHash)"
           DestinationFile="$(SourceLinkDestination)"
           ContinueOnError="WarnAndContinue"
-          Condition="'$(CommitHash)' != '' AND '$(RepositoryUrl)' != ''">
+          Condition="'$(CommitHash)' != '' AND '$(RepositoryUrl)' != '' AND '$(RepositoryRoot)' != ''">
       <Output TaskParameter="SourceLinkFile" PropertyName="SourceLink" />
     </Sdk_CreateSourceLink>
 
+    <Warning Text="SourceLink not enabled because RepositoryUrl wasn't set."
+             Condition="'$(RepositoryUrl)' == ''" />
+
     <Warning Text="SourceLink not enabled because this is not a git repo."
              Condition="'$(CommitHash)' == ''" />
+
+    <Warning Text="SourceLink not enabled because RepositoryRoot wasn't set."
+             Condition="'$(RepositoryRoot)' == ''" />
   </Target>
 
 <!--

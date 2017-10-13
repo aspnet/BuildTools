@@ -62,6 +62,10 @@ Runs the VSTest on all projects in the ProjectsToTest itemgroup.
       Importance="High"
       Condition="'@(BenchmarksToValidate)' != ''" />
 
-    <Exec Command="dotnet run --no-build --project %(BenchmarksToValidate.Identity) -- * --validate-fast" IgnoreStandardErrorWarningFormat="true" />
+    <MSBuild Projects="%(BenchmarksToValidate.Identity)" Targets="GetTargetPath">
+      <Output TaskParameter="TargetOutputs" PropertyName="ExecPath" />
+    </MSBuild>
+
+    <Exec Command="dotnet $(ExecPath) * --validate-fast" IgnoreStandardErrorWarningFormat="true" />
   </Target>
 </Project>

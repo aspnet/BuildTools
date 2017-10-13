@@ -5,6 +5,7 @@
     <_FunctionalTests Include="$(RepositoryRoot)test\*\*FunctionalTest*.csproj" Exclude="@(ExcludeFromTest)" />
     <ProjectsToTest Include="$(RepositoryRoot)test\*\*.csproj" Exclude="@(_FunctionalTests);@(ExcludeFromTest)" />
     <ProjectsToTest Include="@(_FunctionalTests)"  />
+    <BenchmarksToValidate Include="$(RepositoryRoot)benchmarks\*\*.csproj" />
   </ItemGroup>
 
 <!--
@@ -18,7 +19,7 @@ Runs the VSTest on all projects in the ProjectsToTest itemgroup.
 ###################################################################
 -->
   <PropertyGroup>
-    <TestDependsOn>$(TestDependsOn);TestProjects</TestDependsOn>
+    <TestDependsOn>$(TestDependsOn);TestProjects;ValidateBenchmarks</TestDependsOn>
     <VSTestLogger Condition=" '$(VSTestLogger)' == '' AND '$(TEAMCITY_VERSION)' != '' ">trx</VSTestLogger>
     <VSTestAutoReporters Condition=" '$(VSTestAutoReporters)' == '' AND '$(VSTestLogger)' != '' ">false</VSTestAutoReporters>
     <VSTestAutoReporters Condition=" '$(VSTestAutoReporters)' == '' ">true</VSTestAutoReporters>
@@ -53,5 +54,18 @@ Runs the VSTest on all projects in the ProjectsToTest itemgroup.
       Condition="'@(_TestProjectItems)' != ''"
       ContinueOnError="$(_TestContinueOnError)"
       RemoveProperties="$(_BuildPropertiesToRemove)" />
+  </Target>
+
+  <Target Name="ValidateBenchmarks" DependsOnTargets="ResolveSolutions" Condition=" '$(EnableBenchmarkValidation)' == 'true' ">
+
+    <Message Text="%0ARunning benchmark validation for:%0A@(BenchmarksToValidate -> '%(FileName)','%0A')%0A"
+      Importance="High"
+      Condition="'@(BenchmarksToValidate)' != ''" />
+
+    <MSBuild Projects="%(BenchmarksToValidate.Identity)" Targets="GetTargetPath">
+      <Output TaskParameter="TargetOutputs" PropertyName="ExecPath" />
+    </MSBuild>
+
+    <Exec Command="dotnet $(ExecPath) * --validate-fast" IgnoreStandardErrorWarningFormat="true" />
   </Target>
 </Project>

@@ -15,6 +15,24 @@ function Join-Paths($path, $childPaths) {
 Set-Variable 'IS_WINDOWS' -Scope Script -Option Constant -Value $((Get-Variable -Name IsWindows -ValueOnly -ErrorAction Ignore) -or !(Get-Variable -Name IsCoreClr -ValueOnly -ErrorAction Ignore))
 Set-Variable 'EXE_EXT' -Scope Script -Option Constant -Value $(if ($IS_WINDOWS) { '.exe' } else { '' })
 
+### setup config
+
+$script:config = @{
+    'dotnet.feed.cdn'        = 'https://dotnetcli.azureedge.net/dotnet'
+    'dotnet.feed.uncached'   = 'https://dotnetcli.blob.core.windows.net/dotnet'
+    'dotnet.feed.credential' = $null
+}
+
+if ($env:KOREBUILD_DOTNET_FEED_CDN) {
+    $script:config.'dotnet.feed.cdn' = $env:KOREBUILD_DOTNET_FEED_CDN
+}
+if ($env:KOREBUILD_DOTNET_FEED_UNCACHED) {
+    $script:config.'dotnet.feed.uncached' = $env:KOREBUILD_DOTNET_FEED_UNCACHED
+}
+if ($env:KOREBUILD_DOTNET_FEED_CREDENTIAL) {
+    $script:config.'dotnet.feed.credential' = $env:KOREBUILD_DOTNET_FEED_CREDENTIAL
+}
+
 <#
 .SYNOPSIS
 Builds a repository
@@ -201,7 +219,10 @@ function Install-Tools(
             -Channel $channel `
             -Version $version `
             -Architecture $arch `
-            -InstallDir $installDir
+            -InstallDir $installDir `
+            -AzureFeed $script:config.'dotnet.feed.cdn' `
+            -UncachedFeed $script:config.'dotnet.feed.uncached' `
+            -FeedCredential $script:config.'dotnet.feed.credential'
     }
     else {
         Write-Host -ForegroundColor DarkGray ".NET Core SDK $version is already installed. Skipping installation."
@@ -351,7 +372,10 @@ function __install_shared_runtime($installScript, $installDir, [string]$arch, [s
             -SharedRuntime `
             -Version $version `
             -Architecture $arch `
-            -InstallDir $installDir
+            -InstallDir $installDir `
+            -AzureFeed $script:config.'dotnet.feed.cdn' `
+            -UncachedFeed $script:config.'dotnet.feed.uncached' `
+            -FeedCredential $script:config.'dotnet.feed.credential'
     }
     else {
         Write-Host -ForegroundColor DarkGray ".NET Core runtime $version is already installed. Skipping installation."

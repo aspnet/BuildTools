@@ -7,6 +7,13 @@ set -euo pipefail
 
 source "$__script_dir/common.sh"
 
+dotnet_feed_cdn='https://dotnetcli.azureedge.net/dotnet'
+dotnet_feed_uncached='https://dotnetcli.blob.core.windows.net/dotnet'
+dotnet_feed_credential=''
+[ ! -z "${KOREBUILD_DOTNET_FEED_CDN:-}" ] && dotnet_feed_cdn=${KOREBUILD_DOTNET_FEED_CDN:-}
+[ ! -z "${KOREBUILD_DOTNET_FEED_UNCACHED:-}" ] && dotnet_feed_uncached=${KOREBUILD_DOTNET_FEED_UNCACHED:-}
+[ ! -z "${KOREBUILD_DOTNET_FEED_CREDENTIAL:-}" ] && dotnet_feed_credential=${KOREBUILD_DOTNET_FEED_CREDENTIAL:-}
+
 __install_shared_runtime() {
     local install_dir=$1
     local version=$2
@@ -23,6 +30,9 @@ __install_shared_runtime() {
             --shared-runtime \
             --channel "$channel" \
             --version "$version" \
+            --azure-feed "$dotnet_feed_cdn" \
+            --uncached-feed "$dotnet_feed_uncached" \
+            --feed-credential "$dotnet_feed_credential" \
             $verbose_flag
 
         return $?
@@ -86,6 +96,9 @@ if [ ! -f "$install_dir/sdk/$version/dotnet.dll" ]; then
         --architecture x64 \
         --channel "$channel" \
         --version "$version" \
+        --azure-feed "$dotnet_feed_cdn" \
+        --uncached-feed "$dotnet_feed_uncached" \
+        --feed-credential "$dotnet_feed_credential" \
         $verbose_flag
 else
     echo -e "${GRAY}.NET Core SDK $version is already installed. Skipping installation.${RESET}"

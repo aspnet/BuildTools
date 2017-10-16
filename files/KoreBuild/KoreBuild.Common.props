@@ -32,11 +32,11 @@ Default layout and configuration.
     <Configuration Condition="'$(CI)' == 'true'">Release</Configuration>
     <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
     <SolutionProperties>$(SolutionProperties);Configuration=$(Configuration)</SolutionProperties>
-    <RepositoryRoot Condition="'$(RepositoryRoot)' == ''">$(MSBuildStartupDirectory)..\..\</RepositoryRoot>
-    <RepositoryRoot>$([MSBuild]::EnsureTrailingSlash('$(RepositoryRoot)'))</RepositoryRoot>
-    <ArtifactsDir>$(RepositoryRoot)artifacts\</ArtifactsDir>
+    <RepositoryRoot Condition="'$(RepositoryRoot)' == ''">$(MSBuildStartupDirectory)</RepositoryRoot>
+    <RepositoryRoot>$([MSBuild]::NormalizeDirectory('$(RepositoryRoot)'))</RepositoryRoot>
+    <ArtifactsDir>$([MSBuild]::NormalizeDirectory('$(RepositoryRoot)'))artifacts\</ArtifactsDir>
     <BuildDir>$(ArtifactsDir)build\</BuildDir>
-    <IntermediateDir>$(RepositoryRoot)obj\</IntermediateDir>
+    <IntermediateDir>$([MSBuild]::NormalizeDirectory('$(RepositoryRoot)'))obj\</IntermediateDir>
   </PropertyGroup>
 
   <!-- Use build number from CI if available -->

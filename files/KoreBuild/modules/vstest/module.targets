@@ -62,7 +62,7 @@ Runs the VSTest on all projects in the ProjectsToTest itemgroup.
       Importance="High"
       Condition="'@(BenchmarksToValidate)' != ''" />
 
-    <MSBuild Projects="%(BenchmarksToValidate.Identity)" Targets="GetTargetPath">
+    <MSBuild Projects="%(BenchmarksToValidate.Identity)" Targets="GetTargetPath" Properties="$(SolutionProperties)">
       <Output TaskParameter="TargetOutputs" PropertyName="ExecPath" />
     </MSBuild>
 

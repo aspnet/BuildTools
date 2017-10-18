@@ -45,7 +45,7 @@ namespace Microsoft.AspNetCore.BuildTools
 
         public override bool Execute()
         {
-            var workDir = FileHelpers.EnsureTrailingSlash(WorkingDirectory);
+            var workDir = FileHelpers.EnsureTrailingSlash(WorkingDirectory).Replace('\\', '/');
 
             foreach (var file in SourceFiles)
             {
@@ -54,15 +54,16 @@ namespace Microsoft.AspNetCore.BuildTools
                     continue;
                 }
 
-                if (!file.ItemSpec.StartsWith(workDir))
+                var filePath = file.ItemSpec.Replace('\\', '/');
+                if (!filePath.StartsWith(workDir))
                 {
                     Log.LogError("Item {0} is not inside the working directory {1}. Set the metadata 'Link' to file path that should be used within the zip archive",
-                        file.ItemSpec,
+                        filePath,
                         workDir);
                     return false;
                 }
 
-                file.SetMetadata("Link", file.ItemSpec.Substring(workDir.Length));
+                file.SetMetadata("Link", filePath.Substring(workDir.Length));
             }
 
             var fileMode = Overwrite

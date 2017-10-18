@@ -20,4 +20,6 @@
     <PackageReference Include="NuGet.Packaging" Version="$(NuGetPackagesVersion)" />
   </ItemGroup>
 
+  <Target Name="GetRuntimeVersion" Returns="$(RuntimeFrameworkVersion)" />
+
 </Project>

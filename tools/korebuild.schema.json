@@ -14,7 +14,8 @@
       "default": "dev",
       "enum": [
         "dev",
-        "rel/2.0.0"
+        "rel/2.0.0",
+        "rel/2.0.2"
       ]
     }
   }

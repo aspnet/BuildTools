@@ -9,11 +9,11 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Build.Framework;
-using Newtonsoft.Json;
 using KoreBuild.Tasks.Policies;
 using KoreBuild.Tasks.ProjectModel;
-using KoreBuild.Tasks.Utilties;
+using Microsoft.AspNetCore.BuildTools;
+using Microsoft.Build.Framework;
+using Newtonsoft.Json;
 
 namespace KoreBuild.Tasks
 {
@@ -51,18 +51,18 @@ namespace KoreBuild.Tasks
         /// Key-value base list of properties to be applied to <see cref="Projects" /> during project evaluation.
         /// e.g. "Configuration=Debug;BuildNumber=1234"
         /// </summary>
-        public string ProjectProperties { get; set; }
+        public string[] ProjectProperties { get; set; }
 
         /// <summary>
-        /// NuGet sources, ; delimited. When set, they override sources from NuGet.config.
+        /// NuGet sources. When set, they override sources from NuGet.config.
         /// </summary>
-        public string RestoreSources { get; set; }
+        public string[] RestoreSources { get; set; }
 
         /// <summary>
-        /// NuGet sources, ; delimited.
+        /// NuGet sources.
         /// When set they are in addition to source from NuGet.config and/or <see cref="RestoreSources"/>.
         /// </summary>
-        public string RestoreAdditionalSources { get; set; }
+        public string[] RestoreAdditionalSources { get; set; }
 
         /// <summary>
         /// User packages folder
@@ -124,8 +124,8 @@ namespace KoreBuild.Tasks
                 SolutionDirectory = SolutionDirectory,
                 Projects = projects,
                 Log = Log,
-                RestoreSources = MSBuildListSplitter.SplitItemList(RestoreSources).ToList(),
-                RestoreAdditionalSources = MSBuildListSplitter.SplitItemList(RestoreAdditionalSources).ToList(),
+                RestoreSources = RestoreSources?.ToList() ?? new List<string>(),
+                RestoreAdditionalSources = RestoreAdditionalSources?.ToList() ?? new List<string>(),
                 RestorePackagesPath = RestorePackagesPath,
                 RestoreDisableParallel = RestoreDisableParallel,
                 RestoreConfigFile = RestoreConfigFile,

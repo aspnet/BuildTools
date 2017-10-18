@@ -1,4 +1,6 @@
 <Project>
+  <Import Project="..\..\build\tasks\RepoTasks.tasks" />
+
   <Target Name="Publish">
     <ItemGroup>
       <Projects Include="$(MSBuildThisFileDirectory)console\NuGetPackageVerifier.Console.csproj" />
@@ -10,5 +12,15 @@
       Properties="PublishDir=$(PublishDir);Configuration=$(Configuration)" />
 
     <Copy SourceFiles="module.targets" DestinationFolder="$(PublishDir)" />
+
+    <MSBuild Projects="$(MSBuildThisFileDirectory)console\NuGetPackageVerifier.Console.csproj"
+      Targets="GetRuntimeVersion"
+      Properties="Configuration=$(Configuration)">
+      <Output TaskParameter="TargetOutputs" PropertyName="NgpvRuntimeFrameworkVersion" />
+    </MSBuild>
+
+    <GenerateFileFromTemplate TemplateFile="$(MSBuildThisFileDirectory)module.props.in"
+      Properties="RuntimeFrameworkVersion=$(NgpvRuntimeFrameworkVersion)"
+      OutputPath="$(PublishDir)module.props" />
   </Target>
 </Project>

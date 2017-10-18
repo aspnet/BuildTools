@@ -4,6 +4,7 @@
   </PropertyGroup>
 
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.GetGitCommitInfo" AssemblyFile="$(_RepoTaskAssembly)" />
+  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.GenerateFileFromTemplate" AssemblyFile="$(_RepoTaskAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.ZipArchive" AssemblyFile="$(_RepoTaskAssembly)" />
   <UsingTask TaskName="RepoTasks.GenerateBadge" AssemblyFile="$(_RepoTaskAssembly)" />
 </Project>

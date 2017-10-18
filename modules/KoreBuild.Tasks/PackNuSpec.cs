@@ -4,12 +4,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.AspNetCore.BuildTools;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using NuGet.Frameworks;
 using NuGet.Packaging;
 using NuGet.Packaging.Core;
-using KoreBuild.Tasks.Utilties;
 using NuGet.Versioning;
 
 namespace KoreBuild.Tasks
@@ -26,7 +26,7 @@ namespace KoreBuild.Tasks
 
         public ITaskItem[] Dependencies { get; set; }
 
-        public string Properties { get; set; }
+        public string[] Properties { get; set; }
 
         public bool IncludeEmptyDirectories { get; set; } = false;
 

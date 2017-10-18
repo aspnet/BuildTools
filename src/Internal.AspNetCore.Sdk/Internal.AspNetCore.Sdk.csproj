@@ -21,6 +21,7 @@
     <Compile Include="$(BuildToolsPath)*.cs" />
     <Compile Include="$(BuildToolsPath)Utilities\*.cs" />
     <Compile Include="..\..\shared\Microsoft.Extensions.CommandLineUtils.Sources\**\*.cs" />
+    <Compile Include="..\..\shared\Utilities\MSBuildListSplitter.cs" />
   </ItemGroup>
 
   <ItemGroup>

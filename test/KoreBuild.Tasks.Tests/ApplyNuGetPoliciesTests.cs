@@ -138,7 +138,7 @@ EndGlobal
             MSBuildEnvironmentHelper.InitializeEnvironment(_output);
             var task = new ApplyNuGetPolicies
             {
-                ProjectProperties = "BuildNumber=123;Configuration=Release",
+                ProjectProperties = new[] { "BuildNumber=123", "Configuration=Release" },
                 Projects = items,
                 BuildEngine = new MockEngine(),
             };

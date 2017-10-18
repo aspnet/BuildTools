@@ -4,6 +4,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         git \
 # KoreBuild dependencies
+        jq \
         curl \
         unzip \
         apt-transport-https \

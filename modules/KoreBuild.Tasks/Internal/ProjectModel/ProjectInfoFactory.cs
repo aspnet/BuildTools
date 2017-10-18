@@ -8,9 +8,8 @@ using System.Linq;
 using Microsoft.Build.Construction;
 using Microsoft.Build.Evaluation;
 using Microsoft.Build.Execution;
-using NuGet.Frameworks;
-using KoreBuild.Tasks.Utilties;
 using Microsoft.Build.Utilities;
+using NuGet.Frameworks;
 
 namespace KoreBuild.Tasks.ProjectModel
 {
@@ -81,7 +80,7 @@ namespace KoreBuild.Tasks.ProjectModel
                 var noWarn = item.GetMetadataValue("NoWarn");
                 IReadOnlyList<string> noWarnItems = string.IsNullOrEmpty(noWarn)
                     ? Array.Empty<string>()
-                    : MSBuildListSplitter.SplitItemList(noWarn).ToArray();
+                    : noWarn.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
 
                 var info = new PackageReferenceInfo(item.EvaluatedInclude, item.GetMetadataValue("Version"), isImplicit, noWarnItems);
 

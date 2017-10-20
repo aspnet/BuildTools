@@ -167,14 +167,20 @@ namespace KoreBuild.Tasks
             CancellationToken cancellationToken)
         {
             var remoteLibraryProvider = new SourceRepositoryDependencyProvider(repo, logger, cacheContext, ignoreFailedSources: false, ignoreWarning: false);
-            var downloads = new List<Task<bool>>();
             var metadataResource = await repo.GetResourceAsync<MetadataResource>();
 
+            if (metadataResource == null)
+            {
+                logger.LogError($"MetadataResource for '{repo}' was null.");
+                return false;
+            }
+
+            var downloads = new List<Task<bool>>();
             foreach (var request in requests)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (metadataResource != null && !await metadataResource.Exists(request, logger, cancellationToken))
+                if(!await metadataResource.Exists(request, logger, cancellationToken))
                 {
                     logger.LogError($"Package {request.Id} {request.Version} is not available on '{repo}'");
                     downloads.Add(FalseTask);

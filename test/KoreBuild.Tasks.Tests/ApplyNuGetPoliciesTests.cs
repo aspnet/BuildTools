@@ -15,16 +15,18 @@ using Xunit.Abstractions;
 
 namespace KoreBuild.Tasks.Tests
 {
+    [Collection(nameof(MSBuildTestCollection))]
     public class ApplyNuGetPoliciesTests : IDisposable
     {
         private readonly string _tmpDir;
         private readonly ITestOutputHelper _output;
 
-        public ApplyNuGetPoliciesTests(ITestOutputHelper output)
+        public ApplyNuGetPoliciesTests(ITestOutputHelper output, MSBuildTestCollectionFixture fixture)
         {
             _output = output;
             _tmpDir = Path.Combine(Path.GetTempPath(), "korebuild", Path.GetRandomFileName());
             Directory.CreateDirectory(_tmpDir);
+            fixture.InitializeEnvironment(output);
         }
 
         [Fact]
@@ -135,7 +137,6 @@ EndGlobal
                 new TaskItem(sln, new Hashtable { ["AdditionalProperties"] = "Configuration=ReleaseNoVSIX" }),
             };
 
-            MSBuildEnvironmentHelper.InitializeEnvironment(_output);
             var task = new ApplyNuGetPolicies
             {
                 ProjectProperties = new[] { "BuildNumber=123", "Configuration=Release" },

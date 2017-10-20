@@ -20,6 +20,8 @@ namespace KoreBuild.Tasks
         [Required]
         public string OutputPath { get; set; }
 
+        public bool AddOverrideImport { get; set; }
+
         public override bool Execute()
         {
             OutputPath = OutputPath.Replace('\\', '/');
@@ -74,6 +76,12 @@ namespace KoreBuild.Tasks
             foreach (var item in varNames)
             {
                 packageVersions.AppendChild(item.Value);
+            }
+
+            if (AddOverrideImport)
+            {
+                var import = projectRoot.AddImport("$(DotNetPackageVersionPropsPath)");
+                import.Condition = " '$(DotNetPackageVersionPropsPath)' != '' ";
             }
 
             projectRoot.Save(OutputPath, Encoding.UTF8);

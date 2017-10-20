@@ -6,6 +6,7 @@ using System.Collections;
 using System.IO;
 using BuildTools.Tasks.Tests;
 using Microsoft.Build.Construction;
+using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using Xunit;
 using Xunit.Abstractions;
@@ -27,14 +28,14 @@ namespace KoreBuild.Tasks.Tests
         [InlineData("Microsoft.Data.Sqlite", "MicrosoftDataSqlitePackageVersion")]
         [InlineData("SQLitePCLRaw.bundle_green", "SQLitePCLRawBundleGreenPackageVersion")]
         [InlineData("runtime.win-x64.Microsoft.NETCore", "RuntimeWinX64MicrosoftNETCorePackageVersion")]
-        public void ItGeneratesVariableName(string id, string varName)
+        public void GeneratesVariableName(string id, string varName)
         {
             var task = new GeneratePackageVersionPropsFile();
             Assert.Equal(varName, task.GetVariableName(id));
         }
 
         [Fact]
-        public void ItGeneratesFile()
+        public void GeneratesFile()
         {
             var engine = new MockEngine(_output);
             var task = new GeneratePackageVersionPropsFile
@@ -89,6 +90,26 @@ namespace KoreBuild.Tasks.Tests
                     Assert.Equal("1.2.0", p.Value);
                     Assert.Empty(p.Condition);
                 });
+        }
+
+        [Fact]
+        public void GeneratesImport()
+        {
+            var task = new GeneratePackageVersionPropsFile
+            {
+                BuildEngine = new MockEngine(_output),
+                Packages = Array.Empty<ITaskItem>(),
+                AddOverrideImport = true,
+                OutputPath = _tempFile,
+            };
+
+            Assert.True(task.Execute(), "Task is expected to pass");
+            var project = ProjectRootElement.Open(_tempFile);
+            _output.WriteLine(File.ReadAllText(_tempFile));
+
+            var import = Assert.Single(project.Imports);
+            Assert.Equal("$(DotNetPackageVersionPropsPath)", import.Project);
+            Assert.Equal(" '$(DotNetPackageVersionPropsPath)' != '' ", import.Condition);
         }
 
         public void Dispose()

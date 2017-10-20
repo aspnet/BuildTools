@@ -73,7 +73,7 @@ namespace KoreBuild.Tasks.Tests
                     Assert.Equal("AnotherPackagePackageVersion", p.Name);
                     Assert.Equal("Another.Package", p.Label);
                     Assert.Equal("0.0.1", p.Value);
-                    Assert.Equal(" '$(TargetFramework)' == 'netstandard1.0' ", p.Condition);
+                    Assert.Empty(p.Condition);
                 },
                 p =>
                 {

@@ -59,21 +59,16 @@ namespace KoreBuild.Tasks
                     packageVarName = GetVariableName(pkg.ItemSpec);
                 }
 
-                var packageTfm = pkg.GetMetadata("TargetFramework");
-                var key = $"{packageVarName}/{packageTfm}";
-                if (varNames.ContainsKey(key))
+                if (varNames.ContainsKey(packageVarName))
                 {
-                    Log.LogError("Multiple packages would produce {0} in the generated dependencies.props file. Set VariableName to differentiate the packages manually", key);
+                    Log.LogError("Multiple packages would produce {0} in the generated dependencies.props file. Set VariableName to differentiate the packages manually", packageVarName);
                     continue;
                 }
+
                 var elem = projectRoot.CreatePropertyElement(packageVarName);
                 elem.Value = packageVersion;
                 elem.Label = pkg.ItemSpec;
-                if (!string.IsNullOrEmpty(packageTfm))
-                {
-                    elem.Condition = $" '$(TargetFramework)' == '{packageTfm}' ";
-                }
-                varNames.Add(key, elem);
+                varNames.Add(packageVarName, elem);
             }
 
             foreach (var item in varNames)

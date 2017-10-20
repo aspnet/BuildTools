@@ -6,17 +6,27 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace KoreBuild.Tasks.Tests
 {
-    internal class MSBuildEnvironmentHelper
+    /// <summary>
+    /// Use this for any test that invokes Microsoft.Build.Construction APIs
+    /// </summary>
+    [CollectionDefinition(nameof(MSBuildTestCollection))]
+    public class MSBuildTestCollection : ICollectionFixture<MSBuildTestCollectionFixture>
+    { }
+
+    public class MSBuildTestCollectionFixture
     {
-        public static void InitializeEnvironment(ITestOutputHelper output)
+        private readonly string _dotnetDir;
+        private readonly string _sdkDir;
+
+        public MSBuildTestCollectionFixture()
         {
             var dotnet = Process.GetCurrentProcess().MainModule.FileName;
-            var dotnetDir = Path.GetDirectoryName(dotnet);
-            output.WriteLine($"dotnet = {dotnetDir}");
+            _dotnetDir = Path.GetDirectoryName(dotnet);
             string version = null;
             var dir = new DirectoryInfo(AppContext.BaseDirectory);
 
@@ -27,27 +37,30 @@ namespace KoreBuild.Tasks.Tests
                 {
                     var settings = JsonConvert.DeserializeAnonymousType(File.ReadAllText(globalJson.FullName), new { sdk = new { version = "" } });
                     version = settings.sdk.version;
-                    output.WriteLine($"global.json found in '{globalJson.FullName}' with SDK version '{version}'");
                     break;
                 }
                 dir = dir.Parent;
             }
 
-            string sdkDir;
             if (string.IsNullOrEmpty(version))
             {
-                var sdkDirs = new DirectoryInfo(Path.Combine(dotnetDir, "sdk"));
+                var sdkDirs = new DirectoryInfo(Path.Combine(_dotnetDir, "sdk"));
                 var sdks = sdkDirs.GetDirectories().First();
-                sdkDir = sdks.FullName;
+                _sdkDir = sdks.FullName;
             }
             else
             {
-                sdkDir = Path.Combine(dotnetDir, "sdk", version);
+                _sdkDir = Path.Combine(_dotnetDir, "sdk", version);
             }
 
-            output.WriteLine($"Setting MSBuild directory to {sdkDir}");
-            Environment.SetEnvironmentVariable("MSBUILD_EXE_PATH", Path.Combine(sdkDir, "MSBuild.dll"));
-            Environment.SetEnvironmentVariable("MSBUILDEXTENSIONSPATH", sdkDir);
+            Environment.SetEnvironmentVariable("MSBUILD_EXE_PATH", Path.Combine(_sdkDir, "MSBuild.dll"));
+            Environment.SetEnvironmentVariable("MSBUILDEXTENSIONSPATH", _sdkDir);
+        }
+
+        public void InitializeEnvironment(ITestOutputHelper output)
+        {
+            output.WriteLine($"dotnet = {_dotnetDir}");
+            output.WriteLine($"Setting MSBuild directory to {_sdkDir}");
         }
     }
 }

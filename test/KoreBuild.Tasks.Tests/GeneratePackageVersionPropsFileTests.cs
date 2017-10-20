@@ -13,15 +13,17 @@ using Xunit.Abstractions;
 
 namespace KoreBuild.Tasks.Tests
 {
+    [Collection(nameof(MSBuildTestCollection))]
     public class GeneratePackageVersionPropsFileTests : IDisposable
     {
         private readonly ITestOutputHelper _output;
         private readonly string _tempFile;
 
-        public GeneratePackageVersionPropsFileTests(ITestOutputHelper output)
+        public GeneratePackageVersionPropsFileTests(ITestOutputHelper output, MSBuildTestCollectionFixture fixture)
         {
             _output = output;
             _tempFile = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            fixture.InitializeEnvironment(output);
         }
 
         [Theory]

@@ -9,9 +9,9 @@ using Microsoft.Build.Utilities;
 namespace Microsoft.AspNetCore.BuildTools
 {
 #if SDK
-    public class Sdk_GetGitCommitInfo : Task
+    public class Sdk_GetGitBranch : Task
 #elif BuildTools
-    public class GetGitCommitInfo : Task
+    public class GetGitBranch : Task
 #else
 #error This must be built either for an SDK or for BuildTools
 #endif
@@ -30,18 +30,6 @@ namespace Microsoft.AspNetCore.BuildTools
         [Output]
         public string Branch { get; set; }
 
-        /// <summary>
-        /// The full commit SHA of the current commit referenced by HEAD.
-        /// </summary>
-        [Output]
-        public string CommitHash { get; set; }
-
-        /// <summary>
-        /// The folder containing the '.git', not the .git folder itself.
-        /// </summary>
-        [Output]
-        public string RepositoryRootPath { get; set; }
-
         public override bool Execute()
         {
             try
@@ -56,18 +44,17 @@ namespace Microsoft.AspNetCore.BuildTools
 
                 if (repoInfo.DetachedHeadMode)
                 {
-                    Log.LogWarning("The repo in '{0}' appears to be in detached HEAD mode. Unable to determine current git branch.", repoInfo.RepositoryRootPath);
+                    Log.LogError("The current git repo is in detached HEAD mode. It is not possible to determine the branch name.");
+                    return false;
                 }
 
-                if (string.IsNullOrEmpty(repoInfo.CommitHash))
+                if (string.IsNullOrEmpty(repoInfo.Branch))
                 {
-                    Log.LogError("Could not determine the commit hash of the current git repo in '{0}'.", repoInfo.RepositoryRootPath);
+                    Log.LogError("Could not determine the branch name of the current git repo in '{0}'.", repoInfo.RepositoryRootPath);
                     return false;
                 }
 
                 Branch = repoInfo.Branch;
-                CommitHash = repoInfo.CommitHash;
-                RepositoryRootPath = repoInfo.RepositoryRootPath;
                 return true;
             }
             catch (Exception ex)

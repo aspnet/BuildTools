@@ -9,5 +9,6 @@ namespace Microsoft.Extensions.Tools.Internal
         void Output(string message);
         void Warn(string message);
         void Error(string message);
+        bool IsVerbose { get; }
     }
 }

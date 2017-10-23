@@ -9,6 +9,7 @@
     </ApplyNuGetPoliciesDependsOn>
     
     <DisablePackageReferenceRestrictions Condition=" '$(DisablePackageReferenceRestrictions)' == '' ">false</DisablePackageReferenceRestrictions>
+    <DependencyVersionsFile Condition="'$(DependencyVersionsFile)' == ''">$(RepositoryRoot)build\dependencies.props</DependencyVersionsFile>
   </PropertyGroup>
 
   <ItemGroup Condition="@(PackageLineup->Count()) != 0 AND '$(RestrictVersionOnPackageReference)' != 'false' ">
@@ -77,23 +78,24 @@
 
     <!-- At some future date, we will make this always run, even if LineupPackageId is not set. We're using LineupPackageId as the way to tell if a repo has started using this pattern yet. -->
     <CheckPackageReferences Projects="@(Solutions);@(CommonlyImportedFiles)"
-      DependenciesFile="$(RepositoryRoot)build\dependencies.props"
+      DependenciesFile="$(DependencyVersionsFile)"
       Properties="$(SolutionProperties)"
       Condition=" '$(LineupPackageId)' != '' "/>
   </Target>
 
-
+  <!-- See also DependenciesUpgradeCommand.cs in KoreBuild.Console for a more discoverable way to run this. -->
   <Target Name="UpgradeDependencies">
     <Error Text="LineupPackageId was not set." Condition="'$(LineupPackageId)' == ''" />
     <Error Text="LineupPackageRestoreSource was not set." Condition="'$(LineupPackageRestoreSource)' == ''" />
     
     <UpgradeDependenciesPropsFile
-      DependenciesFile="$(RepositoryRoot)build\dependencies.props"
+      DependenciesFile="$(DependencyVersionsFile)"
       LineupPackageId="$(LineupPackageId)"
       LineupPackageVersion="$(LineupPackageVersion)"
       LineupPackageRestoreSource="$(LineupPackageRestoreSource)" />
   </Target>
 
+  <!-- See also DependenciesGenerateCommand.cs in KoreBuild.Console for a more discoverable way to run this. -->
   <Target Name="GenerateDependenciesPropsFile" DependsOnTargets="ResolveSolutions;Pin">
     <ItemGroup>
       <CommonlyImportedFiles Remove="@(CommonlyImportedFiles)" Condition="!Exists(%(CommonlyImportedFiles.Identity))" />
@@ -102,7 +104,7 @@
     <GenerateDependenciesPropsFile
       Projects="@(Solutions)"
       OtherImports="@(CommonlyImportedFiles)"
-      DependenciesFile="$(RepositoryRoot)build\dependencies.props"
+      DependenciesFile="$(DependencyVersionsFile)"
       Properties="$(SolutionProperties)" />
   </Target>
 

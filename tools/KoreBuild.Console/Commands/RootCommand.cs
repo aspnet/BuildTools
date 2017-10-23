@@ -16,6 +16,20 @@ namespace KoreBuild.Console.Commands
             application.Command("msbuild", new MSBuildCommand().Configure, throwOnUnexpectedArg:false);
             application.Command("docker-build", new DockerBuildCommand().Configure, throwOnUnexpectedArg: false);
 
+            // Commands that upgrade things
+            application.Command("upgrade", c =>
+            {
+                c.HelpOption("-h|--help");
+                c.Command("deps", new DependenciesUpgradeCommand().Configure);
+            });
+
+            // Commands that generate code and files
+            application.Command("generate", c =>
+            {
+                c.HelpOption("-h|--help");
+                c.Command("deps", new DependenciesGenerateCommand().Configure);
+            });
+
             application.VersionOption("--version", GetVersion);
 
             base.Configure(application);

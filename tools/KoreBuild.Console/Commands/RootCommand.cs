@@ -10,17 +10,19 @@ namespace KoreBuild.Console.Commands
     {
         public override void Configure(CommandLineApplication application)
         {
+            var context = new CommandContext(application);
+
             application.FullName = "korebuild";
 
-            application.Command("install-tools", new InstallToolsCommand().Configure, throwOnUnexpectedArg: false);
-            application.Command("msbuild", new MSBuildCommand().Configure, throwOnUnexpectedArg: false);
-            application.Command("docker-build", new DockerBuildCommand().Configure, throwOnUnexpectedArg: false);
+            application.Command("install-tools", new InstallToolsCommand(context).Configure, throwOnUnexpectedArg: false);
+            application.Command("msbuild", new MSBuildCommand(context).Configure, throwOnUnexpectedArg: false);
+            application.Command("docker-build", new DockerBuildCommand(context).Configure, throwOnUnexpectedArg: false);
 
             // Commands that upgrade things
             application.Command("upgrade", c =>
             {
                 c.HelpOption("-h|--help");
-                c.Command("deps", new DependenciesUpgradeCommand().Configure);
+                c.Command("deps", new DependenciesUpgradeCommand(context).Configure);
 
                 c.OnExecute(() =>
                 {
@@ -33,7 +35,7 @@ namespace KoreBuild.Console.Commands
             application.Command("generate", c =>
             {
                 c.HelpOption("-h|--help");
-                c.Command("deps", new DependenciesGenerateCommand().Configure);
+                c.Command("deps", new DependenciesGenerateCommand(context).Configure);
 
                 c.OnExecute(() =>
                 {

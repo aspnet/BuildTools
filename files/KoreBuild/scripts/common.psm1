@@ -1,10 +1,10 @@
-function __exec($cmd) {
-    $cmdName = [IO.Path]::GetFileName($cmd)
+function __exec($_cmd) {
+    $cmdName = [IO.Path]::GetFileName($_cmd)
 
     Write-Host -ForegroundColor Cyan ">>> $cmdName $args"
     $originalErrorPref = $ErrorActionPreference
     $ErrorActionPreference = 'Continue'
-    & $cmd @args
+    & $_cmd @args
     $exitCode = $LASTEXITCODE
     $ErrorActionPreference = $originalErrorPref
     if ($exitCode -ne 0) {

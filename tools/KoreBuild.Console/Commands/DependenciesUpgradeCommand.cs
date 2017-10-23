@@ -14,6 +14,10 @@ namespace KoreBuild.Console.Commands
         private CommandOption _packageVersionOpt;
         private CommandOption _fileOpt;
 
+        public DependenciesUpgradeCommand(CommandContext context) : base(context)
+        {
+        }
+
         public override void Configure(CommandLineApplication application)
         {
             application.Description = "Upgrades the build/dependencies.props file to the latest package versions";
@@ -47,7 +51,7 @@ MORE INFO:
             var args = new List<string>
             {
                 "msbuild",
-                Path.Combine(KoreBuildDir, "KoreBuild.proj"),
+                Path.Combine(Context.KoreBuildDir, "KoreBuild.proj"),
                 "-t:UpgradeDependencies",
             };
 
@@ -82,7 +86,7 @@ MORE INFO:
                 args.Add("-v:n");
             }
 
-            return RunDotnet(args, RepoPath);
+            return RunDotnet(args, Context.RepoPath);
         }
     }
 }

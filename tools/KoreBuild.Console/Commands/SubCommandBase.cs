@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -23,8 +24,20 @@ namespace KoreBuild.Console.Commands
         private CommandOption _verbose;
 
         private string _koreBuildDir;
+        private CommandOption _korebuildOverrideOpt;
 
-        public string KoreBuildDir => _koreBuildDir;
+        public string KoreBuildDir
+        {
+            get
+            {
+                if (_koreBuildDir == null)
+                {
+                    _koreBuildDir = FindKoreBuildDirectory();
+                }
+                return _koreBuildDir;
+            }
+        }
+
         public string ConfigDirectory => Path.Combine(KoreBuildDir, "config");
         public string RepoPath => _repoPathOption.HasValue() ? _repoPathOption.Value() : Directory.GetCurrentDirectory();
         public string DotNetHome => GetDotNetHome();
@@ -35,9 +48,11 @@ namespace KoreBuild.Console.Commands
 
         public override void Configure(CommandLineApplication application)
         {
-            _koreBuildDir = FindKoreBuildDirectory();
-
             base.Configure(application);
+
+            _korebuildOverrideOpt = application.Option("--korebuild-override <PATH>", "Where is KoreBuild?", CommandOptionType.SingleValue);
+            // for local development only
+            _korebuildOverrideOpt.ShowInHelpText = false;
 
             _verbose = application.Option("-v|--verbose", "Show verbose output", CommandOptionType.NoValue);
             _toolsSourceOption = application.Option("--tools-source", "The source to draw tools from.", CommandOptionType.SingleValue);
@@ -57,15 +72,28 @@ namespace KoreBuild.Console.Commands
             return base.IsValid();
         }
 
-        protected int RunDotnet(string[] arugments)
+        protected int RunDotnet(params string[] arguments)
+            => RunDotnet(arguments, Directory.GetCurrentDirectory());
+
+        protected int RunDotnet(IEnumerable<string> arguments, string workingDir)
         {
-            var args = ArgumentEscaper.EscapeAndConcatenate(arugments);
+            var args = ArgumentEscaper.EscapeAndConcatenate(arguments);
+
+            // use the dotnet.exe file used to start this process
+            var dotnet = DotNetMuxer.MuxerPath;
+            // if it could not be found, fallback to detecting DOTNET_HOME or PATH
+            dotnet = string.IsNullOrEmpty(dotnet) || !Path.IsPathRooted(dotnet)
+                ? GetDotNetExecutable()
+                : dotnet;
 
             var psi = new ProcessStartInfo
             {
-                FileName = GetDotNetExecutable(),
-                Arguments = args
+                FileName = dotnet,
+                Arguments = args,
+                WorkingDirectory = workingDir,
             };
+
+            Reporter.Verbose($"Executing '{psi.FileName} {psi.Arguments}'");
 
             var process = Process.Start(psi);
             process.WaitForExit();
@@ -116,6 +144,11 @@ namespace KoreBuild.Console.Commands
 
         private string FindKoreBuildDirectory()
         {
+            if (_korebuildOverrideOpt.HasValue())
+            {
+                return Path.GetFullPath(_korebuildOverrideOpt.Value());
+            }
+
             var executingDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var root = Directory.GetDirectoryRoot(executingDir);
             while (executingDir != root)

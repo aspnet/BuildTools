@@ -12,8 +12,8 @@ namespace KoreBuild.Console.Commands
         {
             application.FullName = "korebuild";
 
-            application.Command("install-tools", new InstallToolsCommand().Configure, throwOnUnexpectedArg:false);
-            application.Command("msbuild", new MSBuildCommand().Configure, throwOnUnexpectedArg:false);
+            application.Command("install-tools", new InstallToolsCommand().Configure, throwOnUnexpectedArg: false);
+            application.Command("msbuild", new MSBuildCommand().Configure, throwOnUnexpectedArg: false);
             application.Command("docker-build", new DockerBuildCommand().Configure, throwOnUnexpectedArg: false);
 
             // Commands that upgrade things
@@ -21,6 +21,12 @@ namespace KoreBuild.Console.Commands
             {
                 c.HelpOption("-h|--help");
                 c.Command("deps", new DependenciesUpgradeCommand().Configure);
+
+                c.OnExecute(() =>
+                {
+                    c.ShowHelp();
+                    return 2;
+                });
             });
 
             // Commands that generate code and files
@@ -28,6 +34,12 @@ namespace KoreBuild.Console.Commands
             {
                 c.HelpOption("-h|--help");
                 c.Command("deps", new DependenciesGenerateCommand().Configure);
+
+                c.OnExecute(() =>
+                {
+                    c.ShowHelp();
+                    return 2;
+                });
             });
 
             application.VersionOption("--version", GetVersion);

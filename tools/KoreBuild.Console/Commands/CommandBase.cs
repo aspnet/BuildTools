@@ -18,7 +18,7 @@ namespace KoreBuild.Console.Commands
             application.OnExecute(
                 () =>
                 {
-                    if(IsValid())
+                    if (IsValid())
                     {
                         return Execute();
                     }

@@ -1,27 +1,23 @@
 <Project>
 
   <PropertyGroup>
-    <PrepareDependsOn>$(PrepareDependsOn);_UseVolatileFeed;ResolveGitInfo</PrepareDependsOn>
+    <PrepareDependsOn>$(PrepareDependsOn);_UseVolatileFeed;ResolveCommitHash</PrepareDependsOn>
   </PropertyGroup>
 
-  <Target Name="ResolveGitInfo" Condition="'$(CommitHash)' == ''">
+  <Target Name="ResolveCommitHash" Condition="'$(CommitHash)' == ''">
     <PropertyGroup>
       <CommitHash Condition="'$(APPVEYOR_REPO_COMMIT)' != ''">$(APPVEYOR_REPO_COMMIT)</CommitHash>
-      <GitBranch Condition="'$(APPVEYOR_REPO_BRANCH)' != ''">$(APPVEYOR_REPO_BRANCH)</GitBranch>
       <CommitHash Condition="'$(TRAVIS_COMMIT)' != ''">$(TRAVIS_COMMIT)</CommitHash>
-      <GitBranch Condition="'$(TRAVIS_BRANCH)' != ''">$(TRAVIS_BRANCH)</GitBranch>
     </PropertyGroup>
 
-    <GetGitCommitInfo WorkingDirectory="$(RepositoryRoot)"
+    <GetGitCommitHash WorkingDirectory="$(RepositoryRoot)"
                       Condition="'$(CommitHash)' == ''"
                       ContinueOnError="WarnAndContinue">
       <Output TaskParameter="CommitHash" PropertyName="CommitHash" />
-      <Output TaskParameter="Branch" PropertyName="GitBranch" />
-    </GetGitCommitInfo>
+    </GetGitCommitHash>
 
     <PropertyGroup>
       <SolutionProperties Condition="'$(CommitHash)' != ''">$(SolutionProperties);CommitHash=$(CommitHash)</SolutionProperties>
-      <SolutionProperties Condition="'$(GitBranch)' != ''">$(SolutionProperties);GitBranch=$(GitBranch)</SolutionProperties>
     </PropertyGroup>
   </Target>
 

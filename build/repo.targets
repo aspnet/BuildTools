@@ -1,6 +1,5 @@
 <Project>
 
-  <!-- resolve using git.exe because the GetGitCommitInfoTask isn't available here -->
   <Target Name="ResolveCommitHash" Condition="'$(CommitHash)'==''" BeforeTargets="Prepare">
 
     <GetGitCommitInfo WorkingDirectory="$(RepositoryRoot)"

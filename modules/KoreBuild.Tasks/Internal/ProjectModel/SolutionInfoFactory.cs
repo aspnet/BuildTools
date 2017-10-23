@@ -3,8 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using Microsoft.AspNetCore.BuildTools;
 using Microsoft.Build.Construction;
+using Microsoft.Build.Framework;
 
 namespace KoreBuild.Tasks.ProjectModel
 {
@@ -37,6 +40,34 @@ namespace KoreBuild.Tasks.ProjectModel
             }
 
             return new SolutionInfo(filePath, projects.ToArray());
+        }
+
+        public static IEnumerable<string> GetProjects(ITaskItem projectOrSolution, IDictionary<string, string> solutionProperties)
+        {
+            var projectFilePath = projectOrSolution.ItemSpec.Replace('\\', '/');
+
+            if (Path.GetExtension(projectFilePath).Equals(".sln", StringComparison.OrdinalIgnoreCase))
+            {
+                // prefer the AdditionalProperties metadata as this is what the MSBuild task will use when building solutions
+                var props = MSBuildListSplitter.GetNamedProperties(projectOrSolution.GetMetadata("AdditionalProperties"));
+                props.TryGetValue("Configuration", out var config);
+
+                if (config == null)
+                {
+                    solutionProperties.TryGetValue("Configuration", out config);
+                }
+
+                var sln = Create(projectFilePath, config);
+
+                foreach (var project in sln.Projects)
+                {
+                    yield return project;
+                }
+            }
+            else
+            {
+                yield return Path.GetFullPath(projectFilePath);
+            }
         }
     }
 }

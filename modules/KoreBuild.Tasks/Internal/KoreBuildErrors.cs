@@ -21,6 +21,11 @@ namespace KoreBuild.Tasks
         public const int PackageReferenceHasVersion = 4002;
         public const int DotNetCliReferenceReferenceHasVersion = 4003;
         public const int PackageVersionNotFoundInLineup = 4004;
+        public const int PackageRefHasLiteralVersion = 4005;
+        public const int VariableNotFoundInDependenciesPropsFile = 4006;
+        public const int PackageRefHasFloatingVersion = 4007;
+        public const int PackageRefPropertyGroupNotFound = 4008;
+        public const int PackageReferenceDoesNotHaveVersion = 4009;
 
         // Other unknown errors
         public const int PolicyFailedToApply = 5000;

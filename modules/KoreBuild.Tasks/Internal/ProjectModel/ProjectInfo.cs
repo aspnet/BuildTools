@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace KoreBuild.Tasks.ProjectModel
 {
@@ -29,6 +30,11 @@ namespace KoreBuild.Tasks.ProjectModel
 
             const string extension = ".nugetpolicy.g.targets";
             TargetsExtension = new MSBuildProjectExtension(Path.Combine(ProjectExtensionsPath, FileName + extension));
+
+            foreach (var dep in frameworks.SelectMany(f => f.Dependencies))
+            {
+                dep.Value.Project = this;
+            }
         }
 
         public string FullPath { get; }

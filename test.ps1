@@ -6,12 +6,15 @@ param(
     [string]$Command,
     [Parameter(Mandatory=$true)]
     [string]$RepoPath,
+    [switch]$NoBuild = $false,
     [Parameter(ValueFromRemainingArguments = $true)]
     [string[]]$Arguments
 )
 
-& .\build.ps1 /t:PackageKoreBuild
+if (!$NoBuild) {
+    & .\build.ps1 /t:PackageKoreBuild
+}
 
-$toolsSource = "./artifacts/"
+$toolsSource = "$PSScriptRoot/artifacts/"
 
 & .\scripts\bootstrapper\run.ps1 -Command $Command -Path $RepoPath -s $toolsSource -u @Arguments

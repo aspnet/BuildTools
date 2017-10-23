@@ -5,19 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using KoreBuild.Tasks.Utilities;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using NuGet.Build;
-using NuGet.Commands;
-using NuGet.Configuration;
 using NuGet.Packaging.Core;
-using NuGet.Protocol;
-using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
-using Task = System.Threading.Tasks.Task;
 
 namespace KoreBuild.Tasks
 {
@@ -26,7 +21,6 @@ namespace KoreBuild.Tasks
     /// </summary>
     public class DownloadNuGetPackages : Microsoft.Build.Utilities.Task, ICancelableTask
     {
-        private static readonly Task<bool> FalseTask = Task.FromResult(false);
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
 
         /// <summary>
@@ -69,7 +63,7 @@ namespace KoreBuild.Tasks
         {
             DestinationFolder = DestinationFolder.Replace('\\', '/');
 
-            var requests = new Dictionary<string, List<PackageIdentity>>(StringComparer.OrdinalIgnoreCase);
+            var requests = new List<PackageDownloadRequest>();
             var files = new List<ITaskItem>();
             var downloadCount = 0;
             foreach (var item in Packages)
@@ -89,23 +83,26 @@ namespace KoreBuild.Tasks
                     return false;
                 }
 
-                if (!requests.TryGetValue(source, out var packages))
-                {
-                    packages = requests[source] = new List<PackageIdentity>();
-                }
+                var outputPath = Path.Combine(DestinationFolder, $"{id.ToLowerInvariant()}.{version.ToNormalizedString()}.nupkg");
 
-                var request = new PackageIdentity(id, version);
-                var dest = GetExpectedOutputPath(request);
-                files.Add(new TaskItem(dest));
-                if (File.Exists(dest))
+                files.Add(new TaskItem(outputPath));
+                if (File.Exists(outputPath))
                 {
-                    Log.LogMessage($"Skipping {request.Id} {request.Version}. Already exists in '{dest}'");
+                    Log.LogMessage($"Skipping {id} {version}. Already exists in '{outputPath}'");
                     continue;
                 }
                 else
                 {
                     downloadCount++;
-                    packages.Add(request);
+
+                    var request = new PackageDownloadRequest
+                    {
+                        Identity = new PackageIdentity(id, version),
+                        OutputPath = outputPath,
+                        Source = source,
+                    };
+
+                    requests.Add(request);
                 }
             }
 
@@ -119,106 +116,15 @@ namespace KoreBuild.Tasks
 
             Directory.CreateDirectory(DestinationFolder);
             var logger = new MSBuildLogger(Log);
+            var timeout = TimeSpan.FromSeconds(TimeoutSeconds);
+            var downloader = new PackageDownloader(logger);
             var timer = Stopwatch.StartNew();
 
-            logger.LogMinimal($"Downloading {downloadCount} package(s)");
+            var result = await downloader.DownloadPackagesAsync(requests, timeout, _cts.Token);
 
-            using (var cacheContext = new SourceCacheContext())
-            {
-                var defaultSettings = Settings.LoadDefaultSettings(root: null, configFileName: null, machineWideSettings: null);
-                var sourceProvider = new CachingSourceProvider(new PackageSourceProvider(defaultSettings));
-                var tasks = new List<Task<bool>>();
-
-                foreach (var feed in requests)
-                {
-                    var repo = sourceProvider.CreateRepository(new PackageSource(feed.Key));
-                    tasks.Add(DownloadPackagesAsync(repo, feed.Value, cacheContext, logger, _cts.Token));
-                }
-
-                var all = Task.WhenAll(tasks);
-                var wait = TimeSpan.FromSeconds(TimeoutSeconds);
-                var delay = Task.Delay(wait);
-
-                var finished = await Task.WhenAny(all, delay);
-                if (ReferenceEquals(delay, finished))
-                {
-                    Log.LogError($"Timed out after {wait.TotalSeconds}s");
-                    Cancel();
-                    return false;
-                }
-
-                if (!tasks.All(a => a.Result))
-                {
-                    Log.LogError("Failed to download all packages");
-                    return false;
-                }
-
-                timer.Stop();
-                logger.LogMinimal($"Finished downloading {downloadCount} package(s) in {timer.ElapsedMilliseconds}ms");
-                return true;
-            }
-        }
-
-        private async Task<bool> DownloadPackagesAsync(
-            SourceRepository repo,
-            IEnumerable<PackageIdentity> requests,
-            SourceCacheContext cacheContext,
-            NuGet.Common.ILogger logger,
-            CancellationToken cancellationToken)
-        {
-            var remoteLibraryProvider = new SourceRepositoryDependencyProvider(repo, logger, cacheContext, ignoreFailedSources: false, ignoreWarning: false);
-            var metadataResource = await repo.GetResourceAsync<MetadataResource>();
-
-            if (metadataResource == null)
-            {
-                logger.LogError($"MetadataResource for '{repo}' was null.");
-                return false;
-            }
-
-            var downloads = new List<Task<bool>>();
-            foreach (var request in requests)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                if(!await metadataResource.Exists(request, logger, cancellationToken))
-                {
-                    logger.LogError($"Package {request.Id} {request.Version} is not available on '{repo}'");
-                    downloads.Add(FalseTask);
-                    continue;
-                }
-
-                var download = DownloadPackageAsync(cacheContext, logger, remoteLibraryProvider, request, cancellationToken);
-                downloads.Add(download);
-            }
-
-            await Task.WhenAll(downloads);
-            return downloads.All(d => d.Result);
-        }
-
-        private async Task<bool> DownloadPackageAsync(SourceCacheContext cacheContext,
-            NuGet.Common.ILogger logger,
-            SourceRepositoryDependencyProvider remoteLibraryProvider,
-            PackageIdentity request,
-            CancellationToken cancellationToken)
-        {
-            var dest = GetExpectedOutputPath(request);
-            logger.LogInformation($"Downloading {request.Id} {request.Version} to '{dest}'");
-
-            using (var packageDependency = await remoteLibraryProvider.GetPackageDownloaderAsync(request, cacheContext, logger, cancellationToken))
-            {
-                if (!await packageDependency.CopyNupkgFileToAsync(dest, cancellationToken))
-                {
-                    logger.LogError($"Could not download {request.Id} {request.Version} from {remoteLibraryProvider.Source}");
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        private string GetExpectedOutputPath(PackageIdentity request)
-        {
-            return Path.Combine(DestinationFolder, $"{request.Id.ToLowerInvariant()}.{request.Version.ToNormalizedString()}.nupkg");
+            timer.Stop();
+            logger.LogMinimal($"Finished downloading {requests.Count} package(s) in {timer.ElapsedMilliseconds}ms");
+            return result;
         }
     }
 }

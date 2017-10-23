@@ -144,7 +144,7 @@ EndGlobal
                 BuildEngine = new MockEngine(),
             };
 
-            var projects = task.CreateProjectContext();
+            var projects = new ProjectInfoFactory(new TaskLoggingHelper(task)).CreateMany(task.Projects, task.ProjectProperties, true, default);
             Assert.NotNull(projects);
             var project = Assert.Single(projects);
             Assert.Equal(projectPath, project.FullPath);

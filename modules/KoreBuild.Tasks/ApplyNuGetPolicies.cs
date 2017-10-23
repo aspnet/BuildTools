@@ -112,7 +112,7 @@ namespace KoreBuild.Tasks
                 return !Log.HasLoggedErrors;
             }
 
-            var projects = CreateProjectContext();
+            var projects = new ProjectInfoFactory(Log).CreateMany(Projects, ProjectProperties, true, _cts.Token);
 
             if (_cts.IsCancellationRequested)
             {
@@ -187,66 +187,6 @@ namespace KoreBuild.Tasks
             }
 
             return policies;
-        }
-
-        internal IReadOnlyList<ProjectInfo> CreateProjectContext()
-        {
-            var solutionProps = MSBuildListSplitter.GetNamedProperties(ProjectProperties);
-            var projectFiles = Projects.SelectMany(p => GetFilePaths(p, solutionProps)).Distinct();
-            var projects = new ConcurrentBag<ProjectInfo>();
-            var stop = Stopwatch.StartNew();
-
-            Parallel.ForEach(projectFiles, projectFile =>
-            {
-                if (_cts.IsCancellationRequested)
-                {
-                    return;
-                }
-
-                try
-                {
-                    projects.Add(new ProjectInfoFactory(Log).Create(projectFile));
-                }
-                catch (Exception ex)
-                {
-                    Log.LogErrorFromException(ex);
-                    Cancel();
-                }
-            });
-
-            stop.Stop();
-            Log.LogMessage(MessageImportance.Low, $"Finished design-time build in {stop.ElapsedMilliseconds}ms");
-            return projects.ToArray();
-        }
-
-        private IEnumerable<string> GetFilePaths(ITaskItem projectOrSolution, IDictionary<string, string> solutionProperties)
-        {
-            var projectFilePath = projectOrSolution.ItemSpec.Replace('\\', '/');
-
-            if (Path.GetExtension(projectFilePath).Equals(".sln", StringComparison.OrdinalIgnoreCase))
-            {
-                // prefer the AdditionalProperties metadata as this is what the MSBuild task will use when building solutions
-                var props = MSBuildListSplitter.GetNamedProperties(projectOrSolution.GetMetadata("AdditionalProperties"));
-                props.TryGetValue("Configuration", out var config);
-
-                if (config == null)
-                {
-                    solutionProperties.TryGetValue("Configuration", out config);
-                }
-
-                Log.LogMessage(MessageImportance.Low, $"Parsing solution {projectFilePath} with config {config}");
-                var sln = SolutionInfoFactory.Create(projectFilePath, config);
-
-                foreach (var project in sln.Projects)
-                {
-                    Log.LogMessage(MessageImportance.Low, $"Found project {project} from solution file {projectFilePath}");
-                    yield return project;
-                }
-            }
-            else
-            {
-                yield return Path.GetFullPath(projectFilePath);
-            }
         }
     }
 }

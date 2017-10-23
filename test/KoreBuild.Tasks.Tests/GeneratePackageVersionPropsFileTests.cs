@@ -32,8 +32,7 @@ namespace KoreBuild.Tasks.Tests
         [InlineData("runtime.win-x64.Microsoft.NETCore", "RuntimeWinX64MicrosoftNETCorePackageVersion")]
         public void GeneratesVariableName(string id, string varName)
         {
-            var task = new GeneratePackageVersionPropsFile();
-            Assert.Equal(varName, task.GetVariableName(id));
+            Assert.Equal(varName, GeneratePackageVersionPropsFile.GetVariableName(id));
         }
 
         [Fact]

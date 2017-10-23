@@ -22,6 +22,8 @@ namespace KoreBuild.Tasks
 
         public bool AddOverrideImport { get; set; }
 
+        public bool SuppressVariableLabels { get; set; }
+
         public override bool Execute()
         {
             OutputPath = OutputPath.Replace('\\', '/');
@@ -69,7 +71,10 @@ namespace KoreBuild.Tasks
 
                 var elem = projectRoot.CreatePropertyElement(packageVarName);
                 elem.Value = packageVersion;
-                elem.Label = pkg.ItemSpec;
+                if (!SuppressVariableLabels)
+                {
+                    elem.Label = pkg.ItemSpec;
+                }
                 varNames.Add(packageVarName, elem);
             }
 
@@ -89,7 +94,7 @@ namespace KoreBuild.Tasks
             return !Log.HasLoggedErrors;
         }
 
-        internal string GetVariableName(string packageId)
+        public static string GetVariableName(string packageId)
         {
             var sb = new StringBuilder();
             var first = true;

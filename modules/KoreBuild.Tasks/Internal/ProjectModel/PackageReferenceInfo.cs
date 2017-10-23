@@ -25,5 +25,6 @@ namespace KoreBuild.Tasks.ProjectModel
         public string Version { get; }
         public bool IsImplicitlyDefined { get; }
         public IReadOnlyList<string> NoWarn { get; }
+        public ProjectInfo Project { get; internal set; }
     }
 }

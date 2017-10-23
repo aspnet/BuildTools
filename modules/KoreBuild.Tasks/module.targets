@@ -1,12 +1,14 @@
 <Project>
 
   <PropertyGroup>
-    <RestoreDependsOn>ApplyNuGetPolicies;InstallDotNet;$(RestoreDependsOn)</RestoreDependsOn>
+    <RestoreDependsOn>ApplyNuGetPolicies;InstallDotNet;CheckPackageReferences;$(RestoreDependsOn)</RestoreDependsOn>
     <ApplyNuGetPoliciesDependsOn>
       $(ApplyNuGetPoliciesDependsOn);
       Prepare;
       ResolveSolutions;
     </ApplyNuGetPoliciesDependsOn>
+    
+    <DisablePackageReferenceRestrictions Condition=" '$(DisablePackageReferenceRestrictions)' == '' ">false</DisablePackageReferenceRestrictions>
   </PropertyGroup>
 
   <ItemGroup Condition="@(PackageLineup->Count()) != 0 AND '$(RestrictVersionOnPackageReference)' != 'false' ">
@@ -53,4 +55,55 @@
       DotNetHome="$(DOTNET_HOME)"
       InstallScript="$(_DotNetInstall)"/>
   </Target>
+
+  <ItemGroup>
+    <CommonlyImportedFiles Include="$(RepositoryRoot)Directory.Build.props" />
+    <CommonlyImportedFiles Include="$(RepositoryRoot)Directory.Build.targets" />
+    <CommonlyImportedFiles Include="$(RepositoryRoot)src\Directory.Build.props" />
+    <CommonlyImportedFiles Include="$(RepositoryRoot)src\Directory.Build.targets" />
+    <CommonlyImportedFiles Include="$(RepositoryRoot)test\Directory.Build.props" />
+    <CommonlyImportedFiles Include="$(RepositoryRoot)test\Directory.Build.targets" />
+    <CommonlyImportedFiles Include="$(RepositoryRoot)build\common.props" />
+  </ItemGroup>
+
+  <Target Name="CheckPackageReferences" DependsOnTargets="ResolveSolutions" Condition="'$(DisablePackageReferenceRestrictions)' != 'true' AND @(PackageLineup->Count()) == 0">
+    <ItemGroup>
+      <CommonlyImportedFiles Remove="@(CommonlyImportedFiles)" Condition="!Exists(%(CommonlyImportedFiles.Identity))" />
+    </ItemGroup>
+
+    <!-- Issue the warning repos not using PackageLineup or that have not set LineupPackageId about a breaking change. -->
+    <Warning Text="Upcoming breaking change to KoreBuild. You should set DisablePackageReferenceRestrictions=true if this is not a regular aspnetcore project. See https://github.com/aspnet/BuildTools/wiki/PackageReference-management for details."
+             Condition=" '$(LineupPackageId)' == '' "/>
+
+    <!-- At some future date, we will make this always run, even if LineupPackageId is not set. We're using LineupPackageId as the way to tell if a repo has started using this pattern yet. -->
+    <CheckPackageReferences Projects="@(Solutions);@(CommonlyImportedFiles)"
+      DependenciesFile="$(RepositoryRoot)build\dependencies.props"
+      Properties="$(SolutionProperties)"
+      Condition=" '$(LineupPackageId)' != '' "/>
+  </Target>
+
+
+  <Target Name="UpgradeDependencies">
+    <Error Text="LineupPackageId was not set." Condition="'$(LineupPackageId)' == ''" />
+    <Error Text="LineupPackageRestoreSource was not set." Condition="'$(LineupPackageRestoreSource)' == ''" />
+    
+    <UpgradeDependenciesPropsFile
+      DependenciesFile="$(RepositoryRoot)build\dependencies.props"
+      LineupPackageId="$(LineupPackageId)"
+      LineupPackageVersion="$(LineupPackageVersion)"
+      LineupPackageRestoreSource="$(LineupPackageRestoreSource)" />
+  </Target>
+
+  <Target Name="GenerateDependenciesPropsFile" DependsOnTargets="ResolveSolutions;Pin">
+    <ItemGroup>
+      <CommonlyImportedFiles Remove="@(CommonlyImportedFiles)" Condition="!Exists(%(CommonlyImportedFiles.Identity))" />
+    </ItemGroup>
+
+    <GenerateDependenciesPropsFile
+      Projects="@(Solutions)"
+      OtherImports="@(CommonlyImportedFiles)"
+      DependenciesFile="$(RepositoryRoot)build\dependencies.props"
+      Properties="$(SolutionProperties)" />
+  </Target>
+
 </Project>

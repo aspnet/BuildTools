@@ -54,7 +54,7 @@ namespace KoreBuild.Tasks.Tests
         {
             var packages = new[]
             {
-                new TaskItem("SomePackage", new Hashtable { ["Version"] = "1.0.0", ["Source"] = AppContext.BaseDirectory} ),
+                new TaskItem("SomePackage", new Hashtable { ["Version"] = "1.0.0", ["Source"] = AppContext.BaseDirectory }),
             };
 
             var engine = new MockEngine(_output) { ContinueOnError = true };

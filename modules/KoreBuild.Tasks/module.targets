@@ -7,7 +7,7 @@
       Prepare;
       ResolveSolutions;
     </ApplyNuGetPoliciesDependsOn>
-    
+
     <DisablePackageReferenceRestrictions Condition=" '$(DisablePackageReferenceRestrictions)' == '' ">false</DisablePackageReferenceRestrictions>
     <DependencyVersionsFile Condition="'$(DependencyVersionsFile)' == ''">$(RepositoryRoot)build\dependencies.props</DependencyVersionsFile>
   </PropertyGroup>
@@ -87,8 +87,8 @@
   <Target Name="UpgradeDependencies">
     <Error Text="LineupPackageId was not set." Condition="'$(LineupPackageId)' == ''" />
     <Error Text="LineupPackageRestoreSource was not set." Condition="'$(LineupPackageRestoreSource)' == ''" />
-    
-    <UpgradeDependenciesPropsFile
+
+    <UpgradeDependencies
       DependenciesFile="$(DependencyVersionsFile)"
       LineupPackageId="$(LineupPackageId)"
       LineupPackageVersion="$(LineupPackageVersion)"

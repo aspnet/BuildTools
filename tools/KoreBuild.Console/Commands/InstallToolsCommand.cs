@@ -11,6 +11,10 @@ namespace KoreBuild.Console.Commands
 {
     internal class InstallToolsCommand : SubCommandBase
     {
+        public InstallToolsCommand(CommandContext context) : base(context)
+        {
+        }
+
         private string KoreBuildSkipRuntimeInstall => Environment.GetEnvironmentVariable("KOREBUILD_SKIP_RUNTIME_INSTALL");
         private string PathENV => Environment.GetEnvironmentVariable("PATH");
         private string DotNetInstallDir => Environment.GetEnvironmentVariable("DOTNET_INSTALL_DIR");
@@ -19,21 +23,21 @@ namespace KoreBuild.Console.Commands
         {
             base.Configure(application);
         }
-        
+
         protected override int Execute()
         {
-            var installDir = GetDotNetInstallDir();
+            var installDir = Context.GetDotNetInstallDir();
 
             Reporter.Verbose($"Installing tools to '{installDir}'");
-            
-            if(DotNetInstallDir != null && DotNetInstallDir != installDir)
+
+            if (DotNetInstallDir != null && DotNetInstallDir != installDir)
             {
                 Reporter.Verbose($"installDir = {installDir}");
                 Reporter.Verbose($"DOTNET_INSTALL_DIR = {DotNetInstallDir}");
                 Reporter.Verbose("The environment variable DOTNET_INSTALL_DIR is deprecated. The recommended alternative is DOTNET_HOME.");
             }
 
-            var dotnet = GetDotNetExecutable();
+            var dotnet = Context.GetDotNetExecutable();
             var dotnetOnPath = GetCommandFromPath("dotnet");
 
             // TODO: decide case sensitivity and handly symbolic links
@@ -48,18 +52,18 @@ namespace KoreBuild.Console.Commands
                 Reporter.Output($"Adding {pathPrefix} to PATH");
                 Environment.SetEnvironmentVariable("PATH", $"{pathPrefix};{PathENV}");
             }
-            
-            if(KoreBuildSkipRuntimeInstall == "1")
+
+            if (KoreBuildSkipRuntimeInstall == "1")
             {
                 Reporter.Output("Skipping runtime installation because KOREBUILD_SKIP_RUNTIME_INSTALL = 1");
                 return 0;
             }
 
-            var scriptExtension = IsWindows() ? "ps1" : "sh";
+            var scriptExtension = Context.IsWindows() ? "ps1" : "sh";
 
-            var scriptPath = Path.Combine(KoreBuildDir, "dotnet-install." + scriptExtension);
+            var scriptPath = Path.Combine(Context.KoreBuildDir, "dotnet-install." + scriptExtension);
 
-            if (!IsWindows())
+            if (!Context.IsWindows())
             {
                 var args = ArgumentEscaper.EscapeAndConcatenate(new string[] { "+x", scriptPath });
                 var psi = new ProcessStartInfo
@@ -78,19 +82,19 @@ namespace KoreBuild.Console.Commands
 
             var runtimesToInstall = new List<Tuple<string, string>>();
 
-            if(runtimeVersion != null)
+            if (runtimeVersion != null)
             {
                 runtimesToInstall.Add(new Tuple<string, string>(runtimeVersion, runtimeChannel));
             }
 
-            var architecture = GetArchitecture();
+            var architecture = Context.GetArchitecture();
 
-            foreach(var runtime in runtimesToInstall)
+            foreach (var runtime in runtimesToInstall)
             {
                 InstallSharedRuntime(scriptPath, installDir, architecture, runtime.Item1, runtime.Item2);
             }
 
-            InstallCLI(scriptPath, installDir, architecture, SDKVersion, channel);
+            InstallCLI(scriptPath, installDir, architecture, Context.SDKVersion, channel);
 
             return 0;
         }
@@ -129,7 +133,7 @@ namespace KoreBuild.Console.Commands
         {
             var sharedRuntimePath = Path.Combine(installDir, "shared", "Microsoft.NETCore.App", version);
 
-            if(!Directory.Exists(sharedRuntimePath))
+            if (!Directory.Exists(sharedRuntimePath))
             {
                 var args = ArgumentEscaper.EscapeAndConcatenate(new string[]
                 {
@@ -159,7 +163,7 @@ namespace KoreBuild.Console.Commands
         {
             var channel = "preview";
             var channelEnv = Environment.GetEnvironmentVariable("KOREBUILD_DOTNET_CHANNEL");
-            if(channelEnv != null)
+            if (channelEnv != null)
             {
                 channel = channelEnv;
             }
@@ -171,7 +175,7 @@ namespace KoreBuild.Console.Commands
         {
             var runtimeChannel = "master";
             var runtimeEnv = Environment.GetEnvironmentVariable("KOREBUILD_DOTNET_SHARED_RUNTIME_CHANNEL");
-            if(runtimeEnv != null)
+            if (runtimeEnv != null)
             {
                 runtimeChannel = runtimeEnv;
             }
@@ -181,7 +185,7 @@ namespace KoreBuild.Console.Commands
 
         private string GetRuntimeVersion()
         {
-            var runtimeVersionPath = Path.Combine(ConfigDirectory, "runtime.version");
+            var runtimeVersionPath = Path.Combine(Context.ConfigDirectory, "runtime.version");
             return File.ReadAllText(runtimeVersionPath).Trim();
         }
 

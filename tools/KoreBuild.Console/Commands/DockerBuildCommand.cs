@@ -17,9 +17,13 @@ namespace KoreBuild.Console.Commands
         private const string Owner = "aspnetbuild";
         private const string ImageName = "korebuild";
 
+        public DockerBuildCommand(CommandContext context) : base(context)
+        {
+        }
+
         public CommandArgument ImageVariant { get; set; }
 
-        public List<string> Arguments {get; set; }
+        public List<string> Arguments { get; set; }
 
         public string Tag => $@"{Owner}/{ImageName}:{ImageVariant.Value}";
 
@@ -33,7 +37,7 @@ namespace KoreBuild.Console.Commands
 
         protected override bool IsValid()
         {
-            if(string.IsNullOrEmpty(ImageVariant?.Value))
+            if (string.IsNullOrEmpty(ImageVariant?.Value))
             {
                 Reporter.Error("Image is a required argument.");
                 return false;
@@ -46,30 +50,30 @@ namespace KoreBuild.Console.Commands
         {
             var dockerFileName = GetDockerFileName(ImageVariant.Value);
             var dockerFileSource = GetDockerFileSource(dockerFileName);
-            var dockerFileDestination = Path.Combine(RepoPath, GetDockerFileName(ImageVariant.Value));
+            var dockerFileDestination = Path.Combine(Context.RepoPath, GetDockerFileName(ImageVariant.Value));
 
             File.Copy(dockerFileSource, dockerFileDestination, overwrite: true);
 
             var dockerIgnoreSource = GetDockerFileSource(DockerIgnore);
-            var dockerIgnoreDestination = Path.Combine(RepoPath, DockerIgnore);
+            var dockerIgnoreDestination = Path.Combine(Context.RepoPath, DockerIgnore);
 
             File.Copy(dockerIgnoreSource, dockerIgnoreDestination, overwrite: true);
 
             // If our ToolSource isn't http copy it to the docker context
-            var dockerToolsSource = ToolsSource;
+            var dockerToolsSource = Context.ToolsSource;
             string toolsSourceDestination = null;
-            if (!ToolsSource.StartsWith("http"))
+            if (!Context.ToolsSource.StartsWith("http"))
             {
                 dockerToolsSource = "ToolsSource";
-                toolsSourceDestination = Path.Combine(RepoPath, dockerToolsSource);
-                DirectoryCopy(ToolsSource, toolsSourceDestination);
+                toolsSourceDestination = Path.Combine(Context.RepoPath, dockerToolsSource);
+                DirectoryCopy(Context.ToolsSource, toolsSourceDestination);
             }
 
             try
             {
                 var buildArgs = new List<string> { "build" };
 
-                buildArgs.AddRange(new string[] { "-t", Tag, "-f", dockerFileDestination, RepoPath });
+                buildArgs.AddRange(new string[] { "-t", Tag, "-f", dockerFileDestination, Context.RepoPath });
                 var buildResult = RunDockerCommand(buildArgs);
 
                 if (buildResult != 0)
@@ -91,11 +95,12 @@ namespace KoreBuild.Console.Commands
                 Reporter.Verbose($"Running in container '{containerName}'");
                 return RunDockerCommand(runArgs);
             }
-            finally{
+            finally
+            {
                 // Clean up the stuff we dumped there in order to get it in the docker context.
                 File.Delete(dockerFileDestination);
                 File.Delete(dockerIgnoreDestination);
-                if(toolsSourceDestination != null)
+                if (toolsSourceDestination != null)
                 {
                     Directory.Delete(toolsSourceDestination, recursive: true);
                 }
@@ -107,7 +112,7 @@ namespace KoreBuild.Console.Commands
             var executingDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var source = Path.Combine(executingDir, "Commands", "DockerFiles", fileName);
 
-            if(!File.Exists(source))
+            if (!File.Exists(source))
             {
                 Reporter.Error($"DockerFile '{source}' doesn't exist.");
                 throw new FileNotFoundException();
@@ -136,7 +141,7 @@ namespace KoreBuild.Console.Commands
             var process = Process.Start(psi);
             process.WaitForExit();
 
-            if(process.ExitCode != 0)
+            if (process.ExitCode != 0)
             {
                 Reporter.Error(process.StandardError.ReadToEnd());
             }

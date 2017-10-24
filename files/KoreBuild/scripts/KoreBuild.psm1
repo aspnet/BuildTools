@@ -344,10 +344,11 @@ function Invoke-KoreBuildCommand(
 
         $korebuildConsoleDll = Get-KoreBuildConsole
 
-        & dotnet $korebuildConsoleDll $Command `
+        & dotnet $korebuildConsoleDll `
             --tools-source $global:KoreBuildSettings.ToolsSource `
             --dotnet-home $global:KoreBuildSettings.DotNetHome `
             --repo-path $global:KoreBuildSettings.RepoPath `
+            $Command `
             @Arguments
     }
 }

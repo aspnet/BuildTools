@@ -58,11 +58,17 @@ namespace KoreBuild.Tasks
 
             foreach (var packageRef in packageRefs)
             {
+                if (packageRef.Value.NoWarn.Contains(KoreBuildErrors.Prefix + KoreBuildErrors.ConflictingPackageReferenceVersions))
+                {
+                    // Make it possible to suppress version conflicts while generating this file.
+                    continue;
+                }
+
                 if (unifiedPackageList.TryGetValue(packageRef.Value.Id, out var other))
                 {
                     if (other.Version != packageRef.Value.Version)
                     {
-                        Log.LogError($"Conflicting dependency versions for {packageRef.Value.Id}: {other.Project.FileName} references v{other.Version} but {packageRef.Value.Project.FileName} references {packageRef.Value.Version}");
+                        Log.LogKoreBuildError(KoreBuildErrors.ConflictingPackageReferenceVersions, $"Conflicting dependency versions for {packageRef.Value.Id}: {other.Project.FileName} references '{other.Version}' but {packageRef.Value.Project.FileName} references '{packageRef.Value.Version}'");
                     }
                 }
                 else
@@ -94,12 +100,22 @@ namespace KoreBuild.Tasks
                 return false;
             }
 
-            foreach (var proj in projects.Select(p => p.FullPath).Concat(OtherImports.Select(p => p.ItemSpec)))
+            var otherImports = OtherImports != null
+                ? OtherImports.Select(p => p.ItemSpec)
+                : Array.Empty<string>();
+
+            foreach (var proj in projects.Select(p => p.FullPath).Concat(otherImports))
             {
                 var project = ProjectRootElement.Open(proj, ProjectCollection.GlobalProjectCollection, preserveFormatting: true);
                 var changed = false;
                 foreach (var item in project.Items.Where(i => i.ItemType == "PackageReference"))
                 {
+                    var noWarn = item.Metadata.FirstOrDefault(m => m.Name == "NoWarn");
+                    if (noWarn != null && noWarn.Value.Contains(KoreBuildErrors.Prefix + KoreBuildErrors.ConflictingPackageReferenceVersions))
+                    {
+                        continue;
+                    }
+
                     var versionMetadata = item.Metadata.LastOrDefault(p => p.Name == "Version");
                     if (versionMetadata != null && versionMetadata.Value.StartsWith("$("))
                     {

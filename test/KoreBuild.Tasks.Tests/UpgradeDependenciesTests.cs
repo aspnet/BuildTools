@@ -81,6 +81,29 @@ namespace KoreBuild.Tasks.Tests
         }
 
         [Fact]
+        public async Task SnapsInternalAspNetCoreSdkToBuildTools()
+        {
+            // arrange
+            var packageId = new PackageIdentity("Lineup", NuGetVersion.Parse("1.0.0"));
+            var lineupPackagePath = CreateLineup(packageId, ("InternalAspNetCoreSdkPackageVersion", "2.0.0"));
+            var depsFilePath = CreateProjectDepsFile(("InternalAspNetCoreSdkPackageVersion", "1.0.0"));
+
+            // act
+            var task = new UpgradeDependencies
+            {
+                BuildEngine = new MockEngine(_output),
+                DependenciesFile = depsFilePath,
+                LineupPackageId = packageId.Id,
+                LineupPackageRestoreSource = _tempDir,
+            };
+
+            // assert
+            Assert.True(await task.ExecuteAsync(), "Task is expected to pass");
+            var modifiedDepsFile = DependencyVersionsFile.Load(depsFilePath);
+            Assert.Equal(KoreBuildVersion.Current, modifiedDepsFile.VersionVariables["InternalAspNetCoreSdkPackageVersion"]);
+        }
+
+        [Fact]
         public async Task DoesNotModifiesFileIfNoChanges()
         {
             // arrange

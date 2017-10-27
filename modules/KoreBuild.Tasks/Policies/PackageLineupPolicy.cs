@@ -21,7 +21,7 @@ namespace KoreBuild.Tasks.Policies
 {
     internal class PackageLineupPolicy : INuGetPolicy
     {
-        private readonly static string NoWarn = KoreBuildErrors.Prefix + KoreBuildErrors.PackageReferenceHasVersion;
+        private readonly static string NoWarn = KoreBuildErrors.Prefix + KoreBuildErrors.ConflictingPackageReferenceVersions;
 
         private readonly IReadOnlyList<ITaskItem> _items;
         private readonly IRestoreLineupCommand _command;

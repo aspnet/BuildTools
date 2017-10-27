@@ -18,7 +18,7 @@ namespace KoreBuild.Tasks
 
         // NuGet errors
         public const int InvalidNuspecFile = 4001;
-        public const int PackageReferenceHasVersion = 4002;
+        public const int ConflictingPackageReferenceVersions = 4002;
         public const int DotNetCliReferenceReferenceHasVersion = 4003;
         public const int PackageVersionNotFoundInLineup = 4004;
         public const int PackageRefHasLiteralVersion = 4005;
@@ -26,6 +26,7 @@ namespace KoreBuild.Tasks
         public const int PackageRefHasFloatingVersion = 4007;
         public const int PackageRefPropertyGroupNotFound = 4008;
         public const int PackageReferenceDoesNotHaveVersion = 4009;
+        public const int InvalidPackageVersion = 4010;
 
         // Other unknown errors
         public const int PolicyFailedToApply = 5000;

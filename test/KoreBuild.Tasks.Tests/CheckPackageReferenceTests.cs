@@ -156,6 +156,39 @@ namespace KoreBuild.Tasks.Tests
             Assert.Contains(_engine.Errors, e => e.Code == KoreBuildErrors.Prefix + KoreBuildErrors.PackageRefHasFloatingVersion);
         }
 
+        [Fact]
+        public void FailsWhenPackageVersionIsInvalid()
+        {
+            var depsProps = Path.Combine(_tempDir, "dependencies.props");
+            File.WriteAllText(depsProps, $@"
+<Project>
+  <PropertyGroup Label=`Package Versions`>
+    <AspNetCorePackageVersion>1</AspNetCorePackageVersion>
+  </PropertyGroup>
+</Project>
+".Replace('`', '"'));
+
+            var csproj = Path.Combine(_tempDir, "Test.csproj");
+            File.WriteAllText(csproj, $@"
+<Project>
+  <ItemGroup>
+    <PackageReference Include=`AspNetCore` Version=`$(AspNetCorePackageVersion)` />
+  </ItemGroup>
+</Project>
+".Replace('`', '"'));
+
+            _engine.ContinueOnError = true;
+            var task = new CheckPackageReferences
+            {
+                BuildEngine = _engine,
+                Projects = new[] { new TaskItem(csproj) },
+                DependenciesFile = depsProps,
+            };
+
+            Assert.False(task.Execute(), "Task is expected to fail");
+            Assert.NotEmpty(_engine.Errors);
+            Assert.Contains(_engine.Errors, e => e.Code == KoreBuildErrors.Prefix + KoreBuildErrors.InvalidPackageVersion);
+        }
 
         [Theory]
         [InlineData("1.0.0")]

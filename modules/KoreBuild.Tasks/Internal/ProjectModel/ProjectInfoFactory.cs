@@ -30,6 +30,11 @@ namespace KoreBuild.Tasks.ProjectModel
 
         public IReadOnlyList<ProjectInfo> CreateMany(ITaskItem[] projectItems, string[] properties, bool policyDesignBuild, CancellationToken token)
         {
+            if (projectItems == null)
+            {
+                return Array.Empty<ProjectInfo>();
+            }
+
             var cts = new CancellationTokenSource();
             token.Register(() => cts.Cancel());
             var solutionProps = MSBuildListSplitter.GetNamedProperties(properties);

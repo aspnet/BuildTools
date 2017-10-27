@@ -133,11 +133,19 @@ namespace KoreBuild.Tasks
                 var updateCount = 0;
                 foreach (var var in localVersionsFile.VersionVariables)
                 {
-                    if (!remoteDepsVersionFile.VersionVariables.TryGetValue(var.Key, out var newValue))
+                    string newValue;
+                    // special case any package bundled in KoreBuild
+                    if (!string.IsNullOrEmpty(KoreBuildVersion.Current) && var.Key == "InternalAspNetCoreSdkPackageVersion")
+                    {
+                        newValue = KoreBuildVersion.Current;
+                        Log.LogMessage(MessageImportance.Low, "Setting InternalAspNetCoreSdkPackageVersion to the current version of KoreBuild");
+                    }
+                    else if (!remoteDepsVersionFile.VersionVariables.TryGetValue(var.Key, out newValue))
                     {
                         Log.LogKoreBuildWarning(DependenciesFile, KoreBuildErrors.PackageVersionNotFoundInLineup, $"A new version variable for {var.Key} could not be found in {LineupPackageId}. This might be an unsupported external dependency.");
                         continue;
                     }
+
                     if (newValue != var.Value)
                     {
                         updateCount++;

@@ -15,7 +15,7 @@ using NuGet.Versioning;
 namespace KoreBuild.Tasks
 {
     /// <summary>
-    /// Ensures MSBuild files use PackageReference responsibly. 
+    /// Ensures MSBuild files use PackageReference responsibly.
     /// </summary>
     public class CheckPackageReferences : Microsoft.Build.Utilities.Task
     {
@@ -119,7 +119,12 @@ namespace KoreBuild.Tasks
                     continue;
                 }
 
-                var nugetVersion = VersionRange.Parse(versionValue);
+                if (!VersionRange.TryParse(versionValue, out var nugetVersion))
+                {
+                    Log.LogKoreBuildError(pkgRef.Location.File, pkgRef.Location.Line, KoreBuildErrors.InvalidPackageVersion, $"PackageReference to {id} has an invalid version identifier: '{versionValue}'");
+                    continue;
+                }
+
                 if (nugetVersion.IsFloating)
                 {
                     Log.LogKoreBuildError(pkgRef.Location.File, pkgRef.Location.Line, KoreBuildErrors.PackageRefHasFloatingVersion, $"PackageReference to {id} uses a floating version: '{versionValue}'");

@@ -45,7 +45,7 @@ invoke_korebuild_command(){
 
 ensure_dotnet() {
     if ! __machine_has dotnet; then
-        install_tools
+        install_tools "$tools_source" "$dot_net_home"
     fi
 }
 

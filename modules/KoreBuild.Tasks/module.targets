@@ -1,6 +1,7 @@
 <Project>
 
   <PropertyGroup>
+    <PrepareDependsOn>GetToolsets;$(PrepareDependsOn)</PrepareDependsOn>
     <RestoreDependsOn>ApplyNuGetPolicies;InstallDotNet;CheckPackageReferences;$(RestoreDependsOn)</RestoreDependsOn>
     <ApplyNuGetPoliciesDependsOn>
       $(ApplyNuGetPoliciesDependsOn);
@@ -9,6 +10,7 @@
     </ApplyNuGetPoliciesDependsOn>
 
     <DisablePackageReferenceRestrictions Condition=" '$(DisablePackageReferenceRestrictions)' == '' ">false</DisablePackageReferenceRestrictions>
+    <KoreBuildConfigFile Condition="'$(KoreBuildConfigFile)' == ''">$(RepositoryRoot)korebuild.json</KoreBuildConfigFile>
     <DependencyVersionsFile Condition="'$(DependencyVersionsFile)' == ''">$(RepositoryRoot)build\dependencies.props</DependencyVersionsFile>
   </PropertyGroup>
 
@@ -106,6 +108,14 @@
       OtherImports="@(CommonlyImportedFiles)"
       DependenciesFile="$(DependencyVersionsFile)"
       Properties="$(SolutionProperties)" />
+  </Target>
+
+  <!-- This target asserts that all tools listed in korebuild.json are available. -->
+  <Target Name="GetToolsets" Condition="Exists($(KoreBuildConfigFile))">
+    <GetToolsets ConfigFile="$(KoreBuildConfigFile)">
+      <Output TaskParameter="VisualStudioMSBuildx86Path" PropertyName="VisualStudioMSBuildx86Path" />
+      <Output TaskParameter="VisualStudioMSBuildx64Path" PropertyName="VisualStudioMSBuildx64Path" />
+    </GetToolsets>
   </Target>
 
 </Project>

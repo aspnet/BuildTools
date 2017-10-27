@@ -12,6 +12,7 @@
     <SystemReflectionMetadataVersion>1.5.0</SystemReflectionMetadataVersion>
     <TestSdkVersion>15.3.0</TestSdkVersion>
     <XunitVersion>2.3.0-rc3-build3818</XunitVersion>
+    <VSWherePackageVersion>2.2.7</VSWherePackageVersion>
   </PropertyGroup>
 
   <!--

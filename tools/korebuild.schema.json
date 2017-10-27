@@ -1,7 +1,72 @@
 {
   "title": "Config file for KoreBuild",
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-06/hyper-schema",
   "type": "object",
+  "definitions": {
+    "platforms": {
+      "oneOf": [
+        {
+          "properties": {
+            "required": {
+              "description": "Visual Studio is required to build this repo. Defaults to true if not specified.",
+              "type": "boolean",
+              "default": true
+            }
+          }
+        },
+        {
+          "properties": {
+            "required": {
+              "description": "Visual Studio is required to build this repo. Defaults to true if not specified.",
+              "type": "array",
+              "default": [
+                "windows",
+                "linux",
+                "macos"
+              ],
+              "items": {
+                "type": "string",
+                "enum": [
+                  "windows",
+                  "linux",
+                  "macos"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualstudio": {
+      "type": "object",
+      "description": "Defines the requirements for Visual Studio installation.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/platforms"
+        },
+        {
+          "properties": {
+            "includePrerelease": {
+              "description": "Include pre-release versions when searching for a version of Visual Studio",
+              "type": "boolean",
+              "default": true
+            },
+            "requiredWorkloads": {
+              "type": "array",
+              "description": "A list of workloads that must be installed. See https://aka.ms/vs/workloads.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "minVersion": {
+              "type": "string",
+              "description": "The minimum version of Visual Studio required."
+            }
+          }
+        }
+      ]
+    }
+  },
   "properties": {
     "toolsSource": {
       "description": "The remote source used to download KoreBuild. Can be a file path.",
@@ -17,6 +82,15 @@
         "rel/2.0.0",
         "rel/2.0.2"
       ]
+    },
+    "toolsets": {
+      "description": "Lists required toolsets for this repository.",
+      "type": "object",
+      "properties": {
+        "visualstudio": {
+          "$ref": "#/definitions/visualstudio"
+        }
+      }
     }
   }
 }

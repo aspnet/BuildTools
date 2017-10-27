@@ -36,8 +36,44 @@ docker-build | Runs the build inside docker. | .\run.ps1 docker-build {jessie\|w
 default-build| Runs install-tools followed by msbuild (like build.cmd used to). | .\run.ps1 default-build /t:SomeTarget /p:Parameters
 msbuild      | Runs the build normally. | .\run.ps1 msbuild /t:SomeTarget /p:Parameters
 
+### KoreBuild config
+
+KoreBuild can be configured by adding a 'korebuild.json' file into the root folder of your repository.
+
+Example:
+```js
+{
+  // add this for editor auto-completion :)
+  "$schema": "https://raw.githubusercontent.com/aspnet/BuildTools/dev/tools/korebuild.schema.json",
+
+  // specifies the channel used to update KoreBuild to new versions when you attempt to upgrade KoreBuild
+  "channel": "dev",
+
+  "toolsets": {
+      // All toolsets listed in this section are treated as required toolsets
+
+      "visualstudio": {
+          // defaults to `true`
+          "includePrerelease": false,
+
+          // see https://aka.ms/vs/workloads
+          "requiredWorkloads": [
+            "Microsoft.VisualStudio.Component.VSSDK"
+          ],
+
+          // Default = no minimum version
+          "minVersion": "15.4",
+
+          // This tool is only required on Windows.
+          "required": [ "windows" ]
+      }
+  }
+}
+```
+
 ### Local testing
 To test changes to this project locally we recomend you do:
-```
+
+```ps1
 ./test.ps1 -Command $CommandToTest -RepoPath C:\repo\to\test\against\
 ```

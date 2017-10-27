@@ -9,6 +9,7 @@
   <ItemGroup>
     <Compile Include="..\shared\*" />
     <Content Include="..\..\files\KoreBuild\scripts\dotnet-install.*" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="$(VSWhereDir)vswhere.exe" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,6 +20,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(TestSdkVersion)" />
     <PackageReference Include="Moq" Version="$(MoqVersion)" />
     <PackageReference Include="NuGet.Build.Tasks" Version="$(NuGetInMSBuildVersion)" />
+    <PackageReference Include="vswhere" Version="$(VsWherePackageVersion)" />
     <PackageReference Include="xunit" Version="$(XunitVersion)" />
     <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitVersion)" />
   </ItemGroup>

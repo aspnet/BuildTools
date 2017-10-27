@@ -2,8 +2,10 @@
   <UsingTask TaskName="KoreBuild.Tasks.ApplyNuGetPolicies" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
   <UsingTask TaskName="KoreBuild.Tasks.CheckPackageReferences" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
   <UsingTask TaskName="KoreBuild.Tasks.DownloadNuGetPackages" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
+  <UsingTask TaskName="KoreBuild.Tasks.FindVisualStudio" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
   <UsingTask TaskName="KoreBuild.Tasks.GenerateDependenciesPropsFile" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
-  <UsingTask TaskName="KoreBuild.Tasks.GeneratePackageVersionPropsFile" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
+  <UsingTask TaskName="KoreBuild.Tasks.GenerateDependenciesPropsFile" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
+  <UsingTask TaskName="KoreBuild.Tasks.GetToolsets" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
   <UsingTask TaskName="KoreBuild.Tasks.InstallDotNet" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
   <UsingTask TaskName="KoreBuild.Tasks.PackNuSpec" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
   <UsingTask TaskName="KoreBuild.Tasks.PushNuGetPackages" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />

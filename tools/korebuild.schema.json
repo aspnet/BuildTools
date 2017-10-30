@@ -8,7 +8,7 @@
         {
           "properties": {
             "required": {
-              "description": "Visual Studio is required to build this repo. Defaults to true if not specified.",
+              "description": "This toolset is required to build this repo. Defaults to true if not specified.",
               "type": "boolean",
               "default": true
             }
@@ -17,7 +17,7 @@
         {
           "properties": {
             "required": {
-              "description": "Visual Studio is required to build this repo. Defaults to true if not specified.",
+              "description": "This toolset is required to build this repo. Defaults to true if not specified.",
               "type": "array",
               "default": [
                 "windows",
@@ -32,6 +32,23 @@
                   "macos"
                 ]
               }
+            }
+          }
+        }
+      ]
+    },
+    "nodejs": {
+      "type": "object",
+      "description": "Defines the requirements for a NodeJS installation.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/platforms"
+        },
+        {
+          "properties": {
+            "minVersion": {
+              "type": "string",
+              "description": "The minimum version of NodeJS required. Must contain at least <major>.<minor>, but can also be <major>.<minor>.<patch>"
             }
           }
         }
@@ -89,6 +106,9 @@
       "properties": {
         "visualstudio": {
           "$ref": "#/definitions/visualstudio"
+        },
+        "nodejs": {
+          "$ref": "#/definitions/nodejs"
         }
       }
     }

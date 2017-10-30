@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 
 namespace KoreBuild
@@ -42,6 +43,13 @@ namespace KoreBuild
             public string MinVersion { get; set; }
             public string[] RequiredWorkloads { get; set; } = Array.Empty<string>();
         }
+
+        public class NodeJSToolset : KoreBuildToolset
+        {
+            [JsonConverter(typeof(VersionConverter))]
+            public Version MinVersion { get; set; }
+        }
+
         public static KoreBuildSettings Load(string filePath)
         {
             using (var file = File.OpenText(filePath))
@@ -65,14 +73,22 @@ namespace KoreBuild
 
                 foreach (var prop in obj.Properties())
                 {
+                    KoreBuildToolset toolset;
                     switch (prop.Name.ToLowerInvariant())
                     {
                         case "visualstudio":
-                            var vs = prop.Value.ToObject<VisualStudioToolset>();
-                            toolsets.Add(vs);
+                            toolset = prop.Value.ToObject<VisualStudioToolset>();
+                            break;
+                        case "nodejs":
+                            toolset = prop.Value.ToObject<NodeJSToolset>();
                             break;
                         default:
-                            break;
+                            continue;
+                    }
+
+                    if (toolset != null)
+                    {
+                        toolsets.Add(toolset);
                     }
                 }
 

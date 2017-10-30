@@ -42,6 +42,8 @@ KoreBuild can be configured by adding a 'korebuild.json' file into the root fold
 
 Example:
 ```js
+// NB: Don't actually use comments in JSON files. PowerShell's ConvertFrom-Json will throw an error.
+
 {
   // add this for editor auto-completion :)
   "$schema": "https://raw.githubusercontent.com/aspnet/BuildTools/dev/tools/korebuild.schema.json",
@@ -66,6 +68,11 @@ Example:
 
           // This tool is only required on Windows.
           "required": [ "windows" ]
+      },
+
+      "nodejs": {
+        "required": true,
+        "minVersion": "8.0"
       }
   }
 }

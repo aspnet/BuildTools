@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using Newtonsoft.Json;
 using Xunit;
 
 namespace KoreBuild.Tasks.Tests
@@ -95,6 +96,38 @@ namespace KoreBuild.Tasks.Tests
 
             var vs = Assert.IsType<KoreBuildSettings.VisualStudioToolset>(toolset);
             Assert.Equal(platforms, vs.Required);
+        }
+
+        [Fact]
+        public void ItDeserializesNodeJSToolsetWithVersion()
+        {
+            File.WriteAllText(_configFile, @"
+{
+  ""toolsets"": {
+    ""nodejs"": {
+      ""minVersion"": ""8.0""
+    }
+  }
+}");
+            var settings = KoreBuildSettings.Load(_configFile);
+            var toolset = Assert.Single(settings.Toolsets);
+
+            var node = Assert.IsType<KoreBuildSettings.NodeJSToolset>(toolset);
+            Assert.Equal(new Version(8, 0), node.MinVersion);
+        }
+
+        [Fact]
+        public void ItFailsIfVersionIsNotValid()
+        {
+            File.WriteAllText(_configFile, @"
+{
+  ""toolsets"": {
+    ""nodejs"": {
+      ""minVersion"": ""banana""
+    }
+  }
+}");
+            Assert.Throws<JsonSerializationException>(() => KoreBuildSettings.Load(_configFile));
         }
     }
 }

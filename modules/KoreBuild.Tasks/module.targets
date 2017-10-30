@@ -115,6 +115,7 @@
     <GetToolsets ConfigFile="$(KoreBuildConfigFile)">
       <Output TaskParameter="VisualStudioMSBuildx86Path" PropertyName="VisualStudioMSBuildx86Path" />
       <Output TaskParameter="VisualStudioMSBuildx64Path" PropertyName="VisualStudioMSBuildx64Path" />
+      <Output TaskParameter="NodeJSPath" PropertyName="NodeJSPath" />
     </GetToolsets>
   </Target>
 

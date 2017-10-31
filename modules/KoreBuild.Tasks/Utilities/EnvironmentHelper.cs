@@ -22,7 +22,7 @@ namespace KoreBuild.Tasks.Utilities
 
             _executableExtensions = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
                 ? Environment.GetEnvironmentVariable("PATHEXT").Split(';').Select(e => e.ToLower().Trim('"')).ToArray()
-                : Array.Empty<string>();
+                : new [] { string.Empty };
         }
 
         public static string GetCommandOnPath(string exeName)

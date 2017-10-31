@@ -21,6 +21,7 @@
     "Microsoft.AspNet.Identity.EntityFramework": [ "2.2.1" ],
     "Microsoft.AspNet.WebApi.Client": [ "5.2.2" ],
     "Microsoft.Azure.KeyVault": [ "2.3.2" ],
+    "Microsoft.Azure.Services.AppAuthentication": [ "1.0.0-preview" ],
     "Microsoft.Build.Runtime": [ "15.3.409" ],
     "Microsoft.Build.Tasks.Core": [ "15.3.409" ],
     "Microsoft.CSharp": [ "4.4.0-*" ],

@@ -62,6 +62,10 @@
   <ItemGroup>
     <CommonlyImportedFiles Include="$(RepositoryRoot)Directory.Build.props" />
     <CommonlyImportedFiles Include="$(RepositoryRoot)Directory.Build.targets" />
+    <CommonlyImportedFiles Include="$(RepositoryRoot)benchmarks\Directory.Build.props" />
+    <CommonlyImportedFiles Include="$(RepositoryRoot)benchmarks\Directory.Build.targets" />
+    <CommonlyImportedFiles Include="$(RepositoryRoot)samples\Directory.Build.props" />
+    <CommonlyImportedFiles Include="$(RepositoryRoot)samples\Directory.Build.targets" />
     <CommonlyImportedFiles Include="$(RepositoryRoot)src\Directory.Build.props" />
     <CommonlyImportedFiles Include="$(RepositoryRoot)src\Directory.Build.targets" />
     <CommonlyImportedFiles Include="$(RepositoryRoot)test\Directory.Build.props" />

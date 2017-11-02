@@ -65,6 +65,37 @@ namespace KoreBuild.Tasks.Tests
         }
 
         [Fact]
+        public void IgnoresUpdateAndRemoveItems()
+        {
+            var depsProps = Path.Combine(_tempDir, "dependencies.props");
+            File.WriteAllText(depsProps, $@"
+<Project>
+  <PropertyGroup Label=`Package Versions` />
+</Project>
+".Replace('`', '"'));
+
+            var csproj = Path.Combine(_tempDir, "Test.csproj");
+            File.WriteAllText(csproj, $@"
+<Project>
+  <ItemGroup>
+    <PackageReference Update=`Microsoft.AspNetCore.All` PrivateAssets=`All` />
+    <PackageReference Remove=`Microsoft.AspNetCore.All` />
+  </ItemGroup>
+</Project>
+".Replace('`', '"'));
+
+            _engine.ContinueOnError = true;
+            var task = new CheckPackageReferences
+            {
+                BuildEngine = _engine,
+                DependenciesFile = depsProps,
+                Projects = new[] { new TaskItem(csproj) }
+            };
+
+            Assert.True(task.Execute(), "Task is expected to pass");
+        }
+
+        [Fact]
         public void FailsWhenDependenciesHasNoPropGroup()
         {
             var depsFile = Path.Combine(_tempDir, "deps.props");

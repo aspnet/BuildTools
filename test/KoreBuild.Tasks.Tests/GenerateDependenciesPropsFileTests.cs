@@ -50,6 +50,33 @@ namespace KoreBuild.Tasks.Tests
             Assert.Equal("1.2.3", prop.Value);
         }
 
+        [Fact(Skip = "Fix this once we finish upgrading off packagelineup")]
+        public void IgnoresImplicitlyDefinedVariables()
+        {
+            var generatedFile = Path.Combine(_tempDir, "deps.props");
+            var csproj = Path.Combine(_tempDir, "test.csproj");
+            File.WriteAllText(csproj, $@"
+<Project Sdk=`Microsoft.NET.Sdk`>
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+</Project>".Replace('`', '"'));
+
+            var task = new GenerateDependenciesPropsFile
+            {
+                BuildEngine = new MockEngine(_output),
+                DependenciesFile = generatedFile,
+                Projects = new[] { new TaskItem(csproj) },
+                Properties = Array.Empty<string>(),
+            };
+
+            Assert.True(task.Execute(), "Task is expected to pass");
+            var depsFile = ProjectRootElement.Open(generatedFile);
+            _output.WriteLine(File.ReadAllText(generatedFile));
+            var pg = Assert.Single(depsFile.PropertyGroups, p => p.Label == "Package Versions");
+            Assert.Empty(pg.Properties);
+        }
+
         [Fact]
         public void FailsWhenConflictingVersions()
         {

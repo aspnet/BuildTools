@@ -89,6 +89,13 @@ namespace KoreBuild.Tasks
             foreach (var pkgRef in packageReferences)
             {
                 var id = pkgRef.Include;
+
+                if (string.IsNullOrEmpty(id))
+                {
+                    // this node is an Update or Remove node
+                    continue;
+                }
+
                 var versionMetadata = pkgRef.Metadata.LastOrDefault(m => m.Name == "Version");
                 var versionRaw = versionMetadata?.Value;
                 if (versionMetadata == null || string.IsNullOrEmpty(versionRaw))

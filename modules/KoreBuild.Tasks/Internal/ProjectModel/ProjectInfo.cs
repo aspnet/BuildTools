@@ -28,9 +28,6 @@ namespace KoreBuild.Tasks.ProjectModel
             Directory = Path.GetDirectoryName(FullPath);
             ProjectExtensionsPath = projectExtensionsPath ?? Path.Combine(Directory, "obj");
 
-            const string extension = ".nugetpolicy.g.targets";
-            TargetsExtension = new MSBuildProjectExtension(Path.Combine(ProjectExtensionsPath, FileName + extension));
-
             foreach (var dep in frameworks.SelectMany(f => f.Dependencies))
             {
                 dep.Value.Project = this;
@@ -44,7 +41,5 @@ namespace KoreBuild.Tasks.ProjectModel
 
         public IReadOnlyList<ProjectFrameworkInfo> Frameworks { get; }
         public IReadOnlyList<DotNetCliReferenceInfo> Tools { get; }
-
-        public MSBuildProjectExtension TargetsExtension { get; }
     }
 }

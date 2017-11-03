@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <KoreBuildBundledPackageFolder>$(MSBuildThisFileDirectory)</KoreBuildBundledPackageFolder>
+    <SolutionProperties>$(SolutionProperties);KoreBuildBundledPackageFolder=$(KoreBuildBundledPackageFolder)</SolutionProperties>
+  </PropertyGroup>
+</Project>

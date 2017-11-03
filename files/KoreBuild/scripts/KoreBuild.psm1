@@ -68,7 +68,8 @@ function Invoke-RepositoryBuild(
         $sdkVersion = __get_dotnet_sdk_version
         if ($sdkVersion -ne 'latest') {
             "{ `"sdk`": { `"version`": `"$sdkVersion`" } }" | Out-File (Join-Path $Path 'global.json') -Encoding ascii
-        } else {
+        }
+        else {
             Write-Verbose "Skipping global.json generation because the `$sdkVersion = $sdkVersion"
         }
 
@@ -84,9 +85,12 @@ function Invoke-RepositoryBuild(
             $msBuildLogArgument = "/bl:$msbuildLogFilePath"
         }
 
+        $koreBuildVersion = Get-KoreBuildVersion
+
         $msBuildArguments = @"
 /nologo
 /m
+/p:KoreBuildVersion=$koreBuildVersion
 /p:RepositoryRoot="$Path/"
 "$msBuildLogArgument"
 /clp:Summary
@@ -230,19 +234,16 @@ Ensure that Dotnet exists.
 .DESCRIPTION
 Check if a dotnet of at least 2.0.0 exists, and install it if it doesn't.
 #>
-function Ensure-Dotnet()
-{
+function Ensure-Dotnet() {
     $dotnetVersion = Get-DotnetMajorVersion
-    if($dotnetVersion -lt 2)
-    {
+    if ($dotnetVersion -lt 2) {
         Write-Verbose "Ensuring dotnet because $dotnetVersion wasn't >= 2.0.0"
         Install-Tools
     }
 }
 
 function Get-DotnetMajorVersion() {
-    if(Get-Variable "dotnet" -Scope Global -ErrorAction SilentlyContinue)
-    {
+    if (Get-Variable "dotnet" -Scope Global -ErrorAction SilentlyContinue) {
         $infoOutput = dotnet --version
 
         $version = $infoOutput.SubString(0, $infoOutput.IndexOf('.'))
@@ -281,8 +282,7 @@ function Set-KoreBuildSettings(
     [Parameter()]
     [string]$RepoPath,
     [Parameter()]
-    [string]$ConfigFile = $null)
-{
+    [string]$ConfigFile = $null) {
     if (!$DotNetHome) {
         $DotNetHome = if ($env:DOTNET_HOME) { $env:DOTNET_HOME } `
             elseif ($env:USERPROFILE) { Join-Path $env:USERPROFILE '.dotnet'} `
@@ -294,8 +294,8 @@ function Set-KoreBuildSettings(
 
     $global:KoreBuildSettings = @{
         ToolsSource = $ToolsSource
-        DotNetHome = $DotNetHome
-        RepoPath = $RepoPath
+        DotNetHome  = $DotNetHome
+        RepoPath    = $RepoPath
     }
 }
 
@@ -316,24 +316,20 @@ Invoke-KoreBuildCommand "docker-build" /t:Package
 Set-KoreBuildSettings must be called before Invoke-KoreBuildCommand.
 #>
 function Invoke-KoreBuildCommand(
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [string]$Command,
     [Parameter(ValueFromRemainingArguments = $true)]
     [string[]]$Arguments
-)
-{
-    if(!(Get-Variable KoreBuildSettings -Scope Global -ErrorAction SilentlyContinue))
-    {
+) {
+    if (!(Get-Variable KoreBuildSettings -Scope Global -ErrorAction SilentlyContinue)) {
         throw "Set-KoreBuildSettings must be called before Invoke-KoreBuildCommand."
     }
 
-    if($Command -eq "default-build")
-    {
+    if ($Command -eq "default-build") {
         Install-Tools
         Invoke-RepositoryBuild $global:KoreBuildSettings.RepoPath @Arguments
     }
-    elseif($Command -eq "msbuild")
-    {
+    elseif ($Command -eq "msbuild") {
         Invoke-RepositoryBuild $global:KoreBuildSettings.RepoPath @Arguments
     }
     elseif ($Command -eq "install-tools") {
@@ -353,8 +349,7 @@ function Invoke-KoreBuildCommand(
     }
 }
 
-function Get-KoreBuildConsole()
-{
+function Get-KoreBuildConsole() {
     return Join-Paths $PSScriptRoot ("..", "tools", "KoreBuild.Console.dll")
 }
 
@@ -536,8 +531,9 @@ function __build_task_project($RepoPath) {
     __exec $global:dotnet publish $taskProj --configuration Release --output $publishFolder /nologo $sdkPath
 }
 
-function __show_version_info {
+function Get-KoreBuildVersion {
     $versionFile = Join-Paths $PSScriptRoot ('..', '.version')
+    $version = $null
     if (Test-Path $versionFile) {
         $version = Get-Content $versionFile | Where-Object { $_ -like 'version:*' } | Select-Object -first 1
         if (!$version) {
@@ -545,8 +541,15 @@ function __show_version_info {
         }
         else {
             $version = $version.TrimStart('version:').Trim()
-            Write-Host -ForegroundColor Magenta "Using KoreBuild $version"
         }
+    }
+    return $version
+}
+
+function __show_version_info {
+    $version = Get-KoreBuildVersion
+    if ($version) {
+        Write-Host -ForegroundColor Magenta "Using KoreBuild $version"
     }
 }
 

@@ -1,50 +1,13 @@
 <Project>
 
   <PropertyGroup>
-    <PrepareDependsOn>GetToolsets;$(PrepareDependsOn)</PrepareDependsOn>
-    <RestoreDependsOn>ApplyNuGetPolicies;InstallDotNet;CheckPackageReferences;$(RestoreDependsOn)</RestoreDependsOn>
-    <ApplyNuGetPoliciesDependsOn>
-      $(ApplyNuGetPoliciesDependsOn);
-      Prepare;
-      ResolveSolutions;
-    </ApplyNuGetPoliciesDependsOn>
+    <PrepareDependsOn Condition=" '$(DisableDefaultTargets)' != 'true' ">GetToolsets;$(PrepareDependsOn)</PrepareDependsOn>
+    <RestoreDependsOn Condition=" '$(DisableDefaultTargets)' != 'true' ">InstallDotNet;CheckPackageReferences;$(RestoreDependsOn)</RestoreDependsOn>
 
     <DisablePackageReferenceRestrictions Condition=" '$(DisablePackageReferenceRestrictions)' == '' ">false</DisablePackageReferenceRestrictions>
     <KoreBuildConfigFile Condition="'$(KoreBuildConfigFile)' == ''">$(RepositoryRoot)korebuild.json</KoreBuildConfigFile>
     <DependencyVersionsFile Condition="'$(DependencyVersionsFile)' == ''">$(RepositoryRoot)build\dependencies.props</DependencyVersionsFile>
   </PropertyGroup>
-
-  <ItemGroup Condition="@(PackageLineup->Count()) != 0 AND '$(RestrictVersionOnPackageReference)' != 'false' ">
-    <!-- Automatically warn about package reference's that have a non-empty version, but only when lineups are used. -->
-    <DisallowPackageReferenceVersion Include="Debug" ErrorLevel="warn"/>
-    <DisallowPackageReferenceVersion Include="Release" ErrorLevel="error"/>
-  </ItemGroup>
-
-  <Target Name="GetLineups"
-          Returns="@(PackageLineup)" />
-
-  <Target Name="Pin" DependsOnTargets="ApplyNuGetPolicies">
-    <Message Text="Pinning done. Run /t:Restore to install the updated versions." Importance="High" />
-  </Target>
-
-  <Target Name="ApplyNuGetPolicies"
-          DependsOnTargets="$(ApplyNuGetPoliciesDependsOn)"
-          Condition="@(Solutions->Count()) != 0">
-
-    <ApplyNuGetPolicies
-      Policies="@(PackageLineup);@(AdditionalRestoreSources);@(DisallowPackageReferenceVersion);@(FolderLineup)"
-      Projects="@(Solutions)"
-      ProjectProperties="$(SolutionProperties)"
-      SolutionDirectory="$(RepositoryRoot)"
-      RestoreSources="$(PolicyRestoreSources)"
-      RestoreAdditionalSources="$(PolicyRestoreAdditionalSources)"
-      RestorePackagesPath="$(PolicyRestorePackagesPath)"
-      RestoreDisableParallel="$(PolicyRestoreDisableParallel)"
-      RestoreConfigFile="$(PolicyRestoreConfigFile)"
-      RestoreNoCache="$(PolicyRestoreNoCache)"
-      RestoreIgnoreFailedSources="$(PolicyRestoreIgnoreFailedSources)" />
-
-  </Target>
 
   <Target Name="InstallDotNet">
     <PropertyGroup>
@@ -73,20 +36,17 @@
     <CommonlyImportedFiles Include="$(RepositoryRoot)build\common.props" />
   </ItemGroup>
 
-  <Target Name="CheckPackageReferences" DependsOnTargets="ResolveSolutions" Condition="'$(DisablePackageReferenceRestrictions)' != 'true' AND @(PackageLineup->Count()) == 0">
+  <Target Name="CheckPackageReferences"
+          DependsOnTargets="ResolveSolutions"
+          Condition="'$(DisablePackageReferenceRestrictions)' != 'true'">
     <ItemGroup>
       <CommonlyImportedFiles Remove="@(CommonlyImportedFiles)" Condition="!Exists(%(CommonlyImportedFiles.Identity))" />
     </ItemGroup>
 
-    <!-- Issue the warning repos not using PackageLineup or that have not set LineupPackageId about a breaking change. -->
-    <Warning Text="Upcoming breaking change to KoreBuild. You should set DisablePackageReferenceRestrictions=true if this is not a regular aspnetcore project. See https://github.com/aspnet/BuildTools/wiki/PackageReference-management for details."
-             Condition=" '$(LineupPackageId)' == '' "/>
-
-    <!-- At some future date, we will make this always run, even if LineupPackageId is not set. We're using LineupPackageId as the way to tell if a repo has started using this pattern yet. -->
-    <CheckPackageReferences Projects="@(Solutions);@(CommonlyImportedFiles)"
+    <CheckPackageReferences
+      Projects="@(Solutions);@(CommonlyImportedFiles)"
       DependenciesFile="$(DependencyVersionsFile)"
-      Properties="$(SolutionProperties)"
-      Condition=" '$(LineupPackageId)' != '' "/>
+      Properties="$(SolutionProperties)"/>
   </Target>
 
   <!-- See also DependenciesUpgradeCommand.cs in KoreBuild.Console for a more discoverable way to run this. -->

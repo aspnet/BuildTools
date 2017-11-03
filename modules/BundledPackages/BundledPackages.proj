@@ -12,7 +12,7 @@
       Properties="PackageOutputPath=$(PublishDir);Configuration=$(Configuration);BuildNumber=$(BuildNumber)"
       RemoveProperties="PublishDir" />
 
-    <Copy SourceFiles="module.targets" DestinationFolder="$(PublishDir)" />
+    <Copy SourceFiles="module.props" DestinationFolder="$(PublishDir)" />
   </Target>
 
 </Project>

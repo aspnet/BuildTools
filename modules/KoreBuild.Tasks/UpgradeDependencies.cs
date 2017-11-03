@@ -61,7 +61,7 @@ namespace KoreBuild.Tasks
 
         public async Task<bool> ExecuteAsync()
         {
-            if (!DependencyVersionsFile.TryLoad(DependenciesFile, Log, out var localVersionsFile))
+            if (!DependencyVersionsFile.TryLoad(DependenciesFile, out var localVersionsFile))
             {
                 Log.LogError($"Could not load file from {DependenciesFile}");
                 return false;

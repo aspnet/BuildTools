@@ -14,7 +14,7 @@ using NuGet.Packaging;
 using NuGet.Packaging.Core;
 using NuGet.Protocol.Core.Types;
 
-namespace KoreBuild.Tasks.Lineup
+namespace KoreBuild.Tasks.Utilities
 {
     internal class SimplePackageInstaller
     {
@@ -67,7 +67,7 @@ namespace KoreBuild.Tasks.Lineup
                 _packagesDirectory,
                 _logger,
                 PackageSaveMode.Defaultv3,
-                XmlDocFileSaveMode.Skip);
+                XmlDocFileSaveMode.None);
 
             using (var packageDependency = await installItem.Provider.GetPackageDownloaderAsync(
                 packageIdentity,

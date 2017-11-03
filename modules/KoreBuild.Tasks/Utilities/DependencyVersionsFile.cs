@@ -18,12 +18,61 @@ namespace KoreBuild.Tasks.Utilities
         private readonly Dictionary<string, string> _versionVariables
             = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
+        private readonly SortedDictionary<string, ProjectPropertyElement> _versionElements
+            = new SortedDictionary<string, ProjectPropertyElement>(StringComparer.OrdinalIgnoreCase);
+
         private readonly ProjectRootElement _document;
         private ProjectPropertyGroupElement _versionsPropGroup;
 
         public DependencyVersionsFile(ProjectRootElement xDocument)
         {
             _document = xDocument;
+        }
+
+        public static string GetVariableName(string packageId)
+        {
+            var sb = new StringBuilder();
+            var first = true;
+            foreach (var ch in packageId)
+            {
+                if (!char.IsLetterOrDigit(ch))
+                {
+                    first = true;
+                    continue;
+                }
+
+                if (first)
+                {
+                    first = false;
+                    sb.Append(char.ToUpperInvariant(ch));
+                }
+                else
+                {
+                    sb.Append(ch);
+                }
+            }
+            sb.Append("PackageVersion");
+            return sb.ToString();
+        }
+
+        public static DependencyVersionsFile Create(bool addOverrideImport)
+        {
+            var projectRoot = ProjectRootElement.Create(NewProjectFileOptions.None);
+
+            projectRoot.AddPropertyGroup().AddProperty("MSBuildAllProjects", "$(MSBuildAllProjects);$(MSBuildThisFileFullPath)");
+
+            var packageVersions = projectRoot.AddPropertyGroup();
+            packageVersions.Label = PackageVersionsLabel;
+
+            if (addOverrideImport)
+            {
+                var import = projectRoot.AddImport("$(DotNetPackageVersionPropsPath)");
+                import.Condition = " '$(DotNetPackageVersionPropsPath)' != '' ";
+            }
+
+            var file = new DependencyVersionsFile(projectRoot);
+            file._versionsPropGroup = packageVersions;
+            return file;
         }
 
         public static bool TryLoad(string sourceFile, TaskLoggingHelper Log, out DependencyVersionsFile file)
@@ -67,6 +116,7 @@ namespace KoreBuild.Tasks.Utilities
                 foreach (var child in file._versionsPropGroup.Properties)
                 {
                     file._versionVariables[child.Name.ToString()] = child.Value?.Trim() ?? string.Empty;
+                    file._versionElements[child.Name.ToString()] = child;
                 }
             }
 
@@ -75,9 +125,23 @@ namespace KoreBuild.Tasks.Utilities
 
         public bool HasVersionsPropertyGroup() => _versionsPropGroup != null;
 
-        public IReadOnlyDictionary<string, string> VersionVariables => _versionVariables;
+        // copying is required so calling .Set while iterating on this doesn't raise an InvalidOperationException
+        public IReadOnlyDictionary<string, string> VersionVariables
+            => new Dictionary<string, string>(_versionVariables, StringComparer.OrdinalIgnoreCase);
 
-        public void Set(string variableName, string version)
+        public ProjectPropertyElement Set(string variableName, string version)
+        {
+            _versionVariables[variableName] = version;
+            if (!_versionElements.TryGetValue(variableName, out var element))
+            {
+                element = _document.CreatePropertyElement(variableName);
+                _versionElements.Add(variableName, element);
+            }
+            element.Value = version;
+            return element;
+        }
+
+        public void Save(string filePath)
         {
             if (_versionsPropGroup == null)
             {
@@ -85,11 +149,12 @@ namespace KoreBuild.Tasks.Utilities
                 _versionsPropGroup.Label = PackageVersionsLabel;
             }
 
-            _versionsPropGroup.SetProperty(variableName, version);
-        }
+            _versionsPropGroup.RemoveAllChildren();
+            foreach (var item in _versionElements.Values)
+            {
+                _versionsPropGroup.AppendChild(item);
+            }
 
-        public void Save(string filePath)
-        {
             _document.Save(filePath, Encoding.UTF8);
         }
     }

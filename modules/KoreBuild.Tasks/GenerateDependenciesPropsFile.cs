@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using KoreBuild.Tasks.ProjectModel;
+using KoreBuild.Tasks.Utilities;
 using Microsoft.Build.Construction;
 using Microsoft.Build.Evaluation;
 using Microsoft.Build.Framework;
@@ -58,6 +59,12 @@ namespace KoreBuild.Tasks
 
             foreach (var packageRef in packageRefs)
             {
+                if (packageRef.Value.IsImplicitlyDefined)
+                {
+                    // skip PackageReferences added by the SDK
+                    continue;
+                }
+
                 if (packageRef.Value.NoWarn.Contains(KoreBuildErrors.Prefix + KoreBuildErrors.ConflictingPackageReferenceVersions))
                 {
                     // Make it possible to suppress version conflicts while generating this file.
@@ -123,7 +130,7 @@ namespace KoreBuild.Tasks
                     }
                     changed = true;
 
-                    var varName = $"$({GeneratePackageVersionPropsFile.GetVariableName(item.Include)})";
+                    var varName = $"$({DependencyVersionsFile.GetVariableName(item.Include)})";
                     if (versionMetadata == null)
                     {
                         item.AddMetadata("Version", varName, expressAsAttribute: true);

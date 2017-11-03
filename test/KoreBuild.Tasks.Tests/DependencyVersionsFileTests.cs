@@ -1,0 +1,80 @@
+// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
+using System.Collections;
+using System.IO;
+using BuildTools.Tasks.Tests;
+using KoreBuild.Tasks.Utilities;
+using Microsoft.Build.Construction;
+using Microsoft.Build.Utilities;
+using Xunit;
+using Xunit.Abstractions;
+
+namespace KoreBuild.Tasks.Tests
+{
+    [Collection(nameof(MSBuildTestCollection))]
+    public class DependencyVersionsFileTests : IDisposable
+    {
+        private readonly string _tempFile;
+        private readonly ITestOutputHelper _output;
+
+        public DependencyVersionsFileTests(ITestOutputHelper output, MSBuildTestCollectionFixture fixture)
+        {
+            _output = output;
+            fixture.InitializeEnvironment(output);
+            _tempFile = Path.Combine(AppContext.BaseDirectory, Path.GetRandomFileName());
+        }
+
+        public void Dispose()
+        {
+            if (File.Exists(_tempFile))
+            {
+                File.Delete(_tempFile);
+            }
+        }
+
+        [Fact]
+        public void ItSortsVariablesAlphabetically()
+        {
+            var depsFile = DependencyVersionsFile.Create(addOverrideImport: true);
+            depsFile.Set("XyzPackageVersion", "123");
+            depsFile.Set("AbcPackageVersion", "456");
+            depsFile.Save(_tempFile);
+
+            var project = ProjectRootElement.Open(_tempFile);
+            _output.WriteLine(File.ReadAllText(_tempFile));
+
+            var versions = Assert.Single(project.PropertyGroups, p => !string.IsNullOrEmpty(p.Label));
+            Assert.Collection(versions.Properties,
+                v => Assert.Equal("AbcPackageVersion", v.Name),
+                v => Assert.Equal("XyzPackageVersion", v.Name));
+        }
+
+        [Fact]
+        public void SetIsCaseInsensitive()
+        {
+            var depsFile = DependencyVersionsFile.Create(addOverrideImport: true);
+            depsFile.Set("XunitRunnerVisualStudioVersion", "2.3.0");
+            depsFile.Set("XunitRunnerVisualstudioVersion", "2.4.0");
+            depsFile.Save(_tempFile);
+
+            var project = ProjectRootElement.Open(_tempFile);
+            _output.WriteLine(File.ReadAllText(_tempFile));
+
+            var versions = Assert.Single(project.PropertyGroups, p => !string.IsNullOrEmpty(p.Label));
+            var prop = Assert.Single(versions.Properties);
+            Assert.Equal("XunitRunnerVisualStudioVersion", prop.Name);
+            Assert.Equal("2.4.0", prop.Value);
+        }
+
+        [Theory]
+        [InlineData("Microsoft.Data.Sqlite", "MicrosoftDataSqlitePackageVersion")]
+        [InlineData("SQLitePCLRaw.bundle_green", "SQLitePCLRawBundleGreenPackageVersion")]
+        [InlineData("runtime.win-x64.Microsoft.NETCore", "RuntimeWinX64MicrosoftNETCorePackageVersion")]
+        public void GeneratesVariableName(string id, string varName)
+        {
+            Assert.Equal(varName, DependencyVersionsFile.GetVariableName(id));
+        }
+    }
+}

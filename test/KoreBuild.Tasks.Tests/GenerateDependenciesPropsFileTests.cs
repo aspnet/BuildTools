@@ -50,7 +50,7 @@ namespace KoreBuild.Tasks.Tests
             Assert.Equal("1.2.3", prop.Value);
         }
 
-        [Fact(Skip = "Fix this once we finish upgrading off packagelineup")]
+        [Fact]
         public void IgnoresImplicitlyDefinedVariables()
         {
             var generatedFile = Path.Combine(_tempDir, "deps.props");

@@ -26,15 +26,6 @@ namespace KoreBuild.Tasks.Tests
             fixture.InitializeEnvironment(output);
         }
 
-        [Theory]
-        [InlineData("Microsoft.Data.Sqlite", "MicrosoftDataSqlitePackageVersion")]
-        [InlineData("SQLitePCLRaw.bundle_green", "SQLitePCLRawBundleGreenPackageVersion")]
-        [InlineData("runtime.win-x64.Microsoft.NETCore", "RuntimeWinX64MicrosoftNETCorePackageVersion")]
-        public void GeneratesVariableName(string id, string varName)
-        {
-            Assert.Equal(varName, GeneratePackageVersionPropsFile.GetVariableName(id));
-        }
-
         [Fact]
         public void GeneratesFile()
         {

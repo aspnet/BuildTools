@@ -5,8 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Microsoft.Build.Construction;
-using Microsoft.Build.Evaluation;
+using KoreBuild.Tasks.Utilities;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
@@ -29,14 +28,21 @@ namespace KoreBuild.Tasks
             OutputPath = OutputPath.Replace('\\', '/');
             Directory.CreateDirectory(Path.GetDirectoryName(OutputPath));
 
-            var projectRoot = ProjectRootElement.Create(NewProjectFileOptions.None);
+            DependencyVersionsFile depsFile;
+            if (File.Exists(OutputPath))
+            {
+                if (!DependencyVersionsFile.TryLoad(OutputPath, Log, out depsFile))
+                {
+                    depsFile = DependencyVersionsFile.Create(AddOverrideImport);
+                    Log.LogWarning($"Could not load the existing deps file from {OutputPath}. This file will be overwritten.");
+                }
+            }
+            else
+            {
+                depsFile = DependencyVersionsFile.Create(AddOverrideImport);
+            }
 
-            projectRoot.AddPropertyGroup().AddProperty("MSBuildAllProjects", "$(MSBuildAllProjects);$(MSBuildThisFileFullPath)");
-
-            var packageVersions = projectRoot.AddPropertyGroup();
-            packageVersions.Label = "Package Versions";
-
-            var varNames = new SortedDictionary<string, ProjectPropertyElement>();
+            var varNames = new HashSet<string>();
             foreach (var pkg in Packages)
             {
                 var packageVersion = pkg.GetMetadata("Version");
@@ -46,7 +52,6 @@ namespace KoreBuild.Tasks
                     Log.LogError("Package {0} is missing the Version metadata", pkg.ItemSpec);
                     continue;
                 }
-
 
                 string packageVarName;
                 if (!string.IsNullOrEmpty(pkg.GetMetadata("VariableName")))
@@ -60,64 +65,25 @@ namespace KoreBuild.Tasks
                 }
                 else
                 {
-                    packageVarName = GetVariableName(pkg.ItemSpec);
+                    packageVarName = DependencyVersionsFile.GetVariableName(pkg.ItemSpec);
                 }
 
-                if (varNames.ContainsKey(packageVarName))
+                if (varNames.Contains(packageVarName))
                 {
                     Log.LogError("Multiple packages would produce {0} in the generated dependencies.props file. Set VariableName to differentiate the packages manually", packageVarName);
                     continue;
                 }
 
-                var elem = projectRoot.CreatePropertyElement(packageVarName);
-                elem.Value = packageVersion;
+                var item = depsFile.Set(packageVarName, packageVersion);
                 if (!SuppressVariableLabels)
                 {
-                    elem.Label = pkg.ItemSpec;
+                    item.Label = pkg.ItemSpec;
                 }
-                varNames.Add(packageVarName, elem);
             }
 
-            foreach (var item in varNames)
-            {
-                packageVersions.AppendChild(item.Value);
-            }
-
-            if (AddOverrideImport)
-            {
-                var import = projectRoot.AddImport("$(DotNetPackageVersionPropsPath)");
-                import.Condition = " '$(DotNetPackageVersionPropsPath)' != '' ";
-            }
-
-            projectRoot.Save(OutputPath, Encoding.UTF8);
+            depsFile.Save(OutputPath);
             Log.LogMessage(MessageImportance.Normal, $"Generated {OutputPath}");
             return !Log.HasLoggedErrors;
-        }
-
-        public static string GetVariableName(string packageId)
-        {
-            var sb = new StringBuilder();
-            var first = true;
-            foreach (var ch in packageId)
-            {
-                if (!char.IsLetterOrDigit(ch))
-                {
-                    first = true;
-                    continue;
-                }
-
-                if (first)
-                {
-                    first = false;
-                    sb.Append(char.ToUpperInvariant(ch));
-                }
-                else
-                {
-                    sb.Append(ch);
-                }
-            }
-            sb.Append("PackageVersion");
-            return sb.ToString();
         }
     }
 }

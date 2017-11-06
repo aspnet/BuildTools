@@ -37,6 +37,7 @@ namespace KoreBuild.Tasks
         {
             if (Projects == null || Projects.Length == 0)
             {
+                Log.LogMessage(MessageImportance.Low, "No projects or solutions were found. Skipping PackageReference validation.");
                 return true;
             }
 

@@ -1,7 +1,0 @@
-<!-- This target should be imported into the project to verify the result of the package policies. -->
-<Project>
-  <PropertyGroup>
-    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
-    <KoreBuildRestoreTargetsImported>true</KoreBuildRestoreTargetsImported>
-  </PropertyGroup>
-</Project>

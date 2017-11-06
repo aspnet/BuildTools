@@ -1,6 +1,0 @@
-<Project>
-  <ItemGroup>
-    <DisallowPackageReferenceVersion Include="Debug" ErrorLevel="warn"/>
-    <DisallowPackageReferenceVersion Include="Release" ErrorLevel="error"/>
-  </ItemGroup>
-</Project>

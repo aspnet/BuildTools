@@ -7,9 +7,6 @@ namespace KoreBuild.Tasks
     {
         public const string Prefix = "KRB";
 
-        // Typically used in repos in Directory.Build.targets
-        public const int PackagesHaveNotYetBeenPinned = 1001;
-
         // Warnings
         public const int DotNetAssetVersionIsFloating = 2000;
         public const int RepoVersionDoesNotMatchProjectVersion = 2001;
@@ -19,7 +16,7 @@ namespace KoreBuild.Tasks
         // NuGet errors
         public const int InvalidNuspecFile = 4001;
         public const int ConflictingPackageReferenceVersions = 4002;
-        public const int DotNetCliReferenceReferenceHasVersion = 4003;
+        public const int DependenciesFileDoesNotExist = 4003;
         public const int PackageVersionNotFoundInLineup = 4004;
         public const int PackageRefHasLiteralVersion = 4005;
         public const int VariableNotFoundInDependenciesPropsFile = 4006;
@@ -27,9 +24,5 @@ namespace KoreBuild.Tasks
         public const int PackageRefPropertyGroupNotFound = 4008;
         public const int PackageReferenceDoesNotHaveVersion = 4009;
         public const int InvalidPackageVersion = 4010;
-
-        // Other unknown errors
-        public const int PolicyFailedToApply = 5000;
-        public const int UnknownPolicyType = 5001;
     }
 }

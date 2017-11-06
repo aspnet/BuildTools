@@ -31,7 +31,7 @@ namespace KoreBuild.Tasks
             DependencyVersionsFile depsFile;
             if (File.Exists(OutputPath))
             {
-                if (!DependencyVersionsFile.TryLoad(OutputPath, Log, out depsFile))
+                if (!DependencyVersionsFile.TryLoad(OutputPath, out depsFile))
                 {
                     depsFile = DependencyVersionsFile.Create(AddOverrideImport);
                     Log.LogWarning($"Could not load the existing deps file from {OutputPath}. This file will be overwritten.");

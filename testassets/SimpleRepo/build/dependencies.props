@@ -1,0 +1,16 @@
+<Project>
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+  </PropertyGroup>
+  <PropertyGroup Label="Package Versions">
+    <InternalAspNetCoreSdkPackageVersion>0.0.1</InternalAspNetCoreSdkPackageVersion>
+    <MicrosoftNETTestSdkPackageVersion>15.3.0</MicrosoftNETTestSdkPackageVersion>
+    <XunitPackageVersion>2.3.1</XunitPackageVersion>
+    <XunitRunnerVisualStudioPackageVersion>2.3.1</XunitRunnerVisualStudioPackageVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!-- Hack for the tests. Normally, this pattern shouldn't be used, but for our functional tests, we can't commit the verison of this package to source because it doesn't exist yet :).-->
+    <InternalAspNetCoreSdkPackageVersion>$(KoreBuildVersion)</InternalAspNetCoreSdkPackageVersion>
+  </PropertyGroup>
+  <Import Project="$(DotNetPackageVersionPropsPath)" Condition=" '$(DotNetPackageVersionPropsPath)' != '' "/>
+</Project>

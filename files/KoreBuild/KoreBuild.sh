@@ -91,15 +91,10 @@ install_tools() {
 __show_version_info() {
     MAGENTA="\033[0;95m"
     RESET="\033[0m"
-    version_file="$__korebuild_dir/.version"
-    if [ -f "$version_file" ]; then
-        __korebuild_version="$(grep 'version:*' -m 1 "$version_file")"
-        if [[ "$__korebuild_version" == '' ]]; then
-            echo "Failed to parse version from $version_file. Expected a line that begins with 'version:'" 1>&2
-        else
-            __korebuild_version="$(echo "$__korebuild_version" | sed -e 's/^[[:space:]]*version:[[:space:]]*//' -e 's/[[:space:]]*$//')"
-            echo -e "${MAGENTA}Using KoreBuild ${__korebuild_version}${RESET}"
-        fi
+
+    __korebuild_version="$(__get_korebuild_version)"
+    if [[ "$__korebuild_version" != '' ]]; then
+        echo -e "${MAGENTA}Using KoreBuild ${__korebuild_version}${RESET}"
     fi
 }
 

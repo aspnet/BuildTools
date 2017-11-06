@@ -35,14 +35,21 @@ namespace KoreBuild.Tasks
 
         public override bool Execute()
         {
+            if (Projects == null || Projects.Length == 0)
+            {
+                Log.LogMessage(MessageImportance.Low, "No projects or solutions were found. Skipping PackageReference validation.");
+                return true;
+            }
+
             if (!File.Exists(DependenciesFile))
             {
-                Log.LogError($"Expected the dependencies file to exist at {DependenciesFile}");
+                Log.LogKoreBuildError(KoreBuildErrors.DependenciesFileDoesNotExist, $"Expected the dependencies file to exist at {DependenciesFile}");
                 return false;
             }
 
-            if (!DependencyVersionsFile.TryLoad(DependenciesFile, Log, out var depsFile))
+            if (!DependencyVersionsFile.TryLoad(DependenciesFile, out var depsFile))
             {
+                Log.LogError($"Could not load the dependencies file from {DependenciesFile}");
                 return false;
             }
 

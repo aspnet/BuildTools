@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.Build.Construction;
 using Microsoft.Build.Evaluation;
-using Microsoft.Build.Exceptions;
-using Microsoft.Build.Utilities;
 
 namespace KoreBuild.Tasks.Utilities
 {
@@ -75,16 +73,15 @@ namespace KoreBuild.Tasks.Utilities
             return file;
         }
 
-        public static bool TryLoad(string sourceFile, TaskLoggingHelper Log, out DependencyVersionsFile file)
+        public static bool TryLoad(string sourceFile, out DependencyVersionsFile file)
         {
             try
             {
                 file = Load(sourceFile);
                 return true;
             }
-            catch (InvalidProjectFileException ex)
+            catch
             {
-                Log.LogError(null, null, null, sourceFile, 0, 0, 0, 0, message: "Invalid MSBuild file: " + ex.Message);
                 file = null;
                 return false;
             }

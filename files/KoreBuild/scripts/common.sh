@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
 # colors
-GREEN="\033[1;32m"
-MAGENTA="\033[0;95m"
-YELLOW="\033[0;33m"
-CYAN="\033[0;36m"
-RESET="\033[0m"
-RED="\033[0;31m"
-GRAY="\033[0;90m"
+export GREEN="\033[1;32m"
+export MAGENTA="\033[0;95m"
+export YELLOW="\033[0;33m"
+export CYAN="\033[0;36m"
+export RESET="\033[0m"
+export RED="\033[0;31m"
+export GRAY="\033[0;90m"
 
 __is_verbose=false
 
@@ -107,4 +107,21 @@ __fetch() {
         __error "Download failed: $remote_path"
         return 1
     fi
+}
+
+__get_korebuild_version() {
+    local src="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    local version_file="$src/../.version"
+    local korebuild_version=''
+
+    if [ -f "$version_file" ]; then
+        korebuild_version="$(grep 'version:*' -m 1 "$version_file")"
+        if [[ "$korebuild_version" == '' ]]; then
+            echo -e "${GRAY}Failed to parse version from $version_file. Expected a line that begins with 'version:'${RESET}" 1>&2
+        else
+            korebuild_version="$(echo "$korebuild_version" | sed -e 's/^[[:space:]]*version:[[:space:]]*//' -e 's/[[:space:]]*$//')"
+        fi
+    fi
+
+    echo $korebuild_version
 }

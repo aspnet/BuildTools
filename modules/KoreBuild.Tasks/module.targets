@@ -62,7 +62,7 @@
   </Target>
 
   <!-- See also DependenciesGenerateCommand.cs in KoreBuild.Console for a more discoverable way to run this. -->
-  <Target Name="GenerateDependenciesPropsFile" DependsOnTargets="ResolveSolutions;Pin">
+  <Target Name="GenerateDependenciesPropsFile" DependsOnTargets="ResolveSolutions">
     <ItemGroup>
       <CommonlyImportedFiles Remove="@(CommonlyImportedFiles)" Condition="!Exists(%(CommonlyImportedFiles.Identity))" />
     </ItemGroup>

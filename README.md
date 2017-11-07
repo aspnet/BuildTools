@@ -29,12 +29,14 @@ This tool contains build scripts, console tools, MSBuild targets, and other sett
 
 Previously repositories were runable in only one way, by doing `.\build.cmd`. KoreBuild commands allow you to take wider and more granular actions.
 
-Command      | Purpose    | Example
--------------|------------|----------
-install-tools| Installs dotnet, CLI and Shared runtimes. | .\run.ps1 install-tools
-docker-build | Runs the build inside docker. | .\run.ps1 docker-build {jessie\|winservercore} /t:SomeTarget /p:Parameters
+Command      | Purpose                                                          | Example
+-------------|------------------------------------------------------------------|----------
+install-tools| Installs dotnet, CLI and Shared runtimes.                        | .\run.ps1 install-tools
+docker-build | Runs the build inside docker.                                    | .\run.ps1 docker-build {jessie\|winservercore} /t:SomeTarget /p:Parameters
 default-build| Runs install-tools followed by msbuild (like build.cmd used to). | .\run.ps1 default-build /t:SomeTarget /p:Parameters
-msbuild      | Runs the build normally. | .\run.ps1 msbuild /t:SomeTarget /p:Parameters
+msbuild      | Runs the build normally.                                         | .\run.ps1 msbuild /t:SomeTarget /p:Parameters
+upgrade deps | Upgrade the dependencies.props of this project.                  | .\run.ps1 upgrade deps
+generate deps| Generate a dependencies.props for this project.                  | .\run.ps1 generate deps
 
 ### KoreBuild config
 

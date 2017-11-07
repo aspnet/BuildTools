@@ -5,6 +5,7 @@
     <!-- This one is OK for console tools that bundle their own version of JSON.NET -->
     <JsonNetVersion>10.0.1</JsonNetVersion>
     <MicrosoftDotNetPlatformAbstractionsVersion>2.0.0</MicrosoftDotNetPlatformAbstractionsVersion>
+    <MicrosoftNETCoreApp20PackageVersion>2.0.0</MicrosoftNETCoreApp20PackageVersion>
     <MonoCecilVersion>0.10.0-beta6</MonoCecilVersion>
     <MoqVersion>4.7.99</MoqVersion>
     <NuGetPackagesVersion>4.3.0</NuGetPackagesVersion>

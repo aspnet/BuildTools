@@ -6,6 +6,7 @@
     <AssemblyName>NuGetPackageVerifier</AssemblyName>
     <RootNamespace>NuGetPackageVerifier</RootNamespace>
     <OutputType>exe</OutputType>
+    <RuntimeFrameworkVersion>$(MicrosoftNETCoreApp20PackageVersion)</RuntimeFrameworkVersion>
   </PropertyGroup>
 
   <ItemGroup>

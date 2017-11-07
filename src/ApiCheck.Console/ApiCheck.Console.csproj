@@ -8,6 +8,7 @@
     <OutputType>exe</OutputType>
     <IncludeSymbols>false</IncludeSymbols>
     <IncludeSource>false</IncludeSource>
+    <RuntimeFrameworkVersion Condition="'$(TargetFramework)' == 'netcoreapp2.0'">$(MicrosoftNETCoreApp20PackageVersion)</RuntimeFrameworkVersion>
   </PropertyGroup>
 
   <!-- packaging settings-->

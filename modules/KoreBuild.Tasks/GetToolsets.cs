@@ -81,7 +81,7 @@ namespace KoreBuild.Tasks
         {
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                if ((vsToolset.Required & KoreBuildSettings.RequiredPlatforms.Windows) != 0)
+                if ((vsToolset.Required & ~KoreBuildSettings.RequiredPlatforms.Windows) != 0)
                 {
                     Log.LogError("Visual Studio is not available on non-Windows. Change korebuild.json to 'required: [\"windows\"]'.");
                 }

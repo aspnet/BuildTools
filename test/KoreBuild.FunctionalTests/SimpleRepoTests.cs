@@ -58,8 +58,8 @@ namespace KoreBuild.FunctionalTests
             Assert.Same(task, build);
             Assert.NotEqual(0, build.Result);
         }
-        
-        [DockerExistsFact]
+
+        [DockerExistsFact(Skip = "winservercore currently fails on AppVeyor due to breaking changes in winservercore 1710")]
         public async Task DockerSuccessful()
         {
             var app = _fixture.CreateTestApp("SimpleRepo");

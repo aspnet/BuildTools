@@ -179,7 +179,7 @@ function Install-Tools(
     }
 
     if ($env:KOREBUILD_SKIP_RUNTIME_INSTALL -eq "1") {
-        Write-Host "Skipping runtime installation because KOREBUILD_SKIP_RUNTIME_INSTALL = 1"
+        Write-Warning "Skipping runtime installation because KOREBUILD_SKIP_RUNTIME_INSTALL = 1"
         return
     }
 
@@ -198,12 +198,15 @@ function Install-Tools(
 
     if ($env:KOREBUILD_DOTNET_CHANNEL) {
         $channel = $env:KOREBUILD_DOTNET_CHANNEL
+        Write-Warning "dotnet channel overridden by KOREBUILD_DOTNET_CHANNEL"
     }
     if ($env:KOREBUILD_DOTNET_SHARED_RUNTIME_CHANNEL) {
         $runtimeChannel = $env:KOREBUILD_DOTNET_SHARED_RUNTIME_CHANNEL
+        Write-Warning "dotnet shared runtime channel overridden by KOREBUILD_DOTNET_SHARED_RUNTIME_CHANNEL"
     }
     if ($env:KOREBUILD_DOTNET_SHARED_RUNTIME_VERSION) {
         $runtimeVersion = $env:KOREBUILD_DOTNET_SHARED_RUNTIME_VERSION
+        Write-Warning "dotnet shared runtime version overridden by KOREBUILD_DOTNET_SHARED_RUNTIME_VERSION"
     }
 
     if ($runtimeVersion) {
@@ -508,6 +511,7 @@ function __install_shared_runtime($installScript, $installDir, [string]$arch, [s
 
 function __get_dotnet_sdk_version {
     if ($env:KOREBUILD_DOTNET_VERSION) {
+        Write-Warning "dotnet SDK version overridden by KOREBUILD_DOTNET_VERSION"
         return $env:KOREBUILD_DOTNET_VERSION
     }
     return Get-Content (Join-Paths $PSScriptRoot ('..', 'config', 'sdk.version'))

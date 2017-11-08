@@ -63,7 +63,10 @@ __get_dotnet_sdk_version() {
     local src="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     version=$(< "$src/../config/sdk.version" head -1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
     # environment override
-    [ ! -z "${KOREBUILD_DOTNET_VERSION:-}" ] && version=${KOREBUILD_DOTNET_VERSION:-}
+    if [ ! -z "${KOREBUILD_DOTNET_VERSION:-}" ]; then
+        version=${KOREBUILD_DOTNET_VERSION:-}
+        __warn "Dotnet SDK version changed by KOREBUILD_DOTNET_VERSION"
+    fi
     echo $version
 }
 

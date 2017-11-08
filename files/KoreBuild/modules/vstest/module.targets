@@ -64,13 +64,11 @@ Runs the VSTest on all projects in the ProjectsToTest itemgroup.
   <PropertyGroup>
     <TrxFile>$(ArtifactsDir)tests\$(TestGroupName)-$(TargetFramework)-$(BuildNumber).trx</TrxFile>
     <VSTestLogger Condition=" '$(VSTestLogger)' == '' AND '$(TEAMCITY_VERSION)' != '' ">trx;LogFileName=$(TrxFile)</VSTestLogger>
-    <VSTestAutoReporters Condition=" '$(VSTestAutoReporters)' == '' AND '$(VSTestLogger)' != '' ">false</VSTestAutoReporters>
-    <VSTestAutoReporters Condition=" '$(VSTestAutoReporters)' == '' ">true</VSTestAutoReporters>
     <!--
       Disable other test reporters if trx logging is enabled.
-      VSTestCLIRunSettings is a space-separated list of key=value pairs.
     -->
-    <VSTestCLIRunSettings Condition=" '$(VSTestAutoReporters)' != 'true' ">RunConfiguration.NoAutoReporters=true $(VSTestCLIRunSettings)</VSTestCLIRunSettings>
+    <VSTestAutoReporters Condition=" '$(VSTestAutoReporters)' == '' AND '$(VSTestLogger)' != '' ">false</VSTestAutoReporters>
+    <VSTestAutoReporters Condition=" '$(VSTestAutoReporters)' == '' ">true</VSTestAutoReporters>
   </PropertyGroup>
 
   <Target Name="_ExecuteTestAssemblies">
@@ -79,21 +77,25 @@ Runs the VSTest on all projects in the ProjectsToTest itemgroup.
     </ItemGroup>
 
     <PropertyGroup>
-      <VSTestArgs />
-      <VSTestArgs>--Parallel</VSTestArgs>
-      <VSTestArgs>$(VSTestArgs) --Framework:$(TargetFrameworkIdentifier),Version=v$(TargetFrameworkVersion)</VSTestArgs>
-      <VSTestArgs Condition="'$(VSTestLogger)' != ''">$(VSTestArgs) --Logger:$(VSTestLogger)</VSTestArgs>
       <TestAdapterPath>%(TestAssemblies.RootDir)%(TestAssemblies.Directory)</TestAdapterPath>
-      <VSTestArgs Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">$(VSTestArgs) --TestAdapterPath:$(TestAdapterPath)</VSTestArgs>
-      <VSTestArgs>$(VSTestArgs) @(TestAssemblies, ' ')</VSTestArgs>
-      <VSTestArgs Condition="'$(VSTestCLIRunSettings)' != ''">$(VSTestArgs) -- $(VSTestCLIRunSettings)</VSTestArgs>
     </PropertyGroup>
+
+    <ItemGroup>
+      <VSTestArgs Remove="@(VSTestArgs)" />
+      <VSTestArgs Include="vstest" />
+      <VSTestArgs Include="--Parallel" />
+      <VSTestArgs Include="--Framework:$(TargetFrameworkIdentifier),Version=v$(TargetFrameworkVersion)" />
+      <VSTestArgs Include="--Logger:$(VSTestLogger)" Condition="'$(VSTestLogger)' != ''" />
+      <VSTestArgs Include="--TestAdapterPath:$(TestAdapterPath)" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />
+      <VSTestArgs Include="@(TestAssemblies)" />
+      <VSTestArgs Include="--;RunConfiguration.NoAutoReporters=true" Condition="'$(VSTestAutoReporters)' != 'true'" />
+    </ItemGroup>
 
     <Message Text="%0AStarting test group: $(TestGroupName)/$(TargetFramework)" Importance="High" />
 
-    <Exec Command="dotnet vstest $(VSTestArgs)" UseCommandProcessor="false" IgnoreStandardErrorWarningFormat="true" IgnoreExitCode="true">
+    <RunDotNet Arguments="@(VSTestArgs)" IgnoreExitCode="true">
       <Output TaskParameter="ExitCode" PropertyName="VsTestExitCode" />
-    </Exec>
+    </RunDotNet>
 
     <Message Text="##teamcity[importData type='vstest' path='$(TrxFile)']" Condition="'$(TEAMCITY_VERSION)' != ''" Importance="High" />
     <Error Text="Test group $(TestGroupName)/$(TargetFramework) failed" Condition=" $(VsTestExitCode) != 0 " />
@@ -109,7 +111,7 @@ Runs the VSTest on all projects in the ProjectsToTest itemgroup.
       <Output TaskParameter="TargetOutputs" PropertyName="ExecPath" />
     </MSBuild>
 
-    <Exec Command="dotnet $(ExecPath) * --validate-fast" IgnoreStandardErrorWarningFormat="true" />
+    <RunDotNet Command="$(ExecPath) * --validate-fast" />
   </Target>
 
 </Project>

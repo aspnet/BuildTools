@@ -9,10 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\..\shared\Microsoft.Extensions.CommandLineUtils.Sources\Utilities\*.cs" />
     <Compile Include="..\..\shared\Utilities\MSBuildListSplitter.cs" />
     <Compile Include="..\..\modules\BuildTools.Tasks\Utilities\**" />
     <Compile Include="..\..\modules\BuildTools.Tasks\GetGitCommitInfo.cs" />
     <Compile Include="..\..\modules\BuildTools.Tasks\GenerateFileFromTemplate.cs" />
+    <Compile Include="..\..\modules\BuildTools.Tasks\RunBase.cs" />
+    <Compile Include="..\..\modules\BuildTools.Tasks\RunDotNet.cs" />
     <Compile Include="..\..\modules\BuildTools.Tasks\ZipArchive.cs" />
   </ItemGroup>
 

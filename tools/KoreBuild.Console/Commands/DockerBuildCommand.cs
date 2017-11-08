@@ -83,7 +83,7 @@ namespace KoreBuild.Console.Commands
 
                 var containerName = $"{Owner}_{DateTime.Now.ToString("yyyyMMddHHmmss")}";
 
-                var runArgs = new List<string> { "run", "--rm", "-it", "--name", containerName, Tag };
+                var runArgs = new List<string> { "run", "--rm", "-i", "--name", containerName, Tag };
 
                 runArgs.AddRange(new[] { "-ToolsSource", dockerToolsSource });
 

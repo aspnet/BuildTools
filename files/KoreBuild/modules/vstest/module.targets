@@ -85,7 +85,7 @@ Runs the VSTest on all projects in the ProjectsToTest itemgroup.
       <VSTestArgs Include="vstest" />
       <VSTestArgs Include="--Parallel" />
       <VSTestArgs Include="--Framework:$(TargetFrameworkIdentifier),Version=v$(TargetFrameworkVersion)" />
-      <VSTestArgs Include="--Logger:$(VSTestLogger)" Condition="'$(VSTestLogger)' != ''" />
+      <VSTestArgs Include="--Logger:$([MSBuild]::Escape($(VSTestLogger)))" Condition="'$(VSTestLogger)' != ''" />
       <VSTestArgs Include="--TestAdapterPath:$(TestAdapterPath)" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />
       <VSTestArgs Include="@(TestAssemblies)" />
       <VSTestArgs Include="--;RunConfiguration.NoAutoReporters=true" Condition="'$(VSTestAutoReporters)' != 'true'" />
@@ -97,7 +97,7 @@ Runs the VSTest on all projects in the ProjectsToTest itemgroup.
       <Output TaskParameter="ExitCode" PropertyName="VsTestExitCode" />
     </RunDotNet>
 
-    <Message Text="##teamcity[importData type='vstest' path='$(TrxFile)']" Condition="'$(TEAMCITY_VERSION)' != ''" Importance="High" />
+    <Message Text="##teamcity[importData type='vstest' path='$(TrxFile)']" Condition="'$(TEAMCITY_VERSION)' != '' AND Exists($(TrxFile))" Importance="High" />
     <Error Text="Test group $(TestGroupName)/$(TargetFramework) failed" Condition=" $(VsTestExitCode) != 0 " />
   </Target>
 

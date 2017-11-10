@@ -15,6 +15,7 @@ if ($env:BUILD_IS_PERSONAL) {
 }
 
 Import-Module -Force -Scope Local $PSScriptRoot/files/KoreBuild/KoreBuild.psd1
+Import-Module -Force -Scope Local $PSScriptRoot/scripts/Push.psm1
 
 $artifacts = Join-Path $PSScriptRoot 'artifacts'
 

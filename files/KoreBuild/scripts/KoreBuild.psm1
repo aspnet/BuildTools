@@ -64,15 +64,6 @@ function Invoke-RepositoryBuild(
         Write-Verbose "Building $Path"
         Write-Verbose "dotnet = ${global:dotnet}"
 
-        # Generate global.json to ensure the repo uses the right SDK version
-        $sdkVersion = __get_dotnet_sdk_version
-        if ($sdkVersion -ne 'latest') {
-            "{ `"sdk`": { `"version`": `"$sdkVersion`" } }" | Out-File (Join-Path $Path 'global.json') -Encoding ascii
-        }
-        else {
-            Write-Verbose "Skipping global.json generation because the `$sdkVersion = $sdkVersion"
-        }
-
         $makeFileProj = Join-Paths $PSScriptRoot ('..', 'KoreBuild.proj')
         $msbuildArtifactsDir = Join-Paths $Path ('artifacts', 'msbuild')
         $msBuildResponseFile = Join-Path $msbuildArtifactsDir msbuild.rsp
@@ -326,6 +317,14 @@ function Invoke-KoreBuildCommand(
 ) {
     if (!(Get-Variable KoreBuildSettings -Scope Global -ErrorAction SilentlyContinue)) {
         throw "Set-KoreBuildSettings must be called before Invoke-KoreBuildCommand."
+    }
+
+    $sdkVersion = __get_dotnet_sdk_version
+    if ($sdkVersion -ne 'latest') {
+        "{ `"sdk`": { `"version`": `"$sdkVersion`" } }" | Out-File (Join-Path $global:KoreBuildSettings.RepoPath 'global.json') -Encoding ascii
+    }
+    else {
+        Write-Verbose "Skipping global.json generation because the `$sdkVersion = $sdkVersion"
     }
 
     if ($Command -eq "default-build") {

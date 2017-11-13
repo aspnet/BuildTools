@@ -24,14 +24,14 @@ invoke_korebuild_command(){
     shift
 
     if [ "$command" = "default-build" ]; then
-        install_tools "$tools_source" "$dot_net_home"
-        invoke_repository_build "$repo_path" "$@"
+        __install_tools "$tools_source" "$dot_net_home"
+        __invoke_repository_build "$repo_path" "$@"
     elif [ "$command" = "msbuild" ]; then
-        invoke_repository_build "$repo_path" "$@"
+        __invoke_repository_build "$repo_path" "$@"
     elif [ "$command" = "install-tools" ]; then
-        install_tools "$tools_source" "$dot_net_home"
+        __install_tools "$tools_source" "$dot_net_home"
     else
-        ensure_dotnet
+        __ensure_dotnet
 
         kore_build_console_dll="$__korebuild_dir/tools/KoreBuild.Console.dll"
 
@@ -43,13 +43,13 @@ invoke_korebuild_command(){
     fi
 }
 
-ensure_dotnet() {
+__ensure_dotnet() {
     if ! __machine_has dotnet; then
         install_tools "$tools_source" "$dot_net_home"
     fi
 }
 
-invoke_repository_build() {
+__invoke_repository_build() {
     local repo_path=$1
     shift
     verbose_flag=''
@@ -61,7 +61,7 @@ invoke_repository_build() {
     return $?
 }
 
-install_tools() {
+__install_tools() {
     local tools_source=$1
     local install_dir=$2
     local tools_home="$install_dir/buildtools"

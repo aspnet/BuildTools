@@ -1,8 +1,8 @@
 <Project>
   <PropertyGroup>
-    <KoreBuildChannel>rel/2.0.2</KoreBuildChannel>
-    <VersionPrefix>2.0.2</VersionPrefix>
-    <VersionSuffix>rc1</VersionSuffix>
+    <KoreBuildChannel>release/2.0.0</KoreBuildChannel>
+    <VersionPrefix>2.0.3</VersionPrefix>
+    <VersionSuffix>rtm</VersionSuffix>
     <VersionSuffix Condition="'$(VersionSuffix)' != '' AND '$(BuildNumber)' != ''">$(VersionSuffix)-$(BuildNumber)</VersionSuffix>
   </PropertyGroup>
 </Project>

@@ -29,6 +29,7 @@ Microsoft.AspNetCore.DataProtection.AzureStorage
 Microsoft.AspNetCore.DataProtection.Extensions
 Microsoft.AspNetCore.DataProtection.Redis
 Microsoft.AspNetCore.DataProtection.SystemWeb
+Microsoft.AspNetCore.DeveloperCertificates.XPlat
 Microsoft.AspNetCore.Diagnostics
 Microsoft.AspNetCore.Diagnostics.Abstractions
 Microsoft.AspNetCore.Diagnostics.Elm

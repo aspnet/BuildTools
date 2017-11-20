@@ -1,6 +1,5 @@
 <Project>
   <PropertyGroup>
-    <DotNetCliUtilsVersion>1.0.1</DotNetCliUtilsVersion>
     <HtmlAgilityPackVersion>1.5.1</HtmlAgilityPackVersion>
     <!-- This one is OK for console tools that bundle their own version of JSON.NET -->
     <JsonNetVersion>10.0.1</JsonNetVersion>

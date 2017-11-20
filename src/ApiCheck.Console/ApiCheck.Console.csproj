@@ -2,13 +2,13 @@
   <Import Project="..\..\build\common.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.0;net46</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.1;net46</TargetFrameworks>
     <AssemblyName>ApiCheck</AssemblyName>
     <RootNamespace>Microsoft.AspNetCore.BuildTools.ApiCheck</RootNamespace>
     <OutputType>exe</OutputType>
     <IncludeSymbols>false</IncludeSymbols>
     <IncludeSource>false</IncludeSource>
-    <RuntimeFrameworkVersion Condition="'$(TargetFramework)' == 'netcoreapp2.0'">$(MicrosoftNETCoreApp20PackageVersion)</RuntimeFrameworkVersion>
+    <RuntimeFrameworkVersion Condition="'$(TargetFramework)' == 'netcoreapp2.1'">$(MicrosoftNETCoreApp21PackageVersion)</RuntimeFrameworkVersion>
   </PropertyGroup>
 
   <!-- packaging settings-->

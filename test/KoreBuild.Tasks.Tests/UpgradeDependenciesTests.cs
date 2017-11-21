@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.IO;
 using System.Threading.Tasks;
 using BuildTools.Tasks.Tests;
@@ -17,17 +16,11 @@ using Xunit.Abstractions;
 namespace KoreBuild.Tasks.Tests
 {
     [Collection(nameof(MSBuildTestCollection))]
-    public class UpgradeDependenciesTests : IDisposable
+    public class UpgradeDependenciesTests : DependenciesTestsBase
     {
-        private readonly string _tempDir;
-        private readonly ITestOutputHelper _output;
-
         public UpgradeDependenciesTests(ITestOutputHelper output, MSBuildTestCollectionFixture fixture)
+            : base(output, fixture)
         {
-            fixture.InitializeEnvironment(output);
-            _tempDir = Path.Combine(AppContext.BaseDirectory, Path.GetRandomFileName());
-            Directory.CreateDirectory(_tempDir);
-            _output = output;
         }
 
         [Fact]
@@ -129,19 +122,6 @@ namespace KoreBuild.Tasks.Tests
             Assert.Equal(created, File.GetLastWriteTime(depsFilePath));
         }
 
-        private string CreateProjectDepsFile(params (string varName, string version)[] variables)
-        {
-            var depsFilePath = Path.Combine(_tempDir, "projectdeps.props");
-            var proj = ProjectRootElement.Create(NewProjectFileOptions.None);
-            var originalDepsFile = DependencyVersionsFile.Load(proj);
-            foreach (var item in variables)
-            {
-                originalDepsFile.Set(item.varName, item.version);
-            }
-            originalDepsFile.Save(depsFilePath);
-            return depsFilePath;
-        }
-
         private string CreateLineup(PackageIdentity identity, params (string varName, string version)[] variables)
         {
             var output = Path.Combine(_tempDir, $"{identity.Id}.{identity.Version}.nupkg");
@@ -171,11 +151,6 @@ namespace KoreBuild.Tasks.Tests
             }
 
             return output;
-        }
-
-        public void Dispose()
-        {
-            Directory.Delete(_tempDir, recursive: true);
         }
     }
 }

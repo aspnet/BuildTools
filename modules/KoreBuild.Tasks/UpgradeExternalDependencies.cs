@@ -2,8 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using KoreBuild.Tasks.Utilities;
+using Microsoft.Build.Construction;
 using Microsoft.Build.Framework;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace KoreBuild.Tasks
 {
@@ -26,12 +28,12 @@ namespace KoreBuild.Tasks
             return UpdateDependencyFile(latest);
         }
 
-        private IReadOnlyDictionary<string, string> GetLatestDeps()
+        private IEnumerable<ProjectPropertyElement> GetLatestDeps()
         {
-            return DependencyVersionsFile.Load(UpdateSource).VersionVariables;
+            return ProjectRootElement.Open(UpdateSource).PropertyGroups.SelectMany(p => p.Properties);
         }
 
-        private bool UpdateDependencyFile(IReadOnlyDictionary<string, string> latest)
+        private bool UpdateDependencyFile(IEnumerable<ProjectPropertyElement> latest)
         {
             if (!DependencyVersionsFile.TryLoad(DependenciesFile, out var localVersionsFile))
             {
@@ -39,17 +41,31 @@ namespace KoreBuild.Tasks
                 return false;
             }
 
-            foreach (var sourceVariable in latest)
+            var updateCount = 0;
+
+            foreach (var property in latest)
             {
-                if (!localVersionsFile.VersionVariables.ContainsKey(sourceVariable.Key))
+                if (!localVersionsFile.VersionVariables.ContainsKey(property.Name))
                 {
-                    Log.LogWarning($"Creating variable {sourceVariable.Key}");
+                    Log.LogWarning($"Creating variable {property.Name}");
                 }
-                Log.LogWarning($"Setting '{sourceVariable.Key}' to '{sourceVariable.Value}'",);
-                localVersionsFile.Set(sourceVariable.Key, sourceVariable.Value);
+
+                if(localVersionsFile.VersionVariables[property.Name] != property.Value)
+                {
+                    Log.LogWarning($"Setting '{property.Name}' to '{property.Value}'");
+                    localVersionsFile.Set(property.Name, property.Value);
+                    updateCount++;
+                }
             }
 
-            localVersionsFile.Save(DependenciesFile);
+            if (updateCount > 0)
+            {
+                localVersionsFile.Save(DependenciesFile);
+            }
+            else
+            {
+                Log.LogMessage($"Versions in {DependenciesFile} are already up to date");
+            }
 
             return true;
         }

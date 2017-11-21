@@ -3,6 +3,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.1;net46</TargetFrameworks>
+    <PackageId>Microsoft.AspNetCore.BuildTools.ApiCheck</PackageId>
     <AssemblyName>ApiCheck</AssemblyName>
     <RootNamespace>Microsoft.AspNetCore.BuildTools.ApiCheck</RootNamespace>
     <OutputType>exe</OutputType>
@@ -36,6 +37,7 @@
 
   <Target Name="SetPackageDependencies" BeforeTargets="GenerateNuspec" DependsOnTargets="PublishAll">
     <PropertyGroup>
+      <NuspecProperties>$(NuspecProperties);id=$(PackageId)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);publishDir=$(IntermediatePackDir)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);taskBuildDir=$(MSBuildThisFileDirectory)..\ApiCheck.Task\bin\$(Configuration)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);version=$(PackageVersion)</NuspecProperties>

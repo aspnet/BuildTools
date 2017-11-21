@@ -3,6 +3,7 @@
   <Import Project="..\..\build\common.props" />
 
   <PropertyGroup>
+    <PackageId>Internal.AspNetCore.Sdk</PackageId>
     <TargetFrameworks>netcoreapp2.0;net46</TargetFrameworks>
     <DefineConstants>$(DefineConstants);SDK</DefineConstants>
     <Serviceable>false</Serviceable>
@@ -43,6 +44,7 @@
     </MSBuild>
 
     <PropertyGroup>
+      <NuspecProperties>$(NuspecProperties);id=$(PackageId)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);apicheckVersion=$(ApiCheckPackageVersion)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);config=$(Configuration)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);version=$(PackageVersion)</NuspecProperties>

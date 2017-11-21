@@ -1,0 +1,36 @@
+<Project>
+  <PropertyGroup>
+    <PublishDependsOn>$(PublishDependsOn);PublishToAzure</PublishDependsOn>
+
+    <PushToBlobFeed_Overwrite Condition="'$(PushToBlobFeed_Overwrite)' == ''">false</PushToBlobFeed_Overwrite>
+    <PushToBlobFeed_MaxClients Condition="'$(PushToBlobFeed_MaxClients)' == ''">8</PushToBlobFeed_MaxClients>
+    <FileRelativePathBase Condition="'$(FileRelativePathBase)' == ''">assets</FileRelativePathBase>
+    <FileRelativePathBase Condition="!HasTrailingSlash('$(FileRelativePathBase)')">$(FileRelativePathBase)/</FileRelativePathBase>
+  </PropertyGroup>
+
+  <Target Name="Publish" DependsOnTargets="$(PublishDependsOn)" />
+
+  <Target Name="PublishToAzure" DependsOnTargets="GetArtifactInfo" Condition="'$(PublishBlobFeedUrl)' != ''">
+    <ItemGroup>
+      <PackagesToPublish Include="%(ArtifactInfo.Identity)" Condition="'%(ArtifactInfo.ArtifactType)' == 'NuGetPackage'" />
+      <FilesToPublish Include="%(ArtifactInfo.Identity)" Condition="'%(ArtifactInfo.AzureAssetsPath)' != ''">
+        <RelativeBlobPath>$(FileRelativePathBase)%(ArtifactInfo.AzureAssetsPath)</RelativeBlobPath>
+      </FilesToPublish>
+    </ItemGroup>
+
+    <PushToBlobFeed ExpectedFeedUrl="$(PublishBlobFeedUrl)"
+                    AccountKey="$(PublishBlobFeedKey)"
+                    ItemsToPush="@(PackagesToPublish)"
+                    Overwrite="$(PushToBlobFeed_Overwrite)"
+                    MaxClients="$(PushToBlobFeed_MaxClients)"
+                    Condition="@(PackagesToPublish->Count()) != 0" />
+
+    <PushToBlobFeed ExpectedFeedUrl="$(PublishBlobFeedUrl)"
+                    AccountKey="$(PublishBlobFeedKey)"
+                    ItemsToPush="@(FilesToPublish)"
+                    PublishFlatContainer="true"
+                    Overwrite="$(PushToBlobFeed_Overwrite)"
+                    MaxClients="$(PushToBlobFeed_MaxClients)" />
+  </Target>
+
+</Project>

@@ -3,6 +3,7 @@
     <HtmlAgilityPackVersion>1.5.1</HtmlAgilityPackVersion>
     <!-- This one is OK for console tools that bundle their own version of JSON.NET -->
     <JsonNetVersion>10.0.1</JsonNetVersion>
+    <MicrosoftDotNetBuildTasksFeedPackageVersion>2.1.0-prerelease-02221-01</MicrosoftDotNetBuildTasksFeedPackageVersion>
     <MicrosoftDotNetPlatformAbstractionsVersion>2.0.0</MicrosoftDotNetPlatformAbstractionsVersion>
     <MicrosoftNETCoreApp20PackageVersion>2.0.0</MicrosoftNETCoreApp20PackageVersion>
     <MicrosoftNETCoreApp21PackageVersion>2.1.0-preview1-25907-02</MicrosoftNETCoreApp21PackageVersion>
@@ -12,8 +13,8 @@
     <SystemCollectionsImmutableVersion>1.4.0</SystemCollectionsImmutableVersion>
     <SystemReflectionMetadataVersion>1.5.0</SystemReflectionMetadataVersion>
     <TestSdkVersion>15.3.0</TestSdkVersion>
-    <XunitVersion>2.3.1</XunitVersion>
     <VSWherePackageVersion>2.2.7</VSWherePackageVersion>
+    <XunitVersion>2.3.1</XunitVersion>
   </PropertyGroup>
 
   <!--

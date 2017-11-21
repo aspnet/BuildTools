@@ -2,7 +2,7 @@
 #requires -version 4
 [cmdletbinding(SupportsShouldProcess = $true)]
 param(
-    [ValidateSet('default', 'blob')]
+    [ValidateSet('default', 'blob', '')]
     [string]$PublishType = 'default',
 
     # used for PublishType = default
@@ -18,6 +18,11 @@ param(
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 2
+
+if (-not $PublishType) {
+    Write-Warning "Skipping push because `$PublishType was empty"
+    exit 0
+}
 
 if ($env:BUILD_IS_PERSONAL) {
     $WhatIfPreference = $true

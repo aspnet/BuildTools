@@ -11,7 +11,6 @@ namespace KoreBuild.Tasks
 {
     public class UpgradeExternalDependencies : Microsoft.Build.Utilities.Task
     {
-
         [Required]
         public string UpdateSource { get; set; }
 

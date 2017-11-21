@@ -10,6 +10,12 @@
 
   <Target Name="Publish" DependsOnTargets="$(PublishDependsOn)" />
 
+  <!--
+    This target is used to publish build assets to Azure blob storage (aka transport feeds)
+    It relies on the Microsoft.DotNet.Build.Tasks.Feed task to upload assets.
+
+    See https://github.com/dotnet/buildtools/tree/master/src/Microsoft.DotNet.Build.Tasks.Feed for more details.
+  -->
   <Target Name="PublishToAzure" DependsOnTargets="GetArtifactInfo" Condition="'$(PublishBlobFeedUrl)' != ''">
     <ItemGroup>
       <PackagesToPublish Include="%(ArtifactInfo.Identity)" Condition="'%(ArtifactInfo.ArtifactType)' == 'NuGetPackage'" />

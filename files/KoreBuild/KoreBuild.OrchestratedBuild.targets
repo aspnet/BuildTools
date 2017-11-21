@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <TestDependsOn Condition=" '$(SkipTests)' == 'true' ">Package;ShowTestSkippedMessage</TestDependsOn>
+  </PropertyGroup>
+
+  <Target Name="ShowTestSkippedMessage">
+    <Warning Text="Tests are being skipped because the SkipTests property is set to 'true'." />
+  </Target>
+</Project>

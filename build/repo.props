@@ -12,5 +12,6 @@
     <KoreBuildModule Include="BundledPackages" />
     <KoreBuildModule Include="KoreBuild.Tasks" />
     <KoreBuildModule Include="NuGetPackageVerifier" />
+    <KoreBuildModule Include="Publish" />
   </ItemGroup>
 </Project>

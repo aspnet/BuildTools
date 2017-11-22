@@ -15,10 +15,12 @@ namespace KoreBuild.FunctionalTests
     public class TestApp : IDisposable
     {
         private readonly string _toolsSource;
+        private readonly string _logFile;
 
-        public TestApp(string templateDir, string toolsSource, string source, string workDir)
+        public TestApp(string templateDir, string toolsSource, string source, string workDir, string logFile)
         {
             WorkingDirectory = workDir;
+            _logFile = logFile;
             _toolsSource = toolsSource;
             Directory.CreateDirectory(workDir);
             CopyRecursive(templateDir, workDir);
@@ -69,7 +71,7 @@ namespace KoreBuild.FunctionalTests
 
             arguments.AddRange(commandArgs);
 
-            arguments.Add("/v:n");
+            arguments.Add("/bl:" + _logFile);
 
             var process = new Process
             {

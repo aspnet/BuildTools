@@ -29,13 +29,15 @@ namespace KoreBuild.FunctionalTests
 
         public string ScriptsDir { get; } = Path.Combine(_solutionDir, "scripts", "bootstrapper");
         public string ToolsSource { get; } = Path.Combine(_solutionDir, "artifacts");
+        public string LogDir { get; } = Path.Combine(_solutionDir, "artifacts", "tests");
         public string TestAssets { get; } = Path.Combine(_solutionDir, "testassets");
 
         public TestApp CreateTestApp(string name)
         {
             var srcDir = Path.Combine(TestAssets, name);
-            var tempDir = Path.Combine(Path.GetTempPath(), "korebuild", Guid.NewGuid().ToString());
-            var app = new TestApp(ScriptsDir, ToolsSource, srcDir, tempDir);
+            var instanceName = Path.GetRandomFileName();
+            var tempDir = Path.Combine(Path.GetTempPath(), "korebuild", instanceName);
+            var app = new TestApp(ScriptsDir, ToolsSource, srcDir, tempDir, Path.Combine(LogDir, "test-" + instanceName + ".binlog"));
             _disposables.Enqueue(app);
             return app;
         }

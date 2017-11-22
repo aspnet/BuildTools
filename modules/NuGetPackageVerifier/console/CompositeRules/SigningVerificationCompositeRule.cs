@@ -5,9 +5,10 @@ using System.Collections.Generic;
 
 namespace NuGetPackageVerifier.Rules
 {
-    public class SigningVerificationCompositeRule : IPackageVerifierRule
+    public class SigningVerificationCompositeRule : CompositeRule
     {
-        private readonly IPackageVerifierRule[] _rules = {
+        protected override IPackageVerifierRule[] Rules => new IPackageVerifierRule[]
+        {
             new AssemblyHasCommitHashAttributeRule(),
             new AssemblyIsBuiltInReleaseConfigurationRule(),
             new AuthenticodeSigningRule(),
@@ -15,16 +16,5 @@ namespace NuGetPackageVerifier.Rules
             new PackageOwnershipRule(),
             new PrereleaseDependenciesVersionRule(),
         };
-
-        public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
-        {
-            foreach (var rule in _rules)
-            {
-                foreach (var issue in rule.Validate(context))
-                {
-                    yield return issue;
-                }
-            }
-        }
     }
 }

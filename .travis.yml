@@ -7,10 +7,6 @@ env:
   global:
     - DOTNET_CLI_TELEMETRY_OPTOUT: 1
 mono: none
-os:
-  - linux
-  - osx
-osx_image: xcode9.1
 addons:
   apt:
     packages:

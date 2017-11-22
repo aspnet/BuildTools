@@ -14,7 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "files", "files", "{BF3E9C90
 		build.cmd = build.cmd
 		build.ps1 = build.ps1
 		build.sh = build.sh
-		build\common.props = build\common.props
+		Directory.Build.props = Directory.Build.props
+		Directory.Build.targets = Directory.Build.targets
 		CONTRIBUTING.md = CONTRIBUTING.md
 		build\dependencies.props = build\dependencies.props
 		global.json = global.json
@@ -60,7 +61,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KoreBuild.FunctionalTests",
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{76ABA507-B453-43BA-BA98-FA3FDDC6DD39}"
 	ProjectSection(SolutionItems) = preProject
-		build\common.props = build\common.props
 		build\dependencies.props = build\dependencies.props
 		build\repo.beforecommon.props = build\repo.beforecommon.props
 		build\repo.props = build\repo.props

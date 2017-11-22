@@ -1,11 +1,11 @@
 <Project>
-  <Import Project="sources.props" />
-  <Import Project="dependencies.props" />
-  <Import Project="..\version.props" />
+  <Import Project="version.props" />
+  <Import Project="build\dependencies.props" />
+  <Import Project="build\sources.props" />
 
   <PropertyGroup>
     <!-- these imports substitute for a package reference to Internal.AspNetCore.Sdk -->
-    <_AspNetToolsSdkPath>$([MSBuild]::GetDirectoryNameOfFileAbove($(MsBuildThisFileDirectory), NuGet.Config))\src\Internal.AspNetCore.Sdk</_AspNetToolsSdkPath>
+    <_AspNetToolsSdkPath>$(MSBuildThisFileDirectory)src\Internal.AspNetCore.Sdk</_AspNetToolsSdkPath>
     <CustomAfterMicrosoftCommonTargets>$(_AspNetToolsSdkPath)\build\Internal.AspNetCore.Sdk.targets</CustomAfterMicrosoftCommonTargets>
     <CustomAfterMicrosoftCommonCrossTargetingTargets>$(_AspNetToolsSdkPath)\buildMultiTargeting\Internal.AspNetCore.Sdk.targets</CustomAfterMicrosoftCommonCrossTargetingTargets>
     <GenerateCommitHashAttribute Condition="'$(CommitHash)'==''">false</GenerateCommitHashAttribute>
@@ -23,6 +23,7 @@
   <PropertyGroup>
     <RepositoryUrl>https://github.com/aspnet/BuildTools</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <RepositoryRoot>$(MSBuildThisFileDirectory)</RepositoryRoot>
   </PropertyGroup>
 
 </Project>

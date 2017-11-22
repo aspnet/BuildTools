@@ -1,20 +1,22 @@
 <Project>
   <PropertyGroup>
-    <HtmlAgilityPackVersion>1.5.1</HtmlAgilityPackVersion>
-    <!-- This one is OK for console tools that bundle their own version of JSON.NET -->
-    <JsonNetVersion>10.0.1</JsonNetVersion>
+    <HtmlAgilityPackPackageVersion>1.5.1</HtmlAgilityPackPackageVersion>
     <MicrosoftDotNetBuildTasksFeedPackageVersion>2.1.0-prerelease-02221-01</MicrosoftDotNetBuildTasksFeedPackageVersion>
     <MicrosoftDotNetPlatformAbstractionsVersion>2.0.0</MicrosoftDotNetPlatformAbstractionsVersion>
     <MicrosoftNETCoreApp20PackageVersion>2.0.0</MicrosoftNETCoreApp20PackageVersion>
     <MicrosoftNETCoreApp21PackageVersion>2.1.0-preview1-25907-02</MicrosoftNETCoreApp21PackageVersion>
-    <MonoCecilVersion>0.10.0-beta6</MonoCecilVersion>
-    <MoqVersion>4.7.99</MoqVersion>
-    <NuGetPackagesVersion>4.3.0</NuGetPackagesVersion>
-    <SystemCollectionsImmutableVersion>1.4.0</SystemCollectionsImmutableVersion>
-    <SystemReflectionMetadataVersion>1.5.0</SystemReflectionMetadataVersion>
-    <TestSdkVersion>15.3.0</TestSdkVersion>
+    <MicrosoftNETTestSdkPackageVersion>15.5.0</MicrosoftNETTestSdkPackageVersion>
+    <MonoCecilPackageVersion>0.10.0-beta6</MonoCecilPackageVersion>
+    <MoqPackageVersion>4.7.99</MoqPackageVersion>
+    <!-- This one is OK for console tools that bundle their own version of JSON.NET -->
+    <NewtonsoftJsonPackageVersion>10.0.1</NewtonsoftJsonPackageVersion>
+    <NuGetPackagingPackageVersion>4.3.0</NuGetPackagingPackageVersion>
+    <NuGetProjectModelPackageVersion>4.3.0</NuGetProjectModelPackageVersion>
+    <SystemCollectionsImmutablePackageVersion>1.4.0</SystemCollectionsImmutablePackageVersion>
+    <SystemReflectionMetadataPackageVersion>1.5.0</SystemReflectionMetadataPackageVersion>
     <VSWherePackageVersion>2.2.7</VSWherePackageVersion>
-    <XunitVersion>2.3.1</XunitVersion>
+    <XunitPackageVersion>2.3.1</XunitPackageVersion>
+    <XunitRunnerVisualStudioPackageVersion>2.3.1</XunitRunnerVisualStudioPackageVersion>
   </PropertyGroup>
 
   <!--
@@ -24,8 +26,20 @@
     as long as the version we compile for is binary compatible with what the .NET Core SDK uses.
   -->
   <PropertyGroup>
-    <MicrosoftBuildVersion>15.5.0-preview-000172-1103937</MicrosoftBuildVersion>
-    <JsonNetInMSBuildVersion>9.0.1</JsonNetInMSBuildVersion>
-    <NuGetInMSBuildVersion>4.5.0-preview2-4529</NuGetInMSBuildVersion>
+    <MicrosoftBuildPackageVersion>15.5.0-preview-000172-1103937</MicrosoftBuildPackageVersion>
+    <MicrosoftBuildFrameworkPackageVersion>15.5.0-preview-000172-1103937</MicrosoftBuildFrameworkPackageVersion>
+    <MicrosoftBuildUtilitiesCorePackageVersion>15.5.0-preview-000172-1103937</MicrosoftBuildUtilitiesCorePackageVersion>
+    <MicrosoftBuildTasksCorePackageVersion>15.5.0-preview-000172-1103937</MicrosoftBuildTasksCorePackageVersion>
+    <Tooling_NewtonsoftJsonPackageVersion>9.0.1</Tooling_NewtonsoftJsonPackageVersion>
+    <Tooling_NuGetBuildTasksPackageVersion>4.5.0-preview2-4529</Tooling_NuGetBuildTasksPackageVersion>
   </PropertyGroup>
+
+  <!-- These are set to flow into RepoTasks.csproj -->
+  <PropertyGroup>
+    <MicrosoftBuildVersion>$(MicrosoftBuildPackageVersion)</MicrosoftBuildVersion>
+    <JsonInMSBuildVersion>$(Tooling_NewtonsoftJsonPackageVersion)</JsonInMSBuildVersion>
+    <NuGetInMSBuildVersion>$(Tooling_NuGetBuildTasksPackageVersion)</NuGetInMSBuildVersion>
+  </PropertyGroup>
+
+  <Import Project="$(DotNetPackageVersionPropsPath)" Condition=" '$(DotNetPackageVersionPropsPath)' != '' " />
 </Project>

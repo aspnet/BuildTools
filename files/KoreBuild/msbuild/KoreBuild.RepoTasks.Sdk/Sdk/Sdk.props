@@ -11,14 +11,14 @@
       The dependency versions here don't matter as long as the version is binary compatible with the version of MSBuild and NuGet
       already embedded in Microsoft.NET.Sdk. These are essentially reference assemblies.
     -->
-    <MicrosoftBuildVersion>15.3.409</MicrosoftBuildVersion>
+    <MicrosoftBuildVersion Condition="'$(MicrosoftBuildVersion)' == ''">15.3.409</MicrosoftBuildVersion>
 
     <!--
       Version must be less than or equal to what ships in with Microsoft.NET.Sdk.
       See https://github.com/dotnet/sdk/blob/release/2.0.0/build/DependencyVersions.props
      -->
-    <JsonInMSBuildVersion>9.0.1</JsonInMSBuildVersion>
-    <NuGetInMSBuildVersion>4.3.0</NuGetInMSBuildVersion>
+    <JsonInMSBuildVersion Condition="'$(JsonInMSBuildVersion)' == ''">9.0.1</JsonInMSBuildVersion>
+    <NuGetInMSBuildVersion Condition="'$(NuGetInMSBuildVersion)' == ''">4.3.0</NuGetInMSBuildVersion>
   </PropertyGroup>
 
 </Project>

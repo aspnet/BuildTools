@@ -5,7 +5,7 @@ KoreBuild is a set of MSBuild targets and tasks used to define a common set of b
 
 ## KoreBuild Lifecycle
 
-The KoreBuild chains together these targets. Custom targets can chain of these
+The KoreBuild chains together these targets in this order. Custom targets can chain off these.
 
 1. Prepare - pre-build actions like making directories
 1. Restore - NuGet restore
@@ -13,7 +13,18 @@ The KoreBuild chains together these targets. Custom targets can chain of these
 1. Package - NuGet pack and other packaging steps
 1. Test - invokes VSTest
 1. Verify - post build tests
-1. Build = the default target. Runs Prepare;Restore;Compile;Package;Test;Verify
+
+When not specified, the default target is `/t:Build`, which runs all of these lifecycle targets.
+
+## Other common targets
+
+These targets are also available, but are not run in the default lifecycle.
+
+- Clean - cleans artifacts, executes /t:Clean on solutions
+- Rebuild - executes /t:Rebuild on solutions
+- Resx - generates resx files
+- Noop - a target that does nothing
+- Publish - pushes artifacts to NuGet feeds and blob stores
 
 ## Extensibility points
 
@@ -22,10 +33,11 @@ The KoreBuild chains together these targets. Custom targets can chain of these
 KoreBuild is designed to be a modular system. It is written as a backbone of default lifecycle targets and imports.
 Default functionality, such as building solutions and testing with VSTest, are written as modules in `files/KoreBuild/modules`.
 
-Other default functionality that require tasks are built from `modules/` in this repo. These include tasks for download NuGet packages,
-creating Zip files, retrieving Git information, and more.
+Other default functionality that require tasks are built from `modules/` in this repo.
+These include tasks for downloading NuGet packages, creating Zip files, retrieving Git information, and more.
 
-Additional KoreBuild modules can be imported by setting `CustomKoreBuildModulesPath` as a property or environment variable. Anything maching `$(CustomKoreBuildModulesPath)/*/module.props` and `$(CustomKoreBuildModulesPath)/*/modules.targets` will be imported into KoreBuild.
+Additional KoreBuild modules can be imported by setting `CustomKoreBuildModulesPath` as a property or environment variable.
+Anything matching `$(CustomKoreBuildModulesPath)/*/module.props` and `$(CustomKoreBuildModulesPath)/*/modules.targets` will be imported into KoreBuild.
 
 ### RepoTasks
 

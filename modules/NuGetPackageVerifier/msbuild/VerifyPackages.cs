@@ -1,8 +1,10 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Build.Framework;
 using Microsoft.Extensions.CommandLineUtils;
@@ -22,6 +24,8 @@ namespace NuGetPackagerVerifier
 
         [Required]
         public string ArtifactDirectory { get; set; }
+
+        public string[] ExcludedRules { get; set; }
 
         public override bool Execute()
         {
@@ -45,15 +49,24 @@ namespace NuGetPackagerVerifier
             }
 
             var dotnetMuxer = DotNetMuxer.MuxerPathOrDefault();
+            var arguments = new List<string>
+            {
+                toolPath,
+                "--rule-file",
+                RuleFile,
+                ArtifactDirectory,
+            };
+
+            foreach (var rule in ExcludedRules ?? Enumerable.Empty<string>())
+            {
+                arguments.Add("--excluded-rule");
+                arguments.Add(rule);
+            }
+
             var psi = new ProcessStartInfo
             {
                 FileName = dotnetMuxer,
-                Arguments = ArgumentEscaper.EscapeAndConcatenate(new[]
-                {
-                    toolPath,
-                    ArtifactDirectory,
-                    RuleFile,
-                })
+                Arguments = ArgumentEscaper.EscapeAndConcatenate(arguments),
             };
 
             Log.LogMessage($"Executing '{psi.FileName} {psi.Arguments}'");

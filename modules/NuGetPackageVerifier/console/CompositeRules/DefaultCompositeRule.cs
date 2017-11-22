@@ -5,9 +5,10 @@ using System.Collections.Generic;
 
 namespace NuGetPackageVerifier.Rules
 {
-    public class DefaultCompositeRule : IPackageVerifierRule
+    public class DefaultCompositeRule : CompositeRule
     {
-        private readonly IPackageVerifierRule[] _rules = {
+        protected override IPackageVerifierRule[] Rules => new IPackageVerifierRule[]
+        {
             new AssemblyHasCompanyAttributeRule(),
             new AssemblyHasCopyrightAttributeRule(),
             new ThirdPartyPackageVersionsRule(),
@@ -27,16 +28,5 @@ namespace NuGetPackageVerifier.Rules
             new PackageVersionMatchesAssemblyVersionRule(),
             new BuildItemsRule(),
         };
-
-        public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
-        {
-            foreach (var rule in _rules)
-            {
-                foreach (var issue in rule.Validate(context))
-                {
-                    yield return issue;
-                }
-            }
-        }
     }
 }

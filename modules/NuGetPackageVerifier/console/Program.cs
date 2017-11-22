@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Extensions.CommandLineUtils;
 using Newtonsoft.Json;
 using NuGet.Packaging;
 using NuGetPackageVerifier.Logging;
@@ -21,88 +22,83 @@ namespace NuGetPackageVerifier
 
         public static int Main(string[] args)
         {
-            // TODO: Show extraneous packages, exclusions, etc.
-            var ignoreAssistanceMode = IgnoreAssistanceMode.ShowNew;
+            var application = new CommandLineApplication();
+            var verbose = application.Option("--verbose", "Verbose output and assistance", CommandOptionType.NoValue);
+            var ruleFile = application.Option("--rule-file", "Path to NPV.json", CommandOptionType.SingleValue);
+            var excludedRules = application.Option("--excluded-rule", "Rules to exclude. Calculcated after composite rules are evaluated.", CommandOptionType.MultipleValue);
+            var packageDirectory = application.Argument("Package directory", "Package directory to scan for nupkgs");
 
-            // TODO: Get this from the command line
-            var hideInfoLogs = true;
-
-            if (args.Length > 0 && string.Equals("--verbose", args[0], StringComparison.OrdinalIgnoreCase))
+            application.OnExecute(() =>
             {
-                hideInfoLogs = false;
-                ignoreAssistanceMode = IgnoreAssistanceMode.ShowAll;
-                args = args.Skip(1).ToArray();
-            }
+                var totalTimeStopWatch = Stopwatch.StartNew();
+                var hideInfoLogs = verbose.HasValue();
 
-            if (args.Length < 1 || args.Length > 2 || args.Any(a => a == "--help"))
-            {
-                Console.WriteLine(@"USAGE: nugetverify c:\path\to\packages [c:\path\to\packages-to-scan.json]");
-
-                return ReturnBadArgs;
-            }
-
-            IPackageVerifierLogger logger;
-            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("TEAMCITY_VERSION")))
-            {
-                logger = new TeamCityLogger(hideInfoLogs);
-            }
-            else
-            {
-                logger = new PackageVerifierLogger(hideInfoLogs);
-            }
-
-            IDictionary<string, PackageSet> packageSets;
-
-            if (args.Length >= 2)
-            {
-                var packagesToScanJsonFilePath = args[1];
-                if (!File.Exists(packagesToScanJsonFilePath))
+                IPackageVerifierLogger logger;
+                if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("TEAMCITY_VERSION")))
                 {
-                    Console.WriteLine(packagesToScanJsonFilePath);
-                    logger.LogError("Couldn't find packages JSON file at {0}", packagesToScanJsonFilePath);
-                    return ReturnBadArgs;
+                    logger = new TeamCityLogger(hideInfoLogs);
+                }
+                else
+                {
+                    logger = new PackageVerifierLogger(hideInfoLogs);
                 }
 
-                var packagesToScanJsonFileContent = File.ReadAllText(packagesToScanJsonFilePath);
-
-                packageSets = JsonConvert.DeserializeObject<IDictionary<string, PackageSet>>(
-                    packagesToScanJsonFileContent,
+                // TODO: Show extraneous packages, exclusions, etc.
+                var ignoreAssistanceMode = verbose.HasValue() ? IgnoreAssistanceMode.ShowAll : IgnoreAssistanceMode.ShowNew;
+                
+                var ruleFileContent = File.ReadAllText(ruleFile.Value());
+                var packageSets = JsonConvert.DeserializeObject<IDictionary<string, PackageSet>>(
+                    ruleFileContent,
                     new JsonSerializerSettings
                     {
                         MissingMemberHandling = MissingMemberHandling.Error
                     });
 
-                logger.LogNormal("Read {0} package set(s) from {1}", packageSets.Count, packagesToScanJsonFilePath);
-            }
-            else
-            {
-                packageSets = new Dictionary<string, PackageSet>();
-            }
+                logger.LogNormal("Read {0} package set(s) from {1}", packageSets.Count, ruleFile);
+                var nupkgs = new DirectoryInfo(packageDirectory.Value).EnumerateFiles("*.nupkg", SearchOption.TopDirectoryOnly)
+                    .Where(p => !p.Name.EndsWith(".symbols.nupkg"))
+                    .ToArray();
+                logger.LogNormal("Found {0} packages in {1}", nupkgs.Length, packageDirectory);
+                var exitCode = Execute(packageSets, nupkgs, excludedRules.Values, logger, ignoreAssistanceMode);
+                totalTimeStopWatch.Stop();
+                logger.LogNormal("Total took {0}ms", totalTimeStopWatch.ElapsedMilliseconds);
 
-            var totalTimeStopWatch = Stopwatch.StartNew();
-
-            var allRules = typeof(Program)
-                    .GetTypeInfo()
-                    .Assembly
-                    .GetTypes()
-                    .Where(t =>
-                        typeof(IPackageVerifierRule).IsAssignableFrom(t)
-                        && !t.GetTypeInfo().IsAbstract)
-                    .ToDictionary(
-                        t => t.Name,
-                        t => (IPackageVerifierRule)Activator.CreateInstance(t));
-
-            var nupkgsPath = args[0];
-            var dirInfo = new DirectoryInfo(nupkgsPath);
-            var allPackages = dirInfo.GetFiles("*.nupkg", SearchOption.TopDirectoryOnly);
-            var nupkgs = allPackages.Where(n => !n.Name.EndsWith(".symbols.nupkg"));
-            var packages = nupkgs.ToDictionary<FileInfo, IPackageMetadata>(file =>
-            {
-                var reader = new PackageArchiveReader(file.FullName);
-                return new PackageBuilder(reader.GetNuspec(), basePath: null);
+                return exitCode;
             });
 
-            logger.LogNormal("Found {0} packages in {1}", nupkgs.Count(), nupkgsPath);
+            return application.Execute(args);
+        }
+
+        private static int Execute(
+            IDictionary<string, PackageSet> packageSets,
+            IEnumerable<FileInfo> nupkgs,
+            List<string> excludedRuleNames,
+            IPackageVerifierLogger logger,
+            IgnoreAssistanceMode ignoreAssistanceMode)
+        {
+            var allRules = typeof(Program).Assembly.GetTypes()
+                .Where(t =>
+                    typeof(IPackageVerifierRule).IsAssignableFrom(t) && !t.IsAbstract)
+                .ToDictionary(
+                    t => t.Name,
+                    t => 
+                    {
+                        var rule = (IPackageVerifierRule)Activator.CreateInstance(t);
+                        if (rule is CompositeRule compositeRule)
+                        {
+                            return compositeRule.GetRules();
+                        }
+                        else
+                        {
+                            return new[] { rule };
+                        }
+                    });
+
+            var packages = nupkgs.ToDictionary(file =>
+            {
+                var reader = new PackageArchiveReader(file.FullName);
+                return (IPackageMetadata)new PackageBuilder(reader.GetNuspec(), basePath: null);
+            });
 
             var processedPackages = new HashSet<IPackageMetadata>();
 
@@ -124,9 +120,10 @@ namespace NuGetPackageVerifier
 
                 var packageSetRuleInfo = packageSet.Value.Rules;
 
-                var packageSetRules = packageSetRuleInfo.Select(
+                var packageSetRules = packageSetRuleInfo.SelectMany(
                     ruleId => allRules.SingleOrDefault(
-                        rule => string.Equals(rule.Key, ruleId, StringComparison.OrdinalIgnoreCase)).Value);
+                        rule => string.Equals(rule.Key, ruleId, StringComparison.OrdinalIgnoreCase)).Value)
+                    .Where(rule => !excludedRuleNames.Contains(rule.GetType().Name));
 
                 if (string.Equals(packageSet.Key, "Default", StringComparison.OrdinalIgnoreCase))
                 {
@@ -211,7 +208,10 @@ namespace NuGetPackageVerifier
                 // For unlisted packages we run the rules from 'Default' package set if present
                 // or we run all rules (because we have no idea what exactly to run)
                 var analyzer = new PackageAnalyzer();
-                foreach (var ruleInstance in defaultRuleSet ?? allRules.Values)
+                var unlistedPackageRules = defaultRuleSet ?? 
+                    allRules.Values.SelectMany(f => f).Where(r => !excludedRuleNames.Contains(r.GetType().Name));
+                
+                foreach (var ruleInstance in unlistedPackageRules)
                 {
                     analyzer.Rules.Add(ruleInstance);
                 }
@@ -283,8 +283,7 @@ namespace NuGetPackageVerifier
                 "SUMMARY: {0} error(s) and {1} warning(s) found",
                 totalErrors, totalWarnings);
 
-            totalTimeStopWatch.Stop();
-            logger.LogNormal("Total took {0}ms", totalTimeStopWatch.ElapsedMilliseconds);
+            
 
             return (totalErrors + totalWarnings > 0) ? ReturnErrorsOrWarnings : ReturnOk;
         }

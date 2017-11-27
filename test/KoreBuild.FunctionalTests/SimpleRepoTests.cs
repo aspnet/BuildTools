@@ -24,7 +24,7 @@ namespace KoreBuild.FunctionalTests
             _fixture = fixture;
         }
 
-        [Fact(Skip = "Skipping to unblock build. https://github.com/aspnet/BuildTools/issues/488")]
+        [Fact]
         public async Task FullBuildCompletes()
         {
             var app = _fixture.CreateTestApp("SimpleRepo");
@@ -71,7 +71,7 @@ namespace KoreBuild.FunctionalTests
                 platform = "winservercore";
             }
 
-            var build = app.ExecuteRun(_output, new string[]{ "docker-build", "-Path", app.WorkingDirectory}, platform, "/p:BuildNumber=0001");
+            var build = app.ExecuteRun(_output, new string[] { "docker-build", "-Path", app.WorkingDirectory }, platform, "/p:BuildNumber=0001");
             var task = await Task.WhenAny(build, Task.Delay(TimeSpan.FromMinutes(10)));
 
             Assert.Same(task, build);
@@ -91,7 +91,7 @@ namespace KoreBuild.FunctionalTests
                 var output = process.StandardOutput.ReadToEnd().Trim();
 
                 OSPlatform result;
-                switch(output)
+                switch (output)
                 {
                     case "windows":
                         result = OSPlatform.Windows;
@@ -113,7 +113,7 @@ namespace KoreBuild.FunctionalTests
     {
         public DockerExistsFactAttribute()
         {
-            if(!HasDocker())
+            if (!HasDocker())
             {
                 Skip = "Docker must be installed to run this test.";
             }
@@ -133,7 +133,7 @@ namespace KoreBuild.FunctionalTests
                     return true;
                 }
             }
-            catch(Win32Exception)
+            catch (Win32Exception)
             {
                 return false;
             }

@@ -38,17 +38,17 @@ if (!$DotNetHome) {
         else { Join-Path $PSScriptRoot '.dotnet'}
 }
 
-$intermediateDir = Join-Path $PSScriptRoot 'obj'
+$IntermediateDir = Join-Path $PSScriptRoot 'obj'
 $ConfigFile = Join-Path $PSScriptRoot 'korebuild.json'
 
 try {
     Import-Module -Force -Scope Local "$PSScriptRoot/files/KoreBuild/KoreBuild.psd1"
 
     if ($PackageVersionPropsUrl) {
-        $propsFilePath = Join-Path $intermediateDir 'external-dependencies.props'
-        New-Item -ItemType Directory $intermediateDir -ErrorAction Ignore | Out-Null
-        Invoke-WebRequest "${PackageVersionPropsUrl}${AccessTokenSuffix}" -OutFile $propsFilePath -UseBasicParsing
-        $MSBuildArguments += "-p:DotNetPackageVersionPropsPath=$propsFilePath"
+        $PropsFilePath = Join-Path $IntermediateDir 'external-dependencies.props'
+        New-Item -ItemType Directory $IntermediateDir -ErrorAction Ignore | Out-Null
+        Invoke-WebRequest "${PackageVersionPropsUrl}${AccessTokenSuffix}" -OutFile $PropsFilePath -UseBasicParsing
+        $MSBuildArguments += "-p:DotNetPackageVersionPropsPath=$PropsFilePath"
     }
 
     if ($SkipTests) {

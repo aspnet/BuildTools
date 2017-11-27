@@ -4,6 +4,18 @@
 // V1
 namespace ComparisonScenarios
 {
+    public class TypeToBeForwarded
+    {
+        public string Name { get; set; }
+    }
+
+    public class TypeToBeForwardedAndChanged
+    {
+        public string Name { get; set; }
+
+        public string PropertyToBeRemoved { get; set; }
+    }
+
     public class PublicToInternalClass
     {
     }

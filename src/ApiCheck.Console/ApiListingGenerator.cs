@@ -39,6 +39,11 @@ namespace ApiCheck
         public ApiListing GenerateApiListing()
         {
             var types = _assembly.DefinedTypes
+#if NETCOREAPP2_1 // Reflection does not provide a hook to enumerate forwarded types in .NET Framework.
+                .Concat(_assembly
+                    .GetForwardedTypes()
+                    .Select(type => type.GetTypeInfo()))
+#endif
                 .Where(t => t.IsPublic || t.IsNestedPublic || t.IsNestedFamily || t.IsNestedFamORAssem);
 
             var document = new ApiListing

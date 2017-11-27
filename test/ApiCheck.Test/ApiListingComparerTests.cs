@@ -22,6 +22,50 @@ namespace ApiCheck.Test
             ti => (ti as TypeInfo)?.Namespace?.StartsWith("ComparisonScenarios") == false
         };
 
+#if NETCOREAPP2_1 // Reflection does not provide a hook to enumerate forwarded types in .NET Framework.
+        [Fact]
+        public void Compare_AllowsTypeToBeForwarded()
+        {
+            // Arrange
+            var v1ApiListing = CreateApiListingDocument(V1Assembly);
+            var v2ApiListing = CreateApiListingDocument(V2Assembly);
+            var comparer = new ApiListingComparer(v1ApiListing, v2ApiListing);
+            var typeToCheck = "public class ComparisonScenarios.TypeToBeForwarded";
+
+            // Act
+            var breakingChanges = comparer.GetDifferences();
+
+            // Assert
+            Assert.DoesNotContain(breakingChanges, bc => bc.TypeId == typeToCheck);
+        }
+
+        [Fact]
+        public void Compare_DetectsChangesInForwardedType()
+        {
+            // Arrange
+            var v1ApiListing = CreateApiListingDocument(V1Assembly);
+            var v2ApiListing = CreateApiListingDocument(V2Assembly);
+            var comparer = new ApiListingComparer(v1ApiListing, v2ApiListing);
+            var typeToCheck = "public class ComparisonScenarios.TypeToBeForwardedAndChanged";
+            var getterRemoval = new BreakingChange(
+                typeToCheck,
+                "public System.String get_PropertyToBeRemoved()",
+                ChangeKind.Removal);
+            var setterRemoval = new BreakingChange(
+                typeToCheck,
+                "public System.Void set_PropertyToBeRemoved(System.String value)",
+                ChangeKind.Removal);
+
+            // Act
+            var breakingChanges = comparer.GetDifferences();
+
+            // Assert
+            Assert.Equal(2, breakingChanges.Count(bc => bc.TypeId == typeToCheck));
+            Assert.Contains(getterRemoval, breakingChanges);
+            Assert.Contains(setterRemoval, breakingChanges);
+        }
+#endif
+
         [Fact]
         public void Compare_Detects_ChangesInTypeVisibility_as_removal()
         {

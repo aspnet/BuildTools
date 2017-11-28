@@ -14,6 +14,8 @@
     (optional) the url of the package versions props path containing dependency versions.
 .PARAMETER AccessTokenSuffix
     (optional) the query string to append to any blob store access for PackageVersionPropsUrl, if any.
+.PARAMETER RestoreSources
+    (optional) an additional NuGet feed used when restoring this project.
 .PARAMETER MSBuildArguments
     Additional MSBuild arguments
 #>
@@ -24,6 +26,7 @@ param(
     [string]$ToolsSource = 'https://aspnetcore.blob.core.windows.net/buildtools',
     [string]$PackageVersionPropsUrl = $null,
     [string]$AccessTokenSuffix = $null,
+    [string]$RestoreSources = $null,
     [Parameter(ValueFromRemainingArguments = $true)]
     [string[]]$MSBuildArguments
 )
@@ -53,6 +56,10 @@ try {
 
     if ($SkipTests) {
         $MSBuildArguments += '-p:SkipTests=true'
+    }
+
+    if ($RestoreSources) {
+        $MSBuildArguments += "-p:DotNetRestoreSources=$RestoreSources"
     }
 
     Set-KoreBuildSettings -ToolsSource $ToolsSource -DotNetHome $DotNetHome -RepoPath $PSScriptRoot -ConfigFile $ConfigFile

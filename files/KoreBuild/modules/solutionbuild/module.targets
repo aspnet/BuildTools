@@ -10,7 +10,7 @@ FYI: targets, properties, and items that begin with an underscore are meant to b
   </ItemGroup>
 
   <PropertyGroup Condition="'$(DisableDefaultTargets)' != 'true'">
-    <PrepareDependsOn>$(PrepareDependsOn);CleanArtifacts;_PrepareOutputPaths</PrepareDependsOn>
+    <PrepareDependsOn>$(PrepareDependsOn);_PrepareOutputPaths</PrepareDependsOn>
     <RestoreDependsOn>$(RestoreDependsOn);_BeforeRestore;RestoreSolutions</RestoreDependsOn>
     <CompileDependsOn>$(CompileDependsOn);_CreateCommitHashArtifact;BuildSolutions</CompileDependsOn>
     <PackageDependsOn>$(PackageDependsOn);PackageProjects;PackSharedSources</PackageDependsOn>

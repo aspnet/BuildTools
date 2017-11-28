@@ -11,7 +11,6 @@ namespace NuGetPackageVerifier.Rules
         {
             new AssemblyHasCompanyAttributeRule(),
             new AssemblyHasCopyrightAttributeRule(),
-            new ThirdPartyPackageVersionsRule(),
             new AssemblyHasDocumentFileRule(),
             new AssemblyHasDescriptionAttributeRule(),
             new AssemblyHasNeutralResourcesLanguageAttributeRule(),

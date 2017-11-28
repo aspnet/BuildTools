@@ -81,7 +81,7 @@ namespace KoreBuild.Tasks.Tests
         public void AdditionalImportsAreAdded_WithOverrideImportFalse()
         {
             // Arrange
-            var path = @"obj\test.props";
+            var path = "obj/test.props";
             var depsFile = DependencyVersionsFile.Create(addOverrideImport: false, additionalImports: new[] { path });
             depsFile.Save(_tempFile);
 
@@ -98,7 +98,7 @@ namespace KoreBuild.Tasks.Tests
         public void AdditionalImportsAreAdded_WithOverrideImportTrue()
         {
             // Arrange
-            var path = @"obj\external.props";
+            var path = "obj/external.props";
             var depsFile = DependencyVersionsFile.Create(addOverrideImport: true, additionalImports: new[] { path });
             depsFile.Save(_tempFile);
 

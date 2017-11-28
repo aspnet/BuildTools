@@ -266,24 +266,6 @@ namespace NuGetPackageVerifier
             return new PackageVerifierIssue("DOC_MISSING", assemblyPath, string.Format("The assembly '{0}' doesn't have a corresponding XML document file.", assemblyPath), PackageIssueLevel.Warning);
         }
 
-        public static PackageVerifierIssue PackageHasWrongThirdPartyDependencyVersion(string packageId, string targetFramework, string dependencyPackageId, string currentVersion, string expectedVersion)
-        {
-            return new PackageVerifierIssue(
-                "WRONG_THIRDPARTY_DEPENDENCY_VERSION",
-                $"{packageId}; {targetFramework}",
-                $"The package '{packageId}' references the wrong version of `{dependencyPackageId}` package. Current version '{currentVersion}'; Expected version '{expectedVersion}'.  See https://github.com/aspnet/BuildTools/wiki/Third-party-dependency-version-check for details.",
-                PackageIssueLevel.Error);
-        }
-
-        public static PackageVerifierIssue PackageHasUnregisteredThirdPartyDependency(string packageId, string targetFramework, string dependencyPackageId, string version)
-        {
-            return new PackageVerifierIssue(
-                "THIRDPARTY_DEPENDENCY_NOT_REGISTERED",
-                $"{packageId}; {targetFramework}",
-                $"The package '{packageId}' references the `{dependencyPackageId}` package that is not registered (version `{version}`). See https://github.com/aspnet/BuildTools/wiki/Third-party-dependency-version-check for details.",
-                PackageIssueLevel.Error);
-        }
-
         public static PackageVerifierIssue IdDoesNotExist(string id)
         {
             return new PackageVerifierIssue(

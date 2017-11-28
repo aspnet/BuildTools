@@ -53,7 +53,7 @@ namespace KoreBuild.Tasks.Utilities
             return sb.ToString();
         }
 
-        public static DependencyVersionsFile Create(bool addOverrideImport)
+        public static DependencyVersionsFile Create(bool addOverrideImport, string[] additionalImports = null)
         {
             var projectRoot = ProjectRootElement.Create(NewProjectFileOptions.None);
 
@@ -61,6 +61,15 @@ namespace KoreBuild.Tasks.Utilities
 
             var packageVersions = projectRoot.AddPropertyGroup();
             packageVersions.Label = PackageVersionsLabel;
+
+            if (additionalImports != null)
+            {
+                foreach (var item in additionalImports)
+                {
+                    var import = projectRoot.AddImport(item);
+                    import.Condition = $"Exists('{item}')";
+                }
+            }
 
             if (addOverrideImport)
             {

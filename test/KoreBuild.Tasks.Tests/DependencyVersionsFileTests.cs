@@ -76,5 +76,41 @@ namespace KoreBuild.Tasks.Tests
         {
             Assert.Equal(varName, DependencyVersionsFile.GetVariableName(id));
         }
+
+        [Fact]
+        public void AdditionalImportsAreAdded_WithOverrideImportFalse()
+        {
+            // Arrange
+            var path = @"obj\test.props";
+            var depsFile = DependencyVersionsFile.Create(addOverrideImport: false, additionalImports: new[] { path });
+            depsFile.Save(_tempFile);
+
+            // Act
+             var project = ProjectRootElement.Open(_tempFile);
+            _output.WriteLine(File.ReadAllText(_tempFile));
+
+            // Assert
+            var import = Assert.Single(project.Imports);
+            Assert.Equal(path, import.Project);
+        }
+
+        [Fact]
+        public void AdditionalImportsAreAdded_WithOverrideImportTrue()
+        {
+            // Arrange
+            var path = @"obj\external.props";
+            var depsFile = DependencyVersionsFile.Create(addOverrideImport: true, additionalImports: new[] { path });
+            depsFile.Save(_tempFile);
+
+            // Act
+             var project = ProjectRootElement.Open(_tempFile);
+            _output.WriteLine(File.ReadAllText(_tempFile));
+
+            // Assert
+            Assert.Collection(
+                project.Imports,
+                import => Assert.Equal(path, import.Project),
+                import => Assert.Equal("$(DotNetPackageVersionPropsPath)", import.Project));
+        }
     }
 }

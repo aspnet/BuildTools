@@ -21,6 +21,8 @@ namespace KoreBuild.Tasks
 
         public bool AddOverrideImport { get; set; }
 
+        public string[] AdditionalImports { get; set; }
+
         public bool SuppressVariableLabels { get; set; }
 
         public override bool Execute()
@@ -33,13 +35,13 @@ namespace KoreBuild.Tasks
             {
                 if (!DependencyVersionsFile.TryLoad(OutputPath, out depsFile))
                 {
-                    depsFile = DependencyVersionsFile.Create(AddOverrideImport);
+                    depsFile = DependencyVersionsFile.Create(AddOverrideImport, AdditionalImports);
                     Log.LogWarning($"Could not load the existing deps file from {OutputPath}. This file will be overwritten.");
                 }
             }
             else
             {
-                depsFile = DependencyVersionsFile.Create(AddOverrideImport);
+                depsFile = DependencyVersionsFile.Create(AddOverrideImport, AdditionalImports);
             }
 
             var varNames = new HashSet<string>();

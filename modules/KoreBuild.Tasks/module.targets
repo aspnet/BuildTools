@@ -49,6 +49,14 @@
       Properties="$(SolutionProperties)"/>
   </Target>
 
+  <Target Name="UpgradeExternalDependencies">
+    <Error Text="UpdateSource was not set." Condition="'$(UpdateSource)' == ''" />
+    
+    <UpgradeExternalDependencies
+      DependenciesFile="$(DependencyVersionsFile)"
+      UpdateSource="$(UpdateSource)" />
+  </Target>
+  
   <!-- See also DependenciesUpgradeCommand.cs in KoreBuild.Console for a more discoverable way to run this. -->
   <Target Name="UpgradeDependencies">
     <Error Text="LineupPackageId was not set." Condition="'$(LineupPackageId)' == ''" />

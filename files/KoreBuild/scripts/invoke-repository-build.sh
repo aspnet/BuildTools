@@ -28,6 +28,7 @@ fi
 
 noop=false
 msbuild_args=''
+msbuild_props_args=''
 while [[ $# -gt 0 ]]; do
     case $1 in
         --verbose)
@@ -36,6 +37,10 @@ while [[ $# -gt 0 ]]; do
         /t:[Cc]ow|/t:[Nn]oop)
             noop=true
             msbuild_args+="\"$1\"\n"
+            ;;
+        /p:*|/property:*|-p:*|-property:*)
+            msbuild_args+="\"$1\"\n"
+            msbuild_props_args+="\"$1\" "
             ;;
         *)
             msbuild_args+="\"$1\"\n"
@@ -94,11 +99,9 @@ __verbose "Noop = $noop"
 if [ "${noop}" = true ]; then
     export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
 elif [ -f "$task_proj" ]; then
-    sdk_path="/p:RepoTasksSdkPath=$__script_dir/../msbuild/KoreBuild.RepoTasks.Sdk/Sdk/"
-    __exec dotnet restore "$task_proj" "$sdk_path"
+    sdk_path="-p:RepoTasksSdkPath=$__script_dir/../msbuild/KoreBuild.RepoTasks.Sdk/Sdk/"
     task_publish_dir="$repo_path/build/tasks/bin/publish/"
-    rm -rf "$task_publish_dir" || :
-    __exec dotnet publish "$task_proj" --configuration Release --output "$task_publish_dir" /nologo "$sdk_path"
+    __exec dotnet publish "$task_proj" --configuration Release --output "$task_publish_dir" -nologo "$sdk_path" $msbuild_props_args
 fi
 
 __verbose "Invoking msbuild with '$(< "$msbuild_response_file")'"

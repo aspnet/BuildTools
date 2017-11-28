@@ -1,19 +1,35 @@
-#!/usr/bin/env powershell
+#!/usr/bin/env pwsh
 #requires -version 4
+
+<#
+.DESCRIPTION
+    Builds this repository
+.PARAMETER SkipTests
+    Skip tests
+.PARAMETER DotNetHome
+    The location of .NET Core runtimes and build tools
+.PARAMETER ToolsSource
+    The feed for other build tools
+.PARAMETER PackageVersionPropsUrl
+    (optional) the url of the package versions props path containing dependency versions.
+.PARAMETER AccessTokenSuffix
+    (optional) the query string to append to any blob store access for PackageVersionPropsUrl, if any.
+.PARAMETER MSBuildArguments
+    Additional MSBuild arguments
+#>
 [CmdletBinding(PositionalBinding = $false)]
 param(
-    [Alias('p')]
-    [string]$Path = $PSScriptRoot,
-    [string]$ConfigFile = $null,
-    [Alias('d')]
+    [switch]$SkipTests,
     [string]$DotNetHome = $null,
-    [Alias('s')]
     [string]$ToolsSource = 'https://aspnetcore.blob.core.windows.net/buildtools',
+    [string]$PackageVersionPropsUrl = $null,
+    [string]$AccessTokenSuffix = $null,
     [Parameter(ValueFromRemainingArguments = $true)]
-    [string[]]$Arguments
+    [string[]]$MSBuildArguments
 )
 
 $ErrorActionPreference = 'Stop'
+Set-StrictMode -Version 1
 
 if (!$DotNetHome) {
     $DotNetHome = if ($env:DOTNET_HOME) { $env:DOTNET_HOME } `
@@ -22,15 +38,25 @@ if (!$DotNetHome) {
         else { Join-Path $PSScriptRoot '.dotnet'}
 }
 
-if (!($ConfigFile)) {
-    $ConfigFile = Join-Path $Path 'korebuild.json'
-}
+$IntermediateDir = Join-Path $PSScriptRoot 'obj'
+$ConfigFile = Join-Path $PSScriptRoot 'korebuild.json'
 
 try {
     Import-Module -Force -Scope Local "$PSScriptRoot/files/KoreBuild/KoreBuild.psd1"
 
-    Set-KoreBuildSettings -ToolsSource $ToolsSource -DotNetHome $DotNetHome -RepoPath $Path -ConfigFile $ConfigFile
-    Invoke-KoreBuildCommand "default-build" @Arguments
+    if ($PackageVersionPropsUrl) {
+        $PropsFilePath = Join-Path $IntermediateDir 'external-dependencies.props'
+        New-Item -ItemType Directory $IntermediateDir -ErrorAction Ignore | Out-Null
+        Invoke-WebRequest "${PackageVersionPropsUrl}${AccessTokenSuffix}" -OutFile $PropsFilePath -UseBasicParsing
+        $MSBuildArguments += "-p:DotNetPackageVersionPropsPath=$PropsFilePath"
+    }
+
+    if ($SkipTests) {
+        $MSBuildArguments += '-p:SkipTests=true'
+    }
+
+    Set-KoreBuildSettings -ToolsSource $ToolsSource -DotNetHome $DotNetHome -RepoPath $PSScriptRoot -ConfigFile $ConfigFile
+    Invoke-KoreBuildCommand "default-build" @MSBuildArguments
 }
 finally {
     Remove-Module 'KoreBuild' -ErrorAction Ignore

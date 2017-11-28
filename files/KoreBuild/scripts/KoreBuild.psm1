@@ -103,7 +103,8 @@ function Invoke-RepositoryBuild(
             $env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE = 'true'
         }
         else {
-            __build_task_project $Path
+            $repoTasksArgs = $MSBuildArgs | Where-Object { ($_ -like '-p:*') -or ($_ -like '/p:*')  -or ($_ -like '-property:')  -or ($_ -like '/property:') }
+            __build_task_project $Path $repoTasksArgs
         }
 
         Write-Verbose "Invoking msbuild with '$(Get-Content $msBuildResponseFile)'"
@@ -394,7 +395,7 @@ function __get_dotnet_sdk_version {
     return Get-Content (Join-Paths $PSScriptRoot ('..', 'config', 'sdk.version'))
 }
 
-function __build_task_project($RepoPath) {
+function __build_task_project($RepoPath, [string[]]$msbuildArgs) {
     $taskProj = Join-Paths $RepoPath ('build', 'tasks', 'RepoTasks.csproj')
     $publishFolder = Join-Paths $RepoPath ('build', 'tasks', 'bin', 'publish')
 
@@ -402,14 +403,9 @@ function __build_task_project($RepoPath) {
         return
     }
 
-    if (Test-Path $publishFolder) {
-        Remove-Item $publishFolder -Recurse -Force
-    }
+    $sdkPath = "-p:RepoTasksSdkPath=$(Join-Paths $PSScriptRoot ('..', 'msbuild', 'KoreBuild.RepoTasks.Sdk', 'Sdk'))"
 
-    $sdkPath = "/p:RepoTasksSdkPath=$(Join-Paths $PSScriptRoot ('..', 'msbuild', 'KoreBuild.RepoTasks.Sdk', 'Sdk'))"
-
-    __exec $global:dotnet restore $taskProj $sdkPath
-    __exec $global:dotnet publish $taskProj --configuration Release --output $publishFolder /nologo $sdkPath
+    __exec $global:dotnet publish $taskProj --configuration Release --output $publishFolder -nologo $sdkPath @msbuildArgs
 }
 
 function Get-KoreBuildVersion {

@@ -790,7 +790,6 @@ do
             runtime_id="$1"
             ;;
         --skip-non-versioned-files|-[Ss]kip[Nn]on[Vv]ersioned[Ff]iles)
-            shift
             override_non_versioned_files=false
             ;;
         -?|--?|-h|--help|-[Hh]elp)

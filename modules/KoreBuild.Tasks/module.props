@@ -1,19 +1,27 @@
 <Project>
-  <UsingTask TaskName="KoreBuild.Tasks.CheckPackageReferences" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
-  <UsingTask TaskName="KoreBuild.Tasks.DownloadNuGetPackages" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
-  <UsingTask TaskName="KoreBuild.Tasks.DownloadFile" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
-  <UsingTask TaskName="KoreBuild.Tasks.FindVisualStudio" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
-  <UsingTask TaskName="KoreBuild.Tasks.GenerateDependenciesPropsFile" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
-  <UsingTask TaskName="KoreBuild.Tasks.GeneratePackageVersionPropsFile" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
-  <UsingTask TaskName="KoreBuild.Tasks.GetToolsets" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
-  <UsingTask TaskName="KoreBuild.Tasks.InstallDotNet" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
-  <UsingTask TaskName="KoreBuild.Tasks.PackNuSpec" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
-  <UsingTask TaskName="KoreBuild.Tasks.PushNuGetPackages" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
-  <UsingTask TaskName="KoreBuild.Tasks.UpgradeDependencies" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
+  <PropertyGroup>
+    <KoreBuildTasksDll>$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll</KoreBuildTasksDll>
+  </PropertyGroup>
+
+  <UsingTask TaskName="KoreBuild.Tasks.CheckPackageReferences" AssemblyFile="$(KoreBuildTasksDll)" />
+  <UsingTask TaskName="KoreBuild.Tasks.DisableSkipStrongName" AssemblyFile="$(KoreBuildTasksDll)" />
+  <UsingTask TaskName="KoreBuild.Tasks.DownloadNuGetPackages" AssemblyFile="$(KoreBuildTasksDll)" />
+  <UsingTask TaskName="KoreBuild.Tasks.DownloadFile" AssemblyFile="$(KoreBuildTasksDll)" />
+  <UsingTask TaskName="KoreBuild.Tasks.EnableSkipStrongName" AssemblyFile="$(KoreBuildTasksDll)" />
+  <UsingTask TaskName="KoreBuild.Tasks.FindVisualStudio" AssemblyFile="$(KoreBuildTasksDll)" />
+  <UsingTask TaskName="KoreBuild.Tasks.GenerateDependenciesPropsFile" AssemblyFile="$(KoreBuildTasksDll)" />
+  <UsingTask TaskName="KoreBuild.Tasks.GeneratePackageVersionPropsFile" AssemblyFile="$(KoreBuildTasksDll)" />
+  <UsingTask TaskName="KoreBuild.Tasks.GetToolsets" AssemblyFile="$(KoreBuildTasksDll)" />
+  <UsingTask TaskName="KoreBuild.Tasks.InstallDotNet" AssemblyFile="$(KoreBuildTasksDll)" />
+  <UsingTask TaskName="KoreBuild.Tasks.PackNuSpec" AssemblyFile="$(KoreBuildTasksDll)" />
+  <UsingTask TaskName="KoreBuild.Tasks.PushNuGetPackages" AssemblyFile="$(KoreBuildTasksDll)" />
+  <UsingTask TaskName="KoreBuild.Tasks.UpgradeDependencies" AssemblyFile="$(KoreBuildTasksDll)" />
 
   <PropertyGroup>
     <DefaultDotNetAssetArch>$(KOREBUILD_DOTNET_ARCH)</DefaultDotNetAssetArch>
     <DefaultDotNetAssetArch Condition="'$(DefaultDotNetAssetArch)' == ''">x64</DefaultDotNetAssetArch>
+
+    <SkipStrongNamesXml>$(MSBuildThisFileDirectory)SkipStrongNames.xml</SkipStrongNamesXml>
   </PropertyGroup>
 
   <ItemDefinitionGroup>

@@ -202,7 +202,7 @@ function Install-Tools(
     }
 
     if ($runtimeVersion) {
-        __install_shared_runtime $scriptPath $installDir -arch $arch -version $runtimeVersion -channel $runtimeChannel
+        __install_shared_runtime $scriptPath $installDir -arch $arch -version $runtimeVersion -channel $runtimeChannel -SkipNonVersionedFiles
     }
 
     # Install the main CLI

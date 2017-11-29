@@ -1,5 +1,5 @@
 Intro to BuildTools
-------------------
+-------------------
 
 This repo contains console tools, MSBuild tasks, and targets used to build ASP.NET Core.
 This document is a high-level overview of how these build tools work.

@@ -56,7 +56,7 @@ namespace KoreBuild.Tasks
 
         public override bool Execute()
         {
-            return ExecuteAsync().GetAwaiter().GetResult();
+            return ExecuteAsync().Result;
         }
 
         public async Task<bool> ExecuteAsync()

@@ -9,6 +9,16 @@
     <DependencyVersionsFile Condition="'$(DependencyVersionsFile)' == ''">$(RepositoryRoot)build\dependencies.props</DependencyVersionsFile>
   </PropertyGroup>
 
+  <Target Name="EnableSkipStrongNames">
+    <EnableSkipStrongName
+      XmlFile="$(SkipStrongNamesXml)" />
+  </Target>
+
+  <Target Name="DisableSkipStrongNames">
+    <DisableSkipStrongName
+      XmlFile="$(SkipStrongNamesXml)" />
+  </Target>
+
   <Target Name="InstallDotNet">
     <PropertyGroup>
       <_DotNetInstall>$(MSBuildThisFileDirectory)..\..\scripts\dotnet-install</_DotNetInstall>

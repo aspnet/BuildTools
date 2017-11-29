@@ -21,6 +21,7 @@
 
       Examples:
         <DotNetCoreRuntime Include="1.0.5" />
+        <DotNetCoreRuntime Include="1.0.5" Feed="https://mydotnetclifeed/assets" />
         <DotNetCoreRuntime Include="latest" Channel="1.0" />
         <DotNetCoreRuntime Include="2.0.0" Arch="x64" InstallDir="C:\custom\" />
     -->
@@ -29,6 +30,8 @@
       <SharedRuntime>true</SharedRuntime>
       <Channel></Channel>
       <InstallDir></InstallDir>
+      <Feed>$(DefaultDotNetAssetFeed)</Feed>
+      <FeedCredential>$(DefaultDotNetAssetFeedCredential)</FeedCredential>
     </DotNetCoreRuntime>
 
     <!--
@@ -42,6 +45,8 @@
       <SharedRuntime>false</SharedRuntime>
       <Channel></Channel>
       <InstallDir></InstallDir>
+      <Feed>$(DefaultDotNetAssetFeed)</Feed>
+      <FeedCredential>$(DefaultDotNetAssetFeedCredential)</FeedCredential>
     </DotNetCoreSdk>
   </ItemDefinitionGroup>
 

@@ -117,6 +117,20 @@ namespace KoreBuild.Tasks
                     assetName += $"/{request.Channel}";
                 }
 
+                if (!string.IsNullOrEmpty(request.Feed))
+                {
+                    arguments.Add("-AzureFeed");
+                    arguments.Add(request.Feed);
+                    arguments.Add("-UncachedFeed");
+                    arguments.Add(request.Feed);
+                }
+
+                if (!string.IsNullOrEmpty(request.FeedCredential))
+                {
+                    arguments.Add("-FeedCredential");
+                    arguments.Add(request.FeedCredential);
+                }
+
                 var expectedPath = request.IsSharedRuntime && !isFloatingVersion
                     ? Path.Combine(installDir, "shared", "Microsoft.NETCore.App", request.Version, ".version")
                     : Path.Combine(installDir, "sdk", request.Version, "dotnet.dll");
@@ -247,6 +261,8 @@ namespace KoreBuild.Tasks
                     Channel = item.GetMetadata("Channel"),
                     InstallDir = item.GetMetadata("InstallDir"),
                     Arch = item.GetMetadata("Arch"),
+                    Feed = item.GetMetadata("Feed"),
+                    FeedCredential = item.GetMetadata("FeedCredential"),
                 };
                 all.Add(request);
             }

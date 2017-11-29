@@ -186,7 +186,7 @@ function Install-Tools(
     $channel = "preview"
     $runtimeChannel = "master"
     $version = __get_dotnet_sdk_version
-    $runtimeVersion = Get-Content (Join-Paths $PSScriptRoot ('..', 'config', 'runtime.version'))
+    $runtimeVersions = Get-Content (Join-Paths $PSScriptRoot ('..', 'config', 'runtime.versions'))
 
     if ($env:KOREBUILD_DOTNET_CHANNEL) {
         $channel = $env:KOREBUILD_DOTNET_CHANNEL
@@ -197,12 +197,14 @@ function Install-Tools(
         Write-Warning "dotnet shared runtime channel overridden by KOREBUILD_DOTNET_SHARED_RUNTIME_CHANNEL"
     }
     if ($env:KOREBUILD_DOTNET_SHARED_RUNTIME_VERSION) {
-        $runtimeVersion = $env:KOREBUILD_DOTNET_SHARED_RUNTIME_VERSION
+        $runtimeVersions = $env:KOREBUILD_DOTNET_SHARED_RUNTIME_VERSION
         Write-Warning "dotnet shared runtime version overridden by KOREBUILD_DOTNET_SHARED_RUNTIME_VERSION"
     }
 
-    if ($runtimeVersion) {
-        __install_shared_runtime $scriptPath $installDir -arch $arch -version $runtimeVersion -channel $runtimeChannel
+    if ($runtimeVersions) {
+        foreach ($runtimeVersion in $runtimeVersions) {
+            __install_shared_runtime $scriptPath $installDir -arch $arch -version $runtimeVersion -channel $runtimeChannel
+        }
     }
 
     # Install the main CLI

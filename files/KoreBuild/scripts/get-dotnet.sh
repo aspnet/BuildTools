@@ -21,6 +21,7 @@ __install_shared_runtime() {
             --install-dir "$install_dir" \
             --architecture x64 \
             --shared-runtime \
+            --skip-non-versioned-files \
             --channel "$channel" \
             --version "$version" \
             $verbose_flag

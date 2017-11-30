@@ -99,7 +99,7 @@ namespace KoreBuild.Tasks
                     {
                         Identity = new PackageIdentity(id, version),
                         OutputPath = outputPath,
-                        Source = source,
+                        Sources = source.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries),
                     };
 
                     requests.Add(request);

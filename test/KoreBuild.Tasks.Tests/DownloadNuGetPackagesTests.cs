@@ -70,5 +70,33 @@ namespace KoreBuild.Tasks.Tests
             Assert.NotEmpty(engine.Errors);
             Assert.Contains(engine.Errors, m => m.Message.Contains("SomePackage 1.0.0 is not available"));
         }
+
+        [Fact]
+        public async Task ItFindsPackageWhenMultipleFeedsAreSpecified()
+        {
+            var packages = new[]
+            {
+                new TaskItem("Newtonsoft.Json", new Hashtable { ["Version"] = "9.0.1", ["Source"] = $"{AppContext.BaseDirectory};https://api.nuget.org/v3/index.json"} ),
+            };
+
+            var task = new DownloadNuGetPackages
+            {
+                Packages = packages,
+                DestinationFolder = AppContext.BaseDirectory,
+                BuildEngine = new MockEngine(_output),
+                TimeoutSeconds = 120,
+            };
+            var expectedPath = Path.Combine(AppContext.BaseDirectory, "newtonsoft.json.9.0.1.nupkg").Replace('\\', '/');
+            if (File.Exists(expectedPath))
+            {
+                File.Delete(expectedPath);
+            }
+
+            Assert.False(File.Exists(expectedPath), "The file should not exist yet");
+            Assert.True(await task.ExecuteAsync(), "Task should pass");
+            var file = Assert.Single(task.Files);
+            Assert.Equal(expectedPath, file.ItemSpec.Replace('\\', '/'));
+            Assert.True(File.Exists(expectedPath), "The file should exist");
+        }
     }
 }

@@ -104,7 +104,7 @@ namespace KoreBuild.Tasks
             {
                 Identity = packageId,
                 OutputPath = tmpNupkgPath,
-                Source = LineupPackageRestoreSource,
+                Sources = new[] { LineupPackageRestoreSource },
             };
 
             var logger = new MSBuildLogger(Log);

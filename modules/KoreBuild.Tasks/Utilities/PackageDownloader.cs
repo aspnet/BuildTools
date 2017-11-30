@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NuGet.Commands;
 using NuGet.Configuration;
+using NuGet.Packaging.Core;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
 
@@ -31,15 +32,16 @@ namespace KoreBuild.Tasks.Utilities
             cancellationToken.Register(() => cts.Cancel());
 
             using (var cacheContext = new SourceCacheContext())
+            using (var throttle = new SemaphoreSlim(8))
             {
                 var defaultSettings = Settings.LoadDefaultSettings(root: null, configFileName: null, machineWideSettings: null);
                 var sourceProvider = new CachingSourceProvider(new PackageSourceProvider(defaultSettings));
                 var tasks = new List<Task<bool>>();
 
-                foreach (var feed in requests.GroupBy(r => r.Source, StringComparer.OrdinalIgnoreCase))
+                foreach (var request in requests)
                 {
-                    var repo = sourceProvider.CreateRepository(new PackageSource(feed.Key));
-                    tasks.Add(DownloadPackagesAsync(repo, feed, cacheContext, logger, cts.Token));
+                    var feeds = request.Sources.Select(sourceProvider.CreateRepository);
+                    tasks.Add(DownloadPackageAsync(request, feeds, cacheContext, throttle, logger, cts.Token));
                 }
 
                 var all = Task.WhenAll(tasks);
@@ -63,60 +65,45 @@ namespace KoreBuild.Tasks.Utilities
             }
         }
 
-        private async Task<bool> DownloadPackagesAsync(
-            SourceRepository repo,
-            IEnumerable<PackageDownloadRequest> requests,
+        private async Task<bool> DownloadPackageAsync(
+            PackageDownloadRequest request,
+            IEnumerable<SourceRepository> repositories,
             SourceCacheContext cacheContext,
+            SemaphoreSlim throttle,
             NuGet.Common.ILogger logger,
             CancellationToken cancellationToken)
         {
-            var remoteLibraryProvider = new SourceRepositoryDependencyProvider(repo, logger, cacheContext, ignoreFailedSources: false, ignoreWarning: false);
-            var metadataResource = await repo.GetResourceAsync<MetadataResource>();
-
-            if (metadataResource == null)
+            foreach (var repo in repositories)
             {
-                logger.LogError($"MetadataResource for '{repo}' could not be loaded.");
-                return false;
-            }
+                var findPackageByIdResource = await repo.GetResourceAsync<FindPackageByIdResource>(cancellationToken);
 
-            var downloads = new List<Task<bool>>();
-            foreach (var request in requests)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                if (!await metadataResource.Exists(request.Identity, logger, cancellationToken))
+                if (findPackageByIdResource == null)
                 {
-                    logger.LogError($"Package {request.Identity.Id} {request.Identity.Version} is not available on '{repo}'");
-                    downloads.Add(FalseTask);
+                    logger.LogError($"{nameof(FindPackageByIdResource)} for '{repo}' could not be loaded.");
+                    return false;
+                }
+
+                var downloader = await findPackageByIdResource.GetPackageDownloaderAsync(request.Identity, cacheContext, logger, cancellationToken);
+                if (downloader == null)
+                {
+                    logger.LogInformation($"Package {request.Identity.Id} {request.Identity.Version} is not available on '{repo}'");
+                    
+                    // Skip to the next source if a package cannot be found in a given source.
                     continue;
                 }
 
-                var download = DownloadPackageAsync(cacheContext, logger, remoteLibraryProvider, request, cancellationToken);
-                downloads.Add(download);
-            }
-
-            await Task.WhenAll(downloads);
-            return downloads.All(d => d.Result);
-        }
-
-        private async Task<bool> DownloadPackageAsync(SourceCacheContext cacheContext,
-            NuGet.Common.ILogger logger,
-            SourceRepositoryDependencyProvider remoteLibraryProvider,
-            PackageDownloadRequest request,
-            CancellationToken cancellationToken)
-        {
-            logger.LogInformation($"Downloading {request.Identity.Id} {request.Identity.Version} to '{request.OutputPath}'");
-
-            using (var packageDependency = await remoteLibraryProvider.GetPackageDownloaderAsync(request.Identity, cacheContext, logger, cancellationToken))
-            {
-                if (!await packageDependency.CopyNupkgFileToAsync(request.OutputPath, cancellationToken))
+                downloader.SetThrottle(throttle);
+                if (!await downloader.CopyNupkgFileToAsync(request.OutputPath, cancellationToken))
                 {
-                    logger.LogError($"Could not download {request.Identity.Id} {request.Identity.Version} from {remoteLibraryProvider.Source}");
+                    logger.LogError($"Could not download {request.Identity.Id} {request.Identity.Version} from {repo}.");
                     return false;
                 }
+
+                return true;
             }
 
-            return true;
+            logger.LogError($"{request.Identity.Id} {request.Identity.Version} is not available.'");
+            return false;
         }
     }
 }

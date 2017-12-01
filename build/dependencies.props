@@ -12,9 +12,9 @@
     <RuntimeFrameworkVersion>2.0.0</RuntimeFrameworkVersion>
     <SystemCollectionsImmutableVersion>1.4.0</SystemCollectionsImmutableVersion>
     <SystemReflectionMetadataVersion>1.5.0</SystemReflectionMetadataVersion>
-    <TestSdkVersion>15.3.0</TestSdkVersion>
-    <XunitVersion>2.3.0-beta4-build3742</XunitVersion>
-    <XunitAnalyzersVersion>0.6.1</XunitAnalyzersVersion>
+    <TestSdkVersion>15.5.0</TestSdkVersion>
+    <XunitVersion>2.3.1</XunitVersion>
+    <XunitAnalyzersVersion>0.8.0</XunitAnalyzersVersion>
   </PropertyGroup>
 
   <!--
@@ -26,6 +26,6 @@
   <PropertyGroup>
     <MicrosoftBuildVersion>15.3.409</MicrosoftBuildVersion>
     <JsonNetInMSBuildVersion>9.0.1</JsonNetInMSBuildVersion>
-    <NuGetInMSBuildVersion>4.3.0-*</NuGetInMSBuildVersion>
+    <NuGetInMSBuildVersion>4.3.0</NuGetInMSBuildVersion>
   </PropertyGroup>
 </Project>

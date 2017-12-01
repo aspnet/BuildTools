@@ -22,3 +22,4 @@ project.lock.json
 global.json
 launchSettings.json
 korebuild-lock.txt
+*.binlog

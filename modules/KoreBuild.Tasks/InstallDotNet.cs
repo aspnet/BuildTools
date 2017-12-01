@@ -261,9 +261,11 @@ namespace KoreBuild.Tasks
                     Channel = item.GetMetadata("Channel"),
                     InstallDir = item.GetMetadata("InstallDir"),
                     Arch = item.GetMetadata("Arch"),
-                    Feed = item.GetMetadata("Feed"),
+                    // trimmed because dotnet-install.ps1/sh expect the feed not to have this
+                    Feed = item.GetMetadata("Feed")?.TrimEnd(new[] { '/', '\\' }),
                     FeedCredential = item.GetMetadata("FeedCredential"),
                 };
+
                 all.Add(request);
             }
 

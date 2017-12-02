@@ -52,7 +52,7 @@ namespace KoreBuild.FunctionalTests
             arguments.AddRange(new[]
             {
                 "-ToolsSource", _toolsSource,
-                "-Update"
+                "-Reinstall",
             });
 
             arguments.AddRange(args);

@@ -1,6 +1,27 @@
 <Project>
 
-  <!-- resolve using git.exe because the GetGitCommitInfoTask isn't available here -->
+  <PropertyGroup>
+    <_KoreBuildIntermediateDir>$(IntermediateDir)korebuild\</_KoreBuildIntermediateDir>
+    <_KoreBuildIntermediateDir>$([MSBuild]::NormalizeDirectory($(_KoreBuildIntermediateDir)))</_KoreBuildIntermediateDir>
+    <_KoreBuildOutDir>$(ArtifactsDir)korebuild\artifacts\$(Version)\</_KoreBuildOutDir>
+    <_ChannelOutDir>$(ArtifactsDir)korebuild\channels\$(KoreBuildChannel)\</_ChannelOutDir>
+    <KoreBuildArchiveFile>$(_KoreBuildOutDir)korebuild.$(Version).zip</KoreBuildArchiveFile>
+    <KoreBuildBadgeFile>$(_ChannelOutDir)badge.svg</KoreBuildBadgeFile>
+    <KoreBuildLatestTxtFile>$(_ChannelOutDir)latest.txt</KoreBuildLatestTxtFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ArtifactInfo Include="$(KoreBuildArchiveFile)">
+      <ArtifactType>ZipArchive</ArtifactType>
+    </ArtifactInfo>
+    <ArtifactInfo Include="$(KoreBuildLatestTxtFile)">
+      <ArtifactType>TextFile</ArtifactType>
+    </ArtifactInfo>
+    <ArtifactInfo Include="$(KoreBuildBadgeFile)">
+      <ArtifactType>SvgImage</ArtifactType>
+    </ArtifactInfo>
+  </ItemGroup>
+
   <Target Name="ResolveCommitHash" Condition="'$(CommitHash)'==''" BeforeTargets="Prepare">
 
     <GetGitCommitInfo WorkingDirectory="$(RepositoryRoot)"
@@ -15,13 +36,6 @@
       <SolutionProperties Condition="'$(CommitHash)' != ''">$(SolutionProperties);GitBranch=$(GitBranch)</SolutionProperties>
     </PropertyGroup>
   </Target>
-
-  <PropertyGroup>
-    <_KoreBuildIntermediateDir>$(IntermediateDir)korebuild\</_KoreBuildIntermediateDir>
-    <_KoreBuildIntermediateDir>$([MSBuild]::NormalizeDirectory($(_KoreBuildIntermediateDir)))</_KoreBuildIntermediateDir>
-    <_KoreBuildOutDir>$(ArtifactsDir)korebuild\artifacts\$(Version)\</_KoreBuildOutDir>
-    <_ChannelOutDir>$(ArtifactsDir)korebuild\channels\$(KoreBuildChannel)\</_ChannelOutDir>
-  </PropertyGroup>
 
   <Target Name="CleanKoreBuild">
     <RemoveDir Directories="$(_KoreBuildIntermediateDir);$(ArtifactsDir)korebuild\" />
@@ -62,9 +76,9 @@
       <KoreBuildFiles Include="$(_KoreBuildIntermediateDir)**\*" />
     </ItemGroup>
 
-    <WriteLinesToFile File="$(_ChannelOutDir)latest.txt" Lines="@(VersionFileLines)" Overwrite="true"/>
-    <RepoTasks.GenerateBadge File="$(_ChannelOutDir)badge.svg" Version="$(Version)" />
-    <ZipArchive WorkingDirectory="$(_KoreBuildIntermediateDir)" File="$(_KoreBuildOutDir)korebuild.$(Version).zip" SourceFiles="@(KoreBuildFiles)" />
+    <WriteLinesToFile File="$(KoreBuildLatestTxtFile)" Lines="@(VersionFileLines)" Overwrite="true"/>
+    <RepoTasks.GenerateBadge File="$(KoreBuildBadgeFile)" Version="$(Version)" />
+    <ZipArchive WorkingDirectory="$(_KoreBuildIntermediateDir)" File="$(KoreBuildArchiveFile)" SourceFiles="@(KoreBuildFiles)" />
   </Target>
 
 </Project>

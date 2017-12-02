@@ -25,4 +25,5 @@
   <Import Project="$(CustomKoreBuildModulesPath)\*\module.targets" Condition="Exists('$(CustomKoreBuildModulesPath)')" />
   <Import Project="$(RepositoryRoot)build\repo.targets" Condition="Exists('$(RepositoryRoot)build\repo.targets')" />
   <Import Project="$(CustomAfterKoreBuildTargets)" Condition="'$(CustomAfterKoreBuildTargets)' != '' AND Exists('$(CustomAfterKoreBuildTargets)')" />
+  <Import Project="KoreBuild.Verify.targets" />
 </Project>

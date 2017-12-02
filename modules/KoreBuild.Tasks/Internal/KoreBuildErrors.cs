@@ -13,5 +13,8 @@ namespace KoreBuild.Tasks
 
         // Other errors
         public const int MissingArtifactType = 5001;
+
+        // not used in code, but reserved for MSBuild targets
+        public const int ArtifactInfoMismatch = 5002;
     }
 }

@@ -25,4 +25,10 @@
     <ProjectReference Include="..\..\modules\KoreBuild.Tasks\KoreBuild.Tasks.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="TestResources\lorem.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

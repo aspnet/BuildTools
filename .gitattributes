@@ -17,3 +17,4 @@
 *.RTF	 diff=astextplain
 
 *.sh eol=lf
+*.bin binary

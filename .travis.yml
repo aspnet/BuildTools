@@ -14,9 +14,8 @@ addons:
 branches:
   only:
     - master
-    - release
     - dev
-    - /^rel\/.*/
+    - /^release\/.*/
     - /^(.*\/)?ci-.*$/
 script:
   - ./build.sh

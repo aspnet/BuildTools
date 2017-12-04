@@ -12,7 +12,6 @@ addons:
 branches:
   only:
     - master
-    - release
     - dev
     - /^release\/.*/
     - /^(.*\/)?ci-.*$/

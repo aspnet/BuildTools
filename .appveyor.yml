@@ -3,7 +3,6 @@ init:
 branches:
   only:
     - master
-    - release
     - dev
     - /^release\/.*/
     - /^(.*\/)?ci-.*$/

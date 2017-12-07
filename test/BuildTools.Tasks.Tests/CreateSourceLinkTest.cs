@@ -131,7 +131,6 @@ namespace BuildTools.Tasks.Tests
                     return "/home/";
                 default:
                     throw new NotImplementedException($"SourceLink tests don't yet support {RuntimeEnvironment.OperatingSystemPlatform}.");
-
             }
         }
 

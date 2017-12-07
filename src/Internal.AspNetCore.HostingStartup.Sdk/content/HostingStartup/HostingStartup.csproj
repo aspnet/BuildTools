@@ -8,13 +8,4 @@
   <ItemGroup>
     <PackageReference Include="$(HostingStartupPackageName)" Version="$(HostingStartupPackageVersion)" PrivateAssets="None" />
   </ItemGroup>
-
-  <Target Name="CollectDeps">
-    <PropertyGroup>
-      <DepsRuntimeFrameworkVersion Condition="'$(DepsRuntimeFrameworkVersion)' == ''">$(RuntimeFrameworkVersion)</DepsRuntimeFrameworkVersion>
-      <DestinationDepsFile>$(DepsOutputPath)$(HostingStartupPackageName).deps.json</DestinationDepsFile>
-    </PropertyGroup>
-
-    <Copy SourceFiles="$(ProjectDepsFilePath)" DestinationFiles="$(DestinationDepsFile)" />
-  </Target>
 </Project>

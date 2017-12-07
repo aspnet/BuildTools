@@ -34,6 +34,8 @@ namespace Microsoft.AspNetCore.BuildTools
         public override bool Execute()
         {
             var rootDirectory = Path.Combine(Path.GetFullPath(RootDirectory), "*");
+
+            rootDirectory = rootDirectory.Replace("/", "\\");
             rootDirectory = rootDirectory.Replace("\\", "\\\\");
 
             var codeSource = ConvertUrl();

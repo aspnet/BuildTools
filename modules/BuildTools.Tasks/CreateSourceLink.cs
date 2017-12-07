@@ -34,20 +34,26 @@ namespace Microsoft.AspNetCore.BuildTools
         public override bool Execute()
         {
             var rootDirectory = Path.Combine(Path.GetFullPath(RootDirectory), "*");
-            rootDirectory = rootDirectory.Replace("\\", "/");
+
+            var escapedPath = JsonEscapePath(rootDirectory);
 
             var codeSource = ConvertUrl();
 
-            File.WriteAllText(DestinationFile, $"{{\"documents\":{{\"{rootDirectory}\":\"{codeSource}\"}}}}");
+            File.WriteAllText(DestinationFile, $"{{\"documents\":{{\"{escapedPath}\":\"{codeSource}\"}}}}");
 
             SourceLinkFile = DestinationFile;
 
             return true;
         }
 
+        private string JsonEscapePath(string path)
+        {
+            return path.Replace("\\", "\\\\");
+        }
+
         private string ConvertUrl()
         {
-            if(!OriginUrl.Contains("github.com"))
+            if (!OriginUrl.Contains("github.com"))
             {
                 throw new ArgumentException("OriginUrl must be for github.com", "OriginUrl");
             }

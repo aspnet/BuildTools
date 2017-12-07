@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <PackageId>Internal.AspNetCore.HostingStartup.Sdk</PackageId>
+    <PackageId>Internal.AspNetCore.SiteExtension.Sdk</PackageId>
     <TargetFrameworks>netcoreapp2.0;net46</TargetFrameworks>
     <Serviceable>false</Serviceable>
     <Description>Build targets and extensions to Microsoft.NET.Sdk. This package is intended for Microsoft use only.</Description>
@@ -13,8 +13,8 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="$(Tooling_NewtonsoftJsonPackageVersion)" />
-    <PackageReference Include="Microsoft.Build.Framework" Version="15.1.1012" />
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.1.1012" />
+    <PackageReference Include="Microsoft.Build.Framework" Version="$(MicrosoftBuildFrameworkPackageVersion)" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="$(MicrosoftBuildUtilitiesCorePackageVersion)" />
 
     <PackageReference Update="@(PackageReference)" PrivateAssets="All" />
   </ItemGroup>

@@ -10,8 +10,8 @@
   </metadata>
   <files>
     <file src="_._" target="lib\netstandard1.0\_._" />
-    <file src="bin\$config$\netcoreapp2.0\Internal.AspNetCore.HostingStartup.Sdk.dll" target="tools\netcoreapp2.0\Internal.AspNetCore.HostingStartup.Sdk.dll" />
-    <file src="bin\$config$\net46\Internal.AspNetCore.HostingStartup.Sdk.dll" target="tools\net46\Internal.AspNetCore.HostingStartup.Sdk.dll" />
+    <file src="bin\$config$\netcoreapp2.0\Internal.AspNetCore.SiteExtension.Sdk.dll" target="tools\netcoreapp2.0\Internal.AspNetCore.SiteExtension.Sdk.dll" />
+    <file src="bin\$config$\net46\Internal.AspNetCore.SiteExtension.Sdk.dll" target="tools\net46\Internal.AspNetCore.SiteExtension.Sdk.dll" />
     <file src="build\" target="build\" />
     <file src="content\" target="content\" />
   </files>

@@ -6,7 +6,7 @@
   <PropertyGroup>
     <TaskFolder Condition=" '$(MSBuildRuntimeType)' == 'Core' ">netcoreapp2.0</TaskFolder>
     <TaskFolder Condition=" '$(MSBuildRuntimeType)' != 'Core' ">net46</TaskFolder>
-    <TaskAssembly>$(MSBuildThisFileDirectory)..\tools\$(TaskFolder)\Internal.AspNetCore.HostingStartup.Sdk.dll</TaskAssembly>
+    <TaskAssembly>$(MSBuildThisFileDirectory)..\tools\$(TaskFolder)\Internal.AspNetCore.SiteExtension.Sdk.dll</TaskAssembly>
   </PropertyGroup>
 
   <UsingTask TaskName="RepoTasks.TrimDeps" AssemblyFile="$(TaskAssembly)" />

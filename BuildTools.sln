@@ -90,7 +90,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Publish", "modules\Publish\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiCheckForwardDestination", "test\ApiCheckForwardDestination\ApiCheckForwardDestination.csproj", "{605F0478-A9D2-4A8A-BB38-9D5DC132FBB5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Internal.AspNetCore.HostingStartup.Sdk", "src\Internal.AspNetCore.HostingStartup.Sdk\Internal.AspNetCore.HostingStartup.Sdk.csproj", "{418F99A5-5EC4-4895-B8EB-7F8BBA241DB2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Internal.AspNetCore.SiteExtension.Sdk", "src\Internal.AspNetCore.SiteExtension.Sdk\Internal.AspNetCore.SiteExtension.Sdk.csproj", "{418F99A5-5EC4-4895-B8EB-7F8BBA241DB2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -15,8 +15,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="$(Tooling_NewtonsoftJsonPackageVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="build\*" PackagePath="build\" />
     <Content Include="buildMultiTargeting\*" PackagePath="buildMultiTargeting\" />
+    <Content Include="content\**\*.*" PackagePath="content\" />
   </ItemGroup>
 
   <ItemGroup>

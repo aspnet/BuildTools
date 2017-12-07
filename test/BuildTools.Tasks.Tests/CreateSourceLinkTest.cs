@@ -85,10 +85,10 @@ namespace BuildTools.Tasks.Tests
 
         private static string GetRootDirectory()
         {
-            switch(RuntimeEnvironment.OperatingSystemPlatform)
+            switch (RuntimeEnvironment.OperatingSystemPlatform)
             {
                 case Platform.Windows:
-                    return "C:/";
+                    return "C:\\\\";
                 case Platform.Linux:
                 case Platform.Darwin:
                     return "/home/";

@@ -19,7 +19,7 @@ namespace RepoTasks
         {
             foreach (var depsFile in DepsFiles)
             {
-                ChangeEntryPointLibraryName(depsFile.GetMetadata("Identity"));
+                ChangeEntryPointLibraryName(depsFile.ItemSpec);
             }
 
             // Parse input

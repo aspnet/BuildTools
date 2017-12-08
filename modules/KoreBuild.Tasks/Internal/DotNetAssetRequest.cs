@@ -17,5 +17,7 @@ namespace KoreBuild.Tasks
         public string Channel { get; set; }
         public string InstallDir { get; set; }
         public string Arch { get; set; }
+        public string Feed { get; set; }
+        public string FeedCredential { get; set; }
     }
 }

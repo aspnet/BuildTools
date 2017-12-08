@@ -1,11 +1,15 @@
 <Project>
-  <UsingTask TaskName="KoreBuild.Tasks.ComputeChecksum" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
-  <UsingTask TaskName="KoreBuild.Tasks.ComputeManyChecksum" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
-  <UsingTask TaskName="KoreBuild.Tasks.GenerateBillOfMaterials" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
-  <UsingTask TaskName="KoreBuild.Tasks.InstallDotNet" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
-  <UsingTask TaskName="KoreBuild.Tasks.PackNuSpec" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
-  <UsingTask TaskName="KoreBuild.Tasks.PushNuGetPackages" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
-  <UsingTask TaskName="KoreBuild.Tasks.VerifyChecksum" AssemblyFile="$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll" />
+  <PropertyGroup>
+    <KoreBuildTasksDll>$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll</KoreBuildTasksDll>
+  </PropertyGroup>
+
+  <UsingTask TaskName="KoreBuild.Tasks.ComputeChecksum" AssemblyFile="$(KoreBuildTasksDll)" />
+  <UsingTask TaskName="KoreBuild.Tasks.ComputeManyChecksum" AssemblyFile="$(KoreBuildTasksDll)" />
+  <UsingTask TaskName="KoreBuild.Tasks.GenerateBillOfMaterials" AssemblyFile="$(KoreBuildTasksDll)" />
+  <UsingTask TaskName="KoreBuild.Tasks.InstallDotNet" AssemblyFile="$(KoreBuildTasksDll)" />
+  <UsingTask TaskName="KoreBuild.Tasks.PackNuSpec" AssemblyFile="$(KoreBuildTasksDll)" />
+  <UsingTask TaskName="KoreBuild.Tasks.PushNuGetPackages" AssemblyFile="$(KoreBuildTasksDll)" />
+  <UsingTask TaskName="KoreBuild.Tasks.VerifyChecksum" AssemblyFile="$(KoreBuildTasksDll)" />
 
   <PropertyGroup>
     <DefaultDotNetAssetArch>$(KOREBUILD_DOTNET_ARCH)</DefaultDotNetAssetArch>
@@ -18,6 +22,7 @@
 
       Examples:
         <DotNetCoreRuntime Include="1.0.5" />
+        <DotNetCoreRuntime Include="1.0.5" Feed="https://mydotnetclifeed/assets" />
         <DotNetCoreRuntime Include="latest" Channel="1.0" />
         <DotNetCoreRuntime Include="2.0.0" Arch="x64" InstallDir="C:\custom\" />
     -->
@@ -26,6 +31,8 @@
       <SharedRuntime>true</SharedRuntime>
       <Channel></Channel>
       <InstallDir></InstallDir>
+      <Feed>$(DefaultDotNetAssetFeed)</Feed>
+      <FeedCredential>$(DefaultDotNetAssetFeedCredential)</FeedCredential>
     </DotNetCoreRuntime>
 
     <!--
@@ -39,6 +46,9 @@
       <SharedRuntime>false</SharedRuntime>
       <Channel></Channel>
       <InstallDir></InstallDir>
+      <Feed>$(DefaultDotNetAssetFeed)</Feed>
+      <FeedCredential>$(DefaultDotNetAssetFeedCredential)</FeedCredential>
     </DotNetCoreSdk>
   </ItemDefinitionGroup>
+
 </Project>

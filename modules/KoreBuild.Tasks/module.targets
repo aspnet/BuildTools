@@ -1,7 +1,7 @@
 <Project>
 
   <PropertyGroup>
-    <RestoreDependsOn>InstallDotNet;$(RestoreDependsOn)</RestoreDependsOn>
+    <RestoreDependsOn Condition=" '$(DisableDefaultTargets)' != 'true' ">InstallDotNet;$(RestoreDependsOn)</RestoreDependsOn>
     <BomPath>$(ArtifactsDir)bom.xml</BomPath>
     <IgnoredArtifactItems>$(IgnoredArtifactItems);$(BomPath)</IgnoredArtifactItems>
   </PropertyGroup>

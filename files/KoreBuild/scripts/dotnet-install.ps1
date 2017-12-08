@@ -176,22 +176,29 @@ function GetHTTPResponse([Uri] $Uri)
             # HttpClient is used vs Invoke-WebRequest in order to support Nano Server which doesn't support the Invoke-WebRequest cmdlet.
             Load-Assembly -Assembly System.Net.Http
 
-            if(-not $ProxyAddress)
-            {
-                # Despite no proxy being explicitly specified, we may still be behind a default proxy
-                $DefaultProxy = [System.Net.WebRequest]::DefaultWebProxy;
-                if($DefaultProxy -and (-not $DefaultProxy.IsBypassed($Uri))){
-                    $ProxyAddress =  $DefaultProxy.GetProxy($Uri).OriginalString
-                    $ProxyUseDefaultCredentials = $true
+            if(-not $ProxyAddress) {
+                try {
+                    # Despite no proxy being explicitly specified, we may still be behind a default proxy
+                    $DefaultProxy = [System.Net.WebRequest]::DefaultWebProxy;
+                    if($DefaultProxy -and (-not $DefaultProxy.IsBypassed($Uri))) {
+                        $ProxyAddress = $DefaultProxy.GetProxy($Uri).OriginalString
+                        $ProxyUseDefaultCredentials = $true
+                    }
+                } catch {
+                    # Eat the exception and move forward as the above code is an attempt
+                    #    at resolving the DefaultProxy that may not have been a problem.
+                    $ProxyAddress = $null
+                    Say-Verbose("Exception ignored: $_.Exception.Message - moving forward...")
                 }
             }
 
-            if($ProxyAddress){
+            if($ProxyAddress) {
                 $HttpClientHandler = New-Object System.Net.Http.HttpClientHandler
                 $HttpClientHandler.Proxy =  New-Object System.Net.WebProxy -Property @{Address=$ProxyAddress;UseDefaultCredentials=$ProxyUseDefaultCredentials}
                 $HttpClient = New-Object System.Net.Http.HttpClient -ArgumentList $HttpClientHandler
             }
             else {
+
                 $HttpClient = New-Object System.Net.Http.HttpClient
             }
             # Default timeout for HttpClient is 100s.  For a 50 MB download this assumes 500 KB/s average, any less will time out
@@ -199,12 +206,10 @@ function GetHTTPResponse([Uri] $Uri)
             $HttpClient.Timeout = New-TimeSpan -Minutes 10
             $ActualUri = if (($Uri -like "$AzureFeed*") -or ($Uri -like "$UncachedFeed*")) { "${Uri}${FeedCredential}" } else { $Uri }
             $Response = $HttpClient.GetAsync($ActualUri).Result
-            if (($Response -eq $null) -or (-not ($Response.IsSuccessStatusCode)))
-            {
-                # The feed credential is potential sensitive info. Do not log it to console output.
+            if (($Response -eq $null) -or (-not ($Response.IsSuccessStatusCode))) {
+                 # The feed credential is potential sensitive info. Do not log ActualUri to console output.
                 $ErrorMsg = "Failed to download $Uri."
-                if ($Response -ne $null)
-                {
+                if ($Response -ne $null) {
                     $ErrorMsg += "  $Response"
                 }
 
@@ -270,7 +275,7 @@ function Get-Specific-Version-From-Version([string]$AzureFeed, [string]$Channel,
     }
 }
 
-function Get-Download-Link([string]$AzureFeed, [string]$Channel, [string]$SpecificVersion, [string]$CLIArchitecture) {
+function Get-Download-Link([string]$AzureFeed, [string]$SpecificVersion, [string]$CLIArchitecture) {
     Say-Invocation $MyInvocation
 
     if ($SharedRuntime) {
@@ -285,7 +290,7 @@ function Get-Download-Link([string]$AzureFeed, [string]$Channel, [string]$Specif
     return $PayloadURL
 }
 
-function Get-LegacyDownload-Link([string]$AzureFeed, [string]$Channel, [string]$SpecificVersion, [string]$CLIArchitecture) {
+function Get-LegacyDownload-Link([string]$AzureFeed, [string]$SpecificVersion, [string]$CLIArchitecture) {
     Say-Invocation $MyInvocation
 
     if ($SharedRuntime) {
@@ -455,14 +460,14 @@ function Prepend-Sdk-InstallRoot-To-Path([string]$InstallRoot, [string]$BinFolde
 
 $CLIArchitecture = Get-CLIArchitecture-From-Architecture $Architecture
 $SpecificVersion = Get-Specific-Version-From-Version -AzureFeed $AzureFeed -Channel $Channel -Version $Version
-$DownloadLink = Get-Download-Link -AzureFeed $AzureFeed -Channel $Channel -SpecificVersion $SpecificVersion -CLIArchitecture $CLIArchitecture
-$LegacyDownloadLink = Get-LegacyDownload-Link -AzureFeed $AzureFeed -Channel $Channel -SpecificVersion $SpecificVersion -CLIArchitecture $CLIArchitecture
+$DownloadLink = Get-Download-Link -AzureFeed $AzureFeed -SpecificVersion $SpecificVersion -CLIArchitecture $CLIArchitecture
+$LegacyDownloadLink = Get-LegacyDownload-Link -AzureFeed $AzureFeed -SpecificVersion $SpecificVersion -CLIArchitecture $CLIArchitecture
 
 if ($DryRun) {
     Say "Payload URLs:"
     Say "Primary - $DownloadLink"
     Say "Legacy - $LegacyDownloadLink"
-    Say "Repeatable invocation: .\$($MyInvocation.MyCommand) -Version $SpecificVersion -Channel $Channel -Architecture $CLIArchitecture -InstallDir $InstallDir"
+    Say "Repeatable invocation: .\$($MyInvocation.Line)"
     exit 0
 }
 
@@ -485,14 +490,13 @@ if ($isAssetInstalled) {
 New-Item -ItemType Directory -Force -Path $InstallRoot | Out-Null
 
 $installDrive = $((Get-Item $InstallRoot).PSDrive.Name);
-Write-Verbose "${installDrive}:";
 $free = Get-CimInstance -Class win32_logicaldisk | where Deviceid -eq "${installDrive}:"
 if ($free.Freespace / 1MB -le 100 ) {
     Say "There is not enough disk space on drive ${installDrive}:"
     exit 0
 }
 
-$ZipPath = [System.IO.Path]::GetTempFileName()
+$ZipPath = [System.IO.Path]::combine([System.IO.Path]::GetTempPath(), [System.IO.Path]::GetRandomFileName())
 Say-Verbose "Zip path: $ZipPath"
 Say "Downloading link: $DownloadLink"
 try {
@@ -501,7 +505,7 @@ try {
 catch {
     Say "Cannot download: $DownloadLink"
     $DownloadLink = $LegacyDownloadLink
-    $ZipPath = [System.IO.Path]::GetTempFileName()
+    $ZipPath = [System.IO.Path]::combine([System.IO.Path]::GetTempPath(), [System.IO.Path]::GetRandomFileName())
     Say-Verbose "Legacy zip path: $ZipPath"
     Say "Downloading legacy link: $DownloadLink"
     DownloadFile -Uri $DownloadLink -OutPath $ZipPath

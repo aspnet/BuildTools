@@ -35,16 +35,20 @@ namespace Microsoft.AspNetCore.BuildTools
         {
             var rootDirectory = Path.Combine(Path.GetFullPath(RootDirectory), "*");
 
-            rootDirectory = rootDirectory.Replace("/", "\\");
-            rootDirectory = rootDirectory.Replace("\\", "\\\\");
+            var escapedPath = JsonEscapePath(rootDirectory);
 
             var codeSource = ConvertUrl();
 
-            File.WriteAllText(DestinationFile, $"{{\"documents\":{{\"{rootDirectory}\":\"{codeSource}\"}}}}");
+            File.WriteAllText(DestinationFile, $"{{\"documents\":{{\"{escapedPath}\":\"{codeSource}\"}}}}");
 
             SourceLinkFile = DestinationFile;
 
             return true;
+        }
+
+        private string JsonEscapePath(string path)
+        {
+            return path.Replace("\\", "\\\\");
         }
 
         private string ConvertUrl()

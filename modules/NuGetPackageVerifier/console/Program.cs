@@ -31,6 +31,20 @@ namespace NuGetPackageVerifier
             application.OnExecute(() =>
             {
                 var totalTimeStopWatch = Stopwatch.StartNew();
+                if (string.IsNullOrEmpty(packageDirectory.Value))
+                {
+                    application.Error.WriteLine($"Missing required argument {packageDirectory.Name}");
+                    application.ShowHelp();
+                    return ReturnBadArgs;
+                }
+
+                if  (!ruleFile.HasValue())
+                {
+                    application.Error.WriteAsync($"Missing required option {ruleFile.Template}.");
+                    application.ShowHelp();
+                    return ReturnBadArgs;
+                }
+
                 var hideInfoLogs = verbose.HasValue();
 
                 IPackageVerifierLogger logger;
@@ -54,11 +68,11 @@ namespace NuGetPackageVerifier
                         MissingMemberHandling = MissingMemberHandling.Error
                     });
 
-                logger.LogNormal("Read {0} package set(s) from {1}", packageSets.Count, ruleFile);
+                logger.LogNormal("Read {0} package set(s) from {1}", packageSets.Count, ruleFile.Value());
                 var nupkgs = new DirectoryInfo(packageDirectory.Value).EnumerateFiles("*.nupkg", SearchOption.TopDirectoryOnly)
                     .Where(p => !p.Name.EndsWith(".symbols.nupkg"))
                     .ToArray();
-                logger.LogNormal("Found {0} packages in {1}", nupkgs.Length, packageDirectory);
+                logger.LogNormal("Found {0} packages in {1}", nupkgs.Length, packageDirectory.Value);
                 var exitCode = Execute(packageSets, nupkgs, excludedRules.Values, logger, ignoreAssistanceMode);
                 totalTimeStopWatch.Stop();
                 logger.LogNormal("Total took {0}ms", totalTimeStopWatch.ElapsedMilliseconds);

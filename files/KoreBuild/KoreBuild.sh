@@ -106,3 +106,9 @@ if [ "$(uname)" = "Darwin" ]; then
     # increase file descriptor limit
     ulimit -n 5000
 fi
+
+# Set required environment variables
+
+# This disables automatic rollforward to /usr/local/dotnet and other global locations.
+# We want to ensure are tests are running against the exact runtime specified by the project.
+export DOTNET_MULTILEVEL_LOOKUP=0

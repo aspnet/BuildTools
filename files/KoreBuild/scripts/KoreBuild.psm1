@@ -30,6 +30,12 @@ if ($env:KOREBUILD_DOTNET_FEED_CREDENTIAL) {
     $script:config.'dotnet.feed.credential' = $env:KOREBUILD_DOTNET_FEED_CREDENTIAL
 }
 
+# Set required environment variables
+
+# This disables automatic rollforward to C:\Program Files\ and other global locations.
+# We want to ensure are tests are running against the exact runtime specified by the project.
+$env:DOTNET_MULTILEVEL_LOOKUP=0
+
 <#
 .SYNOPSIS
 Builds a repository

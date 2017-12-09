@@ -11,11 +11,9 @@
 
   <ItemGroup>
     <Compile Include="..\..\..\shared\Microsoft.Extensions.CommandLineUtils.Sources\**\*.cs" />
-    <EmbeddedResource Include="already-owned-packages.txt" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="$(HtmlAgilityPackPackageVersion)" />
     <PackageReference Include="Mono.Cecil" Version="$(MonoCecilPackageVersion)" />
     <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonPackageVersion)" />
     <PackageReference Include="NuGet.Packaging" Version="$(NuGetPackagingPackageVersion)" />

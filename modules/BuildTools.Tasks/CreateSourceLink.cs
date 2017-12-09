@@ -5,9 +5,17 @@ using System;
 using System.IO;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Microsoft.AspNetCore.BuildTools
 {
+    /// <summary>
+    /// Generates a source link JSON file.
+    /// <para>
+    /// <seealso href="https://github.com/dotnet/core/blob/aa68ce453ad63152bf321c86eb83f9420114d087/Documentation/diagnostics/source_link.md" />
+    /// </para>
+    /// </summary>
 #if SDK
     public class Sdk_CreateSourceLink : Task
 #elif BuildTools
@@ -17,7 +25,7 @@ namespace Microsoft.AspNetCore.BuildTools
 #endif
     {
         [Required]
-        public string RootDirectory { get; set; }
+        public string SourceLinkRoot { get; set; }
 
         [Required]
         public string OriginUrl { get; set; }
@@ -33,22 +41,28 @@ namespace Microsoft.AspNetCore.BuildTools
 
         public override bool Execute()
         {
-            var rootDirectory = Path.Combine(Path.GetFullPath(RootDirectory), "*");
+            var lastCh = SourceLinkRoot[SourceLinkRoot.Length - 1];
+            if (lastCh != '/' && lastCh != '\\')
+            {
+                Log.LogError("SourceLinkRoot must end with a slash.");
+                return false;
+            }
 
-            var escapedPath = JsonEscapePath(rootDirectory);
+            SourceLinkRoot += '*';
 
             var codeSource = ConvertUrl();
-
-            File.WriteAllText(DestinationFile, $"{{\"documents\":{{\"{escapedPath}\":\"{codeSource}\"}}}}");
+            var data = new JObject
+            {
+                ["documents"] = new JObject
+                {
+                    [SourceLinkRoot] = codeSource
+                }
+            };
+            File.WriteAllText(DestinationFile, data.ToString(Formatting.None));
 
             SourceLinkFile = DestinationFile;
 
             return true;
-        }
-
-        private string JsonEscapePath(string path)
-        {
-            return path.Replace("\\", "\\\\");
         }
 
         private string ConvertUrl()

@@ -20,14 +20,14 @@ namespace BuildTools.Tasks.Tests
 
             var originUrl = $"git@github.com:{repoName}.git";
             var commit = "5153bbdfa98dcc27a61d591ce09a0d632875e66f";
-            var rootDir = GetRootDirectory();
+            var sourceLinkRoot = GetSourceLinkRoot();
 
             var task = new CreateSourceLink
             {
                 OriginUrl = originUrl,
                 Commit = commit,
                 DestinationFile = destination,
-                RootDirectory = rootDir
+                SourceLinkRoot = sourceLinkRoot
             };
 
             try
@@ -48,8 +48,11 @@ namespace BuildTools.Tasks.Tests
             }
         }
 
-        [Fact]
-        public void DealsWithBackslash()
+        [Theory]
+        [InlineData("/_/")]
+        [InlineData("C:\\")]
+        [InlineData("/home/src/")]
+        public void DoesNotChangeBackslashes(string sourceLinkRoot)
         {
             var destination = "sourcelink.json";
 
@@ -57,23 +60,22 @@ namespace BuildTools.Tasks.Tests
 
             var originUrl = $"git@github.com:{repoName}.git";
             var commit = "5153bbdfa98dcc27a61d591ce09a0d632875e66f";
-            var rootDir = GetRootDirectory(useBackslash: true);
 
             var task = new CreateSourceLink
             {
                 OriginUrl = originUrl,
                 Commit = commit,
                 DestinationFile = destination,
-                RootDirectory = rootDir
+                SourceLinkRoot = sourceLinkRoot
             };
 
             try
             {
                 Assert.True(task.Execute(), "The task failed but should have passed.");
                 Assert.True(File.Exists(destination), "SourceLink file doesn't exist.");
-
+                var expectedSourceLinkRoot = sourceLinkRoot.Replace(@"\", @"\\");
                 var expectedUrl = $"https://raw.githubusercontent.com/{repoName}/{commit}/*";
-                var expected = $"{{\"documents\":{{\"{GetExpectedRootDirectory()}*\":\"{expectedUrl}\"}}}}";
+                var expected = $"{{\"documents\":{{\"{expectedSourceLinkRoot}*\":\"{expectedUrl}\"}}}}";
 
                 var resultText = File.ReadAllText(destination);
 
@@ -94,14 +96,14 @@ namespace BuildTools.Tasks.Tests
 
             var originUrl = $"https://github.com/{repoName}.git";
             var commit = "5153bbdfa98dcc27a61d591ce09a0d632875e66f";
-            var rootDir = GetRootDirectory();
+            var rootDir = GetSourceLinkRoot();
 
             var task = new CreateSourceLink
             {
                 OriginUrl = originUrl,
                 Commit = commit,
                 DestinationFile = destination,
-                RootDirectory = rootDir
+                SourceLinkRoot = rootDir
             };
 
             try
@@ -134,12 +136,12 @@ namespace BuildTools.Tasks.Tests
             }
         }
 
-        private static string GetRootDirectory(bool useBackslash = false)
+        private static string GetSourceLinkRoot()
         {
             switch (RuntimeEnvironment.OperatingSystemPlatform)
             {
                 case Platform.Windows:
-                    return "C:" + (useBackslash ? "/" : "\\");
+                    return @"C:\";
                 case Platform.Linux:
                 case Platform.Darwin:
                     return "/home/";

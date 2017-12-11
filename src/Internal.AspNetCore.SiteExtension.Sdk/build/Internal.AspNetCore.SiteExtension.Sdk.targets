@@ -17,6 +17,7 @@
       <_TemplateFiles Include="$(MSBuildThisFileDirectory)..\content\HostingStartup\**\*" />
       <_HostingStartupPackageReference
         Include="%(HostingStartupPackageReference.Identity)"
+        Source="%(HostingStartupPackageReference.Source)"
         Version="%(HostingStartupPackageReference.Version)"
         WorkingDirectory="$(_DepsOutputDirectory)%(HostingStartupPackageReference.Identity)"
         Project="$(_DepsOutputDirectory)%(HostingStartupPackageReference.Identity)\HostingStartup.csproj"
@@ -33,11 +34,11 @@
 
     <MSBuild Projects="%(_HostingStartupPackageReference.Project)"
              Targets="Restore"
-             Properties="HostingStartupPackageName=%(_HostingStartupPackageReference.Identity);HostingStartupPackageVersion=%(_HostingStartupPackageReference.Version)" />
+             Properties="HostingStartupPackageName=%(_HostingStartupPackageReference.Identity);HostingStartupPackageVersion=%(_HostingStartupPackageReference.Version);RestoreAdditionalProjectSources=%(_HostingStartupPackageReference.Source)" />
 
     <MSBuild Projects="%(_HostingStartupPackageReference.Project)"
              Targets="Publish"
-             Properties="PublishDir=%(_HostingStartupPackageReference.WorkingDirectory);HostingStartupPackageName=%(_HostingStartupPackageReference.Identity);HostingStartupPackageVersion=%(_HostingStartupPackageReference.Version)" />
+             Properties="PublishDir=%(_HostingStartupPackageReference.WorkingDirectory);HostingStartupPackageName=%(_HostingStartupPackageReference.Identity);HostingStartupPackageVersion=%(_HostingStartupPackageReference.Version);RestoreAdditionalProjectSources=%(_HostingStartupPackageReference.Source)" />
 
     <Copy SourceFiles="%(_HostingStartupPackageReference.DepsFile)" DestinationFiles="%(_HostingStartupPackageReference.TrimmedDepsFile)" />
 

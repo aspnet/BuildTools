@@ -56,7 +56,7 @@
 
   <Target Name="GetArtifactInfo" Returns="@(ArtifactInfo)">
     <ItemGroup>
-      <ArtifactInfo Include="$(PackageOutputPath)$(PackageId.ToLowerInvariant()).$(PackageVersion).nupkg">
+      <ArtifactInfo Include="$(PackageOutputPath)$(PackageId).$(PackageVersion).nupkg">
         <ArtifactType>NuGetPackage</ArtifactType>
         <PackageId>$(PackageId)</PackageId>
         <Version>$(PackageVersion)</Version>

@@ -2,7 +2,7 @@
 
   <Target Name="GetArtifactInfo" Returns="@(ArtifactInfo)">
     <ItemGroup Condition="'$(IsPackable)' == 'true' ">
-      <ArtifactInfo Include="$(PackageOutputPath)$(PackageId.ToLowerInvariant()).$(PackageVersion).nupkg">
+      <ArtifactInfo Include="$(PackageOutputPath)$(PackageId).$(PackageVersion).nupkg">
         <ArtifactType>NuGetPackage</ArtifactType>
         <PackageId>$(PackageId)</PackageId>
         <Version>$(PackageVersion)</Version>
@@ -12,7 +12,7 @@
         <RepositoryRoot>$(RepositoryRoot)</RepositoryRoot>
       </ArtifactInfo>
 
-      <ArtifactInfo Include="$(PackageOutputPath)$(PackageId.ToLowerInvariant()).$(PackageVersion).symbols.nupkg" Condition="'$(IncludeSymbols)' == 'true' AND '$(NuspecFile)' == ''">
+      <ArtifactInfo Include="$(PackageOutputPath)$(PackageId).$(PackageVersion).symbols.nupkg" Condition="'$(IncludeSymbols)' == 'true' AND '$(NuspecFile)' == ''">
         <ArtifactType>NuGetSymbolsPackage</ArtifactType>
         <PackageId>$(PackageId)</PackageId>
         <Version>$(PackageVersion)</Version>

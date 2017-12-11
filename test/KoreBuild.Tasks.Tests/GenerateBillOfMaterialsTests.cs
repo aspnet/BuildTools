@@ -72,10 +72,15 @@ namespace KoreBuild.Tasks.Tests
                     <authors>Test</authors>
                     <description>Test</description>
                     <dependencies>
-                      <dependency id=`Newtonsoft.Json` version=`[9.0.1, )` />
-                      <!-- Dependencies without a lower bound should be ignored -->
-                      <dependency id=`Other` version=`(, 10.0.1]` />
-                      <dependency id=`Other2` version=`(, )` />
+                      <group targetFramework=`.NETFramework4.6.1`>
+                        <dependency id=`Newtonsoft.Json` version=`[9.0.1, )` />
+                      </group>
+                      <group targetFramework=`.NETStandard2.0`>
+                        <dependency id=`Newtonsoft.Json` version=`[9.0.1, )` />
+                        <!-- Dependencies without a lower bound should be ignored -->
+                        <dependency id=`Other` version=`(, 10.0.1]` />
+                        <dependency id=`Other2` version=`(, )` />
+                      </group>
                     </dependencies>
                   </metadata>
                 </package>

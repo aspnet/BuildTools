@@ -103,7 +103,7 @@ namespace KoreBuild.Tasks
                     using (var reader = new PackageArchiveReader(item.ItemSpec))
                     {
                         var nuspec = new NuspecReader(reader.GetNuspec());
-                        foreach (var dep in nuspec.GetDependencyGroups().SelectMany(g => g.Packages))
+                        foreach (var dep in nuspec.GetDependencyGroups().SelectMany(g => g.Packages).Distinct())
                         {
                             var version = dep.VersionRange.MinVersion;
                             if (version == null)

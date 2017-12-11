@@ -24,13 +24,15 @@
           AfterTargets="Package"
           Condition=" '$(SkipBillOfMaterials)' != 'true' ">
 
+    <ItemGroup>
+      <ArtifactInfo Update="@(ArtifactInfo)" Condition=" '$(CommitHash)' != '' AND '%(ArtifactInfo.CommitHash)' == '' ">
+        <CommitHash>$(CommitHash)</CommitHash>
+      </ArtifactInfo>
+    </ItemGroup>
+
     <ComputeManyChecksum Items="@(ArtifactInfo)">
       <Output TaskParameter="Items" ItemName="_ArtifactInfoWithFileHash" />
     </ComputeManyChecksum>
-
-    <ItemGroup>
-      <ArtifactInfo Update="@(ArtifactInfo)" CommitHash="$(CommitHash)" Condition=" '$(CommitHash)' != '' " />
-    </ItemGroup>
 
     <GenerateBillOfMaterials Artifacts="@(_ArtifactInfoWithFileHash)" OutputPath="$(BomPath)" />
   </Target>

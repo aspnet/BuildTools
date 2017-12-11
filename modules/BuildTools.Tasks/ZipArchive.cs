@@ -115,7 +115,9 @@ namespace Microsoft.AspNetCore.BuildTools
                 }
             }
 
-            Log.LogMessage(MessageImportance.High, "Added {0} file(s) to '{1}'", SourceFiles.Length, File);
+            var fileInfo = new FileInfo(File);
+            Log.LogMessage(MessageImportance.High,
+                $"Added {SourceFiles.Length} file(s) to '{File}' ({fileInfo.Length / 1024:n0} KB)");
 
             return true;
         }

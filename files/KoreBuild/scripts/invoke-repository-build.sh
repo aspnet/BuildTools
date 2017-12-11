@@ -75,9 +75,11 @@ if [ ! -f "$msbuild_artifacts_dir" ]; then
     mkdir -p "$msbuild_artifacts_dir"
 fi
 
+korebuild_version="$(__get_korebuild_version)"
 cat > "$msbuild_response_file" <<ENDMSBUILDARGS
 /nologo
 /m
+/p:KoreBuildVersion=$korebuild_version
 /p:RepositoryRoot="$repo_path/"
 "$msbuild_log_argument"
 /clp:Summary

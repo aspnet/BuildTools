@@ -108,3 +108,20 @@ __fetch() {
         return 1
     fi
 }
+
+__get_korebuild_version() {
+    local src="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    local version_file="$src/../.version"
+    local korebuild_version=''
+
+    if [ -f "$version_file" ]; then
+        korebuild_version="$(grep 'version:*' -m 1 "$version_file")"
+        if [[ "$korebuild_version" == '' ]]; then
+            echo -e "${GRAY}Failed to parse version from $version_file. Expected a line that begins with 'version:'${RESET}" 1>&2
+        else
+            korebuild_version="$(echo "$korebuild_version" | sed -e 's/^[[:space:]]*version:[[:space:]]*//' -e 's/[[:space:]]*$//')"
+        fi
+    fi
+
+    echo $korebuild_version
+}

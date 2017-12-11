@@ -96,9 +96,12 @@ function Invoke-RepositoryBuild(
             $msBuildLogArgument = "/bl:$msbuildLogFilePath"
         }
 
+        $koreBuildVersion = Get-KoreBuildVersion
+
         $msBuildArguments = @"
 /nologo
 /m
+/p:KoreBuildVersion=$koreBuildVersion
 /p:RepositoryRoot="$Path/"
 "$msBuildLogArgument"
 /clp:Summary
@@ -430,8 +433,9 @@ function __build_task_project($RepoPath) {
     __exec $global:dotnet publish $taskProj --configuration Release --output $publishFolder /nologo $sdkPath
 }
 
-function __show_version_info {
+function Get-KoreBuildVersion {
     $versionFile = Join-Paths $PSScriptRoot ('..', '.version')
+    $version = $null
     if (Test-Path $versionFile) {
         $version = Get-Content $versionFile | Where-Object { $_ -like 'version:*' } | Select-Object -first 1
         if (!$version) {
@@ -439,8 +443,15 @@ function __show_version_info {
         }
         else {
             $version = $version.TrimStart('version:').Trim()
-            Write-Host -ForegroundColor Magenta "Using KoreBuild $version"
         }
+    }
+    return $version
+}
+
+function __show_version_info {
+    $version = Get-KoreBuildVersion
+    if ($version) {
+        Write-Host -ForegroundColor Magenta "Using KoreBuild $version"
     }
 }
 

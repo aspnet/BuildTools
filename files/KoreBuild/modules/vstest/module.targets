@@ -56,7 +56,6 @@ Runs the VSTest on all projects in the ProjectsToTest itemgroup.
 
     <MSBuild Projects="@(TestGroups)"
              Targets="_ExecuteTestAssemblies"
-             Properties="BuildNumber=$(BuildNumber)"
              Condition="@(TestGroups->Count()) != 0"
              ContinueOnError="$(_TestContinueOnError)" />
   </Target>

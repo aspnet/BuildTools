@@ -266,18 +266,9 @@ namespace NuGetPackageVerifier
             return new PackageVerifierIssue("DOC_MISSING", assemblyPath, string.Format("The assembly '{0}' doesn't have a corresponding XML document file.", assemblyPath), PackageIssueLevel.Warning);
         }
 
-        public static PackageVerifierIssue IdDoesNotExist(string id)
+        public static PackageVerifierIssue IdIsNotOwned(string id)
         {
-            return new PackageVerifierIssue(
-                "PACKAGE_OWNERSHIP",
-                id,
-                $"The id '{id}' does not exist on NuGet.org. See https://github.com/aspnet/Coherence-Signed/wiki/New-package-Id-creation for instructions.",
-                PackageIssueLevel.Warning);
-        }
-
-        public static PackageVerifierIssue IdIsNotOwned(string id, string[] allowedOwners)
-        {
-            return new PackageVerifierIssue("PACKAGE_OWNERSHIP", id, $"The id '{id}' is not owned by one of {string.Join(", ", allowedOwners)}.", PackageIssueLevel.Error);
+            return new PackageVerifierIssue("PACKAGE_OWNERSHIP", id, $"The package id '{id}' is owned by an external entity and must be renamed.", PackageIssueLevel.Error);
         }
 
         public static PackageVerifierIssue DependencyVersionHasUpperBound(string id, string dependencyId, NuGetFramework TFM)

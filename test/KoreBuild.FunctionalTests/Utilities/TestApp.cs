@@ -84,6 +84,8 @@ namespace KoreBuild.FunctionalTests
                     Environment =
                     {
                         ["PATH"] = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + Path.PathSeparator + Environment.GetEnvironmentVariable("PATH"),
+                        // set this to suppress TC service messages such as ##teamcity[importData]
+                        ["TEAMCITY_VERSION"] = "",
                     },
                     WorkingDirectory = WorkingDirectory,
                 },

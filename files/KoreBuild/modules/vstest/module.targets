@@ -98,7 +98,7 @@ Runs the VSTest on all projects in the ProjectsToTest itemgroup.
     </RunDotNet>
 
     <Message Text="##teamcity[importData type='vstest' path='$(TrxFile)']" Condition="'$(TEAMCITY_VERSION)' != '' AND Exists($(TrxFile))" Importance="High" />
-    <Error Text="Test group $(TestGroupName)/$(TargetFramework) failed" Condition=" $(VsTestExitCode) != 0 " />
+    <Error Text="Test group $(TestGroupName)/$(TargetFramework) failed with exit code '$(VsTestExitCode)'." Condition=" $(VsTestExitCode) != 0 " />
   </Target>
 
   <Target Name="ValidateBenchmarks" DependsOnTargets="ResolveSolutions" Condition=" '$(EnableBenchmarkValidation)' == 'true' ">

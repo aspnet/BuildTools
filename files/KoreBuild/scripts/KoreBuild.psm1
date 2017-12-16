@@ -380,7 +380,7 @@ function __install_shared_runtime($installScript, $installDir, [string]$arch, [s
         Write-Verbose "Installing .NET Core runtime $version"
         & $installScript `
             -Channel $channel `
-            -SharedRuntime `
+            -Runtime 'dotnet' `
             -Version $version `
             -Architecture $arch `
             -InstallDir $installDir `

@@ -32,7 +32,7 @@ namespace KoreBuild.Tasks.Tests
 
             var request = new TaskItem("1.0.5", new Hashtable
             {
-                ["SharedRuntime"] = "true",
+                ["Runtime"] = "dotnet",
                 ["InstallDir"] = path
             });
 
@@ -66,7 +66,7 @@ namespace KoreBuild.Tasks.Tests
 
             var request = new TaskItem("999.999.999", new Hashtable
             {
-                ["SharedRuntime"] = "true",
+                ["Runtime"] = "dotnet",
                 ["InstallDir"] = path
             });
 

@@ -39,6 +39,10 @@ if [ -t 1 ]; then
     fi
 fi
 
+say_warning() {
+    printf "%b\n" "${yellow:-}dotnet_install: Warning: $1${normal:-}"
+}
+
 say_err() {
     printf "%b\n" "${red:-}dotnet_install: Error: $1${normal:-}" >&2
 }
@@ -380,8 +384,10 @@ get_latest_version_info() {
     local coherent="$4"
 
     local version_file_url=null
-    if [ "$shared_runtime" = true ]; then
+    if [[ "$runtime" == "dotnet" ]]; then
         version_file_url="$uncached_feed/Runtime/$channel/latest.version"
+    elif [ ! -z "$runtime" ]; then
+        version_file_url="$uncached_feed/Runtime/$channel/latest.$runtime.version"
     else
         if [ "$coherent" = true ]; then
             version_file_url="$uncached_feed/Sdk/$channel/latest.coherent.version"
@@ -447,8 +453,8 @@ construct_download_link() {
     osname="$(get_current_os_name)" || return 1
 
     local download_link=null
-    if [ "$shared_runtime" = true ]; then
-        download_link="$azure_feed/Runtime/$specific_version/dotnet-runtime-$specific_version-$osname-$normalized_architecture.tar.gz"
+    if [ ! -z "$runtime" ]; then
+        download_link="$azure_feed/Runtime/$specific_version/$runtime-runtime-$specific_version-$osname-$normalized_architecture.tar.gz"
     else
         download_link="$azure_feed/Sdk/$specific_version/dotnet-sdk-$specific_version-$osname-$normalized_architecture.tar.gz"
     fi
@@ -474,10 +480,12 @@ construct_legacy_download_link() {
     distro_specific_osname="$(get_legacy_os_name)" || return 1
 
     local legacy_download_link=null
-    if [ "$shared_runtime" = true ]; then
+    if [[ "$runtime" == "dotnet" ]]; then
         legacy_download_link="$azure_feed/Runtime/$specific_version/dotnet-$distro_specific_osname-$normalized_architecture.$specific_version.tar.gz"
-    else
+    elif [ -z "$runtime" ]; then
         legacy_download_link="$azure_feed/Sdk/$specific_version/dotnet-dev-$distro_specific_osname-$normalized_architecture.$specific_version.tar.gz"
+    else
+        return 1
     fi
 
     echo "$legacy_download_link"
@@ -691,17 +699,23 @@ calculate_vars() {
 install_dotnet() {
     eval $invocation
     local download_failed=false
+    local asset_name=''
+    local asset_relative_path=''
 
-    if [ "$shared_runtime" = true ]; then
-        if is_dotnet_package_installed "$install_root" "shared/Microsoft.NETCore.App" "$specific_version"; then
-            say ".NET Core Runtime version $specific_version is already installed."
-            return 0
-        fi
+    if [[ "$runtime" == "dotnet" ]]; then
+        asset_relative_path="shared/Microsoft.NETCore.App"
+        asset_name=".NET Core Runtime"
+    elif [[ "$runtime" == "aspnetcore" ]]; then
+        asset_relative_path="shared/Microsoft.AspNetCore.All"
+        asset_name="ASP.NET Core Runtime"
     else
-        if is_dotnet_package_installed "$install_root" "sdk" "$specific_version"; then
-            say ".NET Core SDK version $specific_version is already installed."
-            return 0
-        fi
+        asset_relative_path="sdk"
+        asset_name=".NET Core SDK"
+    fi
+
+    if is_dotnet_package_installed "$install_root" "$asset_relative_path" "$specific_version"; then
+        say "$asset_name version $specific_version is already installed."
+        return 0
     fi
 
     mkdir -p "$install_root"
@@ -744,7 +758,7 @@ azure_feed="https://dotnetcli.azureedge.net/dotnet"
 uncached_feed="https://dotnetcli.blob.core.windows.net/dotnet"
 feed_credential=""
 verbose=false
-shared_runtime=false
+runtime=""
 runtime_id=""
 override_non_versioned_files=true
 
@@ -769,7 +783,18 @@ do
             architecture="$1"
             ;;
         --shared-runtime|-[Ss]hared[Rr]untime)
-            shared_runtime=true
+            say_warning "The --shared-runtime flag is obsolete and may be removed in a future version of this script. The recommended usage is to specify '--runtime dotnet'."
+            if [ -z "$runtime" ]; then
+                runtime="dotnet"
+            fi
+            ;;
+        --runtime|-[Rr]untime)
+            shift
+            runtime="$1"
+            if [[ "$runtime" != "dotnet" ]] && [[ "$runtime" != "aspnetcore" ]]; then
+                say_err "Unsupported value for --runtime: '$1'. Valid values are 'dotnet' and 'aspnetcore'."
+                exit 1
+            fi
             ;;
         --dry-run|-[Dd]ry[Rr]un)
             dry_run=true
@@ -829,8 +854,11 @@ do
             echo "      -InstallDir"
             echo "  --architecture <ARCHITECTURE>      Architecture of .NET Tools. Currently only x64 is supported."
             echo "      --arch,-Architecture,-Arch"
-            echo "  --shared-runtime                   Installs just the shared runtime bits, not the entire SDK."
-            echo "      -SharedRuntime"
+            echo "  --runtime <RUNTIME>                Installs a shared runtime only, without the SDK."
+            echo "      -Runtime"
+            echo "          Possible values:"
+            echo "          - dotnet     - the Microsoft.NETCore.App shared framework"
+            echo "          - aspnetcore - the Microsoft.AspNetCore.All shared framework"
             echo "  --skip-non-versioned-files         Skips non-versioned files if they already exist, such as the dotnet executable."
             echo "      -SkipNonVersionedFiles"
             echo "  --dry-run,-DryRun                  Do not perform installation. Display download link."
@@ -842,6 +870,10 @@ do
             echo "  --runtime-id                       Installs the .NET Tools for the given platform (use linux-x64 for portable linux)."
             echo "      -RuntimeId"
             echo "  -?,--?,-h,--help,-Help             Shows this help message"
+            echo ""
+            echo "Obsolete parameters:"
+            echo "  --shared-runtime                   The recommended alternative is '--runtime dotnet'."
+            echo "      -SharedRuntime                 Installs just the shared runtime bits, not the entire SDK."
             echo ""
             echo "Install Location:"
             echo "  Location is chosen in following order:"

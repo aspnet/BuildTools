@@ -138,7 +138,7 @@ namespace KoreBuild.Console.Commands
                 var args = ArgumentEscaper.EscapeAndConcatenate(new string[]
                 {
                     "-Channel", channel,
-                    "-SharedRuntime",
+                    "-Runtime", "dotnet",
                     "-Version", version,
                     "-Architecture", architecture,
                     "-InstallDir", installDir

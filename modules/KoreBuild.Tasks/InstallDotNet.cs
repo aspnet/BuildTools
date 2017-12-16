@@ -27,7 +27,7 @@ namespace KoreBuild.Tasks
         /// Supported metadata:
         ///   Channel: default is ''
         ///   Arch: default is 'x64'
-        ///   SharedRuntime: default is 'false'
+        ///   Runtime: default is ''
         ///   InstallDir: default is ''. When not specified <see cref="DotNetHome"/> and the location of the currently executing dotnet.exe process will be used to determine the install path.
         /// </summary>
         [Required]
@@ -98,9 +98,10 @@ namespace KoreBuild.Tasks
                 arguments.Add("-InstallDir");
                 arguments.Add(installDir);
 
-                if (request.IsSharedRuntime)
+                if (!string.IsNullOrEmpty(request.RuntimeName))
                 {
-                    arguments.Add("-SharedRuntime");
+                    arguments.Add("-Runtime");
+                    arguments.Add(request.RuntimeName);
                 }
 
                 arguments.Add("-Version");
@@ -108,7 +109,7 @@ namespace KoreBuild.Tasks
                 var isFloatingVersion = request.Version.Equals("latest", StringComparison.OrdinalIgnoreCase)
                     || request.Version.Equals("coherent", StringComparison.OrdinalIgnoreCase);
 
-                var assetName = $".NET Core { (request.IsSharedRuntime ? "runtime" : "sdk") } ({arch}) {request.Version}";
+                var assetName = $"{request.DisplayName} ({arch}) {request.Version}";
 
                 if (!string.IsNullOrEmpty(request.Channel))
                 {
@@ -131,11 +132,7 @@ namespace KoreBuild.Tasks
                     arguments.Add(request.FeedCredential);
                 }
 
-                var expectedPath = request.IsSharedRuntime && !isFloatingVersion
-                    ? Path.Combine(installDir, "shared", "Microsoft.NETCore.App", request.Version, ".version")
-                    : Path.Combine(installDir, "sdk", request.Version, "dotnet.dll");
-
-                if (File.Exists(expectedPath))
+                if (!isFloatingVersion && request.IsInstalled(installDir))
                 {
                     Log.LogMessage(MessageImportance.Normal, $"{assetName} is already installed. Skipping installation.");
                     continue;
@@ -160,7 +157,7 @@ namespace KoreBuild.Tasks
                     EnableRaisingEvents = true,
                 })
                 {
-                    Log.LogMessage(MessageImportance.Normal, $"Executing {process.StartInfo.FileName} {process.StartInfo.Arguments}");
+                    Log.LogCommandLine(MessageImportance.Normal, $"Executing {process.StartInfo.FileName} {process.StartInfo.Arguments}");
 
                     var collectedOutput = new List<string>();
                     process.OutputDataReceived += (o, e) => collectedOutput.Add(e.Data ?? string.Empty);
@@ -252,26 +249,45 @@ namespace KoreBuild.Tasks
 
         private IEnumerable<DotNetAssetRequest> CreateAssetRequests()
         {
-            var all = new List<DotNetAssetRequest>();
+            var requests = new List<DotNetAssetRequest>();
+            var dotnetRuntimes = new List<DotNetAssetRequest>();
+            var aspnetcoreRuntimes = new List<DotNetAssetRequest>();
+
             foreach (var item in Assets)
             {
-                var request = new DotNetAssetRequest(item.ItemSpec)
-                {
-                    IsSharedRuntime = bool.TryParse(item.GetMetadata("SharedRuntime"), out var sharedRuntime) && sharedRuntime,
-                    Channel = item.GetMetadata("Channel"),
-                    InstallDir = item.GetMetadata("InstallDir"),
-                    Arch = item.GetMetadata("Arch"),
-                    // trimmed because dotnet-install.ps1/sh expect the feed not to have this
-                    Feed = item.GetMetadata("Feed")?.TrimEnd(new[] { '/', '\\' }),
-                    FeedCredential = item.GetMetadata("FeedCredential"),
-                };
+                DotNetAssetRequest request;
 
-                all.Add(request);
+                switch (item.GetMetadata("Runtime").ToLowerInvariant())
+                {
+                    case "aspnetcore":
+                        request = new DotNetAssetRequest.AspNetCoreRuntime(item.ItemSpec);
+                        aspnetcoreRuntimes.Add(request);
+                        break;
+                    case "dotnet":
+                        request = new DotNetAssetRequest.DotNetRuntime(item.ItemSpec);
+                        dotnetRuntimes.Add(request);
+                        break;
+                    default:
+                        request = new DotNetAssetRequest.DotNetSdk(item.ItemSpec);
+                        requests.Add(request);
+                        break;
+                }
+
+                request.Channel = item.GetMetadata("Channel");
+                request.InstallDir = item.GetMetadata("InstallDir");
+                request.Arch = item.GetMetadata("Arch");
+                // trimmed because dotnet-install.ps1/sh expect the feed not to have this
+                request.Feed = item.GetMetadata("Feed")?.TrimEnd(new[] { '/', '\\' });
+                request.FeedCredential = item.GetMetadata("FeedCredential");
             }
 
-            // installs SDKs first, which often bundle a shared runtime...making the shared runtime download unnecessary.
-            return all.Where(r => !r.IsSharedRuntime)
-                .Concat(all.Where(r => r.IsSharedRuntime));
+            // A cheap attempt to reduce the number of things we download.
+            // dotnet-sdk.zip often bundles shared runtimes, making susquent downloads unnecessary.
+            // likewise, aspnetcore-runtime.zip bundles Microsoft.NETCore.App, so we can often skip the dotnet-runtime download
+
+            return requests
+                .Concat(aspnetcoreRuntimes)
+                .Concat(dotnetRuntimes);
         }
     }
 }

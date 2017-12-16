@@ -20,7 +20,7 @@ __install_shared_runtime() {
         "$__script_dir/dotnet-install.sh" \
             --install-dir "$install_dir" \
             --architecture x64 \
-            --shared-runtime \
+            --runtime 'dotnet' \
             --skip-non-versioned-files \
             --channel "$channel" \
             --version "$version" \

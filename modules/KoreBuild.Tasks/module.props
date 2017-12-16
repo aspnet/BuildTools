@@ -30,6 +30,21 @@
 
   <ItemDefinitionGroup>
     <!--
+      Specifies a required ASP.NET Core runtime.
+
+      Examples:
+        <AspNetCoreRuntime Include="2.1.0-preview1-1234" />
+    -->
+    <AspNetCoreRuntime>
+      <Arch>$(DefaultDotNetAssetArch)</Arch>
+      <Runtime>aspnetcore</Runtime>
+      <Channel></Channel>
+      <InstallDir></InstallDir>
+      <Feed>$(DefaultDotNetAssetFeed)</Feed>
+      <FeedCredential>$(DefaultDotNetAssetFeedCredential)</FeedCredential>
+    </AspNetCoreRuntime>
+
+    <!--
       Specifies a required .NET Core runtime.
 
       Examples:
@@ -40,7 +55,7 @@
     -->
     <DotNetCoreRuntime>
       <Arch>$(DefaultDotNetAssetArch)</Arch>
-      <SharedRuntime>true</SharedRuntime>
+      <Runtime>dotnet</Runtime>
       <Channel></Channel>
       <InstallDir></InstallDir>
       <Feed>$(DefaultDotNetAssetFeed)</Feed>
@@ -55,7 +70,7 @@
     -->
     <DotNetCoreSdk>
       <Arch>$(DefaultDotNetAssetArch)</Arch>
-      <SharedRuntime>false</SharedRuntime>
+      <Runtime></Runtime>
       <Channel></Channel>
       <InstallDir></InstallDir>
       <Feed>$(DefaultDotNetAssetFeed)</Feed>

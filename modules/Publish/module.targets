@@ -16,7 +16,7 @@
 
     See https://github.com/dotnet/buildtools/tree/master/src/Microsoft.DotNet.Build.Tasks.Feed for more details.
   -->
-  <Target Name="PublishToAzure" DependsOnTargets="GetArtifactInfo" Condition="'$(PublishBlobFeedUrl)' != ''">
+  <Target Name="PublishToAzure" DependsOnTargets="GetArtifactInfo" Condition="'$(PublishBlobFeedUrl)' != '' AND '$(PublishToAzureBlob)' != 'false' ">
     <ItemGroup>
       <PackagesToPublish Include="%(ArtifactInfo.Identity)" Condition="'%(ArtifactInfo.ArtifactType)' == 'NuGetPackage'" />
       <FilesToPublish Include="%(ArtifactInfo.Identity)" Condition="'%(ArtifactInfo.AzureAssetsPath)' != ''">

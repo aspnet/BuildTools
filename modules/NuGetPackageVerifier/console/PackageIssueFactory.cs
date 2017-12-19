@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -10,6 +10,33 @@ namespace NuGetPackageVerifier
 {
     public static class PackageIssueFactory
     {
+        public static PackageVerifierIssue DotNetToolMustHaveManifest(string packageType, string path)
+        {
+            return new PackageVerifierIssue(
+                "DOTNET_TOOL_MANIFEST_MISSING",
+                string.Format("Packages with type '{0}' must have a tools manifest in {1}.", packageType, path),
+                PackageIssueLevel.Error
+            );
+        }
+
+        public static PackageVerifierIssue DotNetToolMissingEntryPoint(string filePath)
+        {
+            return new PackageVerifierIssue(
+                "DOTNET_TOOL_MISSING_ENTRY_POINT",
+                string.Format("The tools manifest in tools/DotNetSettings.xml specifies an entry point to {0}, but this file could not be found in the package.", filePath),
+                PackageIssueLevel.Error
+            );
+        }
+
+        public static PackageVerifierIssue DotNetToolMalformedManifest(string error)
+        {
+            return new PackageVerifierIssue(
+                "DOTNET_TOOL_MANIFEST_MALFORMED",
+                string.Format("The tool manifest in tools/DotNetSettings.xml is malformed: {0}", error),
+                PackageIssueLevel.Error
+            );
+        }
+
         public static PackageVerifierIssue PackageTypeMissing(string packageType)
         {
             return new PackageVerifierIssue(
@@ -39,7 +66,7 @@ namespace NuGetPackageVerifier
                 PackageIssueLevel.Error);
         }
 
-        public static PackageVerifierIssue AssemblyInformationalVersionDoesNotMatchPackageVersion(string assemblyPath, NuGetVersion assemblyInformationalVersion, NuGetVersion packageVersion, string packageId)
+        public static PackageVerifierIssue AssemblyInformationalVersionDoesNotMatchPackageVersion(string assemblyPath, string assemblyInformationalVersion, NuGetVersion packageVersion, string packageId)
         {
             return new PackageVerifierIssue(
                 "ASSEMBLY_INFORMATIONAL_VERSION_MISMATCH",

@@ -24,6 +24,8 @@ namespace NuGetPackageVerifier.Rules
             new StrictSemanticVersionValidationRule(),
             new DependenciesVersionRangeBoundsRule(),
             new DotNetCliToolPackageRule(),
+            new DotNetToolPackageRule(),
+            new PackageTypesRule(),
             new PackageVersionMatchesAssemblyVersionRule(),
             new BuildItemsRule(),
         };

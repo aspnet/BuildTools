@@ -4,7 +4,6 @@
 using System;
 using NuGet.Packaging;
 using NuGet.Packaging.Core;
-using NuGet.Versioning;
 
 namespace NuGetPackageVerifier
 {

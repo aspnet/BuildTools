@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -21,12 +21,23 @@ namespace NuGetPackageVerifier.Rules
                     typeof(AssemblyInformationalVersionAttribute).FullName,
                     StringComparison.Ordinal));
 
-                var assemblyInformationalNuGetVersion = new NuGetVersion(assemblyInformationalVersionAttribute.ConstructorArguments[0].Value.ToString());
+                var infoVersion = assemblyInformationalVersionAttribute?.ConstructorArguments[0].Value?.ToString();
+
+                if (!NuGetVersion.TryParse(infoVersion, out var assemblyInformationalNuGetVersion))
+                {
+                    yield return PackageIssueFactory.AssemblyInformationalVersionDoesNotMatchPackageVersion(
+                       assemblyData.Key,
+                       infoVersion,
+                       context.Metadata.Version,
+                       context.Metadata.Id);
+                    yield break;
+                }
+
                 if (!VersionEquals(context.Metadata.Version, assemblyInformationalNuGetVersion))
                 {
                     yield return PackageIssueFactory.AssemblyInformationalVersionDoesNotMatchPackageVersion(
                         assemblyData.Key,
-                        assemblyInformationalNuGetVersion,
+                        infoVersion,
                         context.Metadata.Version,
                         context.Metadata.Id);
                 }

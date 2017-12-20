@@ -62,7 +62,7 @@ Runs the VSTest on all projects in the ProjectsToTest itemgroup.
 
   <!-- The 'inner-build' -->
   <PropertyGroup>
-    <TrxFile>$(ArtifactsDir)tests\$(TestGroupName)-$(TargetFramework)-$(BuildNumber).trx</TrxFile>
+    <TrxFile>$(ArtifactsDir)logs\$(TestGroupName)-$(TargetFramework)-$(BuildNumber).trx</TrxFile>
     <VSTestLogger Condition=" '$(VSTestLogger)' == '' AND '$(TEAMCITY_VERSION)' != '' ">trx;LogFileName=$(TrxFile)</VSTestLogger>
     <!--
       Disable other test reporters if trx logging is enabled.

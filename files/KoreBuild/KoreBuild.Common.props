@@ -36,6 +36,7 @@ Default layout and configuration.
     <RepositoryRoot>$([MSBuild]::NormalizeDirectory('$(RepositoryRoot)'))</RepositoryRoot>
     <ArtifactsDir>$([MSBuild]::NormalizeDirectory('$(RepositoryRoot)'))artifacts\</ArtifactsDir>
     <BuildDir>$(ArtifactsDir)build\</BuildDir>
+    <LogOutputDir>$(ArtifactsDir)logs\</LogOutputDir>
     <IntermediateDir>$([MSBuild]::NormalizeDirectory('$(RepositoryRoot)'))obj\</IntermediateDir>
   </PropertyGroup>
 

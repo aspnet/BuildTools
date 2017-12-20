@@ -66,7 +66,7 @@ else
 fi
 
 korebuild_proj="$__script_dir/../KoreBuild.proj"
-msbuild_artifacts_dir="$repo_path/artifacts/msbuild"
+msbuild_artifacts_dir="$repo_path/artifacts/logs"
 msbuild_response_file="$msbuild_artifacts_dir/msbuild.rsp"
 msbuild_log_argument=""
 

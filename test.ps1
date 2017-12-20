@@ -17,4 +17,4 @@ if (!$NoBuild) {
 
 $toolsSource = "$PSScriptRoot/artifacts/"
 
-& .\scripts\bootstrapper\run.ps1 -Command $Command -Path $RepoPath -s $toolsSource -u @Arguments
+& .\scripts\bootstrapper\run.ps1 -Reinstall -Command $Command -Path $RepoPath -ToolsSource $toolsSource @Arguments

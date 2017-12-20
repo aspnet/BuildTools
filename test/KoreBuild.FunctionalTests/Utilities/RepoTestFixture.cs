@@ -29,7 +29,7 @@ namespace KoreBuild.FunctionalTests
 
         public string ScriptsDir { get; } = Path.Combine(_solutionDir, "scripts", "bootstrapper");
         public string ToolsSource { get; } = Path.Combine(_solutionDir, "artifacts");
-        public string LogDir { get; } = Path.Combine(_solutionDir, "artifacts", "tests");
+        public string LogDir { get; } = Path.Combine(_solutionDir, "artifacts", "logs");
         public string TestAssets { get; } = Path.Combine(_solutionDir, "testassets");
 
         public TestApp CreateTestApp(string name)

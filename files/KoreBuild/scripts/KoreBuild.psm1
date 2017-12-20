@@ -71,7 +71,7 @@ function Invoke-RepositoryBuild(
         Write-Verbose "dotnet = ${global:dotnet}"
 
         $makeFileProj = Join-Paths $PSScriptRoot ('..', 'KoreBuild.proj')
-        $msbuildArtifactsDir = Join-Paths $Path ('artifacts', 'msbuild')
+        $msbuildArtifactsDir = Join-Paths $Path ('artifacts', 'logs')
         $msBuildResponseFile = Join-Path $msbuildArtifactsDir msbuild.rsp
 
         $msBuildLogArgument = ""

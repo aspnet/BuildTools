@@ -65,7 +65,7 @@ elseif ($PublishType -eq 'blob') {
     Import-Module -Force -Scope Local $PSScriptRoot/obj/korebuild/KoreBuild.psd1
 
     Set-KoreBuildSettings -ToolsSource $ToolsSource -DotNetHome $DotNetHome -RepoPath $PSScriptRoot -ConfigFile $ConfigFile
-    Invoke-KoreBuildCommand 'default-build' '-t:Publish' "-p:PublishBlobFeedUrl=$PublishBlobFeedUrl" "-p:PublishBlobFeedKey=$PublishBlobFeedKey" '-bl:artifacts/msbuild/push.binlog'
+    Invoke-KoreBuildCommand 'default-build' '-t:Publish' "-p:PublishBlobFeedUrl=$PublishBlobFeedUrl" "-p:PublishBlobFeedKey=$PublishBlobFeedKey" '-bl:artifacts/logs/push.binlog'
 }
 else {
     throw "PublishType $PublishType not supported"

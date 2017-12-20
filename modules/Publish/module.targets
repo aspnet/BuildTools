@@ -4,8 +4,8 @@
 
     <PushToBlobFeed_Overwrite Condition="'$(PushToBlobFeed_Overwrite)' == ''">false</PushToBlobFeed_Overwrite>
     <PushToBlobFeed_MaxClients Condition="'$(PushToBlobFeed_MaxClients)' == ''">8</PushToBlobFeed_MaxClients>
-    <FileRelativePathBase Condition="'$(FileRelativePathBase)' == ''">assets</FileRelativePathBase>
-    <FileRelativePathBase Condition="!HasTrailingSlash('$(FileRelativePathBase)')">$(FileRelativePathBase)/</FileRelativePathBase>
+    <BlobFileRelativePathBase Condition="'$(BlobFileRelativePathBase)' == ''">assets</BlobFileRelativePathBase>
+    <BlobFileRelativePathBase Condition="!HasTrailingSlash('$(BlobFileRelativePathBase)')">$(BlobFileRelativePathBase)/</BlobFileRelativePathBase>
   </PropertyGroup>
 
   <Target Name="Publish" DependsOnTargets="$(PublishDependsOn)" />
@@ -20,7 +20,7 @@
     <ItemGroup>
       <PackagesToPublish Include="%(ArtifactInfo.Identity)" Condition="'%(ArtifactInfo.ArtifactType)' == 'NuGetPackage'" />
       <FilesToPublish Include="%(ArtifactInfo.Identity)" Condition="'%(ArtifactInfo.AzureAssetsPath)' != ''">
-        <RelativeBlobPath>$(FileRelativePathBase)%(ArtifactInfo.AzureAssetsPath)</RelativeBlobPath>
+        <RelativeBlobPath>$(BlobFileRelativePathBase)%(ArtifactInfo.AzureAssetsPath)</RelativeBlobPath>
       </FilesToPublish>
     </ItemGroup>
 

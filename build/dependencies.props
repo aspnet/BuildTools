@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <HtmlAgilityPackPackageVersion>1.5.1</HtmlAgilityPackPackageVersion>
-    <MicrosoftDotNetBuildTasksFeedPackageVersion>2.1.0-prerelease-02221-01</MicrosoftDotNetBuildTasksFeedPackageVersion>
+    <MicrosoftDotNetBuildTasksFeedPackageVersion>2.1.0-prerelease-02320-01</MicrosoftDotNetBuildTasksFeedPackageVersion>
     <MicrosoftDotNetPlatformAbstractionsVersion>2.0.0</MicrosoftDotNetPlatformAbstractionsVersion>
     <MicrosoftNETCoreApp20PackageVersion>2.0.0</MicrosoftNETCoreApp20PackageVersion>
     <MicrosoftNETCoreApp21PackageVersion>2.1.0-preview1-25907-02</MicrosoftNETCoreApp21PackageVersion>

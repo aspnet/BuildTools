@@ -14,6 +14,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 [ -z "${DOTNET_HOME:-}" ] && DOTNET_HOME="$HOME/.dotnet"
 verbose=false
 update=false
+reinstall=false
 repo_path="$DIR"
 channel=''
 tools_source=''
@@ -38,6 +39,7 @@ __usage() {
     echo "    -s|--tools-source|-ToolsSource <URL>                  The base url where build tools can be downloaded. Overrides the value from the config file."
     echo "    --tools-source-suffix|-ToolsSourceSuffix <SUFFIX>     The suffix to append to tools-source. Useful for query strings."
     echo "    -u|--update                                           Update to the latest KoreBuild even if the lock file is present."
+    echo "    --reinstall                                           Reinstall KoreBuild."
     echo ""
     echo "Description:"
     echo "    This function will create a file \$DIR/korebuild-lock.txt. This lock file can be committed to source, but does not have to be."
@@ -61,6 +63,10 @@ get_korebuild() {
     fi
     version="$(echo "${version#version:}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
     local korebuild_path="$DOTNET_HOME/buildtools/korebuild/$version"
+
+    if [ "$reinstall" = true ] && [ -d "$korebuild_path" ]; then
+        rm -rf "$korebuild_path"
+    fi
 
     {
         if [ ! -d "$korebuild_path" ]; then
@@ -174,6 +180,9 @@ while [[ $# -gt 0 ]]; do
             ;;
         -u|--update|-Update)
             update=true
+            ;;
+        --reinstall|-[Rr]einstall)
+            reinstall=true
             ;;
         --verbose|-Verbose)
             verbose=true

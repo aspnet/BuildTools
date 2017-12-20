@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using System.Xml.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -45,6 +46,14 @@ namespace KoreBuild.FunctionalTests
             // /t:TestNuGetPush
             Assert.True(File.Exists(Path.Combine(app.WorkingDirectory, "obj", "tmp-nuget", "Simple.Lib.1.0.0-beta-0001.nupkg")), "Build done a test push of all the packages");
             Assert.True(File.Exists(Path.Combine(app.WorkingDirectory, "obj", "tmp-nuget", "Simple.Sources.1.0.0-beta-0001.nupkg")), "Build done a test push of all the packages");
+
+            // /t:GenerateBillOfMaterials
+            var bom = Path.Combine(app.WorkingDirectory, "artifacts", "bom.xml");
+            Assert.True(File.Exists(bom));
+            var doc = XDocument.Load(bom);
+            var artifacts = doc.Descendants("Artifact");
+            Assert.NotEmpty(artifacts);
+            Assert.All(artifacts, a => Assert.NotEmpty(a.Attribute("FileHash").Value));
         }
 
         [Fact]

@@ -3,6 +3,7 @@
     <KoreBuildChannel>dev</KoreBuildChannel>
     <VersionPrefix>2.1.0</VersionPrefix>
     <VersionSuffix>preview1</VersionSuffix>
+    <BuildNumber Condition="'$(BuildNumber)' == ''">t000</BuildNumber>
     <VersionSuffix Condition="'$(VersionSuffix)' != '' AND '$(BuildNumber)' != ''">$(VersionSuffix)-$(BuildNumber)</VersionSuffix>
   </PropertyGroup>
 </Project>

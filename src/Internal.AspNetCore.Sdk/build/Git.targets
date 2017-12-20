@@ -20,7 +20,7 @@
     <DeterministicSourceRoot Condition=" '$(CI)' == 'true' ">/_/</DeterministicSourceRoot>
 
     <SourceLinkRoot Condition="'$(DeterministicSourceRoot)' != ''">$(DeterministicSourceRoot)</SourceLinkRoot>
-    <SourceLinkRoot Condition="'$(SourceLinkRoot)' == ''">$([MSBuild]::NormalizeDirectory($(RepositoryRoot)))</SourceLinkRoot>
+    <SourceLinkRoot Condition="'$(SourceLinkRoot)' == '' AND '$(RepositoryRoot)' != ''">$([MSBuild]::NormalizeDirectory($(RepositoryRoot)))</SourceLinkRoot>
 
     <PathMap Condition=" '$(DeterministicSourceRoot)' != '' ">$(RepositoryRoot)=$(DeterministicSourceRoot)</PathMap>
   </PropertyGroup>

@@ -24,5 +24,11 @@ namespace KoreBuild.Tasks
         public const int PackageRefPropertyGroupNotFound = 4008;
         public const int PackageReferenceDoesNotHaveVersion = 4009;
         public const int InvalidPackageVersion = 4010;
+
+        // Other errors
+        public const int MissingArtifactType = 5001;
+
+        // not used in code, but reserved for MSBuild targets
+        public const int ArtifactInfoMismatch = 5002;
     }
 }

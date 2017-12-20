@@ -55,11 +55,18 @@
   </ItemGroup>
 
   <Target Name="GetArtifactInfo" Returns="@(ArtifactInfo)">
+
+    <PropertyGroup>
+      <NormalizedPackageVersion>$(PackageVersion)</NormalizedPackageVersion>
+      <!-- Strip version metadata -->
+      <NormalizedPackageVersion Condition="$(NormalizedPackageVersion.Contains('+'))">$(PackageVersion.Substring(0, $(PackageVersion.IndexOf('+'))))</NormalizedPackageVersion>
+    </PropertyGroup>
+
     <ItemGroup>
-      <ArtifactInfo Include="$(PackageOutputPath)$(PackageId.ToLowerInvariant()).$(PackageVersion).nupkg">
+      <ArtifactInfo Include="$(PackageOutputPath)$(PackageId).$(NormalizedPackageVersion).nupkg">
         <ArtifactType>NuGetPackage</ArtifactType>
         <PackageId>$(PackageId)</PackageId>
-        <Version>$(PackageVersion)</Version>
+        <Version>$(NormalizedPackageVersion)</Version>
         <TargetFramework>$(TargetFramework)</TargetFramework>
         <RepositoryRoot>$(RepositoryRoot)</RepositoryRoot>
       </ArtifactInfo>

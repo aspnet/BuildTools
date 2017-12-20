@@ -7,6 +7,8 @@
     <DisablePackageReferenceRestrictions Condition=" '$(DisablePackageReferenceRestrictions)' == '' ">false</DisablePackageReferenceRestrictions>
     <KoreBuildConfigFile Condition="'$(KoreBuildConfigFile)' == ''">$(RepositoryRoot)korebuild.json</KoreBuildConfigFile>
     <DependencyVersionsFile Condition="'$(DependencyVersionsFile)' == ''">$(RepositoryRoot)build\dependencies.props</DependencyVersionsFile>
+    <BomPath>$(ArtifactsDir)bom.xml</BomPath>
+    <IgnoredArtifactItems>$(IgnoredArtifactItems);$(BomPath)</IgnoredArtifactItems>
   </PropertyGroup>
 
   <Target Name="EnableSkipStrongNames">
@@ -93,4 +95,21 @@
     </GetToolsets>
   </Target>
 
+  <Target Name="GenerateBillOfMaterials"
+          DependsOnTargets="GetArtifactInfo"
+          AfterTargets="Package"
+          Condition=" '$(SkipBillOfMaterials)' != 'true' ">
+
+    <ItemGroup>
+      <ArtifactInfo Update="@(ArtifactInfo)" Condition=" '$(CommitHash)' != '' AND '%(ArtifactInfo.CommitHash)' == '' ">
+        <CommitHash>$(CommitHash)</CommitHash>
+      </ArtifactInfo>
+    </ItemGroup>
+
+    <ComputeManyChecksum Items="@(ArtifactInfo)">
+      <Output TaskParameter="Items" ItemName="_ArtifactInfoWithFileHash" />
+    </ComputeManyChecksum>
+
+    <GenerateBillOfMaterials Artifacts="@(_ArtifactInfoWithFileHash)" OutputPath="$(BomPath)" />
+  </Target>
 </Project>

@@ -12,7 +12,7 @@ FYI: targets, properties, and items that begin with an underscore are meant to b
   <PropertyGroup Condition="'$(DisableDefaultTargets)' != 'true'">
     <PrepareDependsOn>$(PrepareDependsOn);_PrepareOutputPaths</PrepareDependsOn>
     <RestoreDependsOn>$(RestoreDependsOn);_BeforeRestore;RestoreSolutions</RestoreDependsOn>
-    <CompileDependsOn>$(CompileDependsOn);_CreateCommitHashArtifact;BuildSolutions</CompileDependsOn>
+    <CompileDependsOn>$(CompileDependsOn);BuildSolutions</CompileDependsOn>
     <PackageDependsOn>$(PackageDependsOn);PackageProjects;PackSharedSources</PackageDependsOn>
     <CleanDependsOn>$(CleanDependsOn);CleanArtifacts;CleanSolutions</CleanDependsOn>
     <RebuildDependsOn>$(RebuildDependsOn);RebuildSolutions</RebuildDependsOn>
@@ -29,19 +29,6 @@ FYI: targets, properties, and items that begin with an underscore are meant to b
 
   <Target Name="_PrepareOutputPaths">
     <MakeDir Directories="$(ArtifactsDir);$(BuildDir)" />
-  </Target>
-
-  <!-- The filename that will contain the commit hash -->
-  <PropertyGroup>
-    <_CommitArtifactFileName>commit</_CommitArtifactFileName>
-  </PropertyGroup>
-
-  <Target Name="_CreateCommitHashArtifact" DependsOnTargets="Prepare">
-    <WriteLinesToFile
-      File="$(ArtifactsDir)$(_CommitArtifactFileName)"
-      Overwrite="true"
-      Lines="$(CommitHash)"
-      Condition="'$(CommitHash)' != ''" />
   </Target>
 
 <!--

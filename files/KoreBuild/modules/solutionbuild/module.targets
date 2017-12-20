@@ -22,7 +22,7 @@ FYI: targets, properties, and items that begin with an underscore are meant to b
   <Target Name="CleanArtifacts">
     <RemoveDir Directories="$(BuildDir);$(IntermediateDir)" />
     <ItemGroup>
-      <_FilesToDelete Include="$(ArtifactsDir)**\*" Exclude="$(ArtifactsDir)msbuild\**\*" />
+      <_FilesToDelete Include="$(ArtifactsDir)**\*" Exclude="$(LogOutputDir)**\*" />
     </ItemGroup>
     <Delete Files="@(_FilesToDelete)" />
   </Target>

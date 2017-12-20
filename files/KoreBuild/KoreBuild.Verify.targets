@@ -4,7 +4,7 @@
 <Project>
 
   <PropertyGroup>
-    <IgnoredArtifactItems>$(IgnoredArtifactItems);$(ArtifactsDir)msbuild\**\*;</IgnoredArtifactItems>
+    <IgnoredArtifactItems>$(IgnoredArtifactItems);$(LogOutputDir)**\*;</IgnoredArtifactItems>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(DisableDefaultTargets)' == 'true'">

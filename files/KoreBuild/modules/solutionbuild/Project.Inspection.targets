@@ -13,9 +13,10 @@
         <PackageId>$(PackageId)</PackageId>
         <Version>$(NormalizedPackageVersion)</Version>
         <TargetFramework>$(TargetFramework)</TargetFramework>
-        <TargetFrameworks>$(TargetFrameworks)</TargetFrameworks>
+        <TargetFrameworks>$([MSBuild]::Escape($(TargetFrameworks)))</TargetFrameworks>
         <PackageType>$(PackageType)</PackageType>
         <RepositoryRoot>$(RepositoryRoot)</RepositoryRoot>
+        <Category>$(PackageArtifactCategory)</Category>
       </ArtifactInfo>
 
       <ArtifactInfo Include="$(PackageOutputPath)$(PackageId).$(NormalizedPackageVersion).symbols.nupkg" Condition="'$(IncludeSymbols)' == 'true' AND '$(NuspecFile)' == ''">
@@ -23,10 +24,11 @@
         <PackageId>$(PackageId)</PackageId>
         <Version>$(NormalizedPackageVersion)</Version>
         <TargetFramework>$(TargetFramework)</TargetFramework>
-        <TargetFrameworks>$(TargetFrameworks)</TargetFrameworks>
+        <TargetFrameworks>$([MSBuild]::Escape($(TargetFrameworks)))</TargetFrameworks>
         <SourceIncluded>$(IncludeSource)</SourceIncluded>
         <PackageType>$(PackageType)</PackageType>
         <RepositoryRoot>$(RepositoryRoot)</RepositoryRoot>
+        <Category>$(PackageArtifactCategory)</Category>
       </ArtifactInfo>
     </ItemGroup>
   </Target>

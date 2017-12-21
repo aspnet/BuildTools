@@ -3,14 +3,22 @@
   <PropertyGroup>
     <PrepareDependsOn Condition=" '$(DisableDefaultTargets)' != 'true' ">GetToolsets;$(PrepareDependsOn)</PrepareDependsOn>
     <RestoreDependsOn Condition=" '$(DisableDefaultTargets)' != 'true' ">InstallDotNet;CheckPackageReferences;$(RestoreDependsOn)</RestoreDependsOn>
+    <GenerateBillOfMaterials Condition="'$(GenerateBillOfMaterials)' == ''">true</GenerateBillOfMaterials>
 
     <DisablePackageReferenceRestrictions Condition=" '$(DisablePackageReferenceRestrictions)' == '' ">false</DisablePackageReferenceRestrictions>
     <KoreBuildConfigFile Condition="'$(KoreBuildConfigFile)' == ''">$(RepositoryRoot)korebuild.json</KoreBuildConfigFile>
     <DependencyVersionsFile Condition="'$(DependencyVersionsFile)' == ''">$(RepositoryRoot)build\dependencies.props</DependencyVersionsFile>
-    <BomPath>$(ArtifactsDir)bom.xml</BomPath>
+    <BomPath>$(ArtifactsDir)manifest.xml</BomPath>
     <IgnoredArtifactItems>$(IgnoredArtifactItems);$(BomPath)</IgnoredArtifactItems>
   </PropertyGroup>
 
+<!--
+####################################################################################
+Target: En/DisableSkipStrongNames
+
+These targets configure strong name verification for .NET Framework
+####################################################################################
+-->
   <Target Name="EnableSkipStrongNames">
     <EnableSkipStrongName
       XmlFile="$(SkipStrongNamesXml)" />
@@ -21,6 +29,13 @@
       XmlFile="$(SkipStrongNamesXml)" />
   </Target>
 
+<!--
+####################################################################################
+Target: InstallDotNet
+
+Downloads and extracts .NET Core shared runtimes and SDKs.
+####################################################################################
+-->
   <Target Name="InstallDotNet">
     <PropertyGroup>
       <_DotNetInstall>$(MSBuildThisFileDirectory)..\..\scripts\dotnet-install</_DotNetInstall>
@@ -34,6 +49,14 @@
       InstallScript="$(_DotNetInstall)"/>
   </Target>
 
+
+<!--
+####################################################################################
+Target: CheckPackageReferences
+
+Validates that all PackageReference's use the $(IdPackageVersion) pattern.
+####################################################################################
+-->
   <ItemGroup>
     <CommonlyImportedFiles Include="$(RepositoryRoot)Directory.Build.props" />
     <CommonlyImportedFiles Include="$(RepositoryRoot)Directory.Build.targets" />
@@ -61,6 +84,15 @@
       Properties="$(SolutionProperties)"/>
   </Target>
 
+<!--
+####################################################################################
+Target: UpgradeDependencies
+
+Fetchs a remote configuration of latest dependencies to use, and modifies the
+dependencies.props file in the current project to use latest versions.
+####################################################################################
+-->
+
   <!-- See also DependenciesUpgradeCommand.cs in KoreBuild.Console for a more discoverable way to run this. -->
   <Target Name="UpgradeDependencies">
     <Error Text="LineupPackageId was not set." Condition="'$(LineupPackageId)' == ''" />
@@ -73,6 +105,14 @@
       LineupPackageRestoreSource="$(LineupPackageRestoreSource)" />
   </Target>
 
+<!--
+####################################################################################
+Target: GenerateDependenciesPropsFile
+
+Generates a dependencies.props file from existing MSBuild projects, replacing
+explicit versions with version variables.
+####################################################################################
+-->
   <!-- See also DependenciesGenerateCommand.cs in KoreBuild.Console for a more discoverable way to run this. -->
   <Target Name="GenerateDependenciesPropsFile" DependsOnTargets="ResolveSolutions">
     <ItemGroup>
@@ -86,6 +126,14 @@
       Properties="$(SolutionProperties)" />
   </Target>
 
+<!--
+####################################################################################
+Target: GetToolsets
+
+Parses the korebuild.json file and finds required toolsets such as Visual Studio
+and NodeJS.
+####################################################################################
+-->
   <!-- This target asserts that all tools listed in korebuild.json are available. -->
   <Target Name="GetToolsets" Condition="Exists($(KoreBuildConfigFile))">
     <GetToolsets ConfigFile="$(KoreBuildConfigFile)">
@@ -95,10 +143,23 @@
     </GetToolsets>
   </Target>
 
+<!--
+####################################################################################
+Target: GenerateBillOfMaterials
+
+Generates a manifest containing metadata about the all artifacts produced in a build.
+
+[in] (items) ArtifactInfo
+[in] (prop) CommitHash
+
+[out] BomPath - the bom file
+
+####################################################################################
+-->
   <Target Name="GenerateBillOfMaterials"
           DependsOnTargets="GetArtifactInfo"
           AfterTargets="Package"
-          Condition=" '$(SkipBillOfMaterials)' != 'true' ">
+          Condition=" '$(GenerateBillOfMaterials)' == 'true' ">
 
     <ItemGroup>
       <ArtifactInfo Update="@(ArtifactInfo)" Condition=" '$(CommitHash)' != '' AND '%(ArtifactInfo.CommitHash)' == '' ">
@@ -112,4 +173,5 @@
 
     <GenerateBillOfMaterials Artifacts="@(_ArtifactInfoWithFileHash)" OutputPath="$(BomPath)" />
   </Target>
+
 </Project>

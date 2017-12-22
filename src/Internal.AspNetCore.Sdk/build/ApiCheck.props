@@ -20,6 +20,7 @@
     <ExcludePublicInternalTypes_InApiCheck Condition=" '$(ExcludePublicInternalTypes_InApiCheck)' == '' ">true</ExcludePublicInternalTypes_InApiCheck>
 
     <!-- Hook API checks into Pack run, prior to creating the .nupkg but after build (if any). -->
+    <GenerateNuspecDependsOn Condition=" '$(GenerateBaselines)' == 'true'">$(GenerateNuspecDependsOn);Generate-ApiCheck-Baselines</GenerateNuspecDependsOn>
     <GenerateNuspecDependsOn>$(GenerateNuspecDependsOn);ApiCheck</GenerateNuspecDependsOn>
-  </PropertyGroup>
+    </PropertyGroup>
 </Project>

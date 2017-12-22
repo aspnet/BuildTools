@@ -12,9 +12,14 @@
       <_DepsOutputDirectory>$(MSBuildProjectDirectory)\$(BaseIntermediateOutputPath)</_DepsOutputDirectory>
       <_WorkingDirectory>$(_DepsOutputDirectory)\depswork</_WorkingDirectory>
       <_BasePackagePath>content\additionaldeps\</_BasePackagePath>
+      <_RuntimeStoreManifestFile>$(_DepsOutputDirectory)\rs.csproj</_RuntimeStoreManifestFile>
+      <_RuntimeStoreOutput>$(_DepsOutputDirectory)\rs\</_RuntimeStoreOutput>
     </PropertyGroup>
 
     <ItemGroup>
+      <HostingStartupRuntimeStoreFrameworks Condition="'@(HostingStartupRuntimeStoreFrameworks->Count())' == '0'" Include="netcoreapp2.0;netcoreapp2.1" />
+      <HostingStartupRuntimeStoreRuntimes Condition="'@(HostingStartupRuntimeStoreRuntimes->Count())' == '0'" Include="win7-x64;win7-x86" />
+
       <_TemplateFiles Include="$(MSBuildThisFileDirectory)..\content\HostingStartup\**\*" />
       <_HostingStartupPackageReference
         Include="%(HostingStartupPackageReference.Identity)"
@@ -27,8 +32,18 @@
         TrimmedDepsFile="$(_DepsOutputDirectory)%(HostingStartupPackageReference.Identity)\%(HostingStartupPackageReference.Identity).deps.json"
         PackagePath="$(_BasePackagePath)%(HostingStartupPackageReference.Identity)\shared\Microsoft.NETCore.App\$(HostingStartupRuntimeFrameworkVersion)\"
          />
+
+        <ManifestLines Include="&lt;Project Sdk=&quot;Microsoft.NET.Sdk&quot;&gt;&lt;ItemGroup&gt;" />
+        <ManifestLines Include="&lt;PackageReference Include=&quot;%(HostingStartupPackageReference.Identity)&quot; Version=&quot;%(HostingStartupPackageReference.Version)&quot; /&gt;" />
+        <ManifestLines Include="&lt;/ItemGroup&gt;&lt;/Project&gt;" />
+
     </ItemGroup>
 
+    <!-- Generate runtime store -->
+    <WriteLinesToFile File="$(_RuntimeStoreManifestFile)" Lines="@(ManifestLines)" Overwrite="true" Encoding="Unicode"/>
+    <Exec Command="dotnet store -m $(_RuntimeStoreManifestFile) -f %(HostingStartupRuntimeStoreFrameworks.Identity) --framework-version $(HostingStartupRuntimeFrameworkVersion) -r %(HostingStartupRuntimeStoreRuntimes.Identity) --output $(_RuntimeStoreOutput) --skip-optimization" />
+
+    <!-- Generate deps -->
     <RemoveDir Directories="%(_HostingStartupPackageReference.WorkingDirectory)" />
 
     <Copy SourceFiles="@(_TemplateFiles)" DestinationFolder="%(_HostingStartupPackageReference.WorkingDirectory)" />

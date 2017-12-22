@@ -3,6 +3,16 @@
   for use outside of Microsoft.
 -->
 <Project>
+
+  <Target
+      Name="Generate-ApiCheck-Baselines" >
+
+    <MSBuild Projects="$(MSBuildProjectFullPath)"
+      Targets="Generate-ApiCheck-Baselines"
+      Properties="TargetFramework=%(_TargetFrameworks.Identity)"
+      RemoveProperties="TargetFrameworks" />
+  </Target>
+
   <Target Name="ApiCheck" Condition=" '$(EnableApiCheck)' == 'true' ">
     <ItemGroup>
       <_TargetFrameworks Remove="@(_TargetFrameworks)" />

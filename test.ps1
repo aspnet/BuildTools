@@ -2,8 +2,6 @@
 #requires -version 4
 [CmdletBinding(PositionalBinding = $true)]
 param(
-    [Parameter]
-    [string]$Command = 'default-build',
     [Parameter(Mandatory = $true)]
     [string]$RepoPath,
     [switch]$NoBuild = $false,
@@ -27,7 +25,7 @@ foreach ($line in Get-Content $latestFile) {
 
 $packageDir = Join-Path $toolsSource "build\"
 
-$Arguments += ,"/p:InternalAspNetCoreSdkPackageVersion=$toolsVersion"
-$Arguments += ,"/p:DotNetRestoreSources=$packageDir"
+$Arguments += , "/p:InternalAspNetCoreSdkPackageVersion=$toolsVersion"
+$Arguments += , "/p:DotNetRestoreSources=$packageDir"
 
 & .\scripts\bootstrapper\build.ps1 -Update -Reinstall -Path $RepoPath -ToolsSource $toolsSource @Arguments

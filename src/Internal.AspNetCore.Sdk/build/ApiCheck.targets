@@ -17,7 +17,7 @@
       DependsOnTargets="_GetApiListingFile"
       Condition=" '$(EnableApiCheck)' == 'true' " >
     <ApiCheckGenerateTask
-      ApiListingPath="$(_ApiListingFile)"
+      ApiListingPath="$(_ApiListingFilePath)"
       AssemblyPath="$(TargetPath)"
       Framework="$(TargetFramework)"
       ExcludePublicInternalTypes="$(ExcludePublicInternalTypes_InApiCheck)"

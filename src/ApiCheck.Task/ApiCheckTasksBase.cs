@@ -141,16 +141,18 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
             }
 
             arguments += $@" --assembly ""{AssemblyPath}"" --framework {Framework}";
-            arguments += $@" --project ""{ProjectAssetsPath}"" --api-listing ""{ApiListingPath}""";
+            arguments += $@" --project ""{ProjectAssetsPath}""";
+            if (command == "compare")
+            {
+                arguments += $@" --api-listing ""{ApiListingPath}""";
+            }
+
+            if (command == "generate")
+            {
+                arguments += $@" --out {ApiListingPath}";
+            }
 
             return arguments;
-        }
-
-        /// <inheritdoc />
-        protected override string GetWorkingDirectory()
-        {
-            // Working directory should not matter. Use project folder because it is a well-known location.
-            return Path.GetDirectoryName(ApiListingPath);
         }
     }
 }

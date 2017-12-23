@@ -6,8 +6,8 @@
     <PackageType>DotnetTool</PackageType>
     <AssemblyName>cowsay</AssemblyName>
     <PackageId>Simple.CliTool</PackageId>
-    <AssemblySigningCert>TestCert</AssemblySigningCert>
-    <PackageSigningCert></PackageSigningCert>
+    <AssemblySigningCertName>TestCert</AssemblySigningCertName>
+    <PackageSigningCertName></PackageSigningCertName>
     <NuspecFile>$(MSBuildProjectName).nuspec</NuspecFile>
   </PropertyGroup>
 
@@ -15,7 +15,7 @@
     <PackageReference Include="Newtonsoft.Json" PrivateAssets="All" Version="$(NewtonsoftJsonPackageVersion)" />
 
     <!-- Required to specify manually when using nuspec. -->
-    <SignedPackageFile Include="$(TargetPath)" Certificate="$(AssemblySigningCert)" Visible="false">
+    <SignedPackageFile Include="$(TargetPath)" Certificate="$(AssemblySigningCertName)" Visible="false">
       <PackagePath>tools/$(TargetFramework)/any/$(TargetFileName)</PackagePath>
     </SignedPackageFile>
 

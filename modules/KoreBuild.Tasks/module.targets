@@ -174,7 +174,7 @@ Generates a manifest that contains signin requests for files.
       <Sign Include="@(ArtifactInfo)" Condition=" '%(ArtifactInfo.ShouldBeSigned)' == 'true' " />
     </ItemGroup>
 
-    <GenerateSignRequests
+    <GenerateSignRequest
       Requests="@(Sign)"
       Exclusions="@(ExcludeFromSigning)"
       BasePath="$(ArtifactsDir)"

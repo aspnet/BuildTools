@@ -14,7 +14,7 @@ namespace KoreBuild.Tasks
     /// The items are expected to be files.
     /// </para>
     /// </summary>
-    public class GenerateSignRequests : Microsoft.Build.Utilities.Task
+    public class GenerateSignRequest : Microsoft.Build.Utilities.Task
     {
         /// <summary>
         /// Files or containers of files that should be signed.

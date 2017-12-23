@@ -12,11 +12,11 @@ using Xunit.Abstractions;
 
 namespace KoreBuild.Tasks.Tests
 {
-    public class GenerateSignRequestsTests
+    public class GenerateSignRequestTests
     {
         private readonly ITestOutputHelper _output;
 
-        public GenerateSignRequestsTests(ITestOutputHelper output)
+        public GenerateSignRequestTests(ITestOutputHelper output)
         {
             _output = output;
         }
@@ -64,7 +64,7 @@ namespace KoreBuild.Tasks.Tests
                     })
             };
 
-            var task = new GenerateSignRequests
+            var task = new GenerateSignRequest
             {
                 Requests = requests,
                 BasePath = AppContext.BaseDirectory,
@@ -76,14 +76,14 @@ namespace KoreBuild.Tasks.Tests
 
             Assert.True(task.Execute(() => new StringWriter(sb)), "Task should pass");
 
-            var expected = $@"<SignRequests>
+            var expected = $@"<SignRequest>
   <File Path=`build/MyLib.dll` Certificate=`Cert1` />
   <Container Path=`build/MyLib.nupkg` Type=`zip`>
     <ExcludedFile Path=`lib/NotMyLib.dll` />
     <File Path=`lib/netstandard2.0/MyLib.dll` Certificate=`Cert1` StrongName=`Key1` />
   </Container>
   <Container Path=`build/ZZApp.vsix` Type=`vsix` Certificate=`Cert4` />
-</SignRequests>".Replace('`', '"');
+</SignRequest>".Replace('`', '"');
             _output.WriteLine(sb.ToString());
 
             Assert.Equal(expected, sb.ToString(), ignoreLineEndingDifferences: true, ignoreWhiteSpaceDifferences: true);

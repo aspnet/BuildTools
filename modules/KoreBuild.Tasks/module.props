@@ -14,7 +14,7 @@
   <UsingTask TaskName="KoreBuild.Tasks.GenerateBillOfMaterials" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.GenerateDependenciesPropsFile" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.GeneratePackageVersionPropsFile" AssemblyFile="$(KoreBuildTasksDll)" />
-  <UsingTask TaskName="KoreBuild.Tasks.GenerateSignRequests" AssemblyFile="$(KoreBuildTasksDll)" />
+  <UsingTask TaskName="KoreBuild.Tasks.GenerateSignRequest" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.GetToolsets" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.InstallDotNet" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.PackNuSpec" AssemblyFile="$(KoreBuildTasksDll)" />

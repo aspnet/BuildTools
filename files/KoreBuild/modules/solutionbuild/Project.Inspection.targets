@@ -22,8 +22,8 @@
         <PackageType>$(PackageType)</PackageType>
         <RepositoryRoot>$(RepositoryRoot)</RepositoryRoot>
         <Category>$(PackageArtifactCategory)</Category>
-        <Certificate>$(PackageSigningCert)</Certificate>
-        <ShouldBeSigned Condition="'$(PackageSigningCert)' != '' OR @(SignedPackageFile->Count()) != 0 ">true</ShouldBeSigned>
+        <Certificate>$(PackageSigningCertName)</Certificate>
+        <ShouldBeSigned Condition="'$(PackageSigningCertName)' != '' OR @(SignedPackageFile->Count()) != 0 ">true</ShouldBeSigned>
         <IsContainer>true</IsContainer>
       </ArtifactInfo>
 
@@ -37,8 +37,8 @@
         <PackageType>$(PackageType)</PackageType>
         <RepositoryRoot>$(RepositoryRoot)</RepositoryRoot>
         <Category>$(PackageArtifactCategory)</Category>
-        <Certificate>$(PackageSigningCert)</Certificate>
-        <ShouldBeSigned Condition="'$(PackageSigningCert)' != '' OR @(SignedPackageFile->Count()) != 0 ">true</ShouldBeSigned>
+        <Certificate>$(PackageSigningCertName)</Certificate>
+        <ShouldBeSigned Condition="'$(PackageSigningCertName)' != '' OR @(SignedPackageFile->Count()) != 0 ">true</ShouldBeSigned>
         <IsContainer>true</IsContainer>
       </ArtifactInfo>
 
@@ -92,16 +92,16 @@ Items:
           Condition=" '$(TargetFramework)' != '' "
           DependsOnTargets="BuiltProjectOutputGroup;SatelliteDllsProjectOutputGroup">
 
-    <ItemGroup Condition=" '$(NuspecFile)' == '' AND '$(IncludeBuildOutput)' != 'false' AND ('$(AssemblySigningCert)' != '' OR '$(AssemblySigningStrongName)' != '') ">
+    <ItemGroup Condition=" '$(NuspecFile)' == '' AND '$(IncludeBuildOutput)' != 'false' AND ('$(AssemblySigningCertName)' != '' OR '$(AssemblySigningStrongName)' != '') ">
       <SignedPackageFile Include="@(BuiltProjectOutputGroupOutput)">
         <PackagePath>$(BuildOutputTargetFolder)/$(TargetFramework)/%(BuiltProjectOutputGroupOutput.FileName)%(BuiltProjectOutputGroupOutput.Extension)</PackagePath>
-        <Certificate>$(AssemblySigningCert)</Certificate>
+        <Certificate>$(AssemblySigningCertName)</Certificate>
         <StrongName>$(AssemblySigningStrongName)</StrongName>
       </SignedPackageFile>
 
       <SignedPackageFile Include="@(SatelliteDllsProjectOutputGroupOutput)">
         <PackagePath>$(BuildOutputTargetFolder)/$(TargetFramework)/%(SatelliteDllsProjectOutputGroupOutput.FileName)%(SatelliteDllsProjectOutputGroupOutput.Extension)</PackagePath>
-        <Certificate>$(AssemblySigningCert)</Certificate>
+        <Certificate>$(AssemblySigningCertName)</Certificate>
         <StrongName>$(AssemblySigningStrongName)</StrongName>
       </SignedPackageFile>
     </ItemGroup>

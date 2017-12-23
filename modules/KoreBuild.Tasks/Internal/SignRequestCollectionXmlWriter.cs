@@ -17,7 +17,7 @@ namespace KoreBuild.Tasks
         public SignRequestCollectionXmlWriter(TextWriter output)
         {
             this.output = output;
-            document = new XDocument(new XElement("SignRequests"));
+            document = new XDocument(new XElement("SignRequest"));
         }
 
         public void Save()

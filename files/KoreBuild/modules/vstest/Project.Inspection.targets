@@ -2,11 +2,12 @@
 
   <PropertyGroup>
     <GetTestAssemblyDependsOn Condition="'$(TargetFramework)' != ''">GetTargetPath</GetTestAssemblyDependsOn>
-    <TestGroupName Condition="'$(TestGroupName)' == ''">UnitTests</TestGroupName>
+    <!-- TestGroupNamePrefix can be set externally when building multiple repos together -->
+    <TestGroupName Condition="'$(TestGroupName)' == ''">$(TestGroupNamePrefix)UnitTests</TestGroupName>
   </PropertyGroup>
 
   <Target Name="GetTestAssembly" DependsOnTargets="$(GetTestAssemblyDependsOn)" Returns="@(TestAssembly)">
-    <ItemGroup Condition=" '$(IsTestProject)' == 'true' ">
+    <ItemGroup Condition=" '$(IsTestProject)' == 'true' OR ('$(IsTestProject)' == '' AND @(PackageReference->WithMetadataValue('Identity', 'Microsoft.NET.Test.Sdk')->Count()) != 0)">
       <TestAssembly Include="@(TargetPathWithTargetPlatformMoniker)">
         <TargetFramework>$(TargetFramework)</TargetFramework>
         <TestGroupName>$(TestGroupName)</TestGroupName>

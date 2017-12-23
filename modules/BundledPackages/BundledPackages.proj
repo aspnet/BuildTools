@@ -10,6 +10,7 @@
     <MSBuild Projects="@(Projects)"
       Targets="Pack"
       Properties="PackageOutputPath=$(PublishDir);Configuration=$(Configuration);BuildNumber=$(BuildNumber)"
+      BuildInParallel="true"
       RemoveProperties="PublishDir" />
 
     <Copy SourceFiles="module.props" DestinationFolder="$(PublishDir)" />

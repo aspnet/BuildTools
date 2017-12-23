@@ -23,8 +23,8 @@ namespace KoreBuild.Tasks.Tests
         public void ItSerializesBomToXml()
         {
             var bom = new BillOfMaterials();
-            var test = bom.AddArtifact("Test", "NuGetPackage").SetMetadata("ShouldBeSigned", "false");
-            var ship = bom.AddArtifact("Shipping", "NuGetPackage").SetMetadata("ShouldBeSigned", "true");
+            var test = bom.AddArtifact("Test", "NuGetPackage").SetMetadata("TargetFramework", "netstandard2.0");
+            var ship = bom.AddArtifact("Shipping", "NuGetPackage");
             ship.Category = "Ship";
 
             bom.Dependencies.AddLink(test, ship);
@@ -38,10 +38,10 @@ namespace KoreBuild.Tasks.Tests
 
             var expected = $@"<Build>
   <Artifacts>
-    <Artifact Id=`Test` Type=`NuGetPackage` ShouldBeSigned=`false` />
+    <Artifact Id=`Test` Type=`NuGetPackage` TargetFramework=`netstandard2.0` />
   </Artifacts>
   <Artifacts Category=`Ship`>
-    <Artifact Id=`Shipping` Type=`NuGetPackage` ShouldBeSigned=`true` />
+    <Artifact Id=`Shipping` Type=`NuGetPackage` />
   </Artifacts>
   <Dependencies>
     <Link Source=`Test` Target=`Shipping` />

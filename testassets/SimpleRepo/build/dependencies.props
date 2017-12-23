@@ -4,7 +4,8 @@
   </PropertyGroup>
   <PropertyGroup Label="Package Versions">
     <InternalAspNetCoreSdkPackageVersion>0.0.1</InternalAspNetCoreSdkPackageVersion>
-    <MicrosoftNETTestSdkPackageVersion>15.3.0</MicrosoftNETTestSdkPackageVersion>
+    <NewtonsoftJsonPackageVersion>10.0.1</NewtonsoftJsonPackageVersion>
+    <MicrosoftNETTestSdkPackageVersion>15.5.0</MicrosoftNETTestSdkPackageVersion>
     <XunitPackageVersion>2.3.1</XunitPackageVersion>
     <XunitRunnerVisualStudioPackageVersion>2.3.1</XunitRunnerVisualStudioPackageVersion>
   </PropertyGroup>

@@ -76,7 +76,7 @@ namespace KoreBuild.Tasks
 
                     if (string.IsNullOrEmpty(type))
                     {
-                        Log.LogError("Signing request containers must specify the metadata 'Type'.");
+                        Log.LogError($"Unknown container type for signed file request:'{item.ItemSpec}'. Signing request container must specify the metadata 'Type'.");
                         continue;
                     }
 
@@ -100,6 +100,7 @@ namespace KoreBuild.Tasks
                 }
 
                 var item = Requests[i];
+                var normalizedPath = NormalizePath(BasePath, item.ItemSpec);
                 var containerPath = item.GetMetadata("Container");
                 if (!string.IsNullOrEmpty(containerPath))
                 {
@@ -108,15 +109,15 @@ namespace KoreBuild.Tasks
                         Log.LogError($"Signing request item '{item.ItemSpec}' specifies an unknown container '{containerPath}'.");
                         continue;
                     }
-
-                    var file = new SignRequestItem.File(item.ItemSpec,
+                    var packagePath = item.GetMetadata("PackagePath");
+                    normalizedPath = string.IsNullOrEmpty(packagePath) ? normalizedPath : packagePath.Replace('\\', '/');
+                    var file = new SignRequestItem.File(normalizedPath,
                         item.GetMetadata("Certificate"),
                         item.GetMetadata("StrongName"));
                     container.AddItem(file);
                 }
                 else
                 {
-                    var normalizedPath = NormalizePath(BasePath, item.ItemSpec);
                     var file = new SignRequestItem.File(normalizedPath,
                       item.GetMetadata("Certificate"),
                       item.GetMetadata("StrongName"));
@@ -126,6 +127,8 @@ namespace KoreBuild.Tasks
 
             foreach (var item in Exclusions)
             {
+                var normalizedPath = NormalizePath(BasePath, item.ItemSpec);
+
                 var containerPath = item.GetMetadata("Container");
                 if (!string.IsNullOrEmpty(containerPath))
                 {
@@ -135,12 +138,13 @@ namespace KoreBuild.Tasks
                         continue;
                     }
 
-                    var file = new SignRequestItem.Exclusion(item.ItemSpec);
+                    var packagePath = item.GetMetadata("PackagePath");
+                    normalizedPath = string.IsNullOrEmpty(packagePath) ? normalizedPath : packagePath.Replace('\\', '/');
+                    var file = new SignRequestItem.Exclusion(normalizedPath);
                     container.AddItem(file);
                 }
                 else
                 {
-                    var normalizedPath = NormalizePath(BasePath, item.ItemSpec);
                     var file = new SignRequestItem.Exclusion(normalizedPath);
                     signRequestCollection.Add(file);
                 }
@@ -169,7 +173,7 @@ namespace KoreBuild.Tasks
             switch (Path.GetExtension(item.ItemSpec).ToLowerInvariant())
             {
                 case ".nupkg":
-                    type = ".nupkg";
+                    type = "nupkg";
                     break;
                 case ".zip":
                     type = "zip";

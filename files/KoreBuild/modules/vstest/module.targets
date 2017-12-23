@@ -33,6 +33,7 @@ Runs the VSTest on all projects in the ProjectsToTest itemgroup.
       Targets="GetTestAssembly"
       Properties="$(SolutionProperties);CustomAfterMicrosoftCommonTargets=$(_InspectionTargetsFile);CustomAfterMicrosoftCommonCrossTargetingTargets=$(_InspectionTargetsFile);%(ProjectsToTest.AdditionalProperties)"
       Condition="@(ProjectsToTest->Count()) != 0"
+      BuildInParallel="true"
       RemoveProperties="$(_BuildPropertiesToRemove)">
       <Output TaskParameter="TargetOutputs" ItemName="TestAssembly" />
     </MSBuild>
@@ -57,6 +58,7 @@ Runs the VSTest on all projects in the ProjectsToTest itemgroup.
     <MSBuild Projects="@(TestGroups)"
              Targets="_ExecuteTestAssemblies"
              Condition="@(TestGroups->Count()) != 0"
+             BuildInParallel="false"
              ContinueOnError="$(_TestContinueOnError)" />
   </Target>
 

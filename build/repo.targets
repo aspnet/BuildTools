@@ -59,7 +59,8 @@
 
     <MSBuild Targets="Publish"
       Projects="@(_ToolsProjects)"
-      Properties="$(SolutionProperties)" />
+      Properties="$(SolutionProperties)"
+      BuildInParallel="true" />
 
     <ItemGroup>
       <Content Include="$(RepositoryRoot)files\KoreBuild\**\*" />
@@ -80,7 +81,8 @@
 
     <MSBuild Targets="Publish"
       Projects="@(_ModuleProjects)"
-      Properties="$(SolutionProperties)" />
+      Properties="$(SolutionProperties)"
+      BuildInParallel="true" />
 
     <ItemGroup>
       <KoreBuildFiles Include="$(_KoreBuildIntermediateDir)**\*" />

@@ -77,7 +77,8 @@ Executes /t:{Target} on all solutions
     <MSBuild Targets="Restore"
       Projects="@(Solutions)"
       Properties="$(SolutionProperties);_SolutionTarget=Restore"
-      RemoveProperties="$(_BuildPropertiesToRemove)" />
+      RemoveProperties="$(_BuildPropertiesToRemove)"
+      BuildInParallel="$(BuildInParallel)" />
   </Target>
 
   <Target Name="CleanSolutions" DependsOnTargets="ResolveSolutions;_EnsureSolutions">
@@ -88,6 +89,7 @@ Executes /t:{Target} on all solutions
     <MSBuild Targets="Clean"
       Projects="@(Solutions)"
       Properties="$(SolutionProperties);_SolutionTarget=Clean"
+      BuildInParallel="$(BuildInParallel)"
       RemoveProperties="$(_BuildPropertiesToRemove)" />
   </Target>
 
@@ -106,7 +108,8 @@ Executes /t:{Target} on all solutions
   <Target Name="RebuildSolutions" DependsOnTargets="ResolveSolutions;_EnsureSolutions">
     <MSBuild Targets="Rebuild"
       Projects="@(Solutions)"
-      RemoveProperties="$(_BuildPropertiesToRemove)" />
+      RemoveProperties="$(_BuildPropertiesToRemove)"
+      BuildInParallel="$(BuildInParallel)" />
 
     <PropertyGroup>
       <_SolutionWasBuilt>true</_SolutionWasBuilt>
@@ -138,14 +141,23 @@ Executes /t:Pack on all projects matching src/*/*.csproj.
       <_InspectionTargetsFile>$(MSBuildThisFileDirectory)Project.Inspection.targets</_InspectionTargetsFile>
     </PropertyGroup>
 
+    <ItemGroup>
+      <_Temp Remove="@(_Temp)" />
+    </ItemGroup>
+
     <MSBuild Targets="GetArtifactInfo"
       Projects="@(ProjectsToPack)"
       Condition="@(ProjectsToPack->Count()) != 0"
-      Properties="$(SolutionProperties);RepositoryRoot=$(RepositoryRoot);PackageOutputPath=$(BuildDir);CustomAfterMicrosoftCommonTargets=$(_InspectionTargetsFile);CustomAfterMicrosoftCommonCrossTargetingTargets=$(_InspectionTargetsFile)"
+      Properties="$(SolutionProperties);EnableApiCheck=false;NoBuild=true;RepositoryRoot=$(RepositoryRoot);PackageOutputPath=$(BuildDir);CustomAfterMicrosoftCommonTargets=$(_InspectionTargetsFile);CustomAfterMicrosoftCommonCrossTargetingTargets=$(_InspectionTargetsFile)"
       BuildInParallel="$(BuildInParallel)"
       RemoveProperties="$(_BuildPropertiesToRemove);PackageNoBuild">
-      <Output TaskParameter="TargetOutputs" ItemName="ArtifactInfo" />
+      <Output TaskParameter="TargetOutputs" ItemName="_Temp" />
     </MSBuild>
+
+    <ItemGroup>
+      <ArtifactInfo Include="@(_Temp)" Condition="'%(_Temp.Container)' == ''" />
+      <Sign Include="@(_Temp)" Condition="'%(_Temp.Container)' != ''" />
+    </ItemGroup>
   </Target>
 
 </Project>

@@ -27,6 +27,7 @@ that matches "$(RepositoryRoot)/shared/*.Sources".
       Condition="@(SharedSourceDirectories->Count()) != 0"
       BuildInParallel="true">
       <Output TaskParameter="TargetOutputs" ItemName="ArtifactInfo" />
+      <Output TaskParameter="TargetOutputs" ItemName="ExcludeFromSigning" Condition="'$(SignSourcesPackages)' != 'true'" />
     </MSBuild>
   </Target>
 

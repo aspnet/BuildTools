@@ -50,6 +50,12 @@ namespace KoreBuild.Tasks
                 "ArtifactType",
                 "Category",
                 "Dependencies",
+                // metadata used by to create a sign request
+                "ShouldBeSigned",
+                "Certificate",
+                "StrongName",
+                "IsContainer",
+                "Container",
             };
 
             if (AdditionalMetadataFilters != null)

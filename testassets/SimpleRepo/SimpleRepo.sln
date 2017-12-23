@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{62B6BEE6
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RepoTasks", "build\tasks\RepoTasks.csproj", "{D1516754-5270-4CE4-A0AB-78C75597B9D2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simple.CliTool", "src\Simple.CliTool\Simple.CliTool.csproj", "{3A9BFE78-61C5-4BBD-91D5-FF2E4E62FD11}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +40,10 @@ Global
 		{55E328F5-C2BF-42FF-B70C-8EF6B1502965}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D1516754-5270-4CE4-A0AB-78C75597B9D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D1516754-5270-4CE4-A0AB-78C75597B9D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A9BFE78-61C5-4BBD-91D5-FF2E4E62FD11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A9BFE78-61C5-4BBD-91D5-FF2E4E62FD11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A9BFE78-61C5-4BBD-91D5-FF2E4E62FD11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A9BFE78-61C5-4BBD-91D5-FF2E4E62FD11}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -47,6 +53,7 @@ Global
 		{D25A24B5-FA41-4135-9531-6A2B70802B4E} = {7EAECC98-54A5-441F-8850-7C822DD23D82}
 		{55E328F5-C2BF-42FF-B70C-8EF6B1502965} = {479F5095-6D24-4C00-9E9E-32A41F71755C}
 		{D1516754-5270-4CE4-A0AB-78C75597B9D2} = {62B6BEE6-38CF-4708-80F4-DB0C100663F3}
+		{3A9BFE78-61C5-4BBD-91D5-FF2E4E62FD11} = {7EAECC98-54A5-441F-8850-7C822DD23D82}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FEFB375B-9984-43FE-872B-A867AE42FDDA}

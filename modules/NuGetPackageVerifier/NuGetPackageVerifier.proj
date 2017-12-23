@@ -9,6 +9,7 @@
 
     <MSBuild Projects="@(Projects)"
       Targets="Publish"
+      BuildInParallel="true"
       Properties="PublishDir=$(PublishDir);Configuration=$(Configuration)" />
 
     <Copy SourceFiles="module.targets" DestinationFolder="$(PublishDir)" />

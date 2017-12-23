@@ -3,13 +3,17 @@
   <PropertyGroup>
     <PrepareDependsOn Condition=" '$(DisableDefaultTargets)' != 'true' ">GetToolsets;$(PrepareDependsOn)</PrepareDependsOn>
     <RestoreDependsOn Condition=" '$(DisableDefaultTargets)' != 'true' ">InstallDotNet;CheckPackageReferences;$(RestoreDependsOn)</RestoreDependsOn>
+    <PackageDependsOn Condition=" '$(DisableDefaultTargets)' != 'true' ">$(PackageDependsOn);GenerateSignRequest</PackageDependsOn>
+
     <GenerateBillOfMaterials Condition="'$(GenerateBillOfMaterials)' == ''">true</GenerateBillOfMaterials>
+    <GenerateSignRequest Condition="'$(GenerateSignRequest)' == ''">true</GenerateSignRequest>
 
     <DisablePackageReferenceRestrictions Condition=" '$(DisablePackageReferenceRestrictions)' == '' ">false</DisablePackageReferenceRestrictions>
     <KoreBuildConfigFile Condition="'$(KoreBuildConfigFile)' == ''">$(RepositoryRoot)korebuild.json</KoreBuildConfigFile>
     <DependencyVersionsFile Condition="'$(DependencyVersionsFile)' == ''">$(RepositoryRoot)build\dependencies.props</DependencyVersionsFile>
-    <BomPath>$(ArtifactsDir)manifest.xml</BomPath>
-    <IgnoredArtifactItems>$(IgnoredArtifactItems);$(BomPath)</IgnoredArtifactItems>
+    <BuildManifestOutputPath>$(ArtifactsDir)manifest.xml</BuildManifestOutputPath>
+    <SignRequestOutputPath>$(ArtifactsDir)signrequest.xml</SignRequestOutputPath>
+    <IgnoredArtifactItems>$(IgnoredArtifactItems);$(BuildManifestOutputPath)</IgnoredArtifactItems>
   </PropertyGroup>
 
 <!--
@@ -143,6 +147,41 @@ and NodeJS.
     </GetToolsets>
   </Target>
 
+
+<!--
+####################################################################################
+Target: GenerateSignRequest
+
+Generates a manifest that contains signin requests for files.
+
+[in] (items) ArtifactInfo
+[in] (items) Sign
+[in] (prop) Artifacts
+
+[out] SignRequestOutputPath - the bom file
+####################################################################################
+-->
+  <Target Name="GenerateSignRequest"
+          DependsOnTargets="GetArtifactInfo"
+          Condition=" '$(GenerateSignRequest)' == 'true' ">
+
+    <ItemGroup>
+      <ArtifactInfo Include="$(SignRequestOutputPath)">
+        <ArtifactType>XmlFile</ArtifactType>
+        <Category>noship</Category>
+      </ArtifactInfo>
+
+      <Sign Include="@(ArtifactInfo)" Condition=" '%(ArtifactInfo.ShouldBeSigned)' == 'true' " />
+    </ItemGroup>
+
+    <GenerateSignRequests
+      Requests="@(Sign)"
+      Exclusions="@(ExcludeFromSigning)"
+      BasePath="$(ArtifactsDir)"
+      OutputPath="$(SignRequestOutputPath)" />
+  </Target>
+
+
 <!--
 ####################################################################################
 Target: GenerateBillOfMaterials
@@ -152,7 +191,7 @@ Generates a manifest containing metadata about the all artifacts produced in a b
 [in] (items) ArtifactInfo
 [in] (prop) CommitHash
 
-[out] BomPath - the bom file
+[out] BuildManifestOutputPath - the bom file
 
 ####################################################################################
 -->
@@ -171,7 +210,7 @@ Generates a manifest containing metadata about the all artifacts produced in a b
       <Output TaskParameter="Items" ItemName="_ArtifactInfoWithFileHash" />
     </ComputeManyChecksum>
 
-    <GenerateBillOfMaterials Artifacts="@(_ArtifactInfoWithFileHash)" OutputPath="$(BomPath)" />
+    <GenerateBillOfMaterials Artifacts="@(_ArtifactInfoWithFileHash)" OutputPath="$(BuildManifestOutputPath)" />
   </Target>
 
 </Project>

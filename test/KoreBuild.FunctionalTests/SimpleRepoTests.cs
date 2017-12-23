@@ -41,10 +41,12 @@ namespace KoreBuild.FunctionalTests
             Assert.True(File.Exists(Path.Combine(app.WorkingDirectory, "korebuild-lock.txt")), "Should have created the korebuild lock file");
 
             // /t:Package
+            Assert.True(File.Exists(Path.Combine(app.WorkingDirectory, "artifacts", "build", "Simple.CliTool.1.0.0-beta-0001.nupkg")), "Build should have produced a lib nupkg");
             Assert.True(File.Exists(Path.Combine(app.WorkingDirectory, "artifacts", "build", "Simple.Lib.1.0.0-beta-0001.nupkg")), "Build should have produced a lib nupkg");
             Assert.True(File.Exists(Path.Combine(app.WorkingDirectory, "artifacts", "build", "Simple.Sources.1.0.0-beta-0001.nupkg")), "Build should have produced a sources nupkg");
 
             // /t:TestNuGetPush
+            Assert.True(File.Exists(Path.Combine(app.WorkingDirectory, "obj", "tmp-nuget", "Simple.CliTool.1.0.0-beta-0001.nupkg")), "Build done a test push of all the packages");
             Assert.True(File.Exists(Path.Combine(app.WorkingDirectory, "obj", "tmp-nuget", "Simple.Lib.1.0.0-beta-0001.nupkg")), "Build done a test push of all the packages");
             Assert.True(File.Exists(Path.Combine(app.WorkingDirectory, "obj", "tmp-nuget", "Simple.Sources.1.0.0-beta-0001.nupkg")), "Build done a test push of all the packages");
 
@@ -57,6 +59,68 @@ namespace KoreBuild.FunctionalTests
             Assert.All(artifacts, a => Assert.NotEmpty(a.Attribute("FileHash").Value));
             var package = Assert.Single(doc.Descendants("Artifact"), a => a.Attribute("PackageId")?.Value == "Simple.Lib" && a.Attribute("Type")?.Value == "NuGetPackage");
             Assert.Equal("netstandard2.0;net461", package.Attribute("TargetFrameworks")?.Value);
+
+            // /t:GenerateSigningRequest
+            var signRequest = Path.Combine(app.WorkingDirectory, "artifacts", "signrequest.xml");
+            Assert.True(File.Exists(signRequest), "Sign requests should have been generated");
+
+            var sign = XDocument.Load(signRequest);
+            var excluded = Assert.Single(sign.Descendants("ExcludedFile"));
+            Assert.Equal("build/Simple.Sources.1.0.0-beta-0001.nupkg", excluded.Attribute("Path")?.Value);
+            Assert.Collection(sign.Descendants("Container"),
+                pkg =>
+                {
+                    Assert.Equal("build/Simple.CliTool.1.0.0-beta-0001.nupkg", pkg.Attribute("Path")?.Value);
+                    Assert.Null(pkg.Attribute("Certificate"));
+                    Assert.Equal("nupkg", pkg.Attribute("Type")?.Value);
+                    Assert.Collection(pkg.Descendants("File"),
+                        a =>
+                        {
+                            Assert.Equal("tools/netcoreapp2.1/any/Newtonsoft.Json.dll", a.Attribute("Path")?.Value);
+                            Assert.Equal("Test3rdPartyCert", a.Attribute("Certificate")?.Value);
+                        },
+                        a =>
+                        {
+                            Assert.Equal("tools/netcoreapp2.1/any/cowsay.dll", a.Attribute("Path")?.Value);
+                            Assert.Equal("TestCert", a.Attribute("Certificate")?.Value);
+                        });
+                },
+                pkg =>
+                {
+                    Assert.Equal("build/Simple.Lib.1.0.0-beta-0001.nupkg", pkg.Attribute("Path")?.Value);
+                    Assert.Null(pkg.Attribute("Certificate"));
+                    Assert.Equal("nupkg", pkg.Attribute("Type")?.Value);
+                    Assert.Collection(pkg.Descendants("File"),
+                        a =>
+                        {
+                            Assert.Equal("lib/net461/Simple.Lib.dll", a.Attribute("Path")?.Value);
+                            Assert.Equal("TestCert", a.Attribute("Certificate")?.Value);
+                        },
+                        a =>
+                        {
+                            Assert.Equal("lib/netstandard2.0/Simple.Lib.dll", a.Attribute("Path")?.Value);
+                            Assert.Equal("TestCert", a.Attribute("Certificate")?.Value);
+                        });
+                },
+                pkg =>
+                {
+                    Assert.Equal("build/Simple.Lib.1.0.0-beta-0001.symbols.nupkg", pkg.Attribute("Path")?.Value);
+                    Assert.Null(pkg.Attribute("Certificate"));
+                    Assert.Equal("nupkg", pkg.Attribute("Type")?.Value);
+                    Assert.Equal("nupkg", pkg.Attribute("Type")?.Value);
+                    Assert.Collection(pkg.Descendants("File"),
+                        a =>
+                        {
+                            Assert.Equal("lib/net461/Simple.Lib.dll", a.Attribute("Path")?.Value);
+                            Assert.Equal("TestCert", a.Attribute("Certificate")?.Value);
+                        },
+                        a =>
+                        {
+                            Assert.Equal("lib/netstandard2.0/Simple.Lib.dll", a.Attribute("Path")?.Value);
+                            Assert.Equal("TestCert", a.Attribute("Certificate")?.Value);
+                        });
+                }
+                );
         }
 
         [Fact]

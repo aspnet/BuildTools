@@ -1,14 +1,19 @@
 <Project>
 
-  <Target Name="GetArtifactInfo" Returns="@(ArtifactInfo)">
+  <Target Name="GetArtifactInfo"
+          DependsOnTargets="GetSignedPackageFiles"
+          Returns="@(ArtifactInfo)">
+
     <PropertyGroup>
       <NormalizedPackageVersion>$(PackageVersion)</NormalizedPackageVersion>
       <!-- Strip version metadata -->
       <NormalizedPackageVersion Condition="$(NormalizedPackageVersion.Contains('+'))">$(PackageVersion.Substring(0, $(PackageVersion.IndexOf('+'))))</NormalizedPackageVersion>
+      <FullPackageOutputPath>$(PackageOutputPath)$(PackageId).$(NormalizedPackageVersion).nupkg</FullPackageOutputPath>
+      <SymbolsPackageOutputPath>$(PackageOutputPath)$(PackageId).$(NormalizedPackageVersion).symbols.nupkg</SymbolsPackageOutputPath>
     </PropertyGroup>
 
     <ItemGroup Condition="'$(IsPackable)' == 'true' ">
-      <ArtifactInfo Include="$(PackageOutputPath)$(PackageId).$(NormalizedPackageVersion).nupkg">
+      <ArtifactInfo Include="$(FullPackageOutputPath)">
         <ArtifactType>NuGetPackage</ArtifactType>
         <PackageId>$(PackageId)</PackageId>
         <Version>$(NormalizedPackageVersion)</Version>
@@ -17,9 +22,12 @@
         <PackageType>$(PackageType)</PackageType>
         <RepositoryRoot>$(RepositoryRoot)</RepositoryRoot>
         <Category>$(PackageArtifactCategory)</Category>
+        <Certificate>$(PackageSigningCert)</Certificate>
+        <ShouldBeSigned Condition="'$(PackageSigningCert)' != '' OR @(SignedPackageFile->Count()) != 0 ">true</ShouldBeSigned>
+        <IsContainer>true</IsContainer>
       </ArtifactInfo>
 
-      <ArtifactInfo Include="$(PackageOutputPath)$(PackageId).$(NormalizedPackageVersion).symbols.nupkg" Condition="'$(IncludeSymbols)' == 'true' AND '$(NuspecFile)' == ''">
+      <ArtifactInfo Include="$(SymbolsPackageOutputPath)" Condition="'$(IncludeSymbols)' == 'true' AND '$(NuspecFile)' == ''">
         <ArtifactType>NuGetSymbolsPackage</ArtifactType>
         <PackageId>$(PackageId)</PackageId>
         <Version>$(NormalizedPackageVersion)</Version>
@@ -29,7 +37,73 @@
         <PackageType>$(PackageType)</PackageType>
         <RepositoryRoot>$(RepositoryRoot)</RepositoryRoot>
         <Category>$(PackageArtifactCategory)</Category>
+        <Certificate>$(PackageSigningCert)</Certificate>
+        <ShouldBeSigned Condition="'$(PackageSigningCert)' != '' OR @(SignedPackageFile->Count()) != 0 ">true</ShouldBeSigned>
+        <IsContainer>true</IsContainer>
       </ArtifactInfo>
+
+      <ArtifactInfo Include="@(SignedPackageFile)">
+        <ShouldBeSigned>true</ShouldBeSigned>
+        <Container>$(FullPackageOutputPath)</Container>
+      </ArtifactInfo>
+
+      <ArtifactInfo Include="@(SignedPackageFile)" Condition="'$(IncludeSymbols)' == 'true' AND '$(NuspecFile)' == ''">
+        <ShouldBeSigned>true</ShouldBeSigned>
+        <Container>$(SymbolsPackageOutputPath)</Container>
+      </ArtifactInfo>
+    </ItemGroup>
+  </Target>
+
+<!--
+####################################################################################
+Target: GetSignedPackageFiles
+
+Gets itesm for built assemblies that will be in the package.
+Also supports projects that explicitly set SignedPackageFile.
+
+Items:
+[out] SignedPackageFile
+#####################################################################################
+-->
+  <PropertyGroup>
+    <!-- For single-TFM projects -->
+    <GetSignedPackageFilesDependsOn Condition=" '$(TargetFramework)' != '' ">
+      _GetSignedPackageFiles
+    </GetSignedPackageFilesDependsOn>
+  </PropertyGroup>
+
+  <Target Name="GetSignedPackageFiles" DependsOnTargets="$(GetSignedPackageFilesDependsOn)" Returns="@(SignedPackageFile)">
+
+    <ItemGroup Condition=" '$(TargetFramework)' == '' ">
+      <_TargetFrameworks Remove="@(_TargetFrameworks)" />
+      <_TargetFrameworks Include="$(TargetFrameworks)" />
+    </ItemGroup>
+
+    <MSBuild Projects="$(MSBuildProjectFullPath)"
+      Properties="TargetFramework=%(_TargetFrameworks.Identity)"
+      Targets="GetSignedPackageFiles"
+      Condition=" '%(_TargetFrameworks.Identity)' != '' AND '$(TargetFramework)' == '' "
+      BuildInParallel="true">
+      <Output TaskParameter="TargetOutputs" ItemName="SignedPackageFile" />
+    </MSBuild>
+  </Target>
+
+  <Target Name="_GetSignedPackageFiles"
+          Condition=" '$(TargetFramework)' != '' "
+          DependsOnTargets="BuiltProjectOutputGroup;SatelliteDllsProjectOutputGroup">
+
+    <ItemGroup Condition=" '$(NuspecFile)' == '' AND '$(IncludeBuildOutput)' != 'false' AND ('$(AssemblySigningCert)' != '' OR '$(AssemblySigningStrongName)' != '') ">
+      <SignedPackageFile Include="@(BuiltProjectOutputGroupOutput)">
+        <PackagePath>$(BuildOutputTargetFolder)/$(TargetFramework)/%(BuiltProjectOutputGroupOutput.FileName)%(BuiltProjectOutputGroupOutput.Extension)</PackagePath>
+        <Certificate>$(AssemblySigningCert)</Certificate>
+        <StrongName>$(AssemblySigningStrongName)</StrongName>
+      </SignedPackageFile>
+
+      <SignedPackageFile Include="@(SatelliteDllsProjectOutputGroupOutput)">
+        <PackagePath>$(BuildOutputTargetFolder)/$(TargetFramework)/%(SatelliteDllsProjectOutputGroupOutput.FileName)%(SatelliteDllsProjectOutputGroupOutput.Extension)</PackagePath>
+        <Certificate>$(AssemblySigningCert)</Certificate>
+        <StrongName>$(AssemblySigningStrongName)</StrongName>
+      </SignedPackageFile>
     </ItemGroup>
   </Target>
 

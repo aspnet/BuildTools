@@ -39,10 +39,11 @@ namespace KoreBuild.Tasks.Tests
                         ["IsContainer"] = "true",
                         ["Type"] = "zip",
                     }),
-                new TaskItem("lib/netstandard2.0/MyLib.dll",
+                new TaskItem(Path.Combine(AppContext.BaseDirectory, "MyLib.dll"),
                     new Hashtable
                     {
                         ["Container"] = nupkgPath,
+                        ["PackagePath"] = "lib/netstandard2.0/MyLib.dll",
                         ["Certificate"] = "Cert1",
                         ["StrongName"] = "Key1",
                     }),
@@ -55,9 +56,10 @@ namespace KoreBuild.Tasks.Tests
 
             var exclusions = new[]
             {
-                new TaskItem("lib/NotMyLib.dll",
+                new TaskItem(Path.Combine(AppContext.BaseDirectory, "NotMyLib.dll"),
                     new Hashtable
                     {
+                        ["PackagePath"] = "lib/NotMyLib.dll",
                         ["Container"] = nupkgPath,
                     })
             };

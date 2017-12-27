@@ -10,8 +10,9 @@ Standard lifecycle chain.
     <RestoreDependsOn>Prepare</RestoreDependsOn>
     <CompileDependsOn>Restore</CompileDependsOn>
     <PackageDependsOn>Compile</PackageDependsOn>
-    <TestDependsOn>Package</TestDependsOn>
-    <VerifyDependsOn>Test</VerifyDependsOn>
+    <TestDependsOn Condition=" '$(NoBuild)' != 'true' ">Package</TestDependsOn>
+    <VerifyDependsOn Condition=" '$(SkipTests)' == 'true' ">Package</VerifyDependsOn>
+    <VerifyDependsOn Condition=" '$(SkipTests)' != 'true' ">Test</VerifyDependsOn>
     <BuildDependsOn>Verify</BuildDependsOn>
 
     <CleanDependsOn></CleanDependsOn>

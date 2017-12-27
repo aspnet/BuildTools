@@ -1,10 +1,34 @@
 #!/usr/bin/env bash
 
-local command=$1
-local repo_path=$2
+set -euo pipefail
+
+command=$1
+repo_path=$2
+no_build=false
+msbuild_args=()
 
 shift 2
 
-./build.sh /t:PackageKoreBuild
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --no-build|-NoBuild)
+            no_build=true
+            ;;
+        *)
+            msbuild_args[${#msbuild_args[*]}]="$1"
+            ;;
+    esac
+    shift
+done
 
-./scripts/bootstrapper/run.sh -Command "$command" -Path "$repo_path" -s ./artifacts/ -u "$@"
+if [ "$no_build" = false ]; then
+    ./build.sh /t:Package
+fi
+
+./scripts/bootstrapper/run.sh \
+    "$command" \
+    -Path "$repo_path" \
+    -ToolsSource ./artifacts/ \
+    -Update \
+    -Reinstall \
+    ${msbuild_args[@]+"${msbuild_args[@]}"}

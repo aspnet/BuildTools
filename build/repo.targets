@@ -87,7 +87,7 @@
     </ItemGroup>
 
     <WriteLinesToFile File="$(KoreBuildLatestTxtFile)" Lines="@(VersionFileLines)" Overwrite="true"/>
-    <RepoTasks.GenerateBadge File="$(KoreBuildBadgeFile)" Version="$(Version)" />
+    <GenerateSvgBadge Label="version" Value="$(Version)" OutputPath="$(KoreBuildBadgeFile)" />
     <ZipArchive WorkingDirectory="$(_KoreBuildIntermediateDir)" File="$(KoreBuildArchiveFile)" SourceFiles="@(KoreBuildFiles)" />
   </Target>
 

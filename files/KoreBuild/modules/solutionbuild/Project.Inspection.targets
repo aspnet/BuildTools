@@ -25,6 +25,7 @@
         <Category>$(PackageArtifactCategory)</Category>
         <Certificate>$(PackageSigningCertName)</Certificate>
         <ShouldBeSigned Condition="'$(PackageSigningCertName)' != '' OR @(SignedPackageFile->Count()) != 0 ">true</ShouldBeSigned>
+        <ShouldBeSigned Condition=" '$(DisableCodeSigning)' == 'true' ">false</ShouldBeSigned>
         <IsContainer>true</IsContainer>
       </ArtifactInfo>
 
@@ -41,10 +42,11 @@
         <Category>$(PackageArtifactCategory)</Category>
         <Certificate>$(PackageSigningCertName)</Certificate>
         <ShouldBeSigned Condition="'$(PackageSigningCertName)' != '' OR @(SignedPackageFile->Count()) != 0 ">true</ShouldBeSigned>
+        <ShouldBeSigned Condition=" '$(DisableCodeSigning)' == 'true' ">false</ShouldBeSigned>
         <IsContainer>true</IsContainer>
       </ArtifactInfo>
 
-      <ArtifactInfo Include="@(SignedPackageFile)">
+      <ArtifactInfo Include="@(SignedPackageFile)" Condition=" '$(DisableCodeSigning)' != 'true' ">
         <ShouldBeSigned>true</ShouldBeSigned>
         <Container>$(FullPackageOutputPath)</Container>
       </ArtifactInfo>
@@ -54,7 +56,7 @@
         <Container>$(FullPackageOutputPath)</Container>
       </ArtifactInfo>
 
-      <ArtifactInfo Include="@(SignedPackageFile)" Condition="'$(IncludeSymbols)' == 'true' AND '$(NuspecFile)' == ''">
+      <ArtifactInfo Include="@(SignedPackageFile)" Condition=" '$(DisableCodeSigning)' != 'true' AND '$(IncludeSymbols)' == 'true' AND '$(NuspecFile)' == ''">
         <ShouldBeSigned>true</ShouldBeSigned>
         <Container>$(SymbolsPackageOutputPath)</Container>
       </ArtifactInfo>
@@ -106,13 +108,13 @@ Items:
           DependsOnTargets="BuiltProjectOutputGroup;SatelliteDllsProjectOutputGroup">
 
     <ItemGroup Condition=" '$(NuspecFile)' == '' AND '$(IncludeBuildOutput)' != 'false' AND ('$(AssemblySigningCertName)' != '' OR '$(AssemblySigningStrongName)' != '') ">
-      <SignedPackageFile Include="@(BuiltProjectOutputGroupOutput)">
+      <SignedPackageFile Include="@(BuiltProjectOutputGroupOutput)" Condition="'%(BuiltProjectOutputGroupOutput.Extension)' == '.dll' OR '%(BuiltProjectOutputGroupOutput.Extension)' == '.exe'">
         <PackagePath>$(BuildOutputTargetFolder)/$(TargetFramework)/%(BuiltProjectOutputGroupOutput.FileName)%(BuiltProjectOutputGroupOutput.Extension)</PackagePath>
         <Certificate>$(AssemblySigningCertName)</Certificate>
         <StrongName>$(AssemblySigningStrongName)</StrongName>
       </SignedPackageFile>
 
-      <SignedPackageFile Include="@(SatelliteDllsProjectOutputGroupOutput)">
+      <SignedPackageFile Include="@(SatelliteDllsProjectOutputGroupOutput)" Condition="'%(SatelliteDllsProjectOutputGroupOutput.Extension)' == '.dll' OR '%(SatelliteDllsProjectOutputGroupOutput.Extension)' == '.exe'">
         <PackagePath>$(BuildOutputTargetFolder)/$(TargetFramework)/%(SatelliteDllsProjectOutputGroupOutput.FileName)%(SatelliteDllsProjectOutputGroupOutput.Extension)</PackagePath>
         <Certificate>$(AssemblySigningCertName)</Certificate>
         <StrongName>$(AssemblySigningStrongName)</StrongName>

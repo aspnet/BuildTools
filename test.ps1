@@ -11,6 +11,8 @@ param(
     [string[]]$Arguments
 )
 
+$ErrorActionPreference = 'Stop'
+
 if (!$NoBuild) {
     & .\build.ps1 /p:SkipTests=$true
 }
@@ -22,11 +24,14 @@ foreach ($line in Get-Content $latestFile) {
     $toolsVersion = $line.Split(":")[1]
     break
 }
-$packageDir = Join-Path $toolsSource "build\"
-$versionPropsPath = Join-Path $toolsSource "dotnetpackageversion.props"
-$sourcePropsPath = Join-Path $toolsSource "source.props"
+
+mkdir "$PSScriptRoot\obj\testbuild\" -ErrorAction Ignore
+$versionPropsPath = "$PSScriptRoot\obj\testbuild\dotnetpackageversion.props"
+$sourcePropsPath = "$PSScriptRoot\obj\testbuild\source.props"
 
 $versionPropsValue = "<Project><PropertyGroup><InternalAspNetCoreSdkPackageVersion>$toolsVersion</InternalAspNetCoreSdkPackageVersion></PropertyGroup></Project>"
+
+$packageDir = Join-Path $toolsSource "build\"
 $sourcePropsValue = "<Project><PropertyGroup><DotNetRestoreSources>$packageDir</DotNetRestoreSources></PropertyGroup></Project>"
 
 Out-File -FilePath $versionPropsPath -InputObject $versionPropsValue

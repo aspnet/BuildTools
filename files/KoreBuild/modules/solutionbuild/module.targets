@@ -161,8 +161,8 @@ Executes /t:Pack on all projects matching src/*/*.csproj.
       <!-- Nupkgs or assemblies in the nupkg that should be signed -->
       <FilesToSign Include="@(_Temp)" Condition=" '%(_Temp.ShouldBeSigned)' == 'true' " />
 
-      <!-- Assemblies inside a nupkg that should not be signed -->
-      <FilesToExcludeFromSigning Include="@(_Temp)" Condition=" '%(_Temp.ShouldBeSigned)' == 'false' AND '%(_Temp.Container)' != ''" />
+      <!-- Nupkgs or assemblies in the nupkg that should not be signed -->
+      <FilesToExcludeFromSigning Include="@(_Temp)" Condition=" '%(_Temp.ShouldBeSigned)' != 'true' " />
     </ItemGroup>
   </Target>
 

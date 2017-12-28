@@ -25,13 +25,18 @@ repository root.
       <Packages Include="$(BuildDir)*.nupkg" />
     </ItemGroup>
 
+    <PropertyGroup>
+      <_VerifierSignRequestPath />
+      <_VerifierSignRequestPath Condition=" '$(GenerateSignRequest)' == 'true' ">$(SignRequestOutputPath)</_VerifierSignRequestPath>
+    </PropertyGroup>
+
     <Warning Text="No nupkg found in '$(BuildDir)'." Condition="$(Packages -> Count()) == 0" />
     <Warning Text="Skipping nuget package verification because artifacts directory could not be found"
       Condition="!Exists('$(BuildDir)')" />
 
     <VerifyPackages ArtifactDirectory="$(BuildDir)"
       RuleFile="$(NuGetVerifierRuleFile)"
-      SignRequestManifest="$(SignRequestOutputPath)"
+      SignRequestManifest="$(_VerifierSignRequestPath)"
       Condition="Exists('$(BuildDir)')" />
   </Target>
 

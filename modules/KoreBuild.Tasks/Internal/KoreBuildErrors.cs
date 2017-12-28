@@ -31,5 +31,6 @@ namespace KoreBuild.Tasks
         // not used in code, but reserved for MSBuild targets
         public const int ArtifactInfoMismatch = 5002;
         public const int FilesToSignMismatchedWithArtifactInfo = 5003;
+        public const int FilesToSignMissingCertInfo = 5004;
     }
 }

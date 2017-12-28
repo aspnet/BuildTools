@@ -59,8 +59,14 @@ namespace NuGetPackagerVerifier
                 ArtifactDirectory,
             };
 
-            if (!string.IsNullOrEmpty(SignRequestManifest) && File.Exists(SignRequestManifest))
+            if (!string.IsNullOrEmpty(SignRequestManifest))
             {
+                if (!File.Exists(SignRequestManifest))
+                {
+                    Log.LogError($"SignRequestManifest file {SignRequestManifest} does not exist.");
+                    return false;
+                }
+
                 arguments.Add("--sign-request");
                 arguments.Add(SignRequestManifest);
             }

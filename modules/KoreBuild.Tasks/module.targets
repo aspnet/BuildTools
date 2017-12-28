@@ -158,10 +158,13 @@ Verifies all artifact items have a corresponding sign item.
   <Target Name="VerifySignRequestItems"
           DependsOnTargets="GetArtifactInfo"
           Condition="'$(GenerateSignRequest)' == 'true' AND '$(SkipArtifactVerification)' != 'true'">
+
     <ItemGroup>
       <_ExpectedFileToSign Remove="@(_ExpectedFileToSign)" />
       <_ExpectedFileToSign Include="@(ArtifactInfo)" />
       <_ExpectedFileToSign Remove="@(FilesToSign);@(FilesToExcludeFromSigning);$(SignRequestOutputPath)" />
+      <_FilesToSignMissingConfig Remove="@(_FilesToSignMissingConfig)" />
+      <_FilesToSignMissingConfig Include="@(FilesToSign)" Condition=" '%(FilesToSign.Certificate)' == '' AND '%(FilesToSign.StrongName)' == '' AND '%(FilesToSign.IsContainer)' != 'true' " />
     </ItemGroup>
 
     <PropertyGroup>
@@ -175,6 +178,17 @@ Fix this error by adding these items to FilesToSign or FilesToExcludeFromSigning
     <Error Text="$(_SigningErrorMessage.Trim())"
            Code="KRB5003"
            Condition=" @(_ExpectedFileToSign->Count()) != 0 " />
+
+    <PropertyGroup>
+      <_SigningErrorMessage Condition=" @(_FilesToSignMissingConfig->Count()) != 0 ">
+The following FilesToSign did not specify a Certificate or StrongName to use.
+  - @(_FilesToSignMissingConfig, '%0A  - ')
+      </_SigningErrorMessage>
+    </PropertyGroup>
+
+    <Error Text="$(_SigningErrorMessage.Trim())"
+           Code="KRB5004"
+           Condition=" @(_FilesToSignMissingConfig->Count()) != 0 " />
   </Target>
 
 <!--

@@ -49,7 +49,7 @@ Downloads and extracts .NET Core shared runtimes and SDKs.
 
     <InstallDotNet
       Assets="@(DotNetCoreSdk);@(DotNetCoreRuntime)"
-      DotNetHome="$(DOTNET_HOME)"
+      DotNetHome="'$(DOTNET_HOME)'"
       InstallScript="$(_DotNetInstall)"/>
   </Target>
 

@@ -21,6 +21,7 @@
         <TargetFrameworks>$([MSBuild]::Escape($(TargetFrameworks)))</TargetFrameworks>
         <PackageType>$(PackageType)</PackageType>
         <RepositoryRoot>$(RepositoryRoot)</RepositoryRoot>
+        <RepositoryUrl>$(RepositoryUrl)</RepositoryUrl>
         <Category>$(PackageArtifactCategory)</Category>
         <Certificate>$(PackageSigningCertName)</Certificate>
         <ShouldBeSigned Condition="'$(PackageSigningCertName)' != '' OR @(SignedPackageFile->Count()) != 0 ">true</ShouldBeSigned>
@@ -36,6 +37,7 @@
         <SourceIncluded>$(IncludeSource)</SourceIncluded>
         <PackageType>$(PackageType)</PackageType>
         <RepositoryRoot>$(RepositoryRoot)</RepositoryRoot>
+        <RepositoryUrl>$(RepositoryUrl)</RepositoryUrl>
         <Category>$(PackageArtifactCategory)</Category>
         <Certificate>$(PackageSigningCertName)</Certificate>
         <ShouldBeSigned Condition="'$(PackageSigningCertName)' != '' OR @(SignedPackageFile->Count()) != 0 ">true</ShouldBeSigned>
@@ -47,19 +49,30 @@
         <Container>$(FullPackageOutputPath)</Container>
       </ArtifactInfo>
 
+      <ArtifactInfo Include="@(ExcludePackageFileFromSigning)">
+        <ShouldBeSigned>false</ShouldBeSigned>
+        <Container>$(FullPackageOutputPath)</Container>
+      </ArtifactInfo>
+
       <ArtifactInfo Include="@(SignedPackageFile)" Condition="'$(IncludeSymbols)' == 'true' AND '$(NuspecFile)' == ''">
         <ShouldBeSigned>true</ShouldBeSigned>
         <Container>$(SymbolsPackageOutputPath)</Container>
       </ArtifactInfo>
+
+      <ArtifactInfo Include="@(ExcludePackageFileFromSigning)" Condition="'$(IncludeSymbols)' == 'true' AND '$(NuspecFile)' == ''">
+        <ShouldBeSigned>false</ShouldBeSigned>
+        <Container>$(SymbolsPackageOutputPath)</Container>
+      </ArtifactInfo>
     </ItemGroup>
+
   </Target>
 
 <!--
 ####################################################################################
 Target: GetSignedPackageFiles
 
-Gets itesm for built assemblies that will be in the package.
-Also supports projects that explicitly set SignedPackageFile.
+Gets items for built assemblies that will be in the NuGet package.
+Also supports projects that explicitly set items in the SignedPackageFile group.
 
 Items:
 [out] SignedPackageFile

@@ -125,28 +125,31 @@ namespace KoreBuild.Tasks
                 }
             }
 
-            foreach (var item in Exclusions)
+            if (Exclusions != null)
             {
-                var normalizedPath = NormalizePath(BasePath, item.ItemSpec);
-
-                var containerPath = item.GetMetadata("Container");
-                if (!string.IsNullOrEmpty(containerPath))
+                foreach (var item in Exclusions)
                 {
-                    if (!containers.TryGetValue(containerPath, out var container))
+                    var normalizedPath = NormalizePath(BasePath, item.ItemSpec);
+
+                    var containerPath = item.GetMetadata("Container");
+                    if (!string.IsNullOrEmpty(containerPath))
                     {
-                        Log.LogError($"Exclusion item '{item.ItemSpec}' specifies an unknown container '{containerPath}'.");
-                        continue;
-                    }
+                        if (!containers.TryGetValue(containerPath, out var container))
+                        {
+                            Log.LogError($"Exclusion item '{item.ItemSpec}' specifies an unknown container '{containerPath}'.");
+                            continue;
+                        }
 
-                    var packagePath = item.GetMetadata("PackagePath");
-                    normalizedPath = string.IsNullOrEmpty(packagePath) ? normalizedPath : packagePath.Replace('\\', '/');
-                    var file = new SignRequestItem.Exclusion(normalizedPath);
-                    container.AddItem(file);
-                }
-                else
-                {
-                    var file = new SignRequestItem.Exclusion(normalizedPath);
-                    signRequestCollection.Add(file);
+                        var packagePath = item.GetMetadata("PackagePath");
+                        normalizedPath = string.IsNullOrEmpty(packagePath) ? normalizedPath : packagePath.Replace('\\', '/');
+                        var file = new SignRequestItem.Exclusion(normalizedPath);
+                        container.AddItem(file);
+                    }
+                    else
+                    {
+                        var file = new SignRequestItem.Exclusion(normalizedPath);
+                        signRequestCollection.Add(file);
+                    }
                 }
             }
 

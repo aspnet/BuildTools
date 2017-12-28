@@ -150,33 +150,73 @@ and NodeJS.
 
 <!--
 ####################################################################################
+Target: VerifySignRequestItems
+
+Verifies all artifact items have a corresponding sign item.
+####################################################################################
+-->
+  <Target Name="VerifySignRequestItems"
+          DependsOnTargets="GetArtifactInfo"
+          Condition="'$(GenerateSignRequest)' == 'true' AND '$(SkipArtifactVerification)' != 'true'">
+
+    <ItemGroup>
+      <_ExpectedFileToSign Remove="@(_ExpectedFileToSign)" />
+      <_ExpectedFileToSign Include="@(ArtifactInfo)" />
+      <_ExpectedFileToSign Remove="@(FilesToSign);@(FilesToExcludeFromSigning);$(SignRequestOutputPath)" />
+      <_FilesToSignMissingConfig Remove="@(_FilesToSignMissingConfig)" />
+      <_FilesToSignMissingConfig Include="@(FilesToSign)" Condition=" '%(FilesToSign.Certificate)' == '' AND '%(FilesToSign.StrongName)' == '' AND '%(FilesToSign.IsContainer)' != 'true' " />
+    </ItemGroup>
+
+    <PropertyGroup>
+      <_SigningErrorMessage Condition=" @(_ExpectedFileToSign->Count()) != 0 ">
+Could not determine signing information for all ArtifactInfo items.
+Fix this error by adding these items to FilesToSign or FilesToExcludeFromSigning:
+  - @(_ExpectedFileToSign, '%0A  - ')
+      </_SigningErrorMessage>
+    </PropertyGroup>
+
+    <Error Text="$(_SigningErrorMessage.Trim())"
+           Code="KRB5003"
+           Condition=" @(_ExpectedFileToSign->Count()) != 0 " />
+
+    <PropertyGroup>
+      <_SigningErrorMessage Condition=" @(_FilesToSignMissingConfig->Count()) != 0 ">
+The following FilesToSign did not specify a Certificate or StrongName to use.
+  - @(_FilesToSignMissingConfig, '%0A  - ')
+      </_SigningErrorMessage>
+    </PropertyGroup>
+
+    <Error Text="$(_SigningErrorMessage.Trim())"
+           Code="KRB5004"
+           Condition=" @(_FilesToSignMissingConfig->Count()) != 0 " />
+  </Target>
+
+<!--
+####################################################################################
 Target: GenerateSignRequest
 
 Generates a manifest that contains signin requests for files.
 
-[in] (items) ArtifactInfo
-[in] (items) Sign
-[in] (prop) Artifacts
+[in] (items) FilesToSign
+[in] (items) FilesToExcludeFromSigning
 
 [out] SignRequestOutputPath - the bom file
 ####################################################################################
 -->
+  <ItemGroup Condition=" '$(GenerateSignRequest)' == 'true' ">
+    <ArtifactInfo Include="$(SignRequestOutputPath)">
+      <ArtifactType>XmlFile</ArtifactType>
+      <Category>noship</Category>
+    </ArtifactInfo>
+  </ItemGroup>
+
   <Target Name="GenerateSignRequest"
-          DependsOnTargets="GetArtifactInfo"
+          DependsOnTargets="GetArtifactInfo;VerifySignRequestItems"
           Condition=" '$(GenerateSignRequest)' == 'true' ">
 
-    <ItemGroup>
-      <ArtifactInfo Include="$(SignRequestOutputPath)">
-        <ArtifactType>XmlFile</ArtifactType>
-        <Category>noship</Category>
-      </ArtifactInfo>
-
-      <Sign Include="@(ArtifactInfo)" Condition=" '%(ArtifactInfo.ShouldBeSigned)' == 'true' " />
-    </ItemGroup>
-
     <GenerateSignRequest
-      Requests="@(Sign)"
-      Exclusions="@(ExcludeFromSigning)"
+      Requests="@(FilesToSign)"
+      Exclusions="@(FilesToExcludeFromSigning)"
       BasePath="$(ArtifactsDir)"
       OutputPath="$(SignRequestOutputPath)" />
   </Target>

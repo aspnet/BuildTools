@@ -35,7 +35,9 @@ namespace KoreBuild.Console.Commands
             application.Command("generate", c =>
             {
                 c.HelpOption("-h|--help");
+
                 c.Command("deps", new DependenciesGenerateCommand(context).Configure, throwOnUnexpectedArg: false);
+                c.Command("api-baselines", new ApiBaselinesGenerateCommand(context).Configure, throwOnUnexpectedArg: false);
 
                 c.OnExecute(() =>
                 {

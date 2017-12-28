@@ -10,14 +10,24 @@ KoreBuild is a set of MSBuild targets, tasks, and console commands used to defin
 KoreBuild commands allow you to take wider and more granular actions.
 Previously repositories were runable in only one way, by doing `.\build.cmd`. But now, you can run multiple options.
 
-Command      | Purpose                                                          | Example
--------------|------------------------------------------------------------------|----------
-install-tools| Installs dotnet, CLI and Shared runtimes.                        | .\run.ps1 install-tools
-docker-build | Runs the build inside docker.                                    | .\run.ps1 docker-build {jessie\|winservercore} /t:SomeTarget /p:Parameters
-default-build| Runs install-tools followed by msbuild (like build.cmd used to). | .\run.ps1 default-build /t:SomeTarget /p:Parameters
-msbuild      | Runs the build normally.                                         | .\run.ps1 msbuild /t:SomeTarget /p:Parameters
-upgrade deps | Upgrade the dependencies.props of this project.                  | .\run.ps1 upgrade deps
-generate deps| Generate a dependencies.props for this project.                  | .\run.ps1 generate deps
+Command               | Purpose                                                          | Example
+----------------------|------------------------------------------------------------------|----------
+install-tools         | Installs dotnet, CLI and Shared runtimes.                        | .\run.ps1 install-tools
+docker-build          | Runs the build inside docker.                                    | .\run.ps1 docker-build {jessie\|winservercore} /t:SomeTarget /p:Parameters
+default-build         | Runs install-tools followed by msbuild (like build.cmd used to). | .\run.ps1 default-build /t:SomeTarget /p:Parameters
+msbuild               | Runs the build normally.                                         | .\run.ps1 msbuild /t:SomeTarget /p:Parameters
+upgrade deps          | Upgrade the dependencies.props of this project.                  | .\run.ps1 upgrade deps
+generate deps         | Generate a dependencies.props for this project.                  | .\run.ps1 generate deps
+generate api-baseline | Re-generate baselines for all projects.                          | .\run.ps1 generate api-baseline
+
+### KoreBuild properties
+
+Below is a list of some of the properties that KoreBuild recognizes which you might find useful.
+
+Property          | Purpose
+------------------|--------
+GenerateBaselines | Toggles the (re-)generation of baselines for all projects.
+VSTestBlame       | Turns on the '--blame' option of vstest, useful for diagnosing test host failures.
 
 ### KoreBuild config
 

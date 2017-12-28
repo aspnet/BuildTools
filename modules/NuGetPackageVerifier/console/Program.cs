@@ -10,6 +10,7 @@ using Microsoft.Extensions.CommandLineUtils;
 using Newtonsoft.Json;
 using NuGet.Packaging;
 using NuGetPackageVerifier.Logging;
+using NuGetPackageVerifier.Manifests;
 
 namespace NuGetPackageVerifier
 {
@@ -25,6 +26,7 @@ namespace NuGetPackageVerifier
             var verbose = application.Option("--verbose", "Verbose output and assistance", CommandOptionType.NoValue);
             var ruleFile = application.Option("--rule-file", "Path to NPV.json", CommandOptionType.SingleValue);
             var excludedRules = application.Option("--excluded-rule", "Rules to exclude. Calculcated after composite rules are evaluated.", CommandOptionType.MultipleValue);
+            var signRequest = application.Option("--sign-request", "Sign request manifest file.", CommandOptionType.SingleValue);
             var packageDirectory = application.Argument("Package directory", "Package directory to scan for nupkgs");
 
             application.OnExecute(() =>
@@ -37,7 +39,7 @@ namespace NuGetPackageVerifier
                     return ReturnBadArgs;
                 }
 
-                if  (!ruleFile.HasValue())
+                if (!ruleFile.HasValue())
                 {
                     application.Error.WriteAsync($"Missing required option {ruleFile.Template}.");
                     application.ShowHelp();
@@ -58,7 +60,7 @@ namespace NuGetPackageVerifier
 
                 // TODO: Show extraneous packages, exclusions, etc.
                 var ignoreAssistanceMode = verbose.HasValue() ? IgnoreAssistanceMode.ShowAll : IgnoreAssistanceMode.ShowNew;
-                
+
                 var ruleFileContent = File.ReadAllText(ruleFile.Value());
                 var packageSets = JsonConvert.DeserializeObject<IDictionary<string, PackageSet>>(
                     ruleFileContent,
@@ -67,12 +69,17 @@ namespace NuGetPackageVerifier
                         MissingMemberHandling = MissingMemberHandling.Error
                     });
 
+
+                var signRequestManifest = signRequest.HasValue()
+                    ? SignRequestManifest.Parse(signRequest.Value())
+                    : default;
+
                 logger.LogNormal("Read {0} package set(s) from {1}", packageSets.Count, ruleFile.Value());
                 var nupkgs = new DirectoryInfo(packageDirectory.Value).EnumerateFiles("*.nupkg", SearchOption.TopDirectoryOnly)
                     .Where(p => !p.Name.EndsWith(".symbols.nupkg"))
                     .ToArray();
                 logger.LogNormal("Found {0} packages in {1}", nupkgs.Length, packageDirectory.Value);
-                var exitCode = Execute(packageSets, nupkgs, excludedRules.Values, logger, ignoreAssistanceMode);
+                var exitCode = Execute(packageSets, nupkgs, signRequestManifest, excludedRules.Values, logger, ignoreAssistanceMode);
                 totalTimeStopWatch.Stop();
                 logger.LogNormal("Total took {0}ms", totalTimeStopWatch.ElapsedMilliseconds);
 
@@ -85,6 +92,7 @@ namespace NuGetPackageVerifier
         private static int Execute(
             IDictionary<string, PackageSet> packageSets,
             IEnumerable<FileInfo> nupkgs,
+            SignRequestManifest signRequestManifest,
             List<string> excludedRuleNames,
             IPackageVerifierLogger logger,
             IgnoreAssistanceMode ignoreAssistanceMode)
@@ -94,7 +102,7 @@ namespace NuGetPackageVerifier
                     typeof(IPackageVerifierRule).IsAssignableFrom(t) && !t.IsAbstract)
                 .ToDictionary(
                     t => t.Name,
-                    t => 
+                    t =>
                     {
                         var rule = (IPackageVerifierRule)Activator.CreateInstance(t);
                         if (rule is CompositeRule compositeRule)
@@ -174,13 +182,17 @@ namespace NuGetPackageVerifier
                             var package = packagePair.Key;
                             logger.LogInfo("Analyzing {0} ({1})", package.Id, package.Version);
 
+                            PackageSignRequest signRequest = null;
+                            signRequestManifest?.PackageSignRequests.TryGetValue(packagePair.Value.FullName, out signRequest);
+
                             List<PackageVerifierIssue> issues;
                             using (var context = new PackageAnalysisContext
                             {
                                 PackageFileInfo = packagePair.Value,
                                 Metadata = package,
                                 Logger = logger,
-                                Options = packageInfo.Value
+                                Options = packageInfo.Value,
+                                SignRequest = signRequest,
                             })
                             {
                                 issues = analyzer.AnalyzePackage(context).ToList();
@@ -221,9 +233,9 @@ namespace NuGetPackageVerifier
                 // For unlisted packages we run the rules from 'Default' package set if present
                 // or we run all rules (because we have no idea what exactly to run)
                 var analyzer = new PackageAnalyzer();
-                var unlistedPackageRules = defaultRuleSet ?? 
+                var unlistedPackageRules = defaultRuleSet ??
                     allRules.Values.SelectMany(f => f).Where(r => !excludedRuleNames.Contains(r.GetType().Name));
-                
+
                 foreach (var ruleInstance in unlistedPackageRules)
                 {
                     analyzer.Rules.Add(ruleInstance);
@@ -235,12 +247,16 @@ namespace NuGetPackageVerifier
                 {
                     logger.LogInfo("Analyzing {0} ({1})", unlistedPackage.Id, unlistedPackage.Version);
 
+                    PackageSignRequest signRequest = null;
+                    signRequestManifest?.PackageSignRequests.TryGetValue(packages[unlistedPackage].FullName, out signRequest);
+
                     List<PackageVerifierIssue> issues;
                     using (var context = new PackageAnalysisContext
                     {
                         PackageFileInfo = packages[unlistedPackage],
                         Metadata = unlistedPackage,
-                        Logger = logger
+                        Logger = logger,
+                        SignRequest = signRequest,
                     })
                     {
                         issues = analyzer.AnalyzePackage(context).ToList();
@@ -296,7 +312,7 @@ namespace NuGetPackageVerifier
                 "SUMMARY: {0} error(s) and {1} warning(s) found",
                 totalErrors, totalWarnings);
 
-            
+
 
             return (totalErrors + totalWarnings > 0) ? ReturnErrorsOrWarnings : ReturnOk;
         }

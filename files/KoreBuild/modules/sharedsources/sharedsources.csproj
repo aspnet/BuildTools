@@ -69,6 +69,11 @@
         <Version>$(NormalizedPackageVersion)</Version>
         <TargetFramework>$(TargetFramework)</TargetFramework>
         <RepositoryRoot>$(RepositoryRoot)</RepositoryRoot>
+        <RepositoryUrl>$(RepositoryUrl)</RepositoryUrl>
+        <Category>$(PackageArtifactCategory)</Category>
+        <IsContainer>true</IsContainer>
+        <Certificate>$(PackageSigningCertName)</Certificate>
+        <ShouldBeSigned Condition=" '$(PackageSigningCertName)' != '' ">true</ShouldBeSigned>
       </ArtifactInfo>
     </ItemGroup>
   </Target>

@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
@@ -26,6 +26,8 @@ namespace NuGetPackagerVerifier
         public string ArtifactDirectory { get; set; }
 
         public string[] ExcludedRules { get; set; }
+
+        public string SignRequestManifest { get; set; }
 
         public override bool Execute()
         {
@@ -57,6 +59,12 @@ namespace NuGetPackagerVerifier
                 ArtifactDirectory,
             };
 
+            if (!string.IsNullOrEmpty(SignRequestManifest) && File.Exists(SignRequestManifest))
+            {
+                arguments.Add("--sign-request");
+                arguments.Add(SignRequestManifest);
+            }
+
             foreach (var rule in ExcludedRules ?? Enumerable.Empty<string>())
             {
                 arguments.Add("--excluded-rule");
@@ -69,7 +77,8 @@ namespace NuGetPackagerVerifier
                 Arguments = ArgumentEscaper.EscapeAndConcatenate(arguments),
             };
 
-            Log.LogMessage($"Executing '{psi.FileName} {psi.Arguments}'");
+            Log.LogCommandLine($"Executing '{psi.FileName} {psi.Arguments}'");
+
             var process = Process.Start(psi);
             process.WaitForExit();
             return process.ExitCode == 0;

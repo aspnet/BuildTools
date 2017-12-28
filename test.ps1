@@ -13,6 +13,8 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+& git clean .\artifacts -xdf
+
 if (!$NoBuild) {
     & .\build.ps1 '-p:SkipTests=true'
 }

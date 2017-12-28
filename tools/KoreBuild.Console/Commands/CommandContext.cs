@@ -55,6 +55,8 @@ namespace KoreBuild.Console.Commands
         public string ToolsSource => _toolsSourceOption.HasValue() ? _toolsSourceOption.Value() : _defaultToolsSource;
         public string SDKVersion => GetDotnetSDKVersion();
 
+        public string KoreBuildVersion => GetKoreBuildVersion();
+
         public IReporter Reporter => new ConsoleReporter(PhysicalConsole.Singleton, _verbose != null, false);
 
         private string GetDotnetSDKVersion()
@@ -96,6 +98,12 @@ namespace KoreBuild.Console.Commands
             }
 
             return result;
+        }
+
+        private string GetKoreBuildVersion()
+        {
+            var dir = new DirectoryInfo(FindKoreBuildDirectory());
+            return dir.Parent.Name;
         }
 
         private string FindKoreBuildDirectory()

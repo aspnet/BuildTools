@@ -129,6 +129,7 @@ namespace NuGetPackageVerifier
             var ignoreAssistanceData = new Dictionary<string, PackageVerifierOptions>(
                 StringComparer.OrdinalIgnoreCase);
 
+            PackageSet defaultPackageSet = null;
             IEnumerable<IPackageVerifierRule> defaultRuleSet = null;
             IEnumerable<IssueIgnore> defaultIssuesToIgnore = null;
 
@@ -148,6 +149,7 @@ namespace NuGetPackageVerifier
 
                 if (string.Equals(packageSet.Key, "Default", StringComparison.OrdinalIgnoreCase))
                 {
+                    defaultPackageSet = packageSet.Value;
                     defaultRuleSet = packageSetRules;
                     defaultIssuesToIgnore = GetIgnoresFromFile(packageSet.Value.Packages);
                     continue;
@@ -251,12 +253,16 @@ namespace NuGetPackageVerifier
                     signRequestManifest?.PackageSignRequests.TryGetValue(packages[unlistedPackage].FullName, out signRequest);
 
                     List<PackageVerifierIssue> issues;
+                    PackageVerifierOptions packageOptions = null;
+                    defaultPackageSet?.Packages?.TryGetValue(unlistedPackage.Id, out packageOptions);
+
                     using (var context = new PackageAnalysisContext
                     {
                         PackageFileInfo = packages[unlistedPackage],
                         Metadata = unlistedPackage,
                         Logger = logger,
                         SignRequest = signRequest,
+                        Options = packageOptions,
                     })
                     {
                         issues = analyzer.AnalyzePackage(context).ToList();

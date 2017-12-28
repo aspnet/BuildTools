@@ -23,7 +23,7 @@ namespace NuGetPackageVerifier
 
         public IDictionary<string, AssemblyAttributesData> AssemblyData { get; } = new Dictionary<string, AssemblyAttributesData>();
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             _reader?.Dispose();
         }

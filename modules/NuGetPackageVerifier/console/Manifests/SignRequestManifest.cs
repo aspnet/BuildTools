@@ -18,15 +18,21 @@ namespace NuGetPackageVerifier.Manifests
 
         public static SignRequestManifest Parse(string filePath)
         {
-            var doc = XDocument.Load(filePath);
+            using (var reader = File.OpenText(filePath))
+            {
+                return Parse(reader, Path.GetDirectoryName(filePath));
+            }
+        }
+
+        public static SignRequestManifest Parse(TextReader reader, string manifestBasePath)
+        {
+            var doc = XDocument.Load(reader);
             var requests = new Dictionary<string, PackageSignRequest>(StringComparer.OrdinalIgnoreCase);
             var manifest = new SignRequestManifest { PackageSignRequests = requests };
 
             var nupkgContainers = doc.Root
                 .Elements("Container")
                 .Where(c => "nupkg".Equals(c.Attribute("Type")?.Value, StringComparison.Ordinal));
-
-            var manifestDir = Path.GetDirectoryName(filePath);
 
             foreach (var container in nupkgContainers)
             {
@@ -36,7 +42,7 @@ namespace NuGetPackageVerifier.Manifests
                     FilesExcludedFromSigning = container.Elements("ExcludedFile").Select(GetPath).ToHashSet(StringComparer.Ordinal),
                 };
 
-                var path = new FileInfo(Path.Combine(manifestDir, GetPath(container))).FullName;
+                var path = new FileInfo(Path.Combine(manifestBasePath, GetPath(container))).FullName;
 
                 requests.Add(path, request);
             }

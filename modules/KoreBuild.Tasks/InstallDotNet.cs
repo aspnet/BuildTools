@@ -165,6 +165,7 @@ namespace KoreBuild.Tasks
 
                     var processFinished = new TaskCompletionSource<object>();
                     process.Exited += (o, e) => processFinished.TrySetResult(null);
+                    process.Disposed += (o, e) => processFinished.TrySetResult(null);
 
                     process.Start();
                     process.BeginErrorReadLine();
@@ -181,16 +182,15 @@ namespace KoreBuild.Tasks
 
                     if (ReferenceEquals(finished, timeout))
                     {
-                        Log.LogError($"dotnet-install of {assetName} timed out after {TimeoutSeconds} seconds.\n"
-                            + $"Output:\n{string.Join("\n", collectedOutput)}");
+                        Log.LogMessage(MessageImportance.High, $"dotnet-install output:\n{string.Join("\n", collectedOutput)}");
+                        Log.LogError($"dotnet-install of {assetName} timed out after {TimeoutSeconds} seconds.");
                         return false;
                     }
 
                     if (process.ExitCode != 0)
                     {
-                        Log.LogError($"dotnet-install failed on {assetName}.\n"
-                            + $"Arguments: {process.StartInfo.FileName} {process.StartInfo.Arguments}\n"
-                            + $"Output:\n{string.Join("\n", collectedOutput)}");
+                        Log.LogMessage(MessageImportance.High, $"dotnet-install output:\n{string.Join("\n", collectedOutput)}");
+                        Log.LogError($"dotnet-install failed on {assetName}.");
                         return false;
                     }
                 }

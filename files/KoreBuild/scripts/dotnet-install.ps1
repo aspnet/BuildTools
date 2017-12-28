@@ -513,7 +513,7 @@ else {
 
 $isAssetInstalled = Is-Dotnet-Package-Installed -InstallRoot $InstallRoot -RelativePathToPackage $dotnetPackageRelativePath -SpecificVersion $SpecificVersion
 if ($isAssetInstalled) {
-    Say "$assetname version $SpecificVersion is already installed."
+    Say "$assetName version $SpecificVersion is already installed."
     Prepend-Sdk-InstallRoot-To-Path -InstallRoot $InstallRoot -BinFolderRelativePath $BinFolderRelativePath
     exit 0
 }
@@ -541,6 +541,9 @@ catch {
         Say-Verbose "Legacy zip path: $ZipPath"
         Say "Downloading legacy link: $DownloadLink"
         DownloadFile -Uri $DownloadLink -OutPath $ZipPath
+    }
+    else {
+        throw "Could not download $assetName version $SpecificVersion"
     }
 }
 

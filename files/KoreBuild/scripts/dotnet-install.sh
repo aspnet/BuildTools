@@ -729,13 +729,22 @@ install_dotnet() {
     download "$download_link" "$zip_path" 2>&1 || download_failed=true
 
     #  if the download fails, download the legacy_download_link
-    if [ "$download_failed" = true ] && [ "$valid_legacy_download_link" = true ]; then
+    if [ "$download_failed" = true ]; then
         say "Cannot download: $download_link"
-        download_link="$legacy_download_link"
-        zip_path="$(mktemp "$temporary_file_template")"
-        say_verbose "Legacy zip path: $zip_path"
-        say "Downloading legacy link: $download_link"
-        download "$download_link" "$zip_path"
+
+        if [ "$valid_legacy_download_link" = true ]; then
+            download_failed=false
+            download_link="$legacy_download_link"
+            zip_path="$(mktemp "$temporary_file_template")"
+            say_verbose "Legacy zip path: $zip_path"
+            say "Downloading legacy link: $download_link"
+            download "$download_link" "$zip_path" 2>&1 || download_failed=true
+        fi
+    fi
+
+    if [ "$download_failed" = true ]; then
+        say_err "Could not download $asset_name version $specific_version"
+        return 1
     fi
 
     say "Extracting zip from $download_link"

@@ -48,7 +48,7 @@ Downloads and extracts .NET Core shared runtimes and SDKs.
     </PropertyGroup>
 
     <InstallDotNet
-      Assets="@(DotNetCoreSdk);@(DotNetCoreRuntime)"
+      Assets="@(DotNetCoreSdk);@(DotNetCoreRuntime);@(AspNetCoreRuntime)"
       DotNetHome="$(DOTNET_HOME)"
       InstallScript="$(_DotNetInstall)"/>
   </Target>

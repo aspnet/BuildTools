@@ -86,6 +86,7 @@ Runs the VSTest on all projects in the ProjectsToTest itemgroup.
       <VSTestArgs Remove="@(VSTestArgs)" />
       <VSTestArgs Include="vstest" />
       <VSTestArgs Include="--Parallel" />
+      <VSTestArgs Include="--Blame" Condition="'$(VSTestBlame)' == 'true'" />
       <VSTestArgs Include="--Framework:$(TargetFrameworkIdentifier),Version=v$(TargetFrameworkVersion)" />
       <VSTestArgs Include="--Logger:$([MSBuild]::Escape($(VSTestLogger)))" Condition="'$(VSTestLogger)' != ''" />
       <VSTestArgs Include="--TestAdapterPath:$(TestAdapterPath)" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />

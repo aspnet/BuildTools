@@ -14,22 +14,59 @@ using NuGet.Versioning;
 
 namespace KoreBuild.Tasks
 {
+    /// <summary>
+    /// Generates a nupkg from a nuspec file
+    /// </summary>
     public class PackNuSpec : Microsoft.Build.Utilities.Task
     {
+        /// <summary>
+        /// The path the nuspec file.
+        /// </summary>
         [Required]
         public string NuspecPath { get; set; }
 
-        [Required]
+        /// <summary>
+        /// Output nupkg is placed in folder + '$(id).$(version).nupkg'.
+        /// Either this or <see cref="OutputPath" /> must be specified.
+        /// </summary>
         public string DestinationFolder { get; set; }
 
+        /// <summary>
+        /// The output path for the nupkg.
+        /// Either this or <see cref="DestinationFolder" /> must be specified.
+        /// </summary>
+        public string OutputPath { get; set; }
+
+        /// <summary>
+        /// The base path to use for any relative paths in the &lt;files%gt; section of nuspec.
+        /// Defaults to the nuspec folder.
+        /// </summary>
         public string BasePath { get; set; }
 
+        /// <summary>
+        /// Dependencies to add to the metadata>dependencies section of the spec.
+        /// Metadata 'TargetFramework' can be specified to further put dependencies into >group[targetFramework]
+        /// </summary>
         public ITaskItem[] Dependencies { get; set; }
 
+        /// <summary>
+        /// Subsitution in the nuspec via $key$.
+        /// </summary>
         public string[] Properties { get; set; }
 
+        /// <summary>
+        /// Pack empty directories.
+        /// </summary>
         public bool IncludeEmptyDirectories { get; set; } = false;
 
+        /// <summary>
+        /// Overwrite the destination file if it exists.
+        /// </summary>
+        public bool Overwrite { get; set; } = false;
+
+        /// <summary>
+        /// The nuspec files created
+        /// </summary>
         [Output]
         public ITaskItem[] Packages { get; set; }
 
@@ -48,6 +85,12 @@ namespace KoreBuild.Tasks
             if (!Directory.Exists(packageBasePath))
             {
                 Log.LogError("Base path does not exist: " + packageBasePath);
+                return false;
+            }
+
+            if (!(string.IsNullOrEmpty(DestinationFolder) ^ string.IsNullOrEmpty(OutputPath)))
+            {
+                Log.LogError("Either DestinationFolder and OutputPath must be specified, but only not both.");
                 return false;
             }
 
@@ -81,8 +124,36 @@ namespace KoreBuild.Tasks
                 AddDependencies(packageBuilder);
             }
 
-            Directory.CreateDirectory(DestinationFolder);
-            var dest = Path.Combine(DestinationFolder, $"{packageBuilder.Id}.{packageBuilder.Version}.nupkg");
+            var dest = !string.IsNullOrEmpty(OutputPath)
+                ? OutputPath
+                : Path.Combine(DestinationFolder, $"{packageBuilder.Id}.{packageBuilder.Version}.nupkg");
+
+            // normalize path
+            dest = Path.GetFullPath(dest);
+
+            Directory.CreateDirectory(Path.GetDirectoryName(dest));
+
+            if (!Overwrite && File.Exists(dest))
+            {
+                Log.LogError($"File path '{dest}' already exists. Set Overwrite=true to overwrite the destination nupkg file.");
+                return false;
+            }
+
+            if (packageBuilder.Files != null)
+            {
+                foreach (var file in packageBuilder.Files)
+                {
+                    if (file is PhysicalPackageFile p)
+                    {
+                        Log.LogMessage($"Packing {p.SourcePath} => {p.Path}");
+                    }
+                    else
+                    {
+                        Log.LogMessage($"Packing {file.Path}");
+                    }
+                }
+            }
+
             using (var stream = File.Create(dest))
             {
                 packageBuilder.Save(stream);

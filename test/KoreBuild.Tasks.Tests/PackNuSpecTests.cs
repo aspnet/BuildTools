@@ -163,6 +163,36 @@ namespace KoreBuild.Tasks.Tests
             }
         }
 
+        [Fact]
+        public void FailsIfBothOutputPathAndDestinationFolderAreGiven()
+        {
+            var engine = new MockEngine { ContinueOnError = true };
+            var task = new PackNuSpec
+            {
+                BuildEngine = engine,
+                OutputPath = _tempDir,
+                DestinationFolder = _tempDir,
+                NuspecPath = CreateNuspec(""),
+            };
+
+            Assert.False(task.Execute(), "Task should fail");
+            Assert.Contains("Either DestinationFolder and OutputPath must be specified, but only not both.", engine.Errors.Select(e => e.Message));
+        }
+
+        [Fact]
+        public void FailsIfNeitherOutputPathAndDestinationFolderAreGiven()
+        {
+            var engine = new MockEngine { ContinueOnError = true };
+            var task = new PackNuSpec
+            {
+                BuildEngine = engine,
+                NuspecPath = CreateNuspec(""),
+            };
+
+            Assert.False(task.Execute(), "Task should fail");
+            Assert.Contains("Either DestinationFolder and OutputPath must be specified, but only not both.", engine.Errors.Select(e => e.Message));
+        }
+
         private string CreateNuspec(string xml)
         {
             var nuspecPath = Path.Combine(_tempDir, Path.GetRandomFileName() + ".nuspec");

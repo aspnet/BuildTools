@@ -93,6 +93,79 @@ namespace BuildTools.Tasks.Tests
         }
 
         [Fact]
+        public void FailsIfFileExists()
+        {
+             var files = new[]
+            {
+                "test.txt",
+            };
+
+            var dest = Path.Combine(_tempDir, "test.zip");
+            File.WriteAllText(dest, "Original");
+
+            var task = new ZipArchive
+            {
+                SourceFiles = CreateItems(files).ToArray(),
+                WorkingDirectory = _tempDir,
+                File = dest,
+                Overwrite = false,
+                BuildEngine = new MockEngine { ContinueOnError = true },
+            };
+
+            Assert.False(task.Execute(), "Task should fail");
+            Assert.Equal("Original", File.ReadAllText(dest));
+        }
+
+        [Fact]
+        public void OverwriteReplacesEntireZip()
+        {
+            var files1 = new[]
+            {
+                "a.txt",
+                "dir/b.txt",
+                @"dir\c.txt",
+            };
+
+            var files2 = new[]
+            {
+                "test.txt",
+            };
+
+            var dest = Path.Combine(_tempDir, "test.zip");
+            Assert.False(File.Exists(dest));
+
+            var task = new ZipArchive
+            {
+                SourceFiles = CreateItems(files1).ToArray(),
+                WorkingDirectory = _tempDir,
+                File = dest,
+                BuildEngine = new MockEngine(),
+            };
+
+            Assert.True(task.Execute());
+            Assert.True(File.Exists(dest));
+
+            task = new ZipArchive
+            {
+                SourceFiles = CreateItems(files2).ToArray(),
+                WorkingDirectory = _tempDir,
+                File = dest,
+                Overwrite = true,
+                BuildEngine = new MockEngine(),
+            };
+
+            Assert.True(task.Execute());
+            Assert.True(File.Exists(dest));
+
+            using (var fileStream = File.OpenRead(dest))
+            using (var zipStream = new ZipArchiveStream(fileStream))
+            {
+                var entry = Assert.Single(zipStream.Entries);
+                Assert.Equal("test.txt", entry.FullName);
+            }
+        }
+
+        [Fact]
         public void FailsForEmptyFileName()
         {
             var inputFile = Path.Combine(_tempDir, "..", Guid.NewGuid().ToString());

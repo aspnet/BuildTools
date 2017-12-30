@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.BuildTools.Utilities;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using ZipArchiveStream = System.IO.Compression.ZipArchive;
+using IOFile = System.IO.File;
 
 namespace Microsoft.AspNetCore.BuildTools
 {
@@ -45,6 +46,12 @@ namespace Microsoft.AspNetCore.BuildTools
 
         public override bool Execute()
         {
+            if (!Overwrite && IOFile.Exists(File))
+            {
+                Log.LogError($"Zip file {File} already exists. Set Overwrite=true to replace it.");
+                return false;
+            }
+
             var workDir = FileHelpers.EnsureTrailingSlash(WorkingDirectory).Replace('\\', '/');
 
             foreach (var file in SourceFiles)
@@ -66,18 +73,10 @@ namespace Microsoft.AspNetCore.BuildTools
                 file.SetMetadata("Link", filePath.Substring(workDir.Length));
             }
 
-            var fileMode = Overwrite
-                ? FileMode.Create
-                : FileMode.OpenOrCreate;
-
-            var archiveMode = Overwrite
-                ? ZipArchiveMode.Create
-                : ZipArchiveMode.Update;
-
             Directory.CreateDirectory(Path.GetDirectoryName(File));
 
-            using (var stream = new FileStream(File, fileMode))
-            using (var zip = new ZipArchiveStream(stream, archiveMode))
+            using (var stream = IOFile.Create(File))
+            using (var zip = new ZipArchiveStream(stream, ZipArchiveMode.Create))
             {
                 foreach (var file in SourceFiles)
                 {

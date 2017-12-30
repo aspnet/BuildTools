@@ -57,7 +57,7 @@ namespace Microsoft.AspNetCore.BuildTools
             Directory.CreateDirectory(Destination);
 
             var output = new List<ITaskItem>();
-            using (var stream = new FileStream(File, FileMode.Open))
+            using (var stream = IOFile.OpenRead(File))
             using (var zip = new ZipArchiveStream(stream, ZipArchiveMode.Read))
             {
                 foreach (var entry in zip.Entries)

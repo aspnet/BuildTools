@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.BuildTools;
@@ -65,7 +64,7 @@ namespace KoreBuild.Tasks
         public bool Overwrite { get; set; } = false;
 
         /// <summary>
-        /// The nuspec files created
+        /// The nupkg files created
         /// </summary>
         [Output]
         public ITaskItem[] Packages { get; set; }
@@ -180,7 +179,14 @@ namespace KoreBuild.Tasks
                     Log.LogError($"Dependency {d.ItemSpec} is missing expected metdata: Version");
                 }
 
-                return new { tfm, dependency = new PackageDependency(d.ItemSpec, VersionRange.Parse(d.GetMetadata("Version"))) };
+                return new
+                {
+                    tfm,
+                    dependency = new PackageDependency(d.ItemSpec,
+                        VersionRange.Parse(d.GetMetadata("Version")),
+                        d.GetMetadata("IncludeAssets").Split(';').Select(s => s.Trim()).ToArray(),
+                        d.GetMetadata("ExcludeAssets").Split(';').Select(s => s.Trim()).ToArray())
+                };
             });
 
             foreach (var group in packageRequest.GroupBy(g => g.tfm))

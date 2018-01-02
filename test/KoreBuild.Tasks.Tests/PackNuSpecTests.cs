@@ -164,6 +164,56 @@ namespace KoreBuild.Tasks.Tests
         }
 
         [Fact]
+        public void SetsLibraryIncludeFlagsOnDependency()
+        {
+            var nuspec = CreateNuspec(@"
+                <?xml version=`1.0` encoding=`utf-8`?>
+                <package xmlns=`http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd`>
+                  <metadata>
+                    <id>HasDependencies</id>
+                    <version>1.0.0</version>
+                    <authors>Test</authors>
+                    <description>Test</description>
+                  </metadata>
+                </package>
+                ");
+
+            var task = new PackNuSpec
+            {
+                NuspecPath = nuspec,
+                BasePath = _tempDir,
+                BuildEngine = new MockEngine(),
+                DestinationFolder = _tempDir,
+                Dependencies = new[]
+                {
+                    new TaskItem("Include", new Hashtable { ["Version"] = "1.0.0", ["IncludeAssets"] = "Build;Analyzers"}),
+                    new TaskItem("Exclude", new Hashtable { ["Version"] = "1.0.0", ["ExcludeAssets"] = "Compile;Native"}),
+                    new TaskItem("Both", new Hashtable { ["Version"] = "1.0.0", ["IncludeAssets"] = "Build; Analyzers", ["ExcludeAssets"] = "Build; Native; ContentFiles"}),
+                }
+            };
+
+            Assert.True(task.Execute(), "The task should have passed");
+            var result = Assert.Single(task.Packages);
+
+            using (var reader = new PackageArchiveReader(result.ItemSpec))
+            {
+                var metadata = new PackageBuilder(reader.GetNuspec(), basePath: null);
+                var packages = Assert.Single(metadata.DependencyGroups).Packages;
+                Assert.Equal(3, packages.Count());
+
+                var include = Assert.Single(packages, p => p.Id == "Include").Include;
+                Assert.Equal(new[] { "Build", "Analyzers" }, include);
+
+                var exclude = Assert.Single(packages, p => p.Id == "Exclude").Exclude;
+                Assert.Equal(new[] { "Compile", "Native" }, exclude);
+
+                var both = Assert.Single(packages, p => p.Id == "Both");
+                Assert.Equal(new[] { "Build", "Analyzers" }, both.Include);
+                Assert.Equal(new[] { "Build", "Native", "ContentFiles" }, both.Exclude);
+            }
+        }
+
+        [Fact]
         public void FailsIfBothOutputPathAndDestinationFolderAreGiven()
         {
             var engine = new MockEngine { ContinueOnError = true };

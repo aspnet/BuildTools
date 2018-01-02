@@ -51,6 +51,13 @@ function Push-NuGetPackage {
     }
 
     process {
+        if ($env:DOTNET_HOME -ne $null) {
+            $dotnetExe = "$env:DOTNET_HOME/x64/dotnet"
+        }
+        else {
+            $dotnetExe = "dotnet"
+        }
+
         $packagesToPush = @()
         foreach ($package in $Packages) {
             if ($package -like '*.symbols.nupkg') {
@@ -58,7 +65,7 @@ function Push-NuGetPackage {
                 continue
             }
 
-            if ($PSCmdlet.ShouldProcess((Split-Path -Leaf $package), "dotnet nuget push")) {
+            if ($PSCmdlet.ShouldProcess((Split-Path -Leaf $package), "$dotnetExe nuget push")) {
                 $packagesToPush += $package
             }
         }
@@ -85,7 +92,7 @@ function Push-NuGetPackage {
                     }
 
                     try {
-                        & dotnet nuget push `
+                        & $Using:dotnetExe nuget push `
                             $package `
                             --source $feed `
                             --timeout 300 `

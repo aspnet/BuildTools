@@ -14,7 +14,7 @@ param(
 $ErrorActionPreference = 'Stop'
 
 if (!$NoBuild) {
-    & .\build.ps1 /p:SkipTests=$true
+    & .\build.ps1 '-p:SkipTests=true'
 }
 
 $toolsSource = "$PSScriptRoot/artifacts/"
@@ -25,19 +25,9 @@ foreach ($line in Get-Content $latestFile) {
     break
 }
 
-mkdir "$PSScriptRoot\obj\testbuild\" -ErrorAction Ignore
-$versionPropsPath = "$PSScriptRoot\obj\testbuild\dotnetpackageversion.props"
-$sourcePropsPath = "$PSScriptRoot\obj\testbuild\source.props"
-
-$versionPropsValue = "<Project><PropertyGroup><InternalAspNetCoreSdkPackageVersion>$toolsVersion</InternalAspNetCoreSdkPackageVersion></PropertyGroup></Project>"
-
 $packageDir = Join-Path $toolsSource "build\"
-$sourcePropsValue = "<Project><PropertyGroup><DotNetRestoreSources>$packageDir</DotNetRestoreSources></PropertyGroup></Project>"
 
-Out-File -FilePath $versionPropsPath -InputObject $versionPropsValue
-Out-File -FilePath $sourcePropsPath -InputObject $sourcePropsValue
-
-$Arguments += "/p:DotNetPackageVersionPropsPath=$versionPropsPath"
-$Arguments += "/p:DotNetRestoreSourcePropsPath=$sourcePropsPath"
+$Arguments += ,"/p:InternalAspNetCoreSdkPackageVersion=$toolsVersion"
+$Arguments += ,"/p:DotNetRestoreSources=$packageDir"
 
 & .\scripts\bootstrapper\run.ps1 -Update -Reinstall -Command $Command -Path $RepoPath -ToolsSource $toolsSource @Arguments

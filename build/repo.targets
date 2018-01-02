@@ -25,8 +25,7 @@
   <Target Name="ResolveCommitHash" Condition="'$(CommitHash)'==''" BeforeTargets="Prepare">
 
     <GetGitCommitInfo WorkingDirectory="$(RepositoryRoot)"
-                      Condition="'$(CommitHash)' == ''"
-                      ContinueOnError="WarnAndContinue">
+                      Condition="'$(CommitHash)' == ''">
       <Output TaskParameter="CommitHash" PropertyName="CommitHash" />
       <Output TaskParameter="Branch" PropertyName="GitBranch" />
     </GetGitCommitInfo>

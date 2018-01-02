@@ -303,6 +303,16 @@ function Push-NuGetPackage {
             }
         }
 
+        $dotnet = $global:dotnet
+        if (-not (Test-Path $dotnet)) {
+            if ($env:DOTNET_HOME) {
+                $dotnet = "$env:DOTNET_HOME/x64/dotnet"
+            }
+            else {
+                $dotnet = 'dotnet'
+            }
+        }
+
         foreach ($package in $packagesToPush) {
             $running = $jobs | ? { $_.State -eq 'Running' }
             if (($running | Measure-Object).Count -ge $MaxParallel) {
@@ -313,7 +323,7 @@ function Push-NuGetPackage {
 
             Write-Verbose "Starting job to push $(Split-Path -Leaf $package)"
             $job = Start-Job -ScriptBlock {
-                param($dotnet, $feed, $apikey, $package, $remaining)
+                param($feed, $apikey, $package, $remaining)
 
                 $ErrorActionPreference = 'Stop'
                 Set-StrictMode -Version Latest
@@ -325,7 +335,7 @@ function Push-NuGetPackage {
                     }
 
                     try {
-                        & $dotnet nuget push `
+                        & $using:dotnet nuget push `
                             $package `
                             --source $feed `
                             --timeout 300 `
@@ -348,7 +358,7 @@ function Push-NuGetPackage {
                         $remaining--
                     }
                 }
-            } -ArgumentList ($global:dotnet, $Feed, $ApiKey, $package, $Retries)
+            } -ArgumentList ($Feed, $ApiKey, $package, $Retries)
             $jobs += $job
         }
     }

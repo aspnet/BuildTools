@@ -10,6 +10,8 @@ namespace KoreBuild.Tasks
 
         // NuGet errors
         public const int InvalidNuspecFile = 4001;
+        public const int NuspecMissingFilesNode = 4011;
+        public const int InvalidPackagePathMetadata = 4012;
 
         // Other errors
         public const int MissingArtifactType = 5001;

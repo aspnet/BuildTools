@@ -2,7 +2,7 @@
 #requires -version 4
 [CmdletBinding(PositionalBinding = $true)]
 param(
-    [Parameter]
+    [Parameter()]
     [string]$Command = 'default-build',
     [Parameter(Mandatory = $true)]
     [string]$RepoPath,

@@ -344,6 +344,9 @@ function Invoke-KoreBuildCommand(
     elseif ($Command -eq "install-tools") {
         Install-Tools
     }
+    elseif ($Command -eq 'noop') {
+        Write-Host -ForegroundColor DarkGreen 'Doing nothing because command = noop'
+    }
     else {
         Ensure-Dotnet
 

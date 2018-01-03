@@ -37,7 +37,7 @@ if ($env:KOREBUILD_DOTNET_FEED_CREDENTIAL) {
 
 # This disables automatic rollforward to C:\Program Files\ and other global locations.
 # We want to ensure are tests are running against the exact runtime specified by the project.
-$env:DOTNET_MULTILEVEL_LOOKUP=0
+$env:DOTNET_MULTILEVEL_LOOKUP = 0
 
 <#
 .SYNOPSIS
@@ -80,7 +80,8 @@ function Invoke-RepositoryBuild(
         $sdkVersion = __get_dotnet_sdk_version
         if ($sdkVersion -ne 'latest') {
             "{ `"sdk`": { `"version`": `"$sdkVersion`" } }" | Out-File (Join-Path $Path 'global.json') -Encoding ascii
-        } else {
+        }
+        else {
             Write-Verbose "Skipping global.json generation because the `$sdkVersion = $sdkVersion"
         }
 
@@ -313,6 +314,8 @@ function Push-NuGetPackage {
             }
         }
 
+        Write-Host "Using dotnet = $dotnet"
+
         foreach ($package in $packagesToPush) {
             $running = $jobs | ? { $_.State -eq 'Running' }
             if (($running | Measure-Object).Count -ge $MaxParallel) {
@@ -365,8 +368,12 @@ function Push-NuGetPackage {
 
     end {
         $jobs | Wait-Job | Out-Null
-        $jobs | Receive-Job
+        $jobs | Receive-Job -ErrorAction Ignore
+        $failedJobs = $jobs | ? { $_.State -eq 'Failed' }
         $jobs | Remove-Job | Out-Null
+        if ($failedJobs) {
+            throw 'Failed to push'
+        }
     }
 }
 

@@ -2,8 +2,8 @@
 #requires -version 4
 [CmdletBinding(PositionalBinding = $true)]
 param(
-    [Parameter(Mandatory = $true)]
-    [string]$Command,
+    [Parameter]
+    [string]$Command = 'default-build',
     [Parameter(Mandatory = $true)]
     [string]$RepoPath,
     [switch]$NoBuild = $false,

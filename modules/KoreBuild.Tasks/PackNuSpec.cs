@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.BuildTools;
@@ -50,6 +49,11 @@ namespace KoreBuild.Tasks
         public ITaskItem[] Dependencies { get; set; }
 
         /// <summary>
+        /// Files to add to the package. Must specify the PackagePath metadata.
+        /// </summary>
+        public ITaskItem[] PackageFiles { get; set; }
+
+        /// <summary>
         /// Subsitution in the nuspec via $key$.
         /// </summary>
         public string[] Properties { get; set; }
@@ -65,7 +69,7 @@ namespace KoreBuild.Tasks
         public bool Overwrite { get; set; } = false;
 
         /// <summary>
-        /// The nuspec files created
+        /// The nupkg files created
         /// </summary>
         [Output]
         public ITaskItem[] Packages { get; set; }
@@ -111,6 +115,18 @@ namespace KoreBuild.Tasks
             {
                 Log.LogMessage($"Loading nuspec {NuspecPath}");
 
+                using (var file = File.OpenRead(NuspecPath))
+                {
+                    var manifest = Manifest.ReadFrom(file, PropertyProvider, validateSchema: false);
+                    if (!manifest.HasFilesNode)
+                    {
+                        // Warn about this overly permissive default in nuspec.
+                        Log.LogKoreBuildWarning(KoreBuildErrors.NuspecMissingFilesNode,
+                            "The nuspec file is missing the <files> nodes. This causes all files in NuspecBase to be included in the package. " +
+                            @"Add an empty `<files />` node to prevent this behavior. Add `<files> <file src=""**\*\"" target=""\"" /> </files>` to the nuspec to suppress this warning.");
+                    }
+                }
+
                 packageBuilder = new PackageBuilder(NuspecPath, packageBasePath, PropertyProvider, IncludeEmptyDirectories);
             }
             catch (InvalidDataException ex)
@@ -122,6 +138,16 @@ namespace KoreBuild.Tasks
             if (Dependencies != null)
             {
                 AddDependencies(packageBuilder);
+            }
+
+            if (PackageFiles != null)
+            {
+                AddFiles(packageBuilder);
+            }
+
+            if (Log.HasLoggedErrors)
+            {
+                return false;
             }
 
             var dest = !string.IsNullOrEmpty(OutputPath)
@@ -165,6 +191,27 @@ namespace KoreBuild.Tasks
             return true;
         }
 
+        private void AddFiles(PackageBuilder builder)
+        {
+            foreach (var file in PackageFiles)
+            {
+                var packagePath = file.GetMetadata("PackagePath");
+                var fileName = Path.GetFileName(packagePath);
+                if (string.IsNullOrEmpty(fileName))
+                {
+                    Log.LogKoreBuildError(KoreBuildErrors.InvalidPackagePathMetadata,
+                        "The PackagePath metadata value on {0} is invalid. PackagePath must be set to the exact file path within the nuget package.");
+                    continue;
+                }
+
+                builder.Files.Add(new PhysicalPackageFile
+                {
+                    SourcePath = file.ItemSpec,
+                    TargetPath = packagePath,
+                });
+            }
+        }
+
         private void AddDependencies(PackageBuilder builder)
         {
             var packageRequest = Dependencies.Select(d =>
@@ -180,7 +227,14 @@ namespace KoreBuild.Tasks
                     Log.LogError($"Dependency {d.ItemSpec} is missing expected metdata: Version");
                 }
 
-                return new { tfm, dependency = new PackageDependency(d.ItemSpec, VersionRange.Parse(d.GetMetadata("Version"))) };
+                return new
+                {
+                    tfm,
+                    dependency = new PackageDependency(d.ItemSpec,
+                        VersionRange.Parse(d.GetMetadata("Version")),
+                        d.GetMetadata("IncludeAssets").Split(';').Select(s => s.Trim()).ToArray(),
+                        d.GetMetadata("ExcludeAssets").Split(';').Select(s => s.Trim()).ToArray())
+                };
             });
 
             foreach (var group in packageRequest.GroupBy(g => g.tfm))

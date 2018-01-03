@@ -24,6 +24,8 @@ namespace KoreBuild.Tasks
         public const int PackageRefPropertyGroupNotFound = 4008;
         public const int PackageReferenceDoesNotHaveVersion = 4009;
         public const int InvalidPackageVersion = 4010;
+        public const int NuspecMissingFilesNode = 4011;
+        public const int InvalidPackagePathMetadata = 4012;
 
         // Other errors
         public const int MissingArtifactType = 5001;

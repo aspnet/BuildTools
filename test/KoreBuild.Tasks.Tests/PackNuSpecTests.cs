@@ -3,9 +3,11 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BuildTools.Tasks.Tests;
+using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using NuGet.Frameworks;
 using NuGet.Packaging;
@@ -85,7 +87,11 @@ namespace KoreBuild.Tasks.Tests
                     <authors>Microsoft</authors>
                     <description>$description$</description>
                     <copyright>$copyright$</copyright>
+                    <dependencies>
+                      <dependency id=`somepackage` version=`1.0.0` />
+                    </dependencies>
                   </metadata>
+                  <files />
                 </package>
                 ");
 
@@ -128,6 +134,7 @@ namespace KoreBuild.Tasks.Tests
                         <dependency id=`AlreadyInNuspec` version=`[2.0.0]` />
                     </dependencies>
                   </metadata>
+                  <files />
                 </package>
                 ");
 
@@ -166,6 +173,171 @@ namespace KoreBuild.Tasks.Tests
                 var package2 = Assert.Single(netstandard11Group.Packages);
                 Assert.Equal("PackageInTfm", package2.Id);
                 Assert.Equal(VersionRange.Parse("0.2.0-beta"), package2.VersionRange);
+            }
+        }
+
+        [Fact]
+        public void WarnIfMissingFilesNodes()
+        {
+            var nuspec = CreateNuspec(@"
+                <?xml version=`1.0` encoding=`utf-8`?>
+                <package xmlns=`http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd`>
+                  <metadata>
+                    <id>HasNoFiles</id>
+                    <version>1.0.0</version>
+                    <authors>Test</authors>
+                    <description>Test</description>
+                  </metadata>
+                </package>
+                ");
+
+            var engine = new MockEngine();
+            var task = new PackNuSpec
+            {
+                NuspecPath = nuspec,
+                BasePath = _tempDir,
+                BuildEngine = engine,
+                DestinationFolder = _tempDir,
+            };
+            Assert.True(task.Execute());
+            var warning = Assert.Single(engine.Warnings);
+            Assert.Equal("KRB" + KoreBuildErrors.NuspecMissingFilesNode, warning.Code);
+        }
+
+        [Fact]
+        public void PacksFiles()
+        {
+            var files = new[]
+            {
+                Path.Combine("lib", "netstandard1.0", "_._"),
+                "top.txt",
+            };
+
+            var items = new List<ITaskItem>();
+
+            foreach (var file in files)
+            {
+                var path = Path.Combine(_tempDir, file);
+                Directory.CreateDirectory(Path.GetDirectoryName(path));
+                File.WriteAllText(path, "");
+                items.Add(new TaskItem(path, new Hashtable { ["PackagePath"] = file }));
+            }
+
+            var nuspec = CreateNuspec(@"
+                <?xml version=`1.0` encoding=`utf-8`?>
+                <package xmlns=`http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd`>
+                  <metadata>
+                    <id>HasFiles</id>
+                    <version>1.0.0</version>
+                    <authors>Test</authors>
+                    <description>Test</description>
+                  </metadata>
+                  <files />
+                </package>
+                ");
+
+            var engine = new MockEngine();
+            var task = new PackNuSpec
+            {
+                NuspecPath = nuspec,
+                BasePath = _tempDir,
+                BuildEngine = engine,
+                PackageFiles = items.ToArray(),
+                DestinationFolder = _tempDir,
+            };
+
+            Assert.True(task.Execute());
+            var result = Assert.Single(task.Packages);
+
+            using (var reader = new PackageArchiveReader(result.ItemSpec))
+            {
+                Assert.Contains("lib/netstandard1.0/_._", reader.GetFiles());
+                Assert.Contains("top.txt", reader.GetFiles());
+            }
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData("/")]
+        [InlineData("somedir/")]
+        public void FailsForBadPackagePath(string path)
+        {
+            var nuspec = CreateNuspec(@"
+                <?xml version=`1.0` encoding=`utf-8`?>
+                <package xmlns=`http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd`>
+                  <metadata>
+                    <id>HasFiles</id>
+                    <version>1.0.0</version>
+                    <authors>Test</authors>
+                    <description>Test</description>
+                  </metadata>
+                  <files />
+                </package>
+                ");
+
+            var engine = new MockEngine { ContinueOnError = true };
+            var task = new PackNuSpec
+            {
+                NuspecPath = nuspec,
+                BasePath = _tempDir,
+                BuildEngine = engine,
+                PackageFiles = new[] { new TaskItem("file.txt", new Hashtable { ["PackagePath"] = path }) },
+                DestinationFolder = _tempDir,
+            };
+
+            Assert.False(task.Execute(), "Task should fail");
+            var error = Assert.Single(engine.Errors);
+            Assert.Equal("KRB" + KoreBuildErrors.InvalidPackagePathMetadata, error.Code);
+        }
+
+        [Fact]
+        public void SetsLibraryIncludeFlagsOnDependency()
+        {
+            var nuspec = CreateNuspec(@"
+                <?xml version=`1.0` encoding=`utf-8`?>
+                <package xmlns=`http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd`>
+                  <metadata>
+                    <id>HasDependencies</id>
+                    <version>1.0.0</version>
+                    <authors>Test</authors>
+                    <description>Test</description>
+                  </metadata>
+                  <files />
+                </package>
+                ");
+
+            var task = new PackNuSpec
+            {
+                NuspecPath = nuspec,
+                BasePath = _tempDir,
+                BuildEngine = new MockEngine(),
+                DestinationFolder = _tempDir,
+                Dependencies = new[]
+                {
+                    new TaskItem("Include", new Hashtable { ["Version"] = "1.0.0", ["IncludeAssets"] = "Build;Analyzers"}),
+                    new TaskItem("Exclude", new Hashtable { ["Version"] = "1.0.0", ["ExcludeAssets"] = "Compile;Native"}),
+                    new TaskItem("Both", new Hashtable { ["Version"] = "1.0.0", ["IncludeAssets"] = "Build; Analyzers", ["ExcludeAssets"] = "Build; Native; ContentFiles"}),
+                }
+            };
+
+            Assert.True(task.Execute(), "The task should have passed");
+            var result = Assert.Single(task.Packages);
+
+            using (var reader = new PackageArchiveReader(result.ItemSpec))
+            {
+                var metadata = new PackageBuilder(reader.GetNuspec(), basePath: null);
+                var packages = Assert.Single(metadata.DependencyGroups).Packages;
+                Assert.Equal(3, packages.Count());
+
+                var include = Assert.Single(packages, p => p.Id == "Include").Include;
+                Assert.Equal(new[] { "Build", "Analyzers" }, include);
+
+                var exclude = Assert.Single(packages, p => p.Id == "Exclude").Exclude;
+                Assert.Equal(new[] { "Compile", "Native" }, exclude);
+
+                var both = Assert.Single(packages, p => p.Id == "Both");
+                Assert.Equal(new[] { "Build", "Analyzers" }, both.Include);
+                Assert.Equal(new[] { "Build", "Native", "ContentFiles" }, both.Exclude);
             }
         }
 

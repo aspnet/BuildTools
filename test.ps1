@@ -27,7 +27,7 @@ foreach ($line in Get-Content $latestFile) {
 
 $packageDir = Join-Path $toolsSource "build\"
 
-$Arguments += ,"/p:InternalAspNetCoreSdkPackageVersion=$toolsVersion"
-$Arguments += ,"/p:DotNetRestoreSources=$packageDir"
+$Arguments += , "/p:InternalAspNetCoreSdkPackageVersion=$toolsVersion"
+$Arguments += , "/p:DotNetRestoreSources=$packageDir"
 
 & .\scripts\bootstrapper\run.ps1 -Update -Reinstall -Command $Command -Path $RepoPath -ToolsSource $toolsSource @Arguments

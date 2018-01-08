@@ -41,6 +41,11 @@ namespace Microsoft.AspNetCore.BuildTools
         public bool Overwrite { get; set; } = false;
 
         /// <summary>
+        /// Disables normalizing zip entry paths while extracting.
+        /// </summary>
+        public bool DisablePathNormalization { get; set; } = false;
+
+        /// <summary>
         /// The files that were unzipped.
         /// </summary>
         [Output]
@@ -62,7 +67,18 @@ namespace Microsoft.AspNetCore.BuildTools
             {
                 foreach (var entry in zip.Entries)
                 {
-                    var fileDest = Path.Combine(Destination, entry.FullName);
+                    var entryPath = entry.FullName;
+                    if (!DisablePathNormalization)
+                    {
+                        if (entry.FullName.IndexOf('\\') >= 0)
+                        {
+                            Log.LogWarning(null, null, null, File, 0, 0, 0, 0,
+                                message: $"Zip entry '{entry.FullName}' has been normalized because it contains a backslash. Set DisablePathNormalization=true to disable this.");
+                            entryPath = entry.FullName.Replace('\\', '/');
+                        }
+                    }
+
+                    var fileDest = Path.Combine(Destination, entryPath);
                     var dirName = Path.GetDirectoryName(fileDest);
                     Directory.CreateDirectory(dirName);
 

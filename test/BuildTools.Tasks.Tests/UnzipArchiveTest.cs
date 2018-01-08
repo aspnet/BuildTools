@@ -149,6 +149,30 @@ namespace BuildTools.Tasks.Tests
             Assert.Equal(contents, File.ReadAllText(path));
         }
 
+        [Fact]
+        public void ItNormalizesBacklashesInPath()
+        {
+            var files = new[]
+            {
+                @"dir\b.txt"
+            };
+
+            var dest = CreateZip(files);
+            var outDir = Path.Combine(_tempDir, "out");
+
+            var engine = new MockEngine();
+            var task = new UnzipArchive
+            {
+                File = dest,
+                Destination = outDir,
+                BuildEngine = engine,
+                Overwrite = false
+            };
+
+            Assert.True(task.Execute(), "The task failed but should have passed.");
+            Assert.True(File.Exists(Path.Combine(outDir, "dir", "b.txt")), "File should exist.");
+        }
+
         private string CreateZip(string[] files)
         {
             var dest = Path.Combine(_tempDir, "test.zip");

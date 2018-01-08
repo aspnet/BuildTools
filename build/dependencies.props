@@ -32,7 +32,7 @@
     <MicrosoftBuildUtilitiesCorePackageVersion>15.5.0-preview-000172-1103937</MicrosoftBuildUtilitiesCorePackageVersion>
     <MicrosoftBuildTasksCorePackageVersion>15.5.0-preview-000172-1103937</MicrosoftBuildTasksCorePackageVersion>
     <Tooling_NewtonsoftJsonPackageVersion>9.0.1</Tooling_NewtonsoftJsonPackageVersion>
-    <Tooling_NuGetBuildTasksPackageVersion>4.5.0-preview2-4529</Tooling_NuGetBuildTasksPackageVersion>
+    <Tooling_NuGetBuildTasksPackageVersion>4.6.0-rtm-4782</Tooling_NuGetBuildTasksPackageVersion>
   </PropertyGroup>
 
   <!-- These are set to flow into RepoTasks.csproj -->

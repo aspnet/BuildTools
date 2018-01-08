@@ -22,7 +22,7 @@ namespace KoreBuild.Console.Commands
             application.Command("upgrade", c =>
             {
                 c.HelpOption("-h|--help");
-                c.Command("deps", new DependenciesUpgradeCommand(context).Configure);
+                c.Command("deps", new DependenciesUpgradeCommand(context).Configure, throwOnUnexpectedArg: false);
 
                 c.OnExecute(() =>
                 {
@@ -35,7 +35,7 @@ namespace KoreBuild.Console.Commands
             application.Command("generate", c =>
             {
                 c.HelpOption("-h|--help");
-                c.Command("deps", new DependenciesGenerateCommand(context).Configure);
+                c.Command("deps", new DependenciesGenerateCommand(context).Configure, throwOnUnexpectedArg: false);
 
                 c.OnExecute(() =>
                 {

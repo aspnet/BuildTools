@@ -12,6 +12,7 @@ using NuGet.DependencyResolver;
 using NuGet.LibraryModel;
 using NuGet.Packaging;
 using NuGet.Packaging.Core;
+using NuGet.Packaging.Signing;
 using NuGet.Protocol.Core.Types;
 
 namespace KoreBuild.Tasks.Utilities
@@ -62,12 +63,15 @@ namespace KoreBuild.Tasks.Utilities
         {
             var packageIdentity = new PackageIdentity(installItem.Library.Name, installItem.Library.Version);
 
-            var versionFolderPathContext = new VersionFolderPathContext(
-                packageIdentity,
-                _packagesDirectory,
-                _logger,
+            var verificationProviders = SignatureVerificationProviderFactory.GetSignatureVerificationProviders();
+            var signedPackageVerifier = new PackageSignatureVerifier(verificationProviders, SignedPackageVerifierSettings.VerifyCommandDefaultPolicy);
+
+            var versionFolderPathResolver = new VersionFolderPathResolver(_packagesDirectory);
+            var packageExtractionContext = new PackageExtractionContext(
                 PackageSaveMode.Defaultv3,
-                XmlDocFileSaveMode.None);
+                XmlDocFileSaveMode.None,
+                _logger,
+                signedPackageVerifier);
 
             using (var packageDependency = await installItem.Provider.GetPackageDownloaderAsync(
                 packageIdentity,
@@ -76,8 +80,10 @@ namespace KoreBuild.Tasks.Utilities
                 token))
             {
                 await PackageExtractor.InstallFromSourceAsync(
+                    packageIdentity,
                     packageDependency,
-                    versionFolderPathContext,
+                    versionFolderPathResolver,
+                    packageExtractionContext,
                     token);
             }
         }

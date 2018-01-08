@@ -190,7 +190,7 @@ namespace KoreBuild.Tasks
                 var repo = sourceProvider.CreateRepository(new PackageSource(LineupPackageRestoreSource));
 
                 var metadata = await repo.GetResourceAsync<MetadataResource>();
-                if (!await metadata.Exists(LineupPackageId, log, _cts.Token))
+                if (!await metadata.Exists(LineupPackageId, cacheContext, log, _cts.Token))
                 {
                     Log.LogError($"Package {LineupPackageId} is not available on '{repo}'");
                     return null;
@@ -198,7 +198,7 @@ namespace KoreBuild.Tasks
 
                 try
                 {
-                    var versions = await metadata.GetVersions(LineupPackageId, includePrerelease: true, includeUnlisted: false, log: log, token: _cts.Token);
+                    var versions = await metadata.GetVersions(LineupPackageId, includePrerelease: true, includeUnlisted: false, sourceCacheContext: cacheContext, log: log, token: _cts.Token);
 
                     return range.FindBestMatch(versions);
                 }

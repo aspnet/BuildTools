@@ -1,9 +1,11 @@
-#!/usr/bin/env powershell
+#!/usr/bin/env pwsh -c
 #requires -version 4
 [cmdletbinding(SupportsShouldProcess = $true)]
 param(
     [string]$NuGetFeed = 'https://dotnet.myget.org/F/aspnetcore-tools/api/v2/package',
-    [string]$AzureStorageAccount = 'aspnetcore'
+    [string]$AzureStorageAccount = 'aspnetcore',
+    [Alias('d')]
+    [string]$DotNetHome = $null
 )
 
 $ErrorActionPreference = 'Stop'
@@ -14,7 +16,14 @@ if ($env:BUILD_IS_PERSONAL) {
     Write-Host -ForegroundColor Yellow 'Automatically setting -WhatIf for personal builds'
 }
 
-Import-Module -Force -Scope Local $PSScriptRoot/files/KoreBuild/KoreBuild.psd1
+if (!$DotNetHome) {
+    $DotNetHome = if ($env:DOTNET_HOME) { $env:DOTNET_HOME } `
+        elseif ($env:USERPROFILE) { Join-Path $env:USERPROFILE '.dotnet'} `
+        elseif ($env:HOME) {Join-Path $env:HOME '.dotnet'}`
+        else { Join-Path $PSScriptRoot '.dotnet'}
+}
+
+Import-Module -Force -Scope Local $PSScriptRoot/scripts/PushNuGet.psm1
 
 $artifacts = Join-Path $PSScriptRoot 'artifacts'
 

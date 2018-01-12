@@ -15,4 +15,6 @@ ADD . .
 
 ENV DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
 
+RUN ./run.ps1 install-tools
+
 ENTRYPOINT ["build.cmd"]

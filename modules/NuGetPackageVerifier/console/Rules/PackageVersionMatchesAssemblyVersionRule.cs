@@ -30,7 +30,7 @@ namespace NuGetPackageVerifier.Rules
                        infoVersion,
                        context.Metadata.Version,
                        context.Metadata.Id);
-                    yield break;
+                    continue;
                 }
 
                 if (!VersionEquals(context.Metadata.Version, assemblyInformationalNuGetVersion))

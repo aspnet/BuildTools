@@ -66,9 +66,6 @@ function Invoke-RepositoryBuild(
 
     $Path = Resolve-Path $Path
     Push-Location $Path | Out-Null
-
-    $firstTime = $env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE
-
     try {
         Write-Verbose "Building $Path"
         Write-Verbose "dotnet = ${global:dotnet}"
@@ -76,7 +73,6 @@ function Invoke-RepositoryBuild(
         $makeFileProj = Join-Paths $PSScriptRoot ('..', 'KoreBuild.proj')
         $msbuildArtifactsDir = Join-Paths $Path ('artifacts', 'logs')
         $msBuildResponseFile = Join-Path $msbuildArtifactsDir msbuild.rsp
-        $msBuildLogRspFile = Join-Path $msbuildArtifactsDir msbuild.logger.rsp
 
         $msBuildLogArgument = ""
 
@@ -94,6 +90,7 @@ function Invoke-RepositoryBuild(
 /p:KoreBuildVersion=$koreBuildVersion
 /p:RepositoryRoot="$Path/"
 "$msBuildLogArgument"
+/clp:Summary
 "$makeFileProj"
 "@
 
@@ -105,31 +102,20 @@ function Invoke-RepositoryBuild(
 
         $msBuildArguments | Out-File -Encoding ASCII -FilePath $msBuildResponseFile
 
-        if ($env:KOREBUILD_TEAMCITY_LOGGER) {
-            @"
-/noconsolelogger
-/verbosity:normal
-"/logger:TeamCity.MSBuild.Logger.TeamCityMSBuildLogger,${env:KOREBUILD_TEAMCITY_LOGGER};teamcity"
-"@ | Out-File -Encoding ascii -FilePath $msBuildLogRspFile
-        }
-        else {
-            "/clp:Summary" | Out-File -Encoding ascii -FilePath $msBuildLogRspFile
-        }
-
         $noop = ($MSBuildArgs -contains '/t:Noop' -or $MSBuildArgs -contains '/t:Cow')
         Write-Verbose "Noop = $noop"
+        $firstTime = $env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE
         if ($noop) {
             $env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE = 'true'
         }
         else {
-            [string[]]$repoTasksArgs = $MSBuildArgs | Where-Object { ($_ -like '-p:*') -or ($_ -like '/p:*') -or ($_ -like '-property:') -or ($_ -like '/property:') }
-            $repoTasksArgs += ,"@$msBuildLogRspFile"
+            $repoTasksArgs = $MSBuildArgs | Where-Object { ($_ -like '-p:*') -or ($_ -like '/p:*') -or ($_ -like '-property:') -or ($_ -like '/property:') }
             __build_task_project $Path $repoTasksArgs
         }
 
         Write-Verbose "Invoking msbuild with '$(Get-Content $msBuildResponseFile)'"
 
-        __exec $global:dotnet msbuild `@"$msBuildResponseFile" `@"$msBuildLogRspFile"
+        __exec $global:dotnet msbuild `@"$msBuildResponseFile"
     }
     finally {
         Pop-Location

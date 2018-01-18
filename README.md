@@ -18,10 +18,10 @@ See [docs/Intro.md](./docs/Intro.md).
 Channel        | Latest Build
 ---------------|:---------------
 dev            | ![badge][dev-badge]
-release/2.0.0  | ![badge][rel-2.0.0-badge]
+release/2.0    | ![badge][rel-2.0-badge]
 
 [dev-badge]: https://aspnetcore.blob.core.windows.net/buildtools/korebuild/channels/dev/badge.svg
-[rel-2.0.0-badge]: https://aspnetcore.blob.core.windows.net/buildtools/korebuild/channels/release/2.0.0/badge.svg
+[rel-2.0-badge]: https://aspnetcore.blob.core.windows.net/buildtools/korebuild/channels/release/2.0/badge.svg
 
 This tool contains build scripts, console tools, MSBuild targets, and other settings required to build ASP.NET Core.
 

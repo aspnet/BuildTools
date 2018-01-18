@@ -12,7 +12,7 @@
       "description": "The channel of KoreBuild used to select a version when korebuild-lock.txt is not present.",
       "type": "string",
       "default": "dev",
-      "enum": ["dev", "rel/2.0.0"]
+      "enum": ["dev", "release/2.0"]
     }
   }
 }

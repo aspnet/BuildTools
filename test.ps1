@@ -16,7 +16,7 @@ if (!$NoBuild) {
 }
 
 $toolsSource = "$PSScriptRoot/artifacts/"
-$latestFile = Join-Path $toolsSource "korebuild/channels/release/2.0.0/latest.txt"
+$latestFile = Join-Path $toolsSource "korebuild/channels/release/2.0/latest.txt"
 $toolsVersion = $null
 foreach ($line in Get-Content $latestFile) {
     $toolsVersion = $line.Split(":")[1]

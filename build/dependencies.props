@@ -4,7 +4,7 @@
     <MicrosoftDotNetBuildTasksFeedPackageVersion>2.1.0-prerelease-02320-01</MicrosoftDotNetBuildTasksFeedPackageVersion>
     <MicrosoftDotNetPlatformAbstractionsVersion>2.0.0</MicrosoftDotNetPlatformAbstractionsVersion>
     <MicrosoftNETCoreApp20PackageVersion>2.0.0</MicrosoftNETCoreApp20PackageVersion>
-    <MicrosoftNETCoreApp21PackageVersion>2.1.0-preview1-25907-02</MicrosoftNETCoreApp21PackageVersion>
+    <MicrosoftNETCoreApp21PackageVersion>2.1.0-preview1-26116-04</MicrosoftNETCoreApp21PackageVersion>
     <MicrosoftNETTestSdkPackageVersion>15.5.0</MicrosoftNETTestSdkPackageVersion>
     <MicrosoftWin32RegistryPackageVersion>4.4.0</MicrosoftWin32RegistryPackageVersion>
     <MonoCecilPackageVersion>0.10.0-beta6</MonoCecilPackageVersion>
@@ -27,12 +27,12 @@
     as long as the version we compile for is binary compatible with what the .NET Core SDK uses.
   -->
   <PropertyGroup>
-    <MicrosoftBuildPackageVersion>15.5.0-preview-000172-1103937</MicrosoftBuildPackageVersion>
-    <MicrosoftBuildFrameworkPackageVersion>15.5.0-preview-000172-1103937</MicrosoftBuildFrameworkPackageVersion>
-    <MicrosoftBuildUtilitiesCorePackageVersion>15.5.0-preview-000172-1103937</MicrosoftBuildUtilitiesCorePackageVersion>
-    <MicrosoftBuildTasksCorePackageVersion>15.5.0-preview-000172-1103937</MicrosoftBuildTasksCorePackageVersion>
+    <MicrosoftBuildPackageVersion>15.6.0-preview-000054-1286830</MicrosoftBuildPackageVersion>
+    <MicrosoftBuildFrameworkPackageVersion>$(MicrosoftBuildPackageVersion)</MicrosoftBuildFrameworkPackageVersion>
+    <MicrosoftBuildUtilitiesCorePackageVersion>$(MicrosoftBuildPackageVersion)</MicrosoftBuildUtilitiesCorePackageVersion>
+    <MicrosoftBuildTasksCorePackageVersion>$(MicrosoftBuildPackageVersion)</MicrosoftBuildTasksCorePackageVersion>
     <Tooling_NewtonsoftJsonPackageVersion>9.0.1</Tooling_NewtonsoftJsonPackageVersion>
-    <Tooling_NuGetBuildTasksPackageVersion>4.6.0-rtm-4782</Tooling_NuGetBuildTasksPackageVersion>
+    <Tooling_NuGetBuildTasksPackageVersion>4.7.0-preview1-4846</Tooling_NuGetBuildTasksPackageVersion>
   </PropertyGroup>
 
   <!-- These are set to flow into RepoTasks.csproj -->

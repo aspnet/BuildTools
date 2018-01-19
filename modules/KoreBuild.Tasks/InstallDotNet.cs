@@ -160,7 +160,7 @@ namespace KoreBuild.Tasks
                     EnableRaisingEvents = true,
                 })
                 {
-                    Log.LogMessage(MessageImportance.Normal, $"Executing {process.StartInfo.FileName} {process.StartInfo.Arguments}");
+                    Log.LogCommandLine(MessageImportance.Normal, $"Executing {process.StartInfo.FileName} {process.StartInfo.Arguments}");
 
                     var collectedOutput = new List<string>();
                     process.OutputDataReceived += (o, e) => collectedOutput.Add(e.Data ?? string.Empty);
@@ -215,6 +215,16 @@ namespace KoreBuild.Tasks
             else if (ext == ".cmd")
             {
                 exe = InstallScript;
+            }
+            else if (ext == ".ps1")
+            {
+                exe = "powershell";
+                defaultArgs.Add("-NoProfile");
+                defaultArgs.Add("-NoLogo");
+                defaultArgs.Add("-ExecutionPolicy");
+                defaultArgs.Add("unrestricted");
+                defaultArgs.Add("-File");
+                defaultArgs.Add(InstallScript);
             }
             else
             {

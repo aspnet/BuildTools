@@ -12,7 +12,7 @@ param(
 $ErrorActionPreference = 'Stop'
 
 if (!$NoBuild) {
-    & .\build.ps1 '-p:SkipTests=true'
+    & $PSScriptRoot\build.ps1 '-p:SkipTests=true'
 }
 
 $toolsSource = "$PSScriptRoot/artifacts/"
@@ -28,4 +28,4 @@ $packageDir = Join-Path $toolsSource "build\"
 $Arguments += , "/p:InternalAspNetCoreSdkPackageVersion=$toolsVersion"
 $Arguments += , "/p:DotNetRestoreSources=$packageDir"
 
-& .\scripts\bootstrapper\build.ps1 -Update -Reinstall -Path $RepoPath -ToolsSource $toolsSource @Arguments
+& $PSScriptRoot\scripts\bootstrapper\build.ps1 -Update -Reinstall -Path $RepoPath -ToolsSource $toolsSource @Arguments

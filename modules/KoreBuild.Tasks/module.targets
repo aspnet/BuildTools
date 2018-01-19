@@ -10,7 +10,7 @@
     <PropertyGroup>
       <_DotNetInstall>$(MSBuildThisFileDirectory)..\..\scripts\dotnet-install</_DotNetInstall>
       <_DotNetInstall Condition="$([MSBuild]::IsOSUnixLike())">$(_DotNetInstall).sh</_DotNetInstall>
-      <_DotNetInstall Condition="$([MSBuild]::IsOSPlatform('Windows'))">$(_DotNetInstall).cmd</_DotNetInstall>
+      <_DotNetInstall Condition="$([MSBuild]::IsOSPlatform('Windows'))">$(_DotNetInstall).ps1</_DotNetInstall>
     </PropertyGroup>
 
     <InstallDotNet

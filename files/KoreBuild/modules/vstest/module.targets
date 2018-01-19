@@ -64,9 +64,9 @@ Runs the VSTest on all projects in the ProjectsToTest itemgroup.
 
   <!-- The 'inner-build' -->
   <PropertyGroup>
-    <TrxFile>$(ArtifactsDir)logs\$(TestGroupName)-$(TargetFramework)-$(BuildNumber).trx</TrxFile>
+    <TrxFile>$(LogOutputDir)$(TestGroupName)-$(TargetFramework)-$(BuildNumber).trx</TrxFile>
     <VSTestLogger Condition=" '$(VSTestLogger)' == '' AND '$(TEAMCITY_VERSION)' != '' ">trx;LogFileName=$(TrxFile)</VSTestLogger>
-    <VSTestDiagFile Condition=" '$(VSTestDiag)' == 'true'">$(ArtifactsDir)logs\$(TestGroupName)-$(TargetFramework)-$(BuildNumber).diag</VSTestDiagFile>
+    <VSTestDiagFile Condition=" '$(VSTestVerboseOutput)' == 'true'">$(LogOutputDir)$(TestGroupName)-$(TargetFramework)-$(BuildNumber).diag</VSTestDiagFile>
     <!--
       Disable other test reporters if trx logging is enabled.
     -->
@@ -88,7 +88,7 @@ Runs the VSTest on all projects in the ProjectsToTest itemgroup.
       <VSTestArgs Include="vstest" />
       <VSTestArgs Include="--Parallel" />
       <VSTestArgs Include="--Blame" Condition="'$(VSTestBlame)' == 'true'" />
-      <VSTestArgs Include="--Diag:$([MSBuild]::Escape($(VSTestDiagFile)))" Condition="'$(VSTestDiag)' == 'true'" />
+      <VSTestArgs Include="--Diag:$([MSBuild]::Escape($(VSTestDiagFile)))" Condition="'$(VSTestDiagFile)' != ''" />
       <VSTestArgs Include="--Framework:$(TargetFrameworkIdentifier),Version=v$(TargetFrameworkVersion)" />
       <VSTestArgs Include="--Logger:$([MSBuild]::Escape($(VSTestLogger)))" Condition="'$(VSTestLogger)' != ''" />
       <VSTestArgs Include="--TestAdapterPath:$(TestAdapterPath)" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />

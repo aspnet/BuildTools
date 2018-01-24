@@ -14,25 +14,25 @@ namespace NuGetPackageVerifier
         {
             return new PackageVerifierIssue(
                 "DOTNET_TOOL_MANIFEST_MISSING",
-                string.Format("Packages with type '{0}' must have a tools manifest in {1}.", packageType, path),
+                string.Format("Packages with type '{0}' must have a tools manifest file named {1}.", packageType, path),
                 PackageIssueLevel.Error
             );
         }
 
-        public static PackageVerifierIssue DotNetToolMissingEntryPoint(string filePath)
+        public static PackageVerifierIssue DotNetToolMissingEntryPoint(string manifestPath, string filePath)
         {
             return new PackageVerifierIssue(
                 "DOTNET_TOOL_MISSING_ENTRY_POINT",
-                string.Format("The tools manifest in tools/DotNetSettings.xml specifies an entry point to {0}, but this file could not be found in the package.", filePath),
+                string.Format("The tools manifest in {0} specifies an entry point to {1}, but this file could not be found in the package.", manifestPath, filePath),
                 PackageIssueLevel.Error
             );
         }
 
-        public static PackageVerifierIssue DotNetToolMalformedManifest(string error)
+        public static PackageVerifierIssue DotNetToolMalformedManifest(string manifestPath, string error)
         {
             return new PackageVerifierIssue(
                 "DOTNET_TOOL_MANIFEST_MALFORMED",
-                string.Format("The tool manifest in tools/DotNetSettings.xml is malformed: {0}", error),
+                string.Format("The tool manifest in {0} is malformed: {1}", manifestPath, error),
                 PackageIssueLevel.Error
             );
         }

@@ -16,11 +16,11 @@
 
     <!-- Required to specify manually when using nuspec. -->
     <SignedPackageFile Include="$(TargetPath)" Certificate="$(AssemblySigningCertName)" Visible="false">
-      <PackagePath>tools/$(TargetFramework)/any/$(TargetFileName)</PackagePath>
+      <PackagePath>tools/any/any/$(TargetFileName)</PackagePath>
     </SignedPackageFile>
 
     <SignedPackageFile Include="$(PublishDir)Newtonsoft.Json.dll" Certificate="Test3rdPartyCert" Visible="false">
-      <PackagePath>tools/$(TargetFramework)/any/Newtonsoft.Json.dll</PackagePath>
+      <PackagePath>tools/any/any/Newtonsoft.Json.dll</PackagePath>
     </SignedPackageFile>
   </ItemGroup>
 

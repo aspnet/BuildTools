@@ -76,12 +76,12 @@ namespace KoreBuild.FunctionalTests
                     Assert.Collection(pkg.Descendants("File"),
                         a =>
                         {
-                            Assert.Equal("tools/netcoreapp2.1/any/Newtonsoft.Json.dll", a.Attribute("Path")?.Value);
+                            Assert.Equal("tools/any/any/Newtonsoft.Json.dll", a.Attribute("Path")?.Value);
                             Assert.Equal("Test3rdPartyCert", a.Attribute("Certificate")?.Value);
                         },
                         a =>
                         {
-                            Assert.Equal("tools/netcoreapp2.1/any/cowsay.dll", a.Attribute("Path")?.Value);
+                            Assert.Equal("tools/any/any/cowsay.dll", a.Attribute("Path")?.Value);
                             Assert.Equal("TestCert", a.Attribute("Certificate")?.Value);
                         });
                 },

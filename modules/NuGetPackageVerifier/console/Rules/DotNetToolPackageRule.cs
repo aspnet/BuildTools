@@ -59,7 +59,7 @@ namespace NuGetPackageVerifier.Rules
                     }
 
                     var entryPointPath = manifestDir + '/' + entryPoint.Value;
-                    if (!packageFiles.Any(a => a.StartsWith(entryPointPath, StringComparison.Ordinal) && Path.GetFileName(a).Equals(entryPoint.Value, StringComparison.Ordinal)))
+                    if (!packageFiles.Any(a => a.Equals(entryPointPath, StringComparison.Ordinal)))
                     {
                         yield return PackageIssueFactory.DotNetToolMissingEntryPoint(manifestPath, entryPoint.Value);
                     }

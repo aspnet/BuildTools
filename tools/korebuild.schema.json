@@ -96,6 +96,7 @@
       "default": "dev",
       "enum": [
         "dev",
+        "release/2.1",
         "release/2.0"
       ]
     },

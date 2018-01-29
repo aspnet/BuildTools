@@ -1,9 +1,9 @@
 Build Tools
 ===========
 
-[![AppVeyor build status][appveyor-badge]](https://ci.appveyor.com/project/aspnetci/dnxtools/branch/dev)
+[![AppVeyor build status][appveyor-badge]](https://ci.appveyor.com/project/aspnetci/buildtools/branch/dev)
 
-[appveyor-badge]: https://img.shields.io/appveyor/ci/aspnetci/dnxtools/dev.svg?label=appveyor&style=flat-square
+[appveyor-badge]: https://img.shields.io/appveyor/ci/aspnetci/buildtools/dev.svg?label=appveyor&style=flat-square
 
 Utilities used in the build system for projects that are used with ASP.NET Core and Entity Framework Core.
 

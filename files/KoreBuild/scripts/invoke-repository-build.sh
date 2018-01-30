@@ -92,7 +92,7 @@ cat > "$msbuild_response_file" <<ENDMSBUILDARGS
 ENDMSBUILDARGS
 echo -e "$msbuild_args" >> "$msbuild_response_file"
 
-if [ ! -z "$KOREBUILD_TEAMCITY_LOGGER" ]; then
+if [ ! -z "${KOREBUILD_TEAMCITY_LOGGER:-}" ]; then
     cat > "$msbuild_log_rsp_file" <<ENDMSBUILDARGS
 /noconsolelogger
 /verbosity:normal

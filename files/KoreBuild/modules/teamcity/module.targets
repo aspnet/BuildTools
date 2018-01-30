@@ -1,7 +1,7 @@
 <Project>
 
   <Target Name="SetTeamCityBuildNumberToVersion">
-    <Message Text="##teamcity[buildNumber '$(Version)']" Importance="High" />
+    <ConsoleMessage Text="##teamcity[buildNumber '$(Version)']" Condition=" '$(TEAMCITY_VERSION)' != '' "/>
   </Target>
 
 </Project>

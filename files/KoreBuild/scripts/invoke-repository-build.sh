@@ -68,6 +68,7 @@ fi
 korebuild_proj="$__script_dir/../KoreBuild.proj"
 msbuild_artifacts_dir="$repo_path/artifacts/logs"
 msbuild_response_file="$msbuild_artifacts_dir/msbuild.rsp"
+msbuild_log_rsp_file="$msbuild_artifacts_dir/msbuild.logger.rsp"
 msbuild_log_argument=""
 
 if [ "$__is_verbose" = true ] || [ ! -z "${KOREBUILD_ENABLE_BINARY_LOG:-}" ]; then
@@ -87,10 +88,21 @@ cat > "$msbuild_response_file" <<ENDMSBUILDARGS
 /p:KoreBuildVersion=$korebuild_version
 /p:RepositoryRoot="$repo_path/"
 "$msbuild_log_argument"
-/clp:Summary
 "$korebuild_proj"
 ENDMSBUILDARGS
 echo -e "$msbuild_args" >> "$msbuild_response_file"
+
+if [ ! -z "${KOREBUILD_TEAMCITY_LOGGER:-}" ]; then
+    cat > "$msbuild_log_rsp_file" <<ENDMSBUILDARGS
+/noconsolelogger
+/verbosity:normal
+/logger:TeamCity.MSBuild.Logger.TeamCityMSBuildLogger,$KOREBUILD_TEAMCITY_LOGGER;teamcity
+ENDMSBUILDARGS
+else
+    cat > "$msbuild_log_rsp_file" <<ENDMSBUILDARGS
+/clp:Summary
+ENDMSBUILDARGS
+fi
 
 __verbose "dotnet = $(which dotnet)"
 
@@ -102,8 +114,8 @@ if [ "${noop}" = true ]; then
 elif [ -f "$task_proj" ]; then
     sdk_path="-p:RepoTasksSdkPath=$__script_dir/../msbuild/KoreBuild.RepoTasks.Sdk/Sdk/"
     task_publish_dir="$repo_path/build/tasks/bin/publish/"
-    __exec dotnet publish "$task_proj" --configuration Release --output "$task_publish_dir" -nologo "$sdk_path" $msbuild_props_args
+    __exec dotnet publish "$task_proj" --configuration Release --output "$task_publish_dir" -nologo "$sdk_path" @"$msbuild_log_rsp_file" $msbuild_props_args
 fi
 
 __verbose "Invoking msbuild with '$(< "$msbuild_response_file")'"
-__exec dotnet msbuild @"$msbuild_response_file"
+__exec dotnet msbuild @"$msbuild_response_file" @"$msbuild_log_rsp_file"

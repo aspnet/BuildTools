@@ -8,6 +8,7 @@
     <KoreBuildArchiveFile>$(_KoreBuildOutDir)korebuild.$(Version).zip</KoreBuildArchiveFile>
     <KoreBuildBadgeFile>$(_ChannelOutDir)badge.svg</KoreBuildBadgeFile>
     <KoreBuildLatestTxtFile>$(_ChannelOutDir)latest.txt</KoreBuildLatestTxtFile>
+    <PrepareDependsOn>$(PrepareDependsOn);SetTeamCityBuildNumberToVersion</PrepareDependsOn>
   </PropertyGroup>
 
   <ItemGroup>

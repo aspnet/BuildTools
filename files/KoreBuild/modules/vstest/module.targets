@@ -102,7 +102,7 @@ Runs the VSTest on all projects in the ProjectsToTest itemgroup.
       <Output TaskParameter="ExitCode" PropertyName="VsTestExitCode" />
     </RunDotNet>
 
-    <Message Text="##teamcity[importData type='vstest' path='$(TrxFile)']" Condition="'$(TEAMCITY_VERSION)' != '' AND Exists($(TrxFile))" Importance="High" />
+    <ConsoleMessage Text="##teamcity[importData type='vstest' path='$(TrxFile)']" Condition="'$(TEAMCITY_VERSION)' != '' AND Exists($(TrxFile))" />
     <Error Text="Test group $(TestGroupName)/$(TargetFramework) failed with exit code '$(VsTestExitCode)'." Condition=" $(VsTestExitCode) != 0 " />
   </Target>
 

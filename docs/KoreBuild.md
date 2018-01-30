@@ -96,7 +96,6 @@ These targets are also available, but are not run in the default lifecycle.
 - Rebuild - executes /t:Rebuild on solutions
 - Resx - generates resx files
 - Noop - a target that does nothing
-- Publish - pushes artifacts to NuGet feeds and blob stores
 
 
 ### Extensibility points

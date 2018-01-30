@@ -61,7 +61,8 @@ namespace KoreBuild.Tasks
                     vs = VsWhere.FindLatestCompatibleInstallation(vsToolset, Log);
                     if (vs == null)
                     {
-                        Log.LogError($"Could not find an installation of Visual Studio that satisifies the specified requirements in {ConfigFile}.");
+                        Log.LogError($"Could not find an installation of Visual Studio that satisifies the specified requirements in {ConfigFile}. " + 
+                            "See https://docs.microsoft.com/en-us/visualstudio/install/workload-component-id-vs-community for more details on any missing components.");
                         return false;
                     }
                 }

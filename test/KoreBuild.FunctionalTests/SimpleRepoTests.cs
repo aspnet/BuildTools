@@ -52,7 +52,7 @@ namespace KoreBuild.FunctionalTests
             using (var reader = new PackageArchiveReader(libPackage))
             {
                 Assert.Contains("lib/netstandard2.0/Simple.Lib.pdb", reader.GetFiles());
-                Assert.Contains("lib/net46/Simple.Lib.pdb", reader.GetFiles());
+                Assert.Contains("lib/net461/Simple.Lib.pdb", reader.GetFiles());
             }
 
             // /t:TestNuGetPush

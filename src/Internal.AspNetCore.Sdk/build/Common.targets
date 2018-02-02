@@ -15,6 +15,21 @@ For single-tfm projects, this will be imported from build/Internal.AspNetCore.Sd
     <IncludeSymbols Condition="'$(NuspecFile)'!=''">false</IncludeSymbols>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(IncludeSymbols)' != 'false' ">
+    <!-- Include .pdb files in regular .nupkg files. -->
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+  </PropertyGroup>
+
+  <Target Name="_EnsurePdbsInNupkgArePortable"
+          BeforeTargets="GenerateNuspec"
+          AfterTargets="CoreCompile"
+          Condition=" '$(IsPackable)' != 'false' ">
+
+    <Error Condition=" '$(DebugType)' != 'portable' AND '$(IncludeSymbols)' == 'true' "
+      Code="KRB5005"
+      Text="Symbols were set to be included but the project was built using DebugType = $(DebugType). Set DebugType = portable to include portable pdbs required for symbol publishing or stop including symbols by setting IncludeSymbols=false." />
+  </Target>
+
   <Target Name="_ShowBuildVersion" BeforeTargets="PrepareForBuild">
     <Message Text="Build version: $(AssemblyName)/$(TargetFramework)/$(Version)" Importance="normal" />
 

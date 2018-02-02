@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using System.Linq;
 using System.Xml.Linq;
+using NuGet.Packaging;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -41,9 +42,18 @@ namespace KoreBuild.FunctionalTests
             Assert.True(File.Exists(Path.Combine(app.WorkingDirectory, "korebuild-lock.txt")), "Should have created the korebuild lock file");
 
             // /t:Package
+            var libPackage = Path.Combine(app.WorkingDirectory, "artifacts", "build", "Simple.Lib.1.0.0-beta-0001.nupkg");
+            var libSymbolsPackage = Path.Combine(app.WorkingDirectory, "artifacts", "build", "Simple.Lib.1.0.0-beta-0001.symbols.nupkg");
             Assert.True(File.Exists(Path.Combine(app.WorkingDirectory, "artifacts", "build", "Simple.CliTool.1.0.0-beta-0001.nupkg")), "Build should have produced a lib nupkg");
-            Assert.True(File.Exists(Path.Combine(app.WorkingDirectory, "artifacts", "build", "Simple.Lib.1.0.0-beta-0001.nupkg")), "Build should have produced a lib nupkg");
+            Assert.True(File.Exists(libPackage), "Build should have produced a lib nupkg");
+            Assert.True(File.Exists(libSymbolsPackage), "Build should have produced a symbols lib nupkg");
             Assert.True(File.Exists(Path.Combine(app.WorkingDirectory, "artifacts", "build", "Simple.Sources.1.0.0-beta-0001.nupkg")), "Build should have produced a sources nupkg");
+
+            using (var reader = new PackageArchiveReader(libPackage))
+            {
+                Assert.Contains("lib/netstandard2.0/Simple.Lib.pdb", reader.GetFiles());
+                Assert.Contains("lib/net461/Simple.Lib.pdb", reader.GetFiles());
+            }
 
             // /t:TestNuGetPush
             Assert.True(File.Exists(Path.Combine(app.WorkingDirectory, "obj", "tmp-nuget", "Simple.CliTool.1.0.0-beta-0001.nupkg")), "Build done a test push of all the packages");
@@ -119,8 +129,7 @@ namespace KoreBuild.FunctionalTests
                             Assert.Equal("lib/netstandard2.0/Simple.Lib.dll", a.Attribute("Path")?.Value);
                             Assert.Equal("TestCert", a.Attribute("Certificate")?.Value);
                         });
-                }
-                );
+                });
         }
 
         [Fact]

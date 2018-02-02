@@ -4,12 +4,21 @@
 using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using Xunit;
 
 namespace KoreBuild.FunctionalTests
 {
     public class RepoTestFixture : IDisposable
     {
+        private static readonly string[] _packages =
+        {
+            "Internal.AspNetCore.Sdk",
+            "Internal.AspNetCore.SiteExtension.Sdk",
+            "Microsoft.AspNetCore.BuildTools.ApiCheck",
+        };
+
         private static readonly string _solutionDir;
         private readonly ConcurrentQueue<IDisposable> _disposables = new ConcurrentQueue<IDisposable>();
 
@@ -27,6 +36,11 @@ namespace KoreBuild.FunctionalTests
             }
         }
 
+        public RepoTestFixture()
+        {
+            ClearPackages();
+        }
+
         public string ScriptsDir { get; } = Path.Combine(_solutionDir, "scripts", "bootstrapper");
         public string ToolsSource { get; } = Path.Combine(_solutionDir, "artifacts");
         public string LogDir { get; } = Path.Combine(_solutionDir, "artifacts", "logs");
@@ -40,6 +54,20 @@ namespace KoreBuild.FunctionalTests
             var app = new TestApp(ScriptsDir, ToolsSource, srcDir, tempDir, Path.Combine(LogDir, "test-" + instanceName + ".binlog"));
             _disposables.Enqueue(app);
             return app;
+        }
+
+        private void ClearPackages()
+        {
+            var nugetRoot = this.GetType().Assembly.GetCustomAttributes<AssemblyMetadataAttribute>().Single(m => m.Key == "NuGetPackageRoot");
+            var pkgVersion = this.GetType().Assembly.GetCustomAttributes<AssemblyMetadataAttribute>().Single(m => m.Key == "PackageVersion");
+            foreach (var package in _packages)
+            {
+                var pkgRoot = Path.Combine(nugetRoot.Value, package, pkgVersion.Value);
+                if (Directory.Exists(pkgRoot))
+                {
+                    Directory.Delete(pkgRoot, recursive: true);
+                }
+            }
         }
 
         public void Dispose()

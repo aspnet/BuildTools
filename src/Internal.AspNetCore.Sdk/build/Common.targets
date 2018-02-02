@@ -21,8 +21,9 @@ For single-tfm projects, this will be imported from build/Internal.AspNetCore.Sd
   </PropertyGroup>
 
   <Target Name="_EnsurePdbsInNupkgArePortable" BeforeTargets="GenerateNuspec" Condition=" '$(IsPackable)' != 'false' ">
-    <Error Text="Symbols included in a nupkg package should be portable. Set DebugType=portable or IncludeSymbols=false."
-      Condition=" '$(DebugType)' != 'portable' AND '$(IncludeSymbols)' == 'true' " />
+    <Error Condition=" '$(DebugType)' != 'portable' AND '$(IncludeSymbols)' == 'true' "
+      Text="Symbols were set to be included but the project was built using DebugType = $(DebugType).
+            Set DebugType = portable to include portable pdbs required for symbol publishing or stop including symbols by setting IncludeSymbols=false." />
   </Target>
 
   <Target Name="_ShowBuildVersion" BeforeTargets="PrepareForBuild">

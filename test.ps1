@@ -20,8 +20,10 @@ if (-not $NoBuild) {
     & .\build.ps1 '-p:SkipTests=true'
 }
 
+[xml] $versionProps = Get-Content "$PSScriptRoot/version.props"
+$channel = $versionProps.Project.PropertyGroup.KoreBuildChannel
 $toolsSource = "$PSScriptRoot/artifacts/"
-$latestFile = Join-Path $toolsSource "korebuild/channels/dev/latest.txt"
+$latestFile = Join-Path $toolsSource "korebuild/channels/$channel/latest.txt"
 $toolsVersion = $null
 foreach ($line in Get-Content $latestFile) {
     $toolsVersion = $line.Split(":")[1]
@@ -32,5 +34,17 @@ $packageDir = Join-Path $toolsSource "build\"
 
 $Arguments += , "/p:InternalAspNetCoreSdkPackageVersion=$toolsVersion"
 $Arguments += , "/p:DotNetRestoreSources=$packageDir"
+
+foreach ($pkg in @(
+        "Internal.AspNetCore.Sdk",
+        "Internal.AspNetCore.SiteExtension.Sdk",
+        "Microsoft.AspNetCore.BuildTools.ApiCheck")) {
+
+    $pkgRoot = "${env:USERPROFILE}/.nuget/packages/$pkg/$toolsVersion/"
+    if (Test-Path $pkgRoot) {
+        Remove-Item -Recurse -Force $pkgRoot
+    }
+}
+
 
 & .\scripts\bootstrapper\run.ps1 -Update -Reinstall -Command $Command -Path $RepoPath -ToolsSource $toolsSource @Arguments

@@ -34,5 +34,6 @@ namespace KoreBuild.Tasks
         public const int ArtifactInfoMismatch = 5002;
         public const int FilesToSignMismatchedWithArtifactInfo = 5003;
         public const int FilesToSignMissingCertInfo = 5004;
+        public const int PackageSymbolsAreNotPortable = 5005;
     }
 }

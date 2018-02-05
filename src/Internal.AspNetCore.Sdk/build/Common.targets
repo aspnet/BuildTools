@@ -16,18 +16,14 @@ For single-tfm projects, this will be imported from build/Internal.AspNetCore.Sd
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(IncludeSymbols)' != 'false' ">
-    <!-- Include .pdb files in regular .nupkg files. -->
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <GenerateNuspecDependsOn>$(GenerateNuspecDependsOn);_EnsureDebugTypeIsPortable</GenerateNuspecDependsOn>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);_EnsureDebugTypeIsPortable</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
 
-  <Target Name="_EnsurePdbsInNupkgArePortable"
-          BeforeTargets="GenerateNuspec"
-          AfterTargets="CoreCompile"
-          Condition=" '$(IsPackable)' != 'false' ">
-
-    <Error Condition=" '$(DebugType)' != 'portable' AND '$(IncludeSymbols)' == 'true' "
+  <Target Name="_EnsureDebugTypeIsPortable">
+    <Error Condition=" '$(DebugType)' != 'portable' "
       Code="KRB5005"
-      Text="Symbols were set to be included but the project was built using DebugType = $(DebugType). Set DebugType = portable to include portable pdbs required for symbol publishing or stop including symbols by setting IncludeSymbols=false." />
+      Text="The project was set to produce a symbols package but the project was built using DebugType = $(DebugType). Set DebugType = portable to include portable pdbs required for symbol publishing or stop producing symbols by setting IncludeSymbols=false." />
   </Target>
 
   <Target Name="_ShowBuildVersion" BeforeTargets="PrepareForBuild">

@@ -128,7 +128,6 @@ namespace Microsoft.AspNetCore.BuildTools
                     Arguments = arguments,
                     WorkingDirectory = WorkingDirectory ?? Directory.GetCurrentDirectory(),
                     UseShellExecute = UseShellExecute,
-                    CreateNoWindow = true,
                 },
             };
 

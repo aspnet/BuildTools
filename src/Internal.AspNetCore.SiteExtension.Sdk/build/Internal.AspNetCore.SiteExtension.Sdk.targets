@@ -16,10 +16,13 @@
       <_RuntimeStoreOutput>$(_DepsOutputDirectory)\rs\</_RuntimeStoreOutput>
     </PropertyGroup>
 
-    <ItemGroup>
-      <HostingStartupRuntimeStoreFrameworks Condition="'@(HostingStartupRuntimeStoreFrameworks->Count())' == '0'" Include="netcoreapp2.0;netcoreapp2.1" />
-      <HostingStartupRuntimeStoreRuntimes Condition="'@(HostingStartupRuntimeStoreRuntimes->Count())' == '0'" Include="win7-x64;win7-x86" />
 
+    <ItemGroup Condition="'@(HostingStartupRuntimeStoreFrameworks->Count())' == '0'">
+      <HostingStartupRuntimeStoreTargets Include="netcoreapp2.1" Runtime="win7-x64" />
+      <HostingStartupRuntimeStoreTargets Include="netcoreapp2.1" Runtime="win7-x86" />
+    </ItemGroup>
+
+    <ItemGroup>
       <_TemplateFiles Include="$(MSBuildThisFileDirectory)..\content\HostingStartup\**\*" />
       <_HostingStartupPackageReference
         Include="%(HostingStartupPackageReference.Identity)"
@@ -41,7 +44,7 @@
 
     <!-- Generate runtime store -->
     <WriteLinesToFile File="$(_RuntimeStoreManifestFile)" Lines="@(ManifestLines)" Overwrite="true" Encoding="Unicode"/>
-    <Exec Command="dotnet store -m $(_RuntimeStoreManifestFile) -f %(HostingStartupRuntimeStoreFrameworks.Identity) --framework-version $(HostingStartupRuntimeFrameworkVersion) -r %(HostingStartupRuntimeStoreRuntimes.Identity) --output $(_RuntimeStoreOutput) --skip-optimization" />
+    <Exec Command="dotnet store -m $(_RuntimeStoreManifestFile) -f %(HostingStartupRuntimeStoreTargets.Identity) --framework-version $(HostingStartupRuntimeFrameworkVersion) -r %(HostingStartupRuntimeStoreTargets.Runtime) --output $(_RuntimeStoreOutput) --skip-optimization /p:RestoreAdditionalProjectSources=$(RestoreAdditionalProjectSources)" />
 
     <!-- Generate deps -->
     <RemoveDir Directories="%(_HostingStartupPackageReference.WorkingDirectory)" />
@@ -50,7 +53,7 @@
 
     <MSBuild Projects="%(_HostingStartupPackageReference.Project)"
              Targets="Restore"
-             Properties="HostingStartupPackageName=%(_HostingStartupPackageReference.Identity);HostingStartupPackageVersion=%(_HostingStartupPackageReference.Version);RestoreAdditionalProjectSources=%(_HostingStartupPackageReference.Source)" />
+             Properties="HostingStartupPackageName=%(_HostingStartupPackageReference.Identity);HostingStartupPackageVersion=%(_HostingStartupPackageReference.Version);RestoreAdditionalProjectSources=$(RestoreAdditionalProjectSources)" />
 
     <MSBuild Projects="%(_HostingStartupPackageReference.Project)"
              Targets="Publish"
@@ -61,6 +64,8 @@
     <RepoTasks.TrimDeps DepsFiles="%(_HostingStartupPackageReference.TrimmedDepsFile)" />
 
     <ItemGroup>
+      <Content Include="$(_RuntimeStoreOutput)\**\*.*" PackagePath="content\store\%(RecursiveDir)" />
+
       <Content Include="%(_HostingStartupPackageReference.TrimmedDepsFile)" PackagePath="%(_HostingStartupPackageReference.PackagePath)" />
       <Content Include="%(_HostingStartupPackageReference.DllPath)" PackagePath="$(_BasePackagePath)" />
     </ItemGroup>

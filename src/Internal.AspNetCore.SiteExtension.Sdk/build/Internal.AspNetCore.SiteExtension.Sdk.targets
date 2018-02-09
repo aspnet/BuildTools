@@ -12,7 +12,23 @@
       <_DepsOutputDirectory>$(MSBuildProjectDirectory)\$(BaseIntermediateOutputPath)</_DepsOutputDirectory>
       <_WorkingDirectory>$(_DepsOutputDirectory)\depswork</_WorkingDirectory>
       <_BasePackagePath>content\additionaldeps\</_BasePackagePath>
+      <_RuntimeStoreManifestFile>$(_DepsOutputDirectory)\rs.csproj</_RuntimeStoreManifestFile>
+      <_RuntimeStoreOutput>$(_DepsOutputDirectory)\rs\</_RuntimeStoreOutput>
+      <_AdditionalMsBuildProperties>
+        RepositoryRoot=$(RepositoryRoot);
+        DotNetRestoreSourcePropsPath=$(DotNetRestoreSourcesPropsPath);
+        DotNetPackageVersionPropsPath=$(DotNetPackageVersionPropsPath);
+        BuildNumber=$(BuildNumber);
+        Configuration=$(Configuration);
+        IsFinalBuild=$(IsFinalBuild);
+      </_AdditionalMsBuildProperties>
     </PropertyGroup>
+
+
+    <ItemGroup Condition="'@(HostingStartupRuntimeStoreFrameworks->Count())' == '0'">
+      <HostingStartupRuntimeStoreTargets Include="netcoreapp2.1" Runtime="win7-x64" />
+      <HostingStartupRuntimeStoreTargets Include="netcoreapp2.1" Runtime="win7-x86" />
+    </ItemGroup>
 
     <ItemGroup>
       <_TemplateFiles Include="$(MSBuildThisFileDirectory)..\content\HostingStartup\**\*" />
@@ -27,25 +43,37 @@
         TrimmedDepsFile="$(_DepsOutputDirectory)%(HostingStartupPackageReference.Identity)\%(HostingStartupPackageReference.Identity).deps.json"
         PackagePath="$(_BasePackagePath)%(HostingStartupPackageReference.Identity)\shared\Microsoft.NETCore.App\$(HostingStartupRuntimeFrameworkVersion)\"
          />
+
+        <ManifestLines Include="&lt;Project Sdk=&quot;Microsoft.NET.Sdk&quot;&gt;&lt;ItemGroup&gt;" />
+        <ManifestLines Include="&lt;PackageReference Include=&quot;%(HostingStartupPackageReference.Identity)&quot; Version=&quot;%(HostingStartupPackageReference.Version)&quot; /&gt;" />
+        <ManifestLines Include="&lt;/ItemGroup&gt;&lt;/Project&gt;" />
+
     </ItemGroup>
 
+    <!-- Generate runtime store -->
+    <WriteLinesToFile File="$(_RuntimeStoreManifestFile)" Lines="@(ManifestLines)" Overwrite="true" Encoding="Unicode"/>
+    <Exec Command="dotnet store -m $(_RuntimeStoreManifestFile) -f %(HostingStartupRuntimeStoreTargets.Identity) --framework-version $(HostingStartupRuntimeFrameworkVersion) -r %(HostingStartupRuntimeStoreTargets.Runtime) --output $(_RuntimeStoreOutput) --skip-optimization /p:DotNetRestoreSourcePropsPath=$(DotNetRestoreSourcePropsPath)" />
+
+    <!-- Generate deps -->
     <RemoveDir Directories="%(_HostingStartupPackageReference.WorkingDirectory)" />
 
     <Copy SourceFiles="@(_TemplateFiles)" DestinationFolder="%(_HostingStartupPackageReference.WorkingDirectory)" />
 
     <MSBuild Projects="%(_HostingStartupPackageReference.Project)"
              Targets="Restore"
-             Properties="HostingStartupPackageName=%(_HostingStartupPackageReference.Identity);HostingStartupPackageVersion=%(_HostingStartupPackageReference.Version);RestoreAdditionalProjectSources=%(_HostingStartupPackageReference.Source)" />
+             Properties="HostingStartupPackageName=%(_HostingStartupPackageReference.Identity);HostingStartupPackageVersion=%(_HostingStartupPackageReference.Version);$(_AdditionalMsBuildProperties)" />
 
     <MSBuild Projects="%(_HostingStartupPackageReference.Project)"
              Targets="Publish"
-             Properties="PublishDir=%(_HostingStartupPackageReference.WorkingDirectory);HostingStartupPackageName=%(_HostingStartupPackageReference.Identity);HostingStartupPackageVersion=%(_HostingStartupPackageReference.Version);RestoreAdditionalProjectSources=%(_HostingStartupPackageReference.Source)" />
+             Properties="PublishDir=%(_HostingStartupPackageReference.WorkingDirectory);HostingStartupPackageName=%(_HostingStartupPackageReference.Identity);HostingStartupPackageVersion=%(_HostingStartupPackageReference.Version);$(_AdditionalMsBuildProperties)" />
 
     <Copy SourceFiles="%(_HostingStartupPackageReference.DepsFile)" DestinationFiles="%(_HostingStartupPackageReference.TrimmedDepsFile)" />
 
     <RepoTasks.TrimDeps DepsFiles="%(_HostingStartupPackageReference.TrimmedDepsFile)" />
 
     <ItemGroup>
+      <Content Include="$(_RuntimeStoreOutput)\**\*" PackagePath="content\store\%(RecursiveDir)" />
+
       <Content Include="%(_HostingStartupPackageReference.TrimmedDepsFile)" PackagePath="%(_HostingStartupPackageReference.PackagePath)" />
       <Content Include="%(_HostingStartupPackageReference.DllPath)" PackagePath="$(_BasePackagePath)" />
     </ItemGroup>

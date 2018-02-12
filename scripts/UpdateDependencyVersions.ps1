@@ -1,4 +1,4 @@
-#!/usr/bin/env powershell
+#!/usr/bin/env pwsh
 #requires -version 4
 
 <#
@@ -8,6 +8,8 @@ to know the internal details of how config files are layed out in this repo.
 #>
 [cmdletbinding(SupportsShouldProcess = $true, PositionalBinding = $false)]
 param(
+    [Parameter()]
+    [Alias("sdk")]
     [string]$DotNetSdkVersion = $null,
     [string]$DotNetRuntimeVersion = $null,
     [string[]]$GitCommitArgs = @(),

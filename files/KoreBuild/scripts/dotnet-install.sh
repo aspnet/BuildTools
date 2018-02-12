@@ -610,7 +610,7 @@ download() {
     local remote_path="$1"
     local out_path="${2:-}"
 
-    if [ "$remote_path" != "http*" ]; then
+    if [[ "$remote_path" != "http"* ]]; then
         say_verbose "Copying from $remote_path"
         if [ ! -z "$out_path" ]; then
             cp "$remote_path" "$out_path"

@@ -14,14 +14,6 @@
       <_BasePackagePath>content\additionaldeps\</_BasePackagePath>
       <_RuntimeStoreManifestFile>$(_DepsOutputDirectory)\rs.csproj</_RuntimeStoreManifestFile>
       <_RuntimeStoreOutput>$(_DepsOutputDirectory)\rs\</_RuntimeStoreOutput>
-      <_AdditionalMsBuildProperties>
-        RepositoryRoot=$(RepositoryRoot);
-        DotNetRestoreSourcePropsPath=$(DotNetRestoreSourcesPropsPath);
-        DotNetPackageVersionPropsPath=$(DotNetPackageVersionPropsPath);
-        BuildNumber=$(BuildNumber);
-        Configuration=$(Configuration);
-        IsFinalBuild=$(IsFinalBuild);
-      </_AdditionalMsBuildProperties>
     </PropertyGroup>
 
 
@@ -38,8 +30,7 @@
         Version="%(HostingStartupPackageReference.Version)"
         WorkingDirectory="$(_DepsOutputDirectory)%(HostingStartupPackageReference.Identity)"
         Project="$(_DepsOutputDirectory)%(HostingStartupPackageReference.Identity)\HostingStartup.csproj"
-        DepsFile="$(_DepsOutputDirectory)%(HostingStartupPackageReference.Identity)\HostingStartup.deps.json"
-        DllPath="$(_DepsOutputDirectory)%(HostingStartupPackageReference.Identity)\%(HostingStartupPackageReference.Identity).dll"
+        DepsFile="$(_DepsOutputDirectory)%(HostingStartupPackageReference.Identity)\p\HostingStartup.deps.json"
         TrimmedDepsFile="$(_DepsOutputDirectory)%(HostingStartupPackageReference.Identity)\%(HostingStartupPackageReference.Identity).deps.json"
         PackagePath="$(_BasePackagePath)%(HostingStartupPackageReference.Identity)\shared\Microsoft.NETCore.App\$(HostingStartupRuntimeFrameworkVersion)\"
          />
@@ -61,11 +52,11 @@
 
     <MSBuild Projects="%(_HostingStartupPackageReference.Project)"
              Targets="Restore"
-             Properties="HostingStartupPackageName=%(_HostingStartupPackageReference.Identity);HostingStartupPackageVersion=%(_HostingStartupPackageReference.Version);$(_AdditionalMsBuildProperties)" />
+             Properties="HostingStartupPackageName=%(_HostingStartupPackageReference.Identity);HostingStartupPackageVersion=%(_HostingStartupPackageReference.Version);RuntimeFrameworkVersion=$(HostingStartupRuntimeFrameworkVersion)" />
 
     <MSBuild Projects="%(_HostingStartupPackageReference.Project)"
              Targets="Publish"
-             Properties="PublishDir=%(_HostingStartupPackageReference.WorkingDirectory);HostingStartupPackageName=%(_HostingStartupPackageReference.Identity);HostingStartupPackageVersion=%(_HostingStartupPackageReference.Version);$(_AdditionalMsBuildProperties)" />
+             Properties="PublishDir=%(_HostingStartupPackageReference.WorkingDirectory)\p;HostingStartupPackageName=%(_HostingStartupPackageReference.Identity);HostingStartupPackageVersion=%(_HostingStartupPackageReference.Version);RuntimeFrameworkVersion=$(HostingStartupRuntimeFrameworkVersion)" />
 
     <Copy SourceFiles="%(_HostingStartupPackageReference.DepsFile)" DestinationFiles="%(_HostingStartupPackageReference.TrimmedDepsFile)" />
 
@@ -75,7 +66,6 @@
       <Content Include="$(_RuntimeStoreOutput)\**\*" PackagePath="content\store\%(RecursiveDir)" />
 
       <Content Include="%(_HostingStartupPackageReference.TrimmedDepsFile)" PackagePath="%(_HostingStartupPackageReference.PackagePath)" />
-      <Content Include="%(_HostingStartupPackageReference.DllPath)" PackagePath="$(_BasePackagePath)" />
     </ItemGroup>
 
   </Target>

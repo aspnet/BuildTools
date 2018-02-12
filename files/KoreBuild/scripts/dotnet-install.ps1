@@ -452,6 +452,12 @@ function Extract-Dotnet-Package([string]$ZipPath, [string]$OutPath) {
 }
 
 function DownloadFile([Uri]$Uri, [string]$OutPath) {
+    if ($Uri -like "file://*") {
+        Say-Verbose "Copying file from $Uri to $OutPath"
+        Copy-Item $Uri.AbsolutePath $OutPath
+        return
+    }
+
     $Stream = $null
 
     try {

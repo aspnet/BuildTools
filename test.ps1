@@ -1,4 +1,3 @@
-#!/usr/bin/env powershell
 #requires -version 4
 [CmdletBinding(PositionalBinding = $true)]
 param(

@@ -7,7 +7,6 @@
     <Serviceable>false</Serviceable>
     <Description>Build targets and extensions to Microsoft.NET.Sdk. This package is intended for Microsoft use only.</Description>
     <RootNamespace>Microsoft.AspNetCore.BuildTools</RootNamespace>
-    <NoPackageAnalysis>true</NoPackageAnalysis>
     <BuildToolsPath>..\..\modules\BuildTools.Tasks\</BuildToolsPath>
     <NuspecFile>$(MSBuildThisFileDirectory)$(MSBuildProjectName).nuspec</NuspecFile>
     <IncludeSymbols>false</IncludeSymbols>

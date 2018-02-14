@@ -13,7 +13,6 @@
 
   <!-- packaging settings-->
   <PropertyGroup>
-    <NoPackageAnalysis>true</NoPackageAnalysis>
     <NuspecFile>$(MSBuildThisFileDirectory)Microsoft.AspNetCore.BuildTools.ApiCheck.nuspec</NuspecFile>
     <IntermediatePackDir>$(MSBuildThisFileDirectory)bin\$(Configuration)\publish\</IntermediatePackDir>
     <PublishDir>$(IntermediatePackDir)$(TargetFramework)\</PublishDir>

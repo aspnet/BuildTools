@@ -8,7 +8,6 @@
     <OutputType>exe</OutputType>
     <IncludeSymbols>false</IncludeSymbols>
     <IncludeSource>false</IncludeSource>
-    <RuntimeFrameworkVersion Condition="'$(TargetFramework)' == 'netcoreapp2.1'">$(MicrosoftNETCoreApp21PackageVersion)</RuntimeFrameworkVersion>
   </PropertyGroup>
 
   <!-- packaging settings-->

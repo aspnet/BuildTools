@@ -11,7 +11,7 @@ This project is part of ASP.NET Core. You can find samples, documentation and ge
 
 ## Docs
 
-See [docs/Intro.md](./docs/Intro.md).
+See [docs/README.md](./docs/README.md).
 
 ## Latest build
 

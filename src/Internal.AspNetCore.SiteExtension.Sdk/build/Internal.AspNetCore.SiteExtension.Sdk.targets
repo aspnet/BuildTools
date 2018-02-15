@@ -43,7 +43,7 @@
 
     <!-- Generate runtime store -->
     <WriteLinesToFile File="$(_RuntimeStoreManifestFile)" Lines="@(ManifestLines)" Overwrite="true" Encoding="Unicode"/>
-    <Exec Command="dotnet store -m $(_RuntimeStoreManifestFile) -f %(HostingStartupRuntimeStoreTargets.Identity) --framework-version $(HostingStartupRuntimeFrameworkVersion) -r %(HostingStartupRuntimeStoreTargets.Runtime) --output $(_RuntimeStoreOutput) --skip-optimization /p:DotNetRestoreSourcePropsPath=$(DotNetRestoreSourcePropsPath)" />
+    <Exec Command="dotnet store -m $(_RuntimeStoreManifestFile) -f %(HostingStartupRuntimeStoreTargets.Identity) --framework-version $(HostingStartupRuntimeFrameworkVersion) -r %(HostingStartupRuntimeStoreTargets.Runtime) --output $(_RuntimeStoreOutput) --skip-symbols /p:DotNetRestoreSourcePropsPath=$(DotNetRestoreSourcePropsPath)" />
 
     <!-- Generate deps -->
     <RemoveDir Directories="%(_HostingStartupPackageReference.WorkingDirectory)" />

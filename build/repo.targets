@@ -27,13 +27,15 @@
 
     <GetGitCommitInfo WorkingDirectory="$(RepositoryRoot)"
                       Condition="'$(CommitHash)' == ''">
+      <!-- Set both CommitHash and RepositoryCommit. CommitHash was the property we started using at first. RepositoryCommit was introduced when NuGet started adding this to nuspec. -->
       <Output TaskParameter="CommitHash" PropertyName="CommitHash" />
+      <Output TaskParameter="CommitHash" PropertyName="RepositoryCommit" />
       <Output TaskParameter="Branch" PropertyName="GitBranch" />
     </GetGitCommitInfo>
 
     <PropertyGroup>
       <SolutionProperties Condition="'$(CommitHash)' != ''">$(SolutionProperties);CommitHash=$(CommitHash)</SolutionProperties>
-      <SolutionProperties Condition="'$(CommitHash)' != ''">$(SolutionProperties);GitBranch=$(GitBranch)</SolutionProperties>
+      <SolutionProperties Condition="'$(RepositoryCommit)' != ''">$(SolutionProperties);RepositoryCommit=$(RepositoryCommit)</SolutionProperties>
     </PropertyGroup>
   </Target>
 

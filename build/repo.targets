@@ -27,13 +27,16 @@
 
     <GetGitCommitInfo WorkingDirectory="$(RepositoryRoot)"
                       Condition="'$(CommitHash)' == ''">
+      <!-- Set both CommitHash and RepositoryCommit. CommitHash was the property we started using at first. RepositoryCommit was introduced when NuGet started adding this to nuspec. -->
       <Output TaskParameter="CommitHash" PropertyName="CommitHash" />
-      <Output TaskParameter="Branch" PropertyName="GitBranch" />
+      <Output TaskParameter="CommitHash" PropertyName="RepositoryCommit" />
+      <Output TaskParameter="Branch" PropertyName="RepositoryBranch" />
     </GetGitCommitInfo>
 
     <PropertyGroup>
       <SolutionProperties Condition="'$(CommitHash)' != ''">$(SolutionProperties);CommitHash=$(CommitHash)</SolutionProperties>
-      <SolutionProperties Condition="'$(CommitHash)' != ''">$(SolutionProperties);GitBranch=$(GitBranch)</SolutionProperties>
+      <SolutionProperties Condition="'$(RepositoryCommit)' != ''">$(SolutionProperties);RepositoryCommit=$(RepositoryCommit)</SolutionProperties>
+      <SolutionProperties Condition="'$(RepositoryBranch)' != ''">$(SolutionProperties);RepositoryBranch=$(RepositoryBranch)</SolutionProperties>
     </PropertyGroup>
   </Target>
 
@@ -47,8 +50,8 @@
     <Error Text="Missing property: CommitHash" Condition="'$(CommitHash)' == ''" />
 
     <!-- passing /warnaserror:BUILD1001 on CI to prevent channel/branch mismatch -->
-    <Warning Text="Current branch '$(GitBranch)' does not match the value of KoreBuildChannel: '$(KoreBuildChannel)'"
-      Condition="'$(GitBranch)' != '$(KoreBuildChannel)'"
+    <Warning Text="Current branch '$(RepositoryBranch)' does not match the value of KoreBuildChannel: '$(KoreBuildChannel)'"
+      Condition="'$(RepositoryBranch)' != '$(KoreBuildChannel)'"
       Code="BUILD1001" />
 
     <ItemGroup>

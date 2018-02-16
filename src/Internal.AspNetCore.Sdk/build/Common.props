@@ -22,6 +22,7 @@ Usage: this should be imported once via NuGet at the top of the file.
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Serviceable Condition="'$(Configuration)' == 'Release'">true</Serviceable>
     <LangVersion Condition="'$(LangVersion)' == ''">7.2</LangVersion>
+    <RepositoryCommit Condition="'$(RepositoryCommit)' == ''">$(CommitHash)</RepositoryCommit>
   </PropertyGroup>
 
   <!-- common build options -->

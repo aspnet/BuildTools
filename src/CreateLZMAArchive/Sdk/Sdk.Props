@@ -1,0 +1,5 @@
+<Project>
+  <UsingTask
+    AssemblyFile="$(MSBuildThisFileDirectory)..\build\netstandard1.5\CreateLZMAArchive.dll"
+    TaskName="Microsoft.AspNetCore.BuildTools.LZMAArchive.CreateLZMAArchive" />
+</Project>

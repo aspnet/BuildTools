@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <authors>Microsoft</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <copyright>$copyright$</copyright>
+  </metadata>
+  <files>
+    <file src="bin\$config$\netstandard1.5\$id$.dll" target="build\netstandard1.5\$id$.dll" />
+    <file src="bin\$config$\net46\$id$.dll" target="build\net46\$id$.dll" />
+    <file src="sdk\" target="sdk\" />
+  </files>
+</package>

@@ -7,6 +7,9 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <copyright>$copyright$</copyright>
+    <packageTypes>
+      <packageType name="MSBuildSdk" />
+    </packageTypes>
   </metadata>
   <files>
     <file src="bin\$config$\netstandard1.5\$id$.dll" target="build\netstandard1.5\$id$.dll" />

@@ -6,9 +6,9 @@ using Microsoft.Build.Framework;
 using Microsoft.DotNet.Archive;
 using MSBuildTask = Microsoft.Build.Utilities.Task;
 
-namespace Microsoft.AspNetCore.BuildTools.LZMAArchive
+namespace Microsoft.AspNetCore.BuildTools.LZMA
 {
-    public class CreateLZMAArchive : MSBuildTask
+    public class CreateLZMA : MSBuildTask
     {
         [Required]
         public string OutputArchiveFilePath { get; set; }

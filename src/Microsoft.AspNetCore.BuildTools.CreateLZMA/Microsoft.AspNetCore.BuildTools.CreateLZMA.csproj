@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <PackageId>CreateLZMAArchive</PackageId>
+    <PackageId>Microsoft.AspNetCore.BuildTools.CreateLZMA</PackageId>
     <TargetFrameworks>netstandard1.5;net46</TargetFrameworks>
     <Serviceable>false</Serviceable>
     <Description>Build LZMA fallback archive</Description>

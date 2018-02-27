@@ -92,6 +92,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Internal.AspNetCore.SiteExt
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NuGetPackageVerifier.Tests", "test\NuGetPackageVerifier.Tests\NuGetPackageVerifier.Tests.csproj", "{439CC7A3-F6E6-46B8-B6A0-05E22E558FC2}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.BuildTools.CreateLZMA", "src\Microsoft.AspNetCore.BuildTools.CreateLZMA\Microsoft.AspNetCore.BuildTools.CreateLZMA.csproj", "{27679B88-FED9-404A-8A41-02BB31CF3019}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -166,6 +168,10 @@ Global
 		{439CC7A3-F6E6-46B8-B6A0-05E22E558FC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{439CC7A3-F6E6-46B8-B6A0-05E22E558FC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{439CC7A3-F6E6-46B8-B6A0-05E22E558FC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27679B88-FED9-404A-8A41-02BB31CF3019}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27679B88-FED9-404A-8A41-02BB31CF3019}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27679B88-FED9-404A-8A41-02BB31CF3019}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27679B88-FED9-404A-8A41-02BB31CF3019}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -189,6 +195,7 @@ Global
 		{605F0478-A9D2-4A8A-BB38-9D5DC132FBB5} = {60A938B2-D95A-403C-AA7A-3683AD64DFA0}
 		{418F99A5-5EC4-4895-B8EB-7F8BBA241DB2} = {A4F4353B-C3D2-40B0-909A-5B48A748EA76}
 		{439CC7A3-F6E6-46B8-B6A0-05E22E558FC2} = {60A938B2-D95A-403C-AA7A-3683AD64DFA0}
+		{27679B88-FED9-404A-8A41-02BB31CF3019} = {A4F4353B-C3D2-40B0-909A-5B48A748EA76}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1B8809C8-A6C3-4761-BC91-B12841F49AE1}

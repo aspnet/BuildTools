@@ -138,12 +138,41 @@ namespace Microsoft.AspNetCore.BuildTools.Utilities
             }
 
             var branchFile = Path.Combine(gitDir, "refs", "heads", branch);
-            if (!File.Exists(branchFile))
+            if (File.Exists(branchFile))
             {
-                throw new FileNotFoundException("Unable to determine current git commit hash");
+                return File.ReadAllText(branchFile).Trim();
             }
 
-            return File.ReadAllText(branchFile).Trim();
+            var packedRefs = Path.Combine(gitDir, "packed-refs");
+            if (File.Exists(packedRefs))
+            {
+                var lines = File.ReadAllLines(packedRefs);
+                foreach (var line in lines)
+                {
+                    if (line.Length == 0)
+                    {
+                        continue;
+                    }
+
+                    if (line[0] == '#' || line[0] == '^')
+                    {
+                        continue;
+                    }
+
+                    var split = line.Split(new[] { ' ' }, 2);
+                    if (split.Length < 2)
+                    {
+                        continue;
+                    }
+
+                    if (string.Equals("refs/heads/" + branch, split[1], StringComparison.Ordinal))
+                    {
+                        return split[0];
+                    }
+                }
+            }
+
+            throw new FileNotFoundException("Unable to determine current git commit hash");
         }
 
         private static DirectoryInfo GetRepositoryRoot(string start)

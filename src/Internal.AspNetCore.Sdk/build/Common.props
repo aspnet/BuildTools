@@ -20,6 +20,7 @@ Usage: this should be imported once via NuGet at the top of the file.
     <PackageIconUrl>https://go.microsoft.com/fwlink/?LinkID=288859</PackageIconUrl>
     <PackageProjectUrl>https://asp.net</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
     <Serviceable Condition="'$(Configuration)' == 'Release'">true</Serviceable>
     <LangVersion Condition="'$(LangVersion)' == ''">7.2</LangVersion>
     <RepositoryCommit Condition="'$(RepositoryCommit)' == ''">$(CommitHash)</RepositoryCommit>

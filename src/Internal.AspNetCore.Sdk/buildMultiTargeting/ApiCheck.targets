@@ -6,9 +6,26 @@
 
   <Target
       Name="Generate-ApiCheck-Baselines" >
+    <ItemGroup>
+      <_TargetFrameworks Remove="@(_TargetFrameworks)" />
+      <_TargetFrameworks Include="$(TargetFrameworks)" />
+    </ItemGroup>
 
     <MSBuild Projects="$(MSBuildProjectFullPath)"
       Targets="Generate-ApiCheck-Baselines"
+      Properties="TargetFramework=%(_TargetFrameworks.Identity)"
+      RemoveProperties="TargetFrameworks" />
+  </Target>
+
+  <Target
+      Name="Replace-ApiCheck-Baselines" >
+    <ItemGroup>
+      <_TargetFrameworks Remove="@(_TargetFrameworks)" />
+      <_TargetFrameworks Include="$(TargetFrameworks)" />
+    </ItemGroup>
+
+    <MSBuild Projects="$(MSBuildProjectFullPath)"
+      Targets="Replace-ApiCheck-Baselines"
       Properties="TargetFramework=%(_TargetFrameworks.Identity)"
       RemoveProperties="TargetFrameworks" />
   </Target>

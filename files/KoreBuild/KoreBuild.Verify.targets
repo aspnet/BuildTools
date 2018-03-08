@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(SkipArtifactVerification)' != 'true'">
-    <PrepareDependsOn>CheckForUnknownArtifacts</PrepareDependsOn>
+    <RestoreDependsOn>$(RestoreDependsOn);CheckForUnknownArtifacts</RestoreDependsOn>
   </PropertyGroup>
 
 <!--
@@ -52,7 +52,7 @@ Verifies everything in artifacts/* is accounted for after build.
 ###################################################################
 -->
 
-  <Target Name="VerifyArtifacts" Condition="'$(SkipArtifactVerification)' != 'true'" DependsOnTargets="GetArtifactInfo" AfterTargets="Package">
+  <Target Name="VerifyArtifacts" Condition="'$(SkipArtifactVerification)' != 'true'" DependsOnTargets="GetArtifactInfo;CheckForUnknownArtifacts" AfterTargets="Package">
     <ItemGroup>
       <_ExpectedArtifact Remove="@(_ExpectedArtifact)" />
       <_ExpectedArtifact Include="%(ArtifactInfo.Identity)" Condition=" ! Exists(%(ArtifactInfo.Identity))" />

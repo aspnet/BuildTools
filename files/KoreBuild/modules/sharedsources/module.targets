@@ -23,7 +23,7 @@ that matches "$(RepositoryRoot)/shared/*.Sources".
   <Target Name="ResolveSharedSourcesPackageInfo" DependsOnTargets="_SetSharedSourcesProperties" Returns="@(ArtifactInfo)">
     <MSBuild Targets="GetArtifactInfo"
       Projects="$(MSBuildThisFileDirectory)sharedsources.csproj"
-      Properties="$(_SharedSourcesPackageProperties);NuspecBasePath=$([MSBuild]::NormalizeDirectory('%(SharedSourceDirectories.Identity)'));PackageId=%(FileName)%(Extension);DesignTimeBuild=true"
+      Properties="$(_SharedSourcesPackageProperties);NuspecBasePath=$([MSBuild]::NormalizeDirectory('%(SharedSourceDirectories.Identity)'));PackageId=%(FileName)%(Extension)"
       Condition="@(SharedSourceDirectories->Count()) != 0"
       BuildInParallel="true">
       <Output TaskParameter="TargetOutputs" ItemName="ArtifactInfo" />

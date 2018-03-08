@@ -30,6 +30,7 @@ Verifies everything in artifacts/* is accounted for before build.
     </ItemGroup>
 
     <PropertyGroup>
+      <ArtifactErrorMessage />
       <ArtifactErrorMessage Condition=" @(_UnexpectedArtifact->Count()) != 0 ">
 Undeclared artifacts exist in $(ArtifactsDir).
 Run /t:Clean or update repo.props to list known build output as an ArtifactInfo item.
@@ -58,6 +59,7 @@ Verifies everything in artifacts/* is accounted for after build.
     </ItemGroup>
 
     <PropertyGroup>
+      <ArtifactErrorMessage />
       <ArtifactErrorMessage Condition=" @(_ExpectedArtifact->Count()) != 0 ">
 $(ArtifactErrorMessage.Trim())
 Expected items that do not exist:

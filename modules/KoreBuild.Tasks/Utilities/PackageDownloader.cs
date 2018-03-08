@@ -40,7 +40,11 @@ namespace KoreBuild.Tasks.Utilities
 
                 foreach (var request in requests)
                 {
-                    var feeds = request.Sources.Select(sourceProvider.CreateRepository);
+                    var feeds = request.Sources
+                        .Select(s => s?.Trim())
+                        .Where(s => !string.IsNullOrEmpty(s))
+                        .Distinct()
+                        .Select(sourceProvider.CreateRepository);
                     tasks.Add(DownloadPackageAsync(request, feeds, cacheContext, throttle, logger, cts.Token));
                 }
 

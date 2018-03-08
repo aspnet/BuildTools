@@ -8,7 +8,8 @@
       <_ApiListingFileSuffix Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">netframework.json</_ApiListingFileSuffix>
       <_ApiListingFileSuffix Condition=" '$(_ApiListingFileSuffix)' == '' ">netcore.json</_ApiListingFileSuffix>
       <_ApiListingFilePath>$(MSBuildProjectDirectory)\baseline.$(_ApiListingFileSuffix)</_ApiListingFilePath>
-      <_ApiListingFile Condition=" Exists('$(_ApiListingFilePath)') ">$(_ApiListingFilePath)</_ApiListingFile>
+      <_ApiListingOutputFile>$(OutputPath)\baseline.$(_ApiListingFileSuffix)</_ApiListingOutputFile>
+      <_ApiExclusionsFilePath>$(MSBuildProjectDirectory)\breakingchanges.$(_ApiListingFileSuffix)</_ApiExclusionsFilePath>
     </PropertyGroup>
   </Target>
 
@@ -17,7 +18,7 @@
       DependsOnTargets="_GetApiListingFile"
       Condition=" '$(EnableApiCheck)' == 'true' " >
     <ApiCheckGenerateTask
-      ApiListingPath="$(_ApiListingFilePath)"
+      ApiListingPath="$(_ApiListingOutputFile)"
       AssemblyPath="$(TargetPath)"
       Framework="$(TargetFramework)"
       ExcludePublicInternalTypes="$(ExcludePublicInternalTypes_InApiCheck)"
@@ -25,11 +26,24 @@
   </Target>
 
   <Target
+      Name="Replace-ApiCheck-Baselines"
+      DependsOnTargets="Generate-ApiCheck-Baselines"
+      Condition="'$(EnableApiCheck)' == 'true' and Exists('$(_ApiListingOutputFile)')" >
+      <PropertyGroup>
+        <_ApiExclusionsFile Condition=" Exists('$(_ApiExclusionsFilePath)') ">$(_ApiExclusionsFilePath)</_ApiExclusionsFile>
+      </PropertyGroup>
+    <Copy
+      SourceFiles="$(_ApiListingOutputFile)"
+      DestinationFolder="$(MSBuildProjectDirectory)" />
+    <Delete Files="$(_ApiExclusionsFile)" Condition="Exists('$(_ApiExclusionsFile)')" />
+  </Target>
+
+  <Target
       Name="ApiCheck"
       DependsOnTargets="_GetApiListingFile"
       Condition=" '$(EnableApiCheck)' == 'true' ">
     <PropertyGroup>
-      <_ApiExclusionsFilePath>$(MSBuildProjectDirectory)\breakingchanges.$(_ApiListingFileSuffix)</_ApiExclusionsFilePath>
+      <_ApiListingFile Condition=" Exists('$(_ApiListingFilePath)') ">$(_ApiListingFilePath)</_ApiListingFile>
       <_ApiExclusionsFile Condition=" Exists('$(_ApiExclusionsFilePath)') ">$(_ApiExclusionsFilePath)</_ApiExclusionsFile>
     </PropertyGroup>
 
@@ -45,6 +59,6 @@
       ProjectAssetsPath="$(ProjectAssetsFile)" />
 
     <Warning Condition=" '$(_ApiListingFile)' == '' "
-      Text="No baseline file for $(TargetFramework) found in $(MSBuildProjectName)." />
+      Text="No baseline file '$(_ApiListingFilePath)' for $(TargetFramework) found in $(MSBuildProjectName)." />
   </Target>
 </Project>

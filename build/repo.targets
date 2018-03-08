@@ -51,7 +51,7 @@
 
     <!-- passing /warnaserror:BUILD1001 on CI to prevent channel/branch mismatch -->
     <Warning Text="Current branch '$(RepositoryBranch)' does not match the value of KoreBuildChannel: '$(KoreBuildChannel)'"
-      Condition="'$(RepositoryBranch)' != '$(KoreBuildChannel)'"
+      Condition="'$(RepositoryBranch)' != '$(KoreBuildChannel)' AND '$(CI)' == 'true'"
       Code="BUILD1001" />
 
     <ItemGroup>

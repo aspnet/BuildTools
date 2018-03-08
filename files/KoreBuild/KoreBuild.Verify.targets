@@ -11,18 +11,20 @@
     <SkipArtifactVerification>true</SkipArtifactVerification>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(SkipArtifactVerification)' != 'true'">
+    <PrepareDependsOn>CheckForUnknownArtifacts</PrepareDependsOn>
+  </PropertyGroup>
+
 <!--
 ###################################################################
-Target: VerifyArtifacts
+Target: CheckForUnknownArtifacts
 
-Verifies everything in artifacts/* is accounted for.
+Verifies everything in artifacts/* is accounted for before build.
 ###################################################################
 -->
 
-  <Target Name="VerifyArtifacts" Condition="'$(SkipArtifactVerification)' != 'true'" DependsOnTargets="GetArtifactInfo" AfterTargets="Package">
+  <Target Name="CheckForUnknownArtifacts" DependsOnTargets="GetArtifactInfo">
     <ItemGroup>
-      <_ExpectedArtifact Remove="@(_ExpectedArtifact)" />
-      <_ExpectedArtifact Include="%(ArtifactInfo.Identity)" Condition=" ! Exists(%(ArtifactInfo.Identity))" />
       <_UnexpectedArtifact Remove="@(_UnexpectedArtifact)" />
       <_UnexpectedArtifact Include="$(ArtifactsDir)**\*" Exclude="@(ArtifactInfo->'%(FullPath)');$(IgnoredArtifactItems)" />
     </ItemGroup>
@@ -30,10 +32,32 @@ Verifies everything in artifacts/* is accounted for.
     <PropertyGroup>
       <ArtifactErrorMessage Condition=" @(_UnexpectedArtifact->Count()) != 0 ">
 Undeclared artifacts exist in $(ArtifactsDir).
-Run /t:Clean or update repo.props to list known artifacts as an ArtifactInfo item.
+Run /t:Clean or update repo.props to list known build output as an ArtifactInfo item.
 Unexpected files:
   - @(_UnexpectedArtifact, '%0A  - ')
       </ArtifactErrorMessage>
+    </PropertyGroup>
+
+    <Error Text="$(ArtifactErrorMessage.Trim())"
+           Code="KRB5002"
+           Condition=" '$(ArtifactErrorMessage.Trim())' != '' " />
+  </Target>
+
+<!--
+###################################################################
+Target: VerifyArtifacts
+
+Verifies everything in artifacts/* is accounted for after build.
+###################################################################
+-->
+
+  <Target Name="VerifyArtifacts" Condition="'$(SkipArtifactVerification)' != 'true'" DependsOnTargets="GetArtifactInfo" AfterTargets="Package">
+    <ItemGroup>
+      <_ExpectedArtifact Remove="@(_ExpectedArtifact)" />
+      <_ExpectedArtifact Include="%(ArtifactInfo.Identity)" Condition=" ! Exists(%(ArtifactInfo.Identity))" />
+    </ItemGroup>
+
+    <PropertyGroup>
       <ArtifactErrorMessage Condition=" @(_ExpectedArtifact->Count()) != 0 ">
 $(ArtifactErrorMessage.Trim())
 Expected items that do not exist:

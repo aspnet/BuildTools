@@ -601,7 +601,7 @@ extract_dotnet_package() {
     find "$temp_out_path" -type f | grep -Ev "$folders_with_version_regex" | copy_files_or_dirs_from_list "$temp_out_path" "$out_path" "$override_non_versioned_files"
 
     rm -rf "$temp_out_path"
-    rm -rf "$out_path/host/fxr/2.1.0-preview2-26225-03"
+
     if [ "$failed" = true ]; then
         say_err "Extraction failed"
         return 1

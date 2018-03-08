@@ -26,7 +26,11 @@ namespace KoreBuild.Tasks.Tests
         {
             var packages = new[]
             {
-                new TaskItem("Newtonsoft.Json", new Hashtable { ["Version"] = "9.0.1", ["Source"] = "https://api.nuget.org/v3/index.json"} ),
+                new TaskItem("Newtonsoft.Json", new Hashtable
+                {
+                    ["Version"] = "9.0.1",
+                    ["Source"] = "  https://api.nuget.org/v3/index.json  ; ;https://api.nuget.org/v3/index.json; https://dotnetfeed.blob.core.windows.net/dotnet-core/index.json "
+                }),
             };
 
             var task = new DownloadNuGetPackages

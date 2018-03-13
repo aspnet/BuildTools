@@ -25,7 +25,9 @@ Usage: this should be imported once via NuGet at the top of the file.
     <LangVersion Condition="'$(LangVersion)' == ''">7.2</LangVersion>
     <RepositoryCommit Condition="'$(RepositoryCommit)' == ''">$(CommitHash)</RepositoryCommit>
     <!-- Instructs the compiler to use SHA256 instead of SHA1 when adding file hashes to PDBs. -->
-    <ChecksumAlgorithm>SHA256</ChecksumAlgorithm> 
+    <ChecksumAlgorithm>SHA256</ChecksumAlgorithm>
+    <!-- Suppress the message about using a preview version of .NET Core SDK. We are okay with this and don't need the warning. -->
+    <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
   </PropertyGroup>
 
   <!-- common build options -->

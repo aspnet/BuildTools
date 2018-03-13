@@ -92,6 +92,7 @@ function Invoke-RepositoryBuild(
 /nologo
 /m
 /p:KoreBuildVersion=$koreBuildVersion
+/p:SuppressNETCoreSdkPreviewMessage=true
 /p:RepositoryRoot="$Path/"
 "$msBuildLogArgument"
 "$makeFileProj"

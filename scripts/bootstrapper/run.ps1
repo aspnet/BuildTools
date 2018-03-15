@@ -35,6 +35,9 @@ The path to the configuration file that stores values. Defaults to korebuild.jso
 .PARAMETER ToolsSourceSuffix
 The Suffix to append to the end of the ToolsSource. Useful for query strings in blob stores.
 
+.PARAMETER CI
+Sets up CI specific settings and variables.
+
 .PARAMETER Arguments
 Arguments to be passed to the command
 
@@ -71,6 +74,7 @@ param(
     [switch]$Reinstall,
     [string]$ToolsSourceSuffix,
     [string]$ConfigFile = $null,
+    [switch]$CI,
     [Parameter(ValueFromRemainingArguments = $true)]
     [string[]]$Arguments
 )
@@ -196,7 +200,7 @@ $korebuildPath = Get-KoreBuild
 Import-Module -Force -Scope Local (Join-Path $korebuildPath 'KoreBuild.psd1')
 
 try {
-    Set-KoreBuildSettings -ToolsSource $ToolsSource -DotNetHome $DotNetHome -RepoPath $Path -ConfigFile $ConfigFile
+    Set-KoreBuildSettings -ToolsSource $ToolsSource -DotNetHome $DotNetHome -RepoPath $Path -ConfigFile $ConfigFile -CI:$CI
     Invoke-KoreBuildCommand $Command @Arguments
 }
 finally {

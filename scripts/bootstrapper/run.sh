@@ -19,6 +19,7 @@ repo_path="$DIR"
 channel=''
 tools_source=''
 tools_source_suffix=''
+ci=false
 
 #
 # Functions
@@ -40,6 +41,7 @@ __usage() {
     echo "    --tools-source-suffix|-ToolsSourceSuffix <SUFFIX>     The suffix to append to tools-source. Useful for query strings."
     echo "    -u|--update                                           Update to the latest KoreBuild even if the lock file is present."
     echo "    --reinstall                                           Reinstall KoreBuild."
+    echo "    --ci                                                  Apply CI specific settings and environment variables."
     echo ""
     echo "Description:"
     echo "    This function will create a file \$DIR/korebuild-lock.txt. This lock file can be committed to source, but does not have to be."
@@ -184,6 +186,9 @@ while [[ $# -gt 0 ]]; do
         --reinstall|-[Rr]einstall)
             reinstall=true
             ;;
+        --ci)
+            ci=true
+            ;;
         --verbose|-Verbose)
             verbose=true
             ;;
@@ -236,5 +241,5 @@ fi
 [ -z "$tools_source" ] && tools_source='https://aspnetcore.blob.core.windows.net/buildtools'
 
 get_korebuild
-set_korebuildsettings "$tools_source" "$DOTNET_HOME" "$repo_path" "$config_file"
+set_korebuildsettings "$tools_source" "$DOTNET_HOME" "$repo_path" "$config_file" "$ci"
 invoke_korebuild_command "$command" "$@"

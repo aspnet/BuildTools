@@ -16,6 +16,7 @@
     <NoWarn>$(NoWarn);NU1603</NoWarn>
     <Serviceable>false</Serviceable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
   </PropertyGroup>
 
   <Import Project="$(_AspNetToolsSdkPath)\build\Internal.AspNetCore.Sdk.props" />

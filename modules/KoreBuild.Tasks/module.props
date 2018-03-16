@@ -5,13 +5,11 @@
 
   <UsingTask TaskName="KoreBuild.Tasks.CheckPackageReferences" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.ComputeChecksum" AssemblyFile="$(KoreBuildTasksDll)" />
-  <UsingTask TaskName="KoreBuild.Tasks.ComputeManyChecksum" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.DisableSkipStrongName" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.DownloadFile" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.DownloadNuGetPackages" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.EnableSkipStrongName" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.FindVisualStudio" AssemblyFile="$(KoreBuildTasksDll)" />
-  <UsingTask TaskName="KoreBuild.Tasks.GenerateBillOfMaterials" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.GenerateDependenciesPropsFile" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.GeneratePackageVersionPropsFile" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.GenerateSignRequest" AssemblyFile="$(KoreBuildTasksDll)" />

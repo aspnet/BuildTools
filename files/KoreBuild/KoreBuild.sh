@@ -12,9 +12,21 @@ set_korebuildsettings() {
     dot_net_home=$2
     repo_path=$3
     local config_file="${4:-}" # optional. Not used yet.
+    local ci="${5:-}"
 
     [ -z "${dot_net_home:-}" ] && dot_net_home="$HOME/.dotnet"
     [ -z "${tools_source:-}" ] && tools_source="$default_tools_source"
+
+    if [ "$ci" = true ]; then
+        dot_net_home="$repo_path/.dotnet"
+
+        export CI=true
+        export DOTNET_CLI_TELEMETRY_OPTOUT=true
+        export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
+        export NUGET_SHOW_STACK=true
+        export NUGET_PACKAGES="$repo_path/.nuget/packages"
+        export DOTNET_HOME="$dot_net_home"
+    fi
 
     return 0
 }

@@ -5,15 +5,12 @@
     <RestoreDependsOn Condition=" '$(DisableDefaultTargets)' != 'true' ">InstallDotNet;CheckPackageReferences;$(RestoreDependsOn)</RestoreDependsOn>
     <PackageDependsOn Condition=" '$(DisableDefaultTargets)' != 'true' ">$(PackageDependsOn);GenerateSignRequest</PackageDependsOn>
 
-    <GenerateBillOfMaterials Condition="'$(GenerateBillOfMaterials)' == ''">true</GenerateBillOfMaterials>
     <GenerateSignRequest Condition="'$(GenerateSignRequest)' == ''">true</GenerateSignRequest>
 
     <DisablePackageReferenceRestrictions Condition=" '$(DisablePackageReferenceRestrictions)' == '' ">false</DisablePackageReferenceRestrictions>
     <KoreBuildConfigFile Condition="'$(KoreBuildConfigFile)' == ''">$(RepositoryRoot)korebuild.json</KoreBuildConfigFile>
     <DependencyVersionsFile Condition="'$(DependencyVersionsFile)' == ''">$(RepositoryRoot)build\dependencies.props</DependencyVersionsFile>
-    <BuildManifestOutputPath>$(ArtifactsDir)manifest.xml</BuildManifestOutputPath>
     <SignRequestOutputPath>$(ArtifactsDir)signrequest.xml</SignRequestOutputPath>
-    <IgnoredArtifactItems>$(IgnoredArtifactItems);$(BuildManifestOutputPath)</IgnoredArtifactItems>
   </PropertyGroup>
 
 <!--
@@ -195,7 +192,7 @@ The following FilesToSign did not specify a Certificate or StrongName to use.
 ####################################################################################
 Target: GenerateSignRequest
 
-Generates a manifest that contains signin requests for files.
+Generates a manifest that contains signing requests for files.
 
 [in] (items) FilesToSign
 [in] (items) FilesToExcludeFromSigning
@@ -219,38 +216,6 @@ Generates a manifest that contains signin requests for files.
       Exclusions="@(FilesToExcludeFromSigning)"
       BasePath="$(ArtifactsDir)"
       OutputPath="$(SignRequestOutputPath)" />
-  </Target>
-
-
-<!--
-####################################################################################
-Target: GenerateBillOfMaterials
-
-Generates a manifest containing metadata about the all artifacts produced in a build.
-
-[in] (items) ArtifactInfo
-[in] (prop) CommitHash
-
-[out] BuildManifestOutputPath - the bom file
-
-####################################################################################
--->
-  <Target Name="GenerateBillOfMaterials"
-          DependsOnTargets="GetArtifactInfo"
-          AfterTargets="Package"
-          Condition=" '$(GenerateBillOfMaterials)' == 'true' ">
-
-    <ItemGroup>
-      <ArtifactInfo Update="@(ArtifactInfo)" Condition=" '$(CommitHash)' != '' AND '%(ArtifactInfo.CommitHash)' == '' ">
-        <CommitHash>$(CommitHash)</CommitHash>
-      </ArtifactInfo>
-    </ItemGroup>
-
-    <ComputeManyChecksum Items="@(ArtifactInfo)">
-      <Output TaskParameter="Items" ItemName="_ArtifactInfoWithFileHash" />
-    </ComputeManyChecksum>
-
-    <GenerateBillOfMaterials Artifacts="@(_ArtifactInfoWithFileHash)" OutputPath="$(BuildManifestOutputPath)" />
   </Target>
 
 </Project>

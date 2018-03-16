@@ -42,11 +42,11 @@
   <ItemGroup Condition="'$(NuspecBasePath)'!=''">
     <Compile Include="$(NuspecBasePath)**\*.cs" Exclude="$(DefaultExcludeItems)">
       <Pack>true</Pack>
-      <PackagePath>$(ContentTargetFolders)\cs\netstandard1.0\</PackagePath>
+      <PackagePath>$(ContentTargetFolders)\cs\netstandard1.0\$(PackageId)\%(RecursiveDir)\</PackagePath>
     </Compile>
     <EmbeddedResource Include="$(NuspecBasePath)**\*.resx" Exclude="$(DefaultExcludeItems)">
       <Pack>true</Pack>
-      <PackagePath>$(ContentTargetFolders)\any\any\</PackagePath>
+      <PackagePath>$(ContentTargetFolders)\any\any\$(PackageId)\%(RecursiveDir)\</PackagePath>
     </EmbeddedResource>
   </ItemGroup>
 

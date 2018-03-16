@@ -16,13 +16,18 @@ Usage: this should be imported once via NuGet at the top of the file.
     <IncludeSource>true</IncludeSource>
     <IncludeSymbols>true</IncludeSymbols>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <NoPackageAnalysis>true</NoPackageAnalysis>
     <PackageLicenseUrl>https://raw.githubusercontent.com/aspnet/Home/2.0.0/LICENSE.txt</PackageLicenseUrl>
     <PackageIconUrl>https://go.microsoft.com/fwlink/?LinkID=288859</PackageIconUrl>
     <PackageProjectUrl>https://asp.net</PackageProjectUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
     <Serviceable Condition="'$(Configuration)' == 'Release'">true</Serviceable>
-    <LangVersion Condition="'$(LangVersion)' == ''">7.1</LangVersion>
+    <LangVersion Condition="'$(LangVersion)' == ''">7.2</LangVersion>
+    <RepositoryCommit Condition="'$(RepositoryCommit)' == ''">$(CommitHash)</RepositoryCommit>
+    <!-- Instructs the compiler to use SHA256 instead of SHA1 when adding file hashes to PDBs. -->
+    <ChecksumAlgorithm>SHA256</ChecksumAlgorithm>
+    <!-- Suppress the message about using a preview version of .NET Core SDK. We are okay with this and don't need the warning. -->
+    <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
   </PropertyGroup>
 
   <!-- common build options -->

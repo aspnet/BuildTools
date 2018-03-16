@@ -59,16 +59,6 @@ namespace KoreBuild.FunctionalTests
             Assert.True(File.Exists(Path.Combine(app.WorkingDirectory, "obj", "tmp-nuget", "Simple.Lib.1.0.0-beta-0001.nupkg")), "Build done a test push of all the packages");
             Assert.True(File.Exists(Path.Combine(app.WorkingDirectory, "obj", "tmp-nuget", "Simple.Sources.1.0.0-beta-0001.nupkg")), "Build done a test push of all the packages");
 
-            // /t:GenerateBillOfMaterials
-            var bom = Path.Combine(app.WorkingDirectory, "artifacts", "manifest.xml");
-            Assert.True(File.Exists(bom), "Bill of materials should have been generated");
-            var doc = XDocument.Load(bom);
-            var artifacts = doc.Descendants("Artifact");
-            Assert.NotEmpty(artifacts);
-            Assert.All(artifacts, a => Assert.NotEmpty(a.Attribute("FileHash").Value));
-            var package = Assert.Single(doc.Descendants("Artifact"), a => a.Attribute("PackageId")?.Value == "Simple.Lib" && a.Attribute("Type")?.Value == "NuGetPackage");
-            Assert.Equal("netstandard2.0;net461", package.Attribute("TargetFrameworks")?.Value);
-
             // /t:GenerateSigningRequest
             var signRequest = Path.Combine(app.WorkingDirectory, "artifacts", "signrequest.xml");
             Assert.True(File.Exists(signRequest), "Sign requests should have been generated");

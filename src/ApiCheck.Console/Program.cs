@@ -290,8 +290,16 @@ namespace ApiCheck
 
             foreach (var exclusion in incorrectBreakingChanges)
             {
-                Console.WriteLine(
-                    "ERROR: The following exclusion is in the exclusion file, but is no longer necessary:");
+                if (breakingChangesPathOption.HasValue())
+                {
+                    Console.Error.WriteLine(
+                        $"ERROR: The following exclusion is in the exclusion file '{breakingChangesPathOption.Value()}', but is no longer necessary:");
+                }
+                else
+                {
+                    Console.Error.WriteLine(
+                        "ERROR: The following exclusion is in the exclusion file, but is no longer necessary:");
+                }
                 Console.WriteLine(JsonConvert.SerializeObject(exclusion, Formatting.Indented));
                 Console.WriteLine();
             }

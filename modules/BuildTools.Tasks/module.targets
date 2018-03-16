@@ -4,10 +4,11 @@
     <PrepareDependsOn>$(PrepareDependsOn);_UseVolatileFeed;ResolveCommitHash</PrepareDependsOn>
   </PropertyGroup>
 
-  <Target Name="ResolveCommitHash" Condition="'$(CommitHash)' == ''">
-    <PropertyGroup>
+  <Target Name="ResolveCommitHash" Condition="'$(CommitHash)' == '' OR '$(RepositoryCommit)' == ''">
+    <PropertyGroup Condition=" '$(CommitHash)' == '' ">
       <CommitHash Condition="'$(APPVEYOR_REPO_COMMIT)' != ''">$(APPVEYOR_REPO_COMMIT)</CommitHash>
       <CommitHash Condition="'$(TRAVIS_COMMIT)' != ''">$(TRAVIS_COMMIT)</CommitHash>
+      <CommitHash Condition="'$(RepositoryCommit)' != ''">$(RepositoryCommit)</CommitHash>
     </PropertyGroup>
 
     <GetGitCommitHash WorkingDirectory="$(RepositoryRoot)"
@@ -17,7 +18,14 @@
     </GetGitCommitHash>
 
     <PropertyGroup>
+      <!--
+        RepositoryCommit should be the same as CommitHash.
+        We use CommitHash for backwards compatibility with build scripts.
+        Setting RepositoryCommit enables NuGet features added in NuGet/NuGet.Client#2036.
+      -->
+      <RepositoryCommit>$(CommitHash)</RepositoryCommit>
       <SolutionProperties Condition="'$(CommitHash)' != ''">$(SolutionProperties);CommitHash=$(CommitHash)</SolutionProperties>
+      <SolutionProperties Condition="'$(CommitHash)' != ''">$(SolutionProperties);RepositoryCommit=$(RepositoryCommit)</SolutionProperties>
     </PropertyGroup>
   </Target>
 

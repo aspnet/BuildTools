@@ -26,8 +26,10 @@ Below is a list of some of the properties that KoreBuild recognizes which you mi
 
 Property          | Purpose
 ------------------|--------
-GenerateBaselines | Toggles the (re-)generation of baselines for all projects.
+GenerateBaselines | Toggles the (re-)generation of baselines for all projects (defaults to true).
+ReplaceBaselines  | If 'true' baseline.\*.json and breakingchanges.\*.json files are deleted, and baseline.\*.json files are recreated from the current state.
 VSTestBlame       | Turns on the '--blame' option of vstest, useful for diagnosing test host failures.
+EnableApiCheck    | If 'false' no targets related to ApiCheck are run.
 
 ### KoreBuild config
 

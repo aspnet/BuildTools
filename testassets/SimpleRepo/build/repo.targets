@@ -1,8 +1,17 @@
 <Project>
   <PropertyGroup>
     <PrepareDependsOn>$(PrepareDependsOn);Greet</PrepareDependsOn>
-    <VerifyDependsOn>$(VerifyDependsOn);TestNuGetPush</VerifyDependsOn>
+    <PackageDependsOn>$(PackageDependsOn);PackLineup</PackageDependsOn>
+    <VerifyDependsOn>$(VerifyDependsOn);TestNuGetPush;UpgradeDependencies</VerifyDependsOn>
+
+    <LineupPackageId>Sample.Lineup</LineupPackageId>
+    <LineupPackageVersion>$(Version)</LineupPackageVersion>
+    <LineupPackageRestoreSource>$(IntermediateDir)</LineupPackageRestoreSource>
   </PropertyGroup>
+
+  <Target Name="PackLineup">
+    <PackNuspec NuspecPath="$(MSBuildThisFileDirectory)Sample.Lineup.nuspec" DestinationFolder="$(IntermediateDir)" Properties="version=$(Version)" />
+  </Target>
 
   <Target Name="Greet">
     <RepoTasks.SayHello />

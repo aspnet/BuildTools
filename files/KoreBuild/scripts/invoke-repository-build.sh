@@ -86,6 +86,7 @@ cat > "$msbuild_response_file" <<ENDMSBUILDARGS
 /nologo
 /m
 /p:KoreBuildVersion=$korebuild_version
+/p:SuppressNETCoreSdkPreviewMessage=true
 /p:RepositoryRoot="$repo_path/"
 "$msbuild_log_argument"
 "$korebuild_proj"

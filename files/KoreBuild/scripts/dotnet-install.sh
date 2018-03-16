@@ -617,6 +617,16 @@ download() {
     local remote_path="$1"
     local out_path="${2:-}"
 
+    if [[ "$remote_path" != "http"* ]]; then
+        say_verbose "Copying from $remote_path"
+        if [ ! -z "$out_path" ]; then
+            cp "$remote_path" "$out_path"
+        else
+            cat "$remote_path"
+        fi
+        return 0
+    fi
+
     local failed=false
     if machine_has "curl"; then
         downloadcurl "$remote_path" "$out_path" || failed=true

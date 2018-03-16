@@ -1,6 +1,7 @@
 <Project>
 
   <PropertyGroup>
+    <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <GenerateFullPaths Condition="'$(VSCODE_PID)' != ''">true</GenerateFullPaths>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 

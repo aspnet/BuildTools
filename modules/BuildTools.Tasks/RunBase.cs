@@ -70,6 +70,9 @@ namespace Microsoft.AspNetCore.BuildTools
 
         public override bool Execute()
         {
+            // Initialize to non-zero in case of early return
+            ExitCode = -1;
+
             var exe = GetExecutable();
 
             if (string.IsNullOrEmpty(exe))
@@ -124,7 +127,7 @@ namespace Microsoft.AspNetCore.BuildTools
                     FileName = exe,
                     Arguments = arguments,
                     WorkingDirectory = WorkingDirectory ?? Directory.GetCurrentDirectory(),
-                    UseShellExecute = UseShellExecute
+                    UseShellExecute = UseShellExecute,
                 },
             };
 

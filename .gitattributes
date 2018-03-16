@@ -18,3 +18,4 @@
 
 *.sh eol=lf
 *.bin binary
+*.zip binary

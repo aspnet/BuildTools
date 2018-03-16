@@ -28,6 +28,7 @@ namespace NuGetPackageVerifier.Rules
         // Packages that are owned by ASP.Net but do not start with one of the reserved prefixes.
         private static readonly string[] OwnedPackageIds = new string[]
         {
+            "Microsoft.Net.Sdk.Razor",
         };
 
         // Packages that start with one of the reserved prefixes but are not owned by Microsoft or ASP.Net.

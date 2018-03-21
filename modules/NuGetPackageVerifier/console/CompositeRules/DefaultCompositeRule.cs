@@ -18,6 +18,8 @@ namespace NuGetPackageVerifier.Rules
             new AssemblyHasServicingAttributeRule(),
             new AssemblyHasVersionAttributesRule(),
             new AssemblyStrongNameRule(),
+            new PackageCopyrightRule(),
+            new PackageAuthorRule(),
             new RequiredPackageMetadataRule(),
             new RequiredNuSpecInfoRule(),
             new SatellitePackageRule(),

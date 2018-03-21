@@ -198,6 +198,13 @@ namespace NuGetPackageVerifier
                 "The package '{0}' must only have one Author.", assemblyPath), PackageIssueLevel.Error);
         }
 
+        public static PackageVerifierIssue CopyrightIsIncorrect(string assemblyPath, string expectedCopyright, string actualCopyright)
+        {
+            return new PackageVerifierIssue("PACKAGE_COPYRIGHT_INCORRECT", assemblyPath, string.Format(
+                "The package '{0}'s copyright must be {1} but was {2}", assemblyPath, expectedCopyright, actualCopyright),
+                PackageIssueLevel.Error);
+        }
+
         public static PackageVerifierIssue AuthorIsIncorrect(string assemblyPath, string expectedAuthor, string actualAuthor)
         {
             return new PackageVerifierIssue("PACKAGE_AUTHOR_INCORRECT", assemblyPath, string.Format(

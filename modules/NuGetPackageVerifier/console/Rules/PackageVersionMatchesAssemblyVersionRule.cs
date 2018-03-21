@@ -23,23 +23,14 @@ namespace NuGetPackageVerifier.Rules
 
                 var infoVersion = assemblyInformationalVersionAttribute?.ConstructorArguments[0].Value?.ToString();
 
-                if (!NuGetVersion.TryParse(infoVersion, out var assemblyInformationalNuGetVersion))
+                if (!NuGetVersion.TryParse(infoVersion, out var assemblyInformationalNuGetVersion) ||
+                    !VersionEquals(context.Metadata.Version, assemblyInformationalNuGetVersion))
                 {
                     yield return PackageIssueFactory.AssemblyInformationalVersionDoesNotMatchPackageVersion(
                        assemblyData.Key,
                        infoVersion,
                        context.Metadata.Version,
                        context.Metadata.Id);
-                    continue;
-                }
-
-                if (!VersionEquals(context.Metadata.Version, assemblyInformationalNuGetVersion))
-                {
-                    yield return PackageIssueFactory.AssemblyInformationalVersionDoesNotMatchPackageVersion(
-                        assemblyData.Key,
-                        infoVersion,
-                        context.Metadata.Version,
-                        context.Metadata.Id);
                 }
 
                 var assemblyFileVersionAttribute = assemblyData.Value.AssemblyAttributes.SingleOrDefault(a =>

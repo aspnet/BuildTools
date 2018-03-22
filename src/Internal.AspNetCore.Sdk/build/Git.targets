@@ -1,6 +1,7 @@
 ﻿<Project>
 
   <PropertyGroup>
+    <CommitHash Condition="'$(RepositoryCommit)' == ''">$(RepositoryCommit)</CommitHash>
     <GenerateCommitHashAttribute Condition="'$(GenerateCommitHashAttribute)'==''">true</GenerateCommitHashAttribute>
     <GeneratedCommitHashAttributeFile Condition="'$(GeneratedCommitHashAttributeFile)'==''">$(IntermediateOutputPath)$(AssemblyName).CommitHash$(DefaultLanguageSourceExtension)</GeneratedCommitHashAttributeFile>
     <SourceLinkDestination Condition="'$(SourceLinkDestination)' == ''">$(IntermediateOutputPath)sourcelink.json</SourceLinkDestination>
@@ -25,18 +26,24 @@
     <PathMap Condition=" '$(DeterministicSourceRoot)' != '' ">$(RepositoryRoot)=$(DeterministicSourceRoot)</PathMap>
   </PropertyGroup>
 
-  <Target Name="ResolveCommitHash" Condition="'$(CommitHash)'==''">
+  <Target Name="ResolveCommitHash" Condition="'$(RepositoryCommit)'==''">
 
     <PropertyGroup>
-      <CommitHash Condition="'$(APPVEYOR_REPO_COMMIT)' != ''">$(APPVEYOR_REPO_COMMIT)</CommitHash>
-      <CommitHash Condition="'$(TRAVIS_COMMIT)' != ''">$(TRAVIS_COMMIT)</CommitHash>
+      <RepositoryCommit Condition="'$(APPVEYOR_REPO_COMMIT)' != ''">$(APPVEYOR_REPO_COMMIT)</RepositoryCommit>
+      <RepositoryCommit Condition="'$(TRAVIS_COMMIT)' != ''">$(TRAVIS_COMMIT)</RepositoryCommit>
+      <RepositoryCommit Condition="'$(CommitHash)' != ''">$(CommitHash)</RepositoryCommit>
     </PropertyGroup>
 
     <Sdk_GetGitCommitHash WorkingDirectory="$(MSBuildProjectDirectory)"
-                      Condition="'$(CommitHash)' == ''"
+                      Condition="'$(RepositoryCommit)' == ''"
                       ContinueOnError="WarnAndContinue">
-      <Output TaskParameter="CommitHash" PropertyName="CommitHash" />
+      <Output TaskParameter="CommitHash" PropertyName="RepositoryCommit" />
     </Sdk_GetGitCommitHash>
+
+    <PropertyGroup>
+      <!-- Set both CommitHash and RepositoryCommit. CommitHash was the property we started using at first. RepositoryCommit was introduced when NuGet started adding this to nuspec. -->
+      <CommitHash>$(RepositoryCommit)</CommitHash>
+    </PropertyGroup>
   </Target>
 
   <Target Name="CreateSourceLink"
@@ -47,10 +54,10 @@
     <Sdk_CreateSourceLink
           SourceLinkRoot="$(SourceLinkRoot)"
           OriginUrl="$(RepositoryUrl)"
-          Commit="$(CommitHash)"
+          Commit="$(RepositoryCommit)"
           DestinationFile="$(SourceLinkDestination)"
           ContinueOnError="WarnAndContinue"
-          Condition="'$(CommitHash)' != '' AND '$(RepositoryUrl)' != '' AND '$(SourceLinkRoot)' != ''">
+          Condition="'$(RepositoryCommit)' != '' AND '$(RepositoryUrl)' != '' AND '$(SourceLinkRoot)' != ''">
       <Output TaskParameter="SourceLinkFile" PropertyName="SourceLink" />
     </Sdk_CreateSourceLink>
 
@@ -58,7 +65,7 @@
              Condition="'$(RepositoryUrl)' == ''" />
 
     <Warning Text="SourceLink not enabled because this is not a git repo."
-             Condition="'$(CommitHash)' == ''" />
+             Condition="'$(RepositoryCommit)' == ''" />
 
     <Warning Text="SourceLink not enabled because SourceLinkRoot wasn't set."
              Condition="'$(SourceLinkRoot)' == ''" />
@@ -74,14 +81,14 @@ Generates an assembly attribute with commit hash
           BeforeTargets="CoreCompile"
           DependsOnTargets="ResolveCommitHash;PrepareForBuild;GenerateIntermediateCommitHash;CoreGenerateCommitHashAttribute;CreateSourceLink"
           Condition="'$(GenerateCommitHashAttribute)'=='true' and '$(DesignTimeBuild)'!='true'" >
-    <Warning Text="Property 'CommitHash' was not set"
-             Condition="'$(CommitHash)'==''" />
+    <Warning Text="Property 'RepositoryCommit' was not set"
+             Condition="'$(RepositoryCommit)'==''" />
   </Target>
 
-  <Target Name="GenerateIntermediateCommitHash" Condition="'$(CommitHash)' != ''">
+  <Target Name="GenerateIntermediateCommitHash" Condition="'$(RepositoryCommit)' != ''">
     <PropertyGroup>
       <!-- shorten to help avoid max path length issues -->
-      <IntermediateCommitHash>$(IntermediateOutputPath)$(CommitHash.Substring(0, 10)).commit</IntermediateCommitHash>
+      <IntermediateCommitHash>$(IntermediateOutputPath)$(RepositoryCommit.Substring(0, 10)).commit</IntermediateCommitHash>
     </PropertyGroup>
 
     <ItemGroup>
@@ -93,7 +100,7 @@ Generates an assembly attribute with commit hash
   </Target>
 
   <Target Name="CoreGenerateCommitHashAttribute"
-          Condition="'$(CommitHash)'!='' and '$(GenerateCommitHashAttribute)'=='true'"
+          Condition="'$(RepositoryCommit)'!='' and '$(GenerateCommitHashAttribute)'=='true'"
           Inputs="$(IntermediateCommitHash)"
           Outputs="$(GeneratedCommitHashAttributeFile)">
 
@@ -101,7 +108,7 @@ Generates an assembly attribute with commit hash
       <_CustomAttributes Remove="@(_CustomAttributes)" />
       <_CustomAttributes Include="System.Reflection.AssemblyMetadataAttribute">
         <_Parameter1>CommitHash</_Parameter1>
-        <_Parameter2>$(CommitHash)</_Parameter2>
+        <_Parameter2>$(RepositoryCommit)</_Parameter2>
       </_CustomAttributes>
     </ItemGroup>
 

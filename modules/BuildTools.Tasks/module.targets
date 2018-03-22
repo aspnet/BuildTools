@@ -4,17 +4,17 @@
     <PrepareDependsOn>$(PrepareDependsOn);_UseVolatileFeed;ResolveCommitHash</PrepareDependsOn>
   </PropertyGroup>
 
-  <Target Name="ResolveCommitHash" Condition="'$(CommitHash)' == '' OR '$(RepositoryCommit)' == ''">
-    <PropertyGroup Condition=" '$(CommitHash)' == '' ">
-      <CommitHash Condition="'$(APPVEYOR_REPO_COMMIT)' != ''">$(APPVEYOR_REPO_COMMIT)</CommitHash>
-      <CommitHash Condition="'$(TRAVIS_COMMIT)' != ''">$(TRAVIS_COMMIT)</CommitHash>
-      <CommitHash Condition="'$(RepositoryCommit)' != ''">$(RepositoryCommit)</CommitHash>
+  <Target Name="ResolveCommitHash" Condition="'$(RepositoryCommit)' == ''">
+    <PropertyGroup>
+      <RepositoryCommit Condition="'$(APPVEYOR_REPO_COMMIT)' != ''">$(APPVEYOR_REPO_COMMIT)</RepositoryCommit>
+      <RepositoryCommit Condition="'$(TRAVIS_COMMIT)' != ''">$(TRAVIS_COMMIT)</RepositoryCommit>
+      <RepositoryCommit Condition="'$(CommitHash)' != ''">$(CommitHash)</RepositoryCommit>
     </PropertyGroup>
 
     <GetGitCommitHash WorkingDirectory="$(RepositoryRoot)"
-                      Condition="'$(CommitHash)' == ''"
+                      Condition="'$(RepositoryCommit)' == ''"
                       ContinueOnError="WarnAndContinue">
-      <Output TaskParameter="CommitHash" PropertyName="CommitHash" />
+      <Output TaskParameter="CommitHash" PropertyName="RepositoryCommit" />
     </GetGitCommitHash>
 
     <PropertyGroup>
@@ -23,9 +23,9 @@
         We use CommitHash for backwards compatibility with build scripts.
         Setting RepositoryCommit enables NuGet features added in NuGet/NuGet.Client#2036.
       -->
-      <RepositoryCommit>$(CommitHash)</RepositoryCommit>
-      <SolutionProperties Condition="'$(CommitHash)' != ''">$(SolutionProperties);CommitHash=$(CommitHash)</SolutionProperties>
-      <SolutionProperties Condition="'$(CommitHash)' != ''">$(SolutionProperties);RepositoryCommit=$(RepositoryCommit)</SolutionProperties>
+      <CommitHash>$(RepositoryCommit)</CommitHash>
+      <SolutionProperties Condition="'$(RepositoryCommit)' != ''">$(SolutionProperties);CommitHash=$(RepositoryCommit)</SolutionProperties>
+      <SolutionProperties Condition="'$(RepositoryCommit)' != ''">$(SolutionProperties);RepositoryCommit=$(RepositoryCommit)</SolutionProperties>
     </PropertyGroup>
   </Target>
 

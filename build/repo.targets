@@ -23,18 +23,15 @@
     </ArtifactInfo>
   </ItemGroup>
 
-  <Target Name="ResolveCommitHash" Condition="'$(CommitHash)'==''" BeforeTargets="Prepare">
+  <Target Name="ResolveRepositoryCommit" Condition="'$(RepositoryCommit)'==''" BeforeTargets="Prepare">
 
     <GetGitCommitInfo WorkingDirectory="$(RepositoryRoot)"
-                      Condition="'$(CommitHash)' == ''">
-      <!-- Set both CommitHash and RepositoryCommit. CommitHash was the property we started using at first. RepositoryCommit was introduced when NuGet started adding this to nuspec. -->
-      <Output TaskParameter="CommitHash" PropertyName="CommitHash" />
+                      Condition="'$(RepositoryCommit)' == ''">
       <Output TaskParameter="CommitHash" PropertyName="RepositoryCommit" />
       <Output TaskParameter="Branch" PropertyName="RepositoryBranch" />
     </GetGitCommitInfo>
 
     <PropertyGroup>
-      <SolutionProperties Condition="'$(CommitHash)' != ''">$(SolutionProperties);CommitHash=$(CommitHash)</SolutionProperties>
       <SolutionProperties Condition="'$(RepositoryCommit)' != ''">$(SolutionProperties);RepositoryCommit=$(RepositoryCommit)</SolutionProperties>
       <SolutionProperties Condition="'$(RepositoryBranch)' != ''">$(SolutionProperties);RepositoryBranch=$(RepositoryBranch)</SolutionProperties>
     </PropertyGroup>
@@ -44,10 +41,10 @@
     <RemoveDir Directories="$(_KoreBuildIntermediateDir);$(ArtifactsDir)korebuild\" />
   </Target>
 
-  <Target Name="PackageKoreBuild" DependsOnTargets="ResolveCommitHash;CleanKoreBuild" AfterTargets="Package">
+  <Target Name="PackageKoreBuild" DependsOnTargets="ResolveRepositoryCommit;CleanKoreBuild" AfterTargets="Package">
     <Error Text="Missing property: KoreBuildChannel" Condition="'$(KoreBuildChannel)' == ''" />
     <Error Text="Missing property: Version" Condition="'$(Version)' == ''" />
-    <Error Text="Missing property: CommitHash" Condition="'$(CommitHash)' == ''" />
+    <Error Text="Missing property: RepositoryCommit" Condition="'$(RepositoryCommit)' == ''" />
 
     <!-- passing /warnaserror:BUILD1001 on CI to prevent channel/branch mismatch -->
     <Warning Text="Current branch '$(RepositoryBranch)' does not match the value of KoreBuildChannel: '$(KoreBuildChannel)'"
@@ -68,7 +65,7 @@
     <ItemGroup>
       <Content Include="$(RepositoryRoot)files\KoreBuild\**\*" />
       <VersionFileLines Include="version:$(Version)" />
-      <VersionFileLines Include="commithash:$(CommitHash)" />
+      <VersionFileLines Include="commithash:$(RepositoryCommit)" />
     </ItemGroup>
 
     <MakeDir Directories="$(_ChannelOutDir);$(_KoreBuildOutDir);$(_KoreBuildIntermediateDir)" />

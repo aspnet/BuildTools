@@ -51,12 +51,14 @@ function Push-NuGetPackage {
     }
 
     process {
-        if ($env:DOTNET_HOME -ne $null) {
+        if ($env:DOTNET_HOME) {
             $dotnetExe = "$env:DOTNET_HOME/x64/dotnet"
         }
         else {
-            $dotnetExe = "dotnet"
+            $dotnetExe = (Get-Command dotnet).Path
         }
+
+        Write-Host "dotnet = $dotnetExe"
 
         $packagesToPush = @()
         foreach ($package in $Packages) {

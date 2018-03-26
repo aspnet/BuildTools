@@ -8,7 +8,7 @@
     <MicrosoftDotNetPlatformAbstractionsVersion>2.0.0</MicrosoftDotNetPlatformAbstractionsVersion>
     <MonoCecilVersion>0.10.0-beta6</MonoCecilVersion>
     <MoqVersion>4.7.99</MoqVersion>
-    <NuGetPackagesVersion>4.6.1</NuGetPackagesVersion>
+    <NuGetPackagesVersion>4.6.0</NuGetPackagesVersion>
     <RuntimeFrameworkVersion>2.0.0</RuntimeFrameworkVersion>
     <SystemCollectionsImmutableVersion>1.4.0</SystemCollectionsImmutableVersion>
     <SystemReflectionMetadataVersion>1.5.0</SystemReflectionMetadataVersion>

@@ -18,7 +18,7 @@
       See https://github.com/dotnet/sdk/blob/release/2.0.0/build/DependencyVersions.props
      -->
     <JsonInMSBuildVersion>9.0.1</JsonInMSBuildVersion>
-    <NuGetInMSBuildVersion>4.6.1</NuGetInMSBuildVersion>
+    <NuGetInMSBuildVersion>4.6.0</NuGetInMSBuildVersion>
   </PropertyGroup>
 
 </Project>

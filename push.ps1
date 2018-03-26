@@ -16,12 +16,14 @@ if ($env:BUILD_IS_PERSONAL) {
     Write-Host -ForegroundColor Yellow 'Automatically setting -WhatIf for personal builds'
 }
 
-if (!$DotNetHome) {
+if (-not $DotNetHome) {
     $DotNetHome = if ($env:DOTNET_HOME) { $env:DOTNET_HOME } `
         elseif ($env:USERPROFILE) { Join-Path $env:USERPROFILE '.dotnet'} `
         elseif ($env:HOME) {Join-Path $env:HOME '.dotnet'}`
         else { Join-Path $PSScriptRoot '.dotnet'}
 }
+
+$env:DOTNET_HOME = $DotNetHome
 
 Import-Module -Force -Scope Local $PSScriptRoot/scripts/PushNuGet.psm1
 

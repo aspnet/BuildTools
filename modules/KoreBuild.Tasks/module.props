@@ -5,6 +5,7 @@
 
   <UsingTask TaskName="KoreBuild.Tasks.ComputeChecksum" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.ComputeManyChecksum" AssemblyFile="$(KoreBuildTasksDll)" />
+  <UsingTask TaskName="KoreBuild.Tasks.DownloadNuGetPackages" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.GenerateBillOfMaterials" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.InstallDotNet" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.PackNuSpec" AssemblyFile="$(KoreBuildTasksDll)" />

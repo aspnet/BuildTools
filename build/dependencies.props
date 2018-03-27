@@ -31,7 +31,7 @@
     <MicrosoftBuildUtilitiesCorePackageVersion>$(MicrosoftBuildPackageVersion)</MicrosoftBuildUtilitiesCorePackageVersion>
     <MicrosoftBuildTasksCorePackageVersion>$(MicrosoftBuildPackageVersion)</MicrosoftBuildTasksCorePackageVersion>
     <Tooling_NewtonsoftJsonPackageVersion>9.0.1</Tooling_NewtonsoftJsonPackageVersion>
-    <Tooling_NuGetBuildTasksPackageVersion>4.7.0-preview1-4846</Tooling_NuGetBuildTasksPackageVersion>
+    <Tooling_NuGetBuildTasksPackageVersion>4.7.0-netcore.2.1.preview2.5133</Tooling_NuGetBuildTasksPackageVersion>
   </PropertyGroup>
 
   <!-- These are set to flow into RepoTasks.csproj -->

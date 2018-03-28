@@ -1,0 +1,18 @@
+<Project>
+  <Target Name="GenerateTestProps" AfterTargets="Build">
+    <PropertyGroup>
+     <TestPropsContent>
+<![CDATA[
+<Project>
+  <PropertyGroup>
+    <RuntimeFrameworkVersion Condition="'%24(TargetFramework)' == 'netcoreapp2.0'">$(MicrosoftNETCoreApp20PackageVersion)</RuntimeFrameworkVersion>
+    <RuntimeFrameworkVersion Condition="'%24(TargetFramework)' == 'netcoreapp2.1'">$(MicrosoftNETCoreApp21PackageVersion)</RuntimeFrameworkVersion>
+  </PropertyGroup>
+</Project>
+]]>
+     </TestPropsContent>
+    </PropertyGroup>
+    <MakeDir Directories="$(OutputPath)TestResources/" />
+    <WriteLinesToFile File="$(OutputPath)TestResources/Directory.Build.targets" Lines="$(TestPropsContent)" Overwrite="true" />
+  </Target>
+</Project>

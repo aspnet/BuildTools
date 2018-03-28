@@ -25,6 +25,8 @@ namespace KoreBuild.FunctionalTests
             Directory.CreateDirectory(workDir);
             CopyRecursive(templateDir, workDir);
             CopyRecursive(source, workDir);
+            var db = Path.Combine(AppContext.BaseDirectory, "TestResources", "Directory.Build.targets");
+            File.Copy(db, Path.Combine(workDir, "Directory.Build.targets"), overwrite: true);
         }
 
         public string WorkingDirectory { get; }

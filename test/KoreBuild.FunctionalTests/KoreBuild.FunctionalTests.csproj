@@ -26,4 +26,5 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitRunnerVisualStudioPackageVersion)" />
   </ItemGroup>
 
+  <Import Project="GenerateTestProps.targets" />
 </Project>

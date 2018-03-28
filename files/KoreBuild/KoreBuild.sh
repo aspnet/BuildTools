@@ -26,6 +26,7 @@ set_korebuildsettings() {
         export NUGET_SHOW_STACK=true
         export NUGET_PACKAGES="$repo_path/.nuget/packages"
         export DOTNET_HOME="$dot_net_home"
+        export MSBUILDDEBUGPATH="$repo_path/artifacts/logs"
     fi
 
     return 0

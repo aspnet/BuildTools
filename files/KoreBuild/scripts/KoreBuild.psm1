@@ -91,7 +91,6 @@ function Invoke-RepositoryBuild(
         $msBuildArguments = @"
 /nologo
 /m
-/nodeReuse:false
 /p:KoreBuildVersion=$koreBuildVersion
 /p:SuppressNETCoreSdkPreviewMessage=true
 /p:RepositoryRoot="$Path/"

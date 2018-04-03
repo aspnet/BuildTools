@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
@@ -36,6 +37,11 @@ namespace KoreBuild.Tasks
         /// The version of the lineup package. If empty, this will attempt to pull the latest
         /// </summary>
         public string LineupPackageVersion { get; set; }
+
+        /// <summary>
+        /// The dependencies.props file to use versions from
+        /// </summary>
+        public string LineupDependenciesFile { get; set; }
 
         /// <summary>
         /// The NuGet feed containing the lineup package
@@ -78,80 +84,20 @@ namespace KoreBuild.Tasks
                 return true;
             }
 
-            VersionRange versionRange;
-
-            if (string.IsNullOrEmpty(LineupPackageVersion))
-            {
-                versionRange = VersionRange.AllFloating;
-            }
-            else if (!VersionRange.TryParse(LineupPackageVersion, out versionRange))
-            {
-                Log.LogError($"{LineupPackageVersion} is not a valid NuGet package version");
-                return false;
-            }
-
-            var packageVersion = await GetPackageVersion(versionRange);
-            if (packageVersion == null)
-            {
-                Log.LogError($"Could not find a version of {LineupPackageId} in the version range {versionRange}.");
-                return false;
-            }
-
-            var packageId = new PackageIdentity(LineupPackageId, packageVersion);
 
             var tmpNupkgPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-            var request = new PackageDownloadRequest
-            {
-                Identity = packageId,
-                OutputPath = tmpNupkgPath,
-                Sources = new[] { LineupPackageRestoreSource },
-            };
-
             var logger = new MSBuildLogger(Log);
-            var downloader = new PackageDownloader(logger);
 
             try
             {
-                var result = await downloader.DownloadPackagesAsync(new[] { request }, TimeSpan.FromSeconds(60), _cts.Token);
+                var remoteDepsVersionFile = await TryDownloadLineupDepsFile() ?? await TryDownloadLineupPackage(logger, tmpNupkgPath);
 
-                if (!result)
+                if (remoteDepsVersionFile == null)
                 {
-                    Log.LogError("Could not download the lineup package");
                     return false;
                 }
 
-                DependencyVersionsFile remoteDepsVersionFile;
-
-                using (var nupkgReader = new PackageArchiveReader(tmpNupkgPath))
-                using (var stream = nupkgReader.GetStream("build/dependencies.props"))
-                using (var reader = new XmlTextReader(stream))
-                {
-                    var projectRoot = ProjectRootElement.Create(reader);
-                    remoteDepsVersionFile = DependencyVersionsFile.Load(projectRoot);
-                }
-
-                var updateCount = 0;
-                foreach (var var in localVersionsFile.VersionVariables)
-                {
-                    string newValue;
-                    // special case any package bundled in KoreBuild
-                    if (!string.IsNullOrEmpty(KoreBuildVersion.Current) && var.Key == "InternalAspNetCoreSdkPackageVersion")
-                    {
-                        newValue = KoreBuildVersion.Current;
-                        Log.LogMessage(MessageImportance.Low, "Setting InternalAspNetCoreSdkPackageVersion to the current version of KoreBuild");
-                    }
-                    else if (!remoteDepsVersionFile.VersionVariables.TryGetValue(var.Key, out newValue))
-                    {
-                        Log.LogKoreBuildWarning(DependenciesFile, KoreBuildErrors.PackageVersionNotFoundInLineup, $"A new version variable for {var.Key} could not be found in {LineupPackageId}. This might be an unsupported external dependency.");
-                        continue;
-                    }
-
-                    if (newValue != var.Value)
-                    {
-                        updateCount++;
-                        localVersionsFile.Set(var.Key, newValue);
-                    }
-                }
+                var updateCount = UpdateDependencies(localVersionsFile, remoteDepsVersionFile);
 
                 if (updateCount > 0)
                 {
@@ -172,6 +118,112 @@ namespace KoreBuild.Tasks
                     File.Delete(tmpNupkgPath);
                 }
             }
+        }
+
+        private async Task<DependencyVersionsFile> TryDownloadLineupDepsFile()
+        {
+            if (string.IsNullOrEmpty(LineupDependenciesFile))
+            {
+                return null;
+            }
+
+            var path = LineupDependenciesFile;
+            string text;
+            if (path.StartsWith("http"))
+            {
+                using (var client = new HttpClient())
+                {
+                    text = await client.GetStringAsync(path);
+                }
+            }
+            else
+            {
+                text = File.ReadAllText(path);
+            }
+
+            using (var stringReader = new StringReader(text))
+            using (var reader = new XmlTextReader(stringReader))
+            {
+                var projectRoot = ProjectRootElement.Create(reader);
+                return DependencyVersionsFile.Load(projectRoot);
+            }
+        }
+
+        private async Task<DependencyVersionsFile> TryDownloadLineupPackage(MSBuildLogger logger, string tmpNupkgPath)
+        {
+            VersionRange versionRange;
+
+            if (string.IsNullOrEmpty(LineupPackageVersion))
+            {
+                versionRange = VersionRange.AllFloating;
+            }
+            else if (!VersionRange.TryParse(LineupPackageVersion, out versionRange))
+            {
+                Log.LogError($"{LineupPackageVersion} is not a valid NuGet package version");
+                return null;
+            }
+
+            var packageVersion = await GetPackageVersion(versionRange);
+            if (packageVersion == null)
+            {
+                Log.LogError($"Could not find a version of {LineupPackageId} in the version range {versionRange}.");
+                return null;
+            }
+
+            var packageId = new PackageIdentity(LineupPackageId, packageVersion);
+
+            var request = new PackageDownloadRequest
+            {
+                Identity = packageId,
+                OutputPath = tmpNupkgPath,
+                Sources = new[] { LineupPackageRestoreSource },
+            };
+
+            var result = await new PackageDownloader(logger).DownloadPackagesAsync(new[] { request }, TimeSpan.FromSeconds(60), _cts.Token);
+
+            if (!result)
+            {
+                Log.LogError("Could not download the lineup package");
+                return null;
+            }
+
+            using (var nupkgReader = new PackageArchiveReader(tmpNupkgPath))
+            using (var stream = nupkgReader.GetStream("build/dependencies.props"))
+            using (var reader = new XmlTextReader(stream))
+            {
+                var projectRoot = ProjectRootElement.Create(reader);
+                return  DependencyVersionsFile.Load(projectRoot);
+            }
+        }
+
+        private int UpdateDependencies(DependencyVersionsFile localVersionsFile, DependencyVersionsFile remoteDepsVersionFile)
+        {
+            var updateCount = 0;
+            foreach (var var in localVersionsFile.VersionVariables)
+            {
+                string newValue;
+                // special case any package bundled in KoreBuild
+                if (!string.IsNullOrEmpty(KoreBuildVersion.Current) && var.Key == "InternalAspNetCoreSdkPackageVersion")
+                {
+                    newValue = KoreBuildVersion.Current;
+                    Log.LogMessage(MessageImportance.Low, "Setting InternalAspNetCoreSdkPackageVersion to the current version of KoreBuild");
+                }
+                else if (!remoteDepsVersionFile.VersionVariables.TryGetValue(var.Key, out newValue))
+                {
+                    Log.LogKoreBuildWarning(
+                        DependenciesFile, KoreBuildErrors.PackageVersionNotFoundInLineup,
+                        $"A new version variable for {var.Key} could not be found in {LineupPackageId}. This might be an unsupported external dependency.");
+                    continue;
+                }
+
+                if (newValue != var.Value)
+                {
+                    updateCount++;
+                    localVersionsFile.Set(var.Key, newValue);
+                }
+            }
+
+            return updateCount;
         }
 
         private async Task<NuGetVersion> GetPackageVersion(VersionRange range)

@@ -12,6 +12,7 @@ namespace KoreBuild.Console.Commands
         private CommandOption _sourceOpt;
         private CommandOption _packageIdOpt;
         private CommandOption _packageVersionOpt;
+        private CommandOption _sourceDeps;
         private CommandOption _fileOpt;
 
         public DependenciesUpgradeCommand(CommandContext context) : base(context)
@@ -41,6 +42,7 @@ MORE INFO:
                 "Specifies a NuGet package source to use to upgrade dependencies to the latest lineup package.", CommandOptionType.SingleValue);
             _packageIdOpt = application.Option("--id <PACKAGE_ID>", "Specifies the lineup package id to use.", CommandOptionType.SingleValue);
             _packageVersionOpt = application.Option("--version <PACKAGE_VERISON>", "Specifies the lineup package version to use.", CommandOptionType.SingleValue);
+            _sourceDeps = application.Option("--source-deps <PACKAGE_VERISON>", "The dependencies.props file to use as a source of versions.", CommandOptionType.SingleValue);
             _fileOpt = application.Option("--deps-file <FILEPATH>", "The dependencies.props file to upgrade.", CommandOptionType.SingleValue);
 
             base.Configure(application);
@@ -68,6 +70,11 @@ MORE INFO:
             if (_packageVersionOpt.HasValue())
             {
                 args.Add("-p:LineupPackageVersion=" + _packageVersionOpt.Value());
+            }
+
+            if (_sourceDeps.HasValue())
+            {
+                args.Add("-p:LineupDependenciesFile=" + _sourceDeps.Value());
             }
 
             if (_fileOpt.HasValue())

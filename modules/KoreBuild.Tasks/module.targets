@@ -103,7 +103,8 @@ dependencies.props file in the current project to use latest versions.
       DependenciesFile="$(DependencyVersionsFile)"
       LineupPackageId="$(LineupPackageId)"
       LineupPackageVersion="$(LineupPackageVersion)"
-      LineupPackageRestoreSource="$(LineupPackageRestoreSource)" />
+      LineupPackageRestoreSource="$(LineupPackageRestoreSource)"
+      LineupDependenciesFile="$(LineupDependenciesFile)" />
   </Target>
 
 <!--

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
 
 namespace Microsoft.AspNetCore.BuildTools
 {
@@ -24,6 +25,11 @@ namespace Microsoft.AspNetCore.BuildTools
         [Required]
         public string FileName { get; set; }
 
-        protected override string GetExecutable() => FileName;
+        protected override string ToolName => FileName;
+
+        protected override string GenerateFullPathToTool()
+        {
+            return FileName;
+        }
     }
 }

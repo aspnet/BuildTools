@@ -18,7 +18,9 @@ namespace Microsoft.AspNetCore.BuildTools
 #endif
         : RunBase
     {
-        protected override string GetExecutable()
+        protected override string ToolName => "dotnet";
+
+        protected override string GenerateFullPathToTool()
 #if NET46
             => "dotnet";
 #else

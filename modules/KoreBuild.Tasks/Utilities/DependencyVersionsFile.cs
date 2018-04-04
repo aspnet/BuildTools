@@ -53,6 +53,7 @@ namespace KoreBuild.Tasks.Utilities
             return sb.ToString();
         }
 
+
         public static DependencyVersionsFile Create(bool addOverrideImport, string[] additionalImports = null)
         {
             var projectRoot = ProjectRootElement.Create(NewProjectFileOptions.None);
@@ -124,6 +125,19 @@ namespace KoreBuild.Tasks.Utilities
                     file._versionVariables[child.Name.ToString()] = child.Value?.Trim() ?? string.Empty;
                     file._versionElements[child.Name.ToString()] = child;
                 }
+            }
+
+            return file;
+        }
+
+        public static DependencyVersionsFile LoadFromProject(Project project)
+        {
+            var file = new DependencyVersionsFile(ProjectRootElement.Create(NewProjectFileOptions.None));
+
+            foreach (var property in project.AllEvaluatedProperties)
+            {
+                file._versionVariables[property.Name] = property.EvaluatedValue?.Trim() ?? string.Empty;
+                file._versionElements[property.Name] = property.Xml;
             }
 
             return file;

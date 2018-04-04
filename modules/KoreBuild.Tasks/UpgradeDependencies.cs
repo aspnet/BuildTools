@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using KoreBuild.Tasks.Utilities;
 using Microsoft.Build.Construction;
+using Microsoft.Build.Evaluation;
 using Microsoft.Build.Framework;
 using NuGet.Build;
 using NuGet.Configuration;
@@ -141,11 +142,12 @@ namespace KoreBuild.Tasks
                 text = File.ReadAllText(path);
             }
 
+
             using (var stringReader = new StringReader(text))
             using (var reader = new XmlTextReader(stringReader))
             {
-                var projectRoot = ProjectRootElement.Create(reader);
-                return DependencyVersionsFile.Load(projectRoot);
+                Project project = new Project(ProjectRootElement.Create(reader));
+                return DependencyVersionsFile.LoadFromProject(project);
             }
         }
 

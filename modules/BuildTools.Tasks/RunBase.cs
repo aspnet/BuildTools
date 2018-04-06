@@ -2,11 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
 using Microsoft.Extensions.CommandLineUtils;
@@ -16,13 +13,11 @@ namespace Microsoft.AspNetCore.BuildTools
     /// <summary>
     /// A task that runs a process without piping output into the logger.
     /// </summary>
-    public abstract class RunBase : Task
+    public abstract class RunBase : ToolTask
     {
         private static readonly char[] EqualsArray = new[] { '=' };
 
         private const int OK = 0;
-
-        protected abstract string GetExecutable();
 
         /// <summary>
         /// A list of arguments to be passed to the executable. The task will escape them for spaces and quotes.
@@ -35,14 +30,6 @@ namespace Microsoft.AspNetCore.BuildTools
         /// Cannot be used with <see cref="Arguments"/>
         /// </summary>
         public string Command { get; set; }
-
-        /// <summary>
-        /// Environment variables to set on the process.
-        /// </summary>
-        /// <remarks>
-        /// The item spec will split on '='. Alternatively, it will look for the metadata name "Value".
-        /// </remarks>
-        public ITaskItem[] EnvironmentVariables { get; set; }
 
         // Additional options
         /// <summary>
@@ -60,20 +47,22 @@ namespace Microsoft.AspNetCore.BuildTools
         /// </summary>
         public int MaxRetries { get; set; }
 
-        /// <summary>
-        /// Set the value for UseShellExecute on the new process.
-        /// </summary>
-        public bool UseShellExecute { get; set; }
-
-        [Output]
-        public int ExitCode { get; set; }
-
-        public override bool Execute()
+        protected override bool HandleTaskExecutionErrors()
         {
-            // Initialize to non-zero in case of early return
-            ExitCode = -1;
+            return IgnoreExitCode || base.HandleTaskExecutionErrors();
+        }
 
-            var exe = GetExecutable();
+        protected override string GetWorkingDirectory() => WorkingDirectory;
+
+        /// <inheritdoc />
+        protected override MessageImportance StandardErrorLoggingImportance => MessageImportance.High;
+
+        /// <inheritdoc />
+        protected override MessageImportance StandardOutputLoggingImportance => MessageImportance.High;
+
+        protected override bool ValidateParameters()
+        {
+            var exe = GenerateFullPathToTool();
 
             if (string.IsNullOrEmpty(exe))
             {
@@ -100,8 +89,28 @@ namespace Microsoft.AspNetCore.BuildTools
                 return false;
             }
 
-            var arguments = string.Empty;
+            return base.ValidateParameters();
+        }
+
+        public override bool Execute()
+        {
+            var retries = Math.Max(1, MaxRetries);
+            for (int i = 0; i < retries; i++)
+            {
+                if (base.Execute())
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        protected override string GenerateCommandLineCommands()
+        {
             var cmd = 0;
+            var arguments = string.Empty;
+
             if (Arguments != null)
             {
                 arguments = ArgumentEscaper.EscapeAndConcatenate(Arguments.Select(i => i.ItemSpec));
@@ -117,84 +126,10 @@ namespace Microsoft.AspNetCore.BuildTools
             if (cmd > 1)
             {
                 Log.LogError("Arguments and Command cannot both be used.");
-                return false;
+                return null;
             }
 
-            var process = new Process
-            {
-                StartInfo =
-                {
-                    FileName = exe,
-                    Arguments = arguments,
-                    WorkingDirectory = WorkingDirectory ?? Directory.GetCurrentDirectory(),
-                    UseShellExecute = UseShellExecute,
-                },
-            };
-
-            foreach (var var in GetEnvVars(EnvironmentVariables))
-            {
-                process.StartInfo.Environment[var.Key] = var.Value;
-            }
-
-            var remainingTries = MaxRetries;
-            do
-            {
-                try
-                {
-                    Log.LogMessage(MessageImportance.Low, "Starting process: {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
-                    Log.LogMessage(MessageImportance.Low, "Working directory: {0}", process.StartInfo.WorkingDirectory);
-                    if (remainingTries != MaxRetries)
-                    {
-                        Log.LogMessage(MessageImportance.Normal, "Retrying failed command. Remaining retries {0}", remainingTries);
-                    }
-                    process.Start();
-                }
-                catch (Exception e)
-                {
-                    Log.LogError("Run failed to start the process");
-                    Log.LogError(e.Message);
-                    return false;
-                }
-
-                process.WaitForExit();
-
-                ExitCode = process.ExitCode;
-
-                if (process.ExitCode == OK)
-                {
-                    break;
-                }
-            } while (remainingTries-- > 0);
-
-            var success = IgnoreExitCode || process.ExitCode == OK;
-            if (!success)
-            {
-                Log.LogError("Run exited with a non-zero exit code: {0} {1}", process.StartInfo.FileName, process.StartInfo.Arguments);
-            }
-            return success;
-        }
-
-        private static Dictionary<string, string> GetEnvVars(ITaskItem[] envVars)
-        {
-            var values = new Dictionary<string, string>();
-            if (envVars == null)
-            {
-                return values;
-            }
-
-            foreach (var var in envVars)
-            {
-                var splitSpec = var.ItemSpec.Split(EqualsArray, 2);
-                if (splitSpec.Length > 1)
-                {
-                    values.Add(splitSpec[0], splitSpec[1]);
-                    continue;
-                }
-                var value = var.GetMetadata("Value");
-                values.Add(splitSpec[0], value);
-            }
-
-            return values;
+            return arguments;
         }
     }
 }

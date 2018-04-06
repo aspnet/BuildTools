@@ -13,7 +13,6 @@ Usage: this should be imported once via NuGet at the top of the file.
     <Authors>Microsoft</Authors>
     <Company>Microsoft Corporation.</Company>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
-    <IncludeSource>true</IncludeSource>
     <IncludeSymbols>true</IncludeSymbols>
     <NeutralLanguage>en-US</NeutralLanguage>
     <PackageLicenseUrl>https://raw.githubusercontent.com/aspnet/Home/2.0.0/LICENSE.txt</PackageLicenseUrl>

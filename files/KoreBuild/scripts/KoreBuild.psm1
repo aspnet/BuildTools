@@ -317,6 +317,7 @@ function Set-KoreBuildSettings(
         $env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE = 'true'
         $env:NUGET_SHOW_STACK = 'true'
         $env:NUGET_PACKAGES = Join-Paths $RepoPath ('.nuget', 'packages')
+        $env:MSBUILDDEBUGPATH = Join-Paths $RepoPath ('artifacts', 'logs')
     }
 
     $global:KoreBuildSettings = @{

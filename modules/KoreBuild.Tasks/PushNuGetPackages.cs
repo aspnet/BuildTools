@@ -126,7 +126,6 @@ namespace KoreBuild.Tasks
                         disableBuffering: false,
                         getApiKey: _ => ApiKey,
                         getSymbolApiKey: _ => null,
-                        noServiceEndpoint: false,
                         log: NullLogger.Instance);
 
                     Log.LogMessage(MessageImportance.High, $"Published package {package.Identity}");

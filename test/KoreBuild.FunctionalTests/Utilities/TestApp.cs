@@ -41,7 +41,7 @@ namespace KoreBuild.FunctionalTests
             return await ExecuteScript(output, "build", new string[0], commandArgs);
         }
 
-        private Task<int> ExecuteScript(ITestOutputHelper output, string script, string[] koreBuildArgs, params string[] commandArgs)
+        private async Task<int> ExecuteScript(ITestOutputHelper output, string script, string[] koreBuildArgs, params string[] commandArgs)
         {
             output.WriteLine("Starting in " + WorkingDirectory);
             void Write(object sender, DataReceivedEventArgs e)
@@ -95,16 +95,21 @@ namespace KoreBuild.FunctionalTests
             };
             process.OutputDataReceived += Write;
             process.ErrorDataReceived += Write;
+            var tcs = new TaskCompletionSource<object>();
+            process.Exited += (o, e) => tcs.TrySetResult(true);
             output.WriteLine($"Starting: {process.StartInfo.FileName} {process.StartInfo.Arguments}");
             process.Start();
             process.BeginErrorReadLine();
             process.BeginOutputReadLine();
 
-            process.WaitForExit();
+            if (!process.HasExited)
+            {
+                await tcs.Task;
+            }
 
             process.OutputDataReceived -= Write;
             process.ErrorDataReceived -= Write;
-            return Task.FromResult(process.ExitCode);
+            return process.ExitCode;
         }
 
         private static void CopyRecursive(string srcDir, string destDir)

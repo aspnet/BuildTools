@@ -1,4 +1,5 @@
 <Project>
+  <Import Project="..\Directory.Build.targets" />
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>

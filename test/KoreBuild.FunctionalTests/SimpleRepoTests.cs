@@ -28,15 +28,13 @@ namespace KoreBuild.FunctionalTests
         }
 
         [Fact]
-        public async Task FullBuildCompletes()
+        public void FullBuildCompletes()
         {
             var app = _fixture.CreateTestApp("SimpleRepo");
 
             var build = app.ExecuteBuild(_output, "/p:BuildNumber=0001");
-            var task = await Task.WhenAny(build, Task.Delay(TimeSpan.FromMinutes(5)));
 
-            Assert.Same(task, build);
-            Assert.Equal(0, build.Result);
+            Assert.Equal(0, build);
 
             // bootstrapper
             Assert.True(File.Exists(Path.Combine(app.WorkingDirectory, "korebuild-lock.txt")), "Should have created the korebuild lock file");
@@ -122,19 +120,17 @@ namespace KoreBuild.FunctionalTests
         }
 
         [Fact]
-        public async Task BuildShouldReturnNonZeroCode()
+        public void BuildShouldReturnNonZeroCode()
         {
             var app = _fixture.CreateTestApp("RepoThatShouldFailToBuild");
 
             var build = app.ExecuteBuild(_output);
-            var task = await Task.WhenAny(build, Task.Delay(TimeSpan.FromMinutes(5)));
 
-            Assert.Same(task, build);
-            Assert.NotEqual(0, build.Result);
+            Assert.NotEqual(0, build);
         }
 
         [DockerExistsFact(Skip = "winservercore currently fails on AppVeyor due to breaking changes in winservercore 1710")]
-        public async Task DockerSuccessful()
+        public void DockerSuccessful()
         {
             var app = _fixture.CreateTestApp("SimpleRepo");
             var platform = "jessie";
@@ -146,11 +142,8 @@ namespace KoreBuild.FunctionalTests
             }
 
             var build = app.ExecuteRun(_output, new string[] { "docker-build", "-Path", app.WorkingDirectory }, platform, "/p:BuildNumber=0001");
-            var task = await Task.WhenAny(build, Task.Delay(TimeSpan.FromMinutes(10)));
 
-            Assert.Same(task, build);
-
-            Assert.Equal(0, build.Result);
+            Assert.Equal(0, build);
         }
 
         private static OSPlatform GetDockerPlatform()

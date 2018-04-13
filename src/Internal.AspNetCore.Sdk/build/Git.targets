@@ -22,7 +22,7 @@
     <SourceLinkRoot Condition="'$(DeterministicSourceRoot)' != ''">$(DeterministicSourceRoot)</SourceLinkRoot>
     <SourceLinkRoot Condition="'$(SourceLinkRoot)' == '' AND '$(RepositoryRoot)' != ''">$([MSBuild]::NormalizeDirectory($(RepositoryRoot)))</SourceLinkRoot>
 
-    <PathMap Condition=" '$(DeterministicSourceRoot)' != '' ">$(RepositoryRoot)=$(DeterministicSourceRoot)</PathMap>
+    <PathMap Condition=" '$(DeterministicSourceRoot)' != '' ">$([MSBuild]::NormalizeDirectory($(RepositoryRoot)))=$(DeterministicSourceRoot)</PathMap>
   </PropertyGroup>
 
   <Target Name="ResolveCommitHash" Condition="'$(CommitHash)'==''">

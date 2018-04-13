@@ -6,6 +6,7 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$RepoPath,
     [switch]$NoBuild = $false,
+    [switch]$CI = $false,
     [Parameter(ValueFromRemainingArguments = $true)]
     [string[]]$Arguments
 )
@@ -46,4 +47,4 @@ foreach ($pkg in @(
 }
 
 
-& .\scripts\bootstrapper\run.ps1 -Update -Reinstall -Command $Command -Path $RepoPath -ToolsSource $toolsSource @Arguments
+& .\scripts\bootstrapper\run.ps1 -Update -Reinstall -Command $Command -Path $RepoPath -ToolsSource $toolsSource -Ci:$CI @Arguments

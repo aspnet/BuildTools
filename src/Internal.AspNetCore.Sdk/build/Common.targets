@@ -23,7 +23,7 @@ For single-tfm projects, this will be imported from build/Internal.AspNetCore.Sd
 
   <Target Name="_GenerateSymbolsNupkg" >
     <Error Condition="'$(NuspecFile)' != '' AND '$(SymbolsNuspecFile)' == ''"
-      Text="NuspecFile was specified but SymbolNuspecFile was not specified."
+      Text="NuspecFile was specified but SymbolsNuspecFile was not specified."
       Code="KRB5006" />
 
     <ConvertToAbsolutePath Paths="$(SymbolsNuspecFile)">
@@ -72,6 +72,8 @@ For single-tfm projects, this will be imported from build/Internal.AspNetCore.Sd
       SourceFiles="$(SymbolsPackageOutputAbsolutePath)$(PackageId).$(PackageVersion).nupkg"
       DestinationFiles="$(PackageOutputAbsolutePath)$(PackageId).$(PackageVersion).symbols.nupkg"
       SkipUnchangedFiles="true" />
+
+    <RemoveDir Directories="$(SymbolsPackageOutputAbsolutePath);" />
   </Target>
 
   <Target Name="_EnsureDebugTypeIsPortable">

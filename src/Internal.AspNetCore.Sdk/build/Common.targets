@@ -30,7 +30,7 @@ For single-tfm projects, this will be imported from build/Internal.AspNetCore.Sd
       <Output TaskParameter="AbsolutePaths" PropertyName="SymbolNuspecFileAbsolutePath" />
     </ConvertToAbsolutePath>
 
-    <ConvertToAbsolutePath Paths="$(PackageOutputPath)symbols-nupkg\">
+    <ConvertToAbsolutePath Paths="$(IntermediateOutputPath)symbols-nupkg\">
       <Output TaskParameter="AbsolutePaths" PropertyName="SymbolsPackageOutputAbsolutePath" />
     </ConvertToAbsolutePath>
 
@@ -68,12 +68,9 @@ For single-tfm projects, this will be imported from build/Internal.AspNetCore.Sd
               AllowedOutputExtensionsInPackageBuildOutputFolder="$(AllowedOutputExtensionsInPackageBuildOutputFolder)"
               AllowedOutputExtensionsInSymbolsPackageBuildOutputFolder="$(AllowedOutputExtensionsInSymbolsPackageBuildOutputFolder)"/>
 
-    <Copy
+    <Move
       SourceFiles="$(SymbolsPackageOutputAbsolutePath)$(PackageId).$(PackageVersion).nupkg"
-      DestinationFiles="$(PackageOutputAbsolutePath)$(PackageId).$(PackageVersion).symbols.nupkg"
-      SkipUnchangedFiles="true" />
-
-    <RemoveDir Directories="$(SymbolsPackageOutputAbsolutePath);" />
+      DestinationFiles="$(PackageOutputAbsolutePath)$(PackageId).$(PackageVersion).symbols.nupkg" />
   </Target>
 
   <Target Name="_EnsureDebugTypeIsPortable">

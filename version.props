@@ -1,8 +1,8 @@
 <Project>
   <PropertyGroup>
-    <KoreBuildChannel>dev</KoreBuildChannel>
+    <KoreBuildChannel>release/2.1</KoreBuildChannel>
     <VersionPrefix>2.1.0</VersionPrefix>
-    <VersionSuffix>preview3</VersionSuffix>
+    <VersionSuffix>rc1</VersionSuffix>
     <BuildNumber Condition="'$(BuildNumber)' == ''">t000</BuildNumber>
     <VersionSuffix Condition="'$(VersionSuffix)' != '' AND '$(BuildNumber)' != ''">$(VersionSuffix)-$(BuildNumber)</VersionSuffix>
   </PropertyGroup>

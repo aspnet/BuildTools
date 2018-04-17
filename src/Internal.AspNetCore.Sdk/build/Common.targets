@@ -10,11 +10,18 @@ For single-tfm projects, this will be imported from build/Internal.AspNetCore.Sd
 -->
 <Project>
 
+  <!-- Workaround: suppress all xunit analyzer errors since many changes are require in 2.0 to update our test code -->
+  <PropertyGroup Condition=" '$(DisableXunitAnalyzers)' != 'false' ">
+    <!-- prefer using the ruleset file, but fallback to NoWarn if a ruleset file is already defined -->
+    <NoWarn Condition="'$(CodeAnalysisRuleSet)' != ''">$(NoWarn);xUnit1000;xUnit1001;xUnit1002;xUnit1003;xUnit1005;xUnit1006;xUnit1007;xUnit1008;xUnit1009;xUnit1010;xUnit1011;xUnit1012;xUnit1013;xUnit1014;xUnit1015;xUnit1016;xUnit1017;xUnit1018;xUnit1019;xUnit1020;xUnit1021;xUnit1022;xUnit1023;xUnit1024;xUnit1025;xUnit1026;xUnit2000;xUnit2001;xUnit2002;xUnit2003;xUnit2004;xUnit2005;xUnit2006;xUnit2007;xUnit2008;xUnit2009;xUnit2010;xUnit2011;xUnit2012;xUnit2013;xUnit2014;xUnit2015;xUnit2016;xUnit2017;xUnit2018</NoWarn>
+    <CodeAnalysisRuleSet Condition="'$(CodeAnalysisRuleSet)' == ''">$(MSBuildThisFileDirectory)Xunit.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
   <!-- workaround https://github.com/NuGet/Home/issues/4726 -->
   <PropertyGroup>
     <IncludeSymbols Condition="'$(NuspecFile)'!=''">false</IncludeSymbols>
   </PropertyGroup>
-  
+
   <Target Name="_ShowBuildVersion" BeforeTargets="PrepareForBuild">
     <Message Text="Build version: $(AssemblyName)/$(TargetFramework)/$(Version)" Importance="normal" />
   </Target>

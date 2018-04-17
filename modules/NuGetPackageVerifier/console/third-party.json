@@ -51,10 +51,10 @@
     "StackExchange.Redis.StrongName": [ "1.2.4" ],
     "StreamJsonRpc": [ "1.1.92" ],
     "WindowsAzure.Storage": [ "8.1.4" ],
-    "xunit": [ "2.2.0", "2.3.0-*" ],
+    "xunit": [ "2.2.0", "2.3.0-*", "2.3.1" ],
     "xunit.abstractions": [ "2.0.1" ],
-    "xunit.assert": [ "2.2.0", "2.3.0-*" ],
-    "xunit.core": [ "2.2.0", "2.3.0-*" ],
-    "xunit.extensibility.core": [ "2.2.0", "2.3.0-*" ]
+    "xunit.assert": [ "2.2.0", "2.3.0-*", "2.3.1" ],
+    "xunit.core": [ "2.2.0", "2.3.0-*", "2.3.1" ],
+    "xunit.extensibility.core": [ "2.2.0", "2.3.0-*", "2.3.1" ]
   }
 }

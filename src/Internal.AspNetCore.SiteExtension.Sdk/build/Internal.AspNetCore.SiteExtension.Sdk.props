@@ -7,6 +7,12 @@
     <TaskFolder Condition=" '$(MSBuildRuntimeType)' == 'Core' ">netcoreapp2.0</TaskFolder>
     <TaskFolder Condition=" '$(MSBuildRuntimeType)' != 'Core' ">net46</TaskFolder>
     <TaskAssembly>$(MSBuildThisFileDirectory)..\tools\$(TaskFolder)\Internal.AspNetCore.SiteExtension.Sdk.dll</TaskAssembly>
+    <!--
+        NuGet skips files ending .nuget producing warning at the same time
+        there is no way to disable default excludes from MsBuild (see:https://github.com/NuGet/Home/issues/6450)
+        and we don't care about item templates on Antares
+     -->
+    <NoWarn>$(NoWarn);NU5119</NoWarn>
   </PropertyGroup>
 
   <UsingTask TaskName="RepoTasks.TrimDeps" AssemblyFile="$(TaskAssembly)" />

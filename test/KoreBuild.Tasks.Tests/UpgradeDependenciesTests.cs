@@ -81,6 +81,27 @@ namespace KoreBuild.Tasks.Tests
         }
 
         [Fact]
+        public async Task ModifiesVariableValueUsingDepsFile()
+        {
+            // arrange
+            var depsFilePath = CreateProjectDepsFile(("PackageVersionVar", "1.0.0"));
+            var updatedDepsFilePath = CreateProjectDepsFile(Path.Combine(_tempDir, "dependencies.props"), ("PackageVersionVar", "2.0.0"));
+
+            // act
+            var task = new UpgradeDependencies
+            {
+                BuildEngine = new MockEngine(_output),
+                DependenciesFile = depsFilePath,
+                LineupDependenciesFile = updatedDepsFilePath
+            };
+
+            // assert
+            Assert.True(await task.ExecuteAsync(), "Task is expected to pass");
+            var modifiedDepsFile = DependencyVersionsFile.Load(depsFilePath);
+            Assert.Equal("2.0.0", modifiedDepsFile.VersionVariables["PackageVersionVar"]);
+        }
+
+        [Fact]
         public async Task SnapsInternalAspNetCoreSdkToBuildTools()
         {
             // arrange
@@ -131,7 +152,11 @@ namespace KoreBuild.Tasks.Tests
 
         private string CreateProjectDepsFile(params (string varName, string version)[] variables)
         {
-            var depsFilePath = Path.Combine(_tempDir, "projectdeps.props");
+            return CreateProjectDepsFile(Path.Combine(_tempDir, "projectdeps.props"), variables);
+        }
+
+        private string CreateProjectDepsFile(string depsFilePath, params (string varName, string version)[] variables)
+        {
             var proj = ProjectRootElement.Create(NewProjectFileOptions.None);
             var originalDepsFile = DependencyVersionsFile.Load(proj);
             foreach (var item in variables)

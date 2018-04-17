@@ -39,9 +39,12 @@ Unexpected files:
       </ArtifactErrorMessage>
     </PropertyGroup>
 
+    <Warning Text="$(ArtifactErrorMessage.Trim())"
+             Code="KRB5002"
+             Condition=" '$(ArtifactErrorMessage.Trim())' != '' AND '$(CI)' != 'true' " />
     <Error Text="$(ArtifactErrorMessage.Trim())"
            Code="KRB5002"
-           Condition=" '$(ArtifactErrorMessage.Trim())' != '' " />
+           Condition=" '$(ArtifactErrorMessage.Trim())' != '' AND '$(CI)' == 'true' " />
   </Target>
 
 <!--
@@ -67,9 +70,12 @@ Expected items that do not exist:
       </ArtifactErrorMessage>
     </PropertyGroup>
 
+    <Warning Text="$(ArtifactErrorMessage.Trim())"
+             Code="KRB5002"
+             Condition=" '$(ArtifactErrorMessage.Trim())' != '' AND '$(CI)' != 'true' " />
     <Error Text="$(ArtifactErrorMessage.Trim())"
            Code="KRB5002"
-           Condition=" '$(ArtifactErrorMessage.Trim())' != '' " />
+           Condition=" '$(ArtifactErrorMessage.Trim())' != '' AND '$(CI)' == 'true' " />
   </Target>
 
 </Project>

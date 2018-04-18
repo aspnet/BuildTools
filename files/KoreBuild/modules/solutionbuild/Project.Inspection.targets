@@ -18,6 +18,8 @@
       <_ReferencesInternalAspNetCoreSdk>@(PackageReference->AnyHaveMetadataValue('Identity', 'Internal.AspNetCore.Sdk'))</_ReferencesInternalAspNetCoreSdk>
       <IncludeSymbols Condition="'$(IncludeSymbols)' == '' AND $(_ReferencesInternalAspNetCoreSdk)">true</IncludeSymbols>
       <IncludeSource Condition="'$(IncludeSource)' == '' AND $(_ReferencesInternalAspNetCoreSdk)">true</IncludeSource>
+
+      <_IncludeSymbols Condition="'$(IncludeSymbols)' == 'true' or '$(SymbolsNuspecFile)' != ''">true</_IncludeSymbols>
     </PropertyGroup>
 
     <ItemGroup Condition="'$(IsPackable)' == 'true' ">
@@ -37,7 +39,7 @@
         <IsContainer>true</IsContainer>
       </ArtifactInfo>
 
-      <ArtifactInfo Include="$(SymbolsPackageOutputPath)" Condition="'$(IncludeSymbols)' == 'true' AND '$(NuspecFile)' == ''">
+      <ArtifactInfo Include="$(SymbolsPackageOutputPath)" Condition="'$(_IncludeSymbols)' == 'true'">
         <ArtifactType>NuGetSymbolsPackage</ArtifactType>
         <PackageId>$(PackageId)</PackageId>
         <Version>$(NormalizedPackageVersion)</Version>
@@ -64,12 +66,12 @@
         <Container>$(FullPackageOutputPath)</Container>
       </ArtifactInfo>
 
-      <ArtifactInfo Include="@(SignedPackageFile)" Condition=" '$(DisableCodeSigning)' != 'true' AND '$(IncludeSymbols)' == 'true' AND '$(NuspecFile)' == ''">
+      <ArtifactInfo Include="@(SignedPackageFile)" Condition=" '$(DisableCodeSigning)' != 'true' AND '$(_IncludeSymbols)' == 'true'">
         <ShouldBeSigned>true</ShouldBeSigned>
         <Container>$(SymbolsPackageOutputPath)</Container>
       </ArtifactInfo>
 
-      <ArtifactInfo Include="@(ExcludePackageFileFromSigning)" Condition="'$(IncludeSymbols)' == 'true' AND '$(NuspecFile)' == ''">
+      <ArtifactInfo Include="@(ExcludePackageFileFromSigning)" Condition="'$(_IncludeSymbols)' == 'true'">
         <ShouldBeSigned>false</ShouldBeSigned>
         <Container>$(SymbolsPackageOutputPath)</Container>
       </ArtifactInfo>

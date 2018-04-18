@@ -10,15 +10,68 @@ For single-tfm projects, this will be imported from build/Internal.AspNetCore.Sd
 -->
 <Project>
 
-  <!-- workaround https://github.com/NuGet/Home/issues/4726 -->
-  <PropertyGroup>
-    <IncludeSymbols Condition="'$(NuspecFile)'!=''">false</IncludeSymbols>
-  </PropertyGroup>
-
   <PropertyGroup Condition=" '$(IncludeSymbols)' != 'false' ">
     <GenerateNuspecDependsOn>$(GenerateNuspecDependsOn);_EnsureDebugTypeIsPortable</GenerateNuspecDependsOn>
+    <PackDependsOn Condition="'$(NuspecFile)' != ''">$(PackDependsOn);_GenerateSymbolsNupkg</PackDependsOn>
+
+    <!-- workaround https://github.com/NuGet/Home/issues/4726 -->
+    <IncludeSymbols Condition="'$(NuspecFile)'!=''">false</IncludeSymbols>
+    <IncludeSource Condition="'$(NuspecFile)'!=''">false</IncludeSource>
+
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);_EnsureDebugTypeIsPortable</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
+
+  <Target Name="_GenerateSymbolsNupkg" >
+    <Error Condition="'$(NuspecFile)' != '' AND '$(SymbolsNuspecFile)' == ''"
+      Text="NuspecFile was specified but SymbolsNuspecFile was not specified."
+      Code="KRB5006" />
+
+    <ConvertToAbsolutePath Paths="$(SymbolsNuspecFile)">
+      <Output TaskParameter="AbsolutePaths" PropertyName="SymbolNuspecFileAbsolutePath" />
+    </ConvertToAbsolutePath>
+
+    <ConvertToAbsolutePath Paths="$(IntermediateOutputPath)symbols-nupkg\">
+      <Output TaskParameter="AbsolutePaths" PropertyName="SymbolsPackageOutputAbsolutePath" />
+    </ConvertToAbsolutePath>
+
+    <PackTask PackItem="$(PackProjectInputFile)"
+              PackageVersion="$(PackageVersion)"
+              PackageId="$(PackageId)"
+              Title="$(Title)"
+              Authors="$(Authors)"
+              Description="$(PackageDescription)"
+              Copyright="$(Copyright)"
+              RequireLicenseAcceptance="$(PackageRequireLicenseAcceptance)"
+              LicenseUrl="$(PackageLicenseUrl)"
+              ProjectUrl="$(PackageProjectUrl)"
+              IconUrl="$(PackageIconUrl)"
+              ReleaseNotes="$(PackageReleaseNotes)"
+              Tags="$(PackageTags)"
+              AssemblyName="$(AssemblyName)"
+              PackageOutputPath="$(SymbolsPackageOutputAbsolutePath)"
+              IncludeSymbols="false"
+              IncludeSource="false"
+              PackageTypes="$(PackageType)"
+              IsTool="$(IsTool)"
+              RepositoryUrl="$(RepositoryUrl)"
+              RepositoryType="$(RepositoryType)"
+              NoPackageAnalysis="$(NoPackageAnalysis)"
+              MinClientVersion="$(MinClientVersion)"
+              Serviceable="$(Serviceable)"
+              ContinuePackingAfterGeneratingNuspec="$(ContinuePackingAfterGeneratingNuspec)"
+              NuspecOutputPath="$(SymbolNuspecFileAbsolutePath)"
+              IncludeBuildOutput="false"
+              RestoreOutputPath="$(RestoreOutputAbsolutePath)"
+              NuspecFile="$(SymbolNuspecFileAbsolutePath)"
+              NuspecBasePath="$(NuspecBasePath)"
+              NuspecProperties="$(NuspecProperties)"
+              AllowedOutputExtensionsInPackageBuildOutputFolder="$(AllowedOutputExtensionsInPackageBuildOutputFolder)"
+              AllowedOutputExtensionsInSymbolsPackageBuildOutputFolder="$(AllowedOutputExtensionsInSymbolsPackageBuildOutputFolder)"/>
+
+    <Move
+      SourceFiles="$(SymbolsPackageOutputAbsolutePath)$(PackageId).$(PackageVersion).nupkg"
+      DestinationFiles="$(PackageOutputAbsolutePath)$(PackageId).$(PackageVersion).symbols.nupkg" />
+  </Target>
 
   <Target Name="_EnsureDebugTypeIsPortable">
     <Error Condition=" '$(DebugType)' != 'portable' "

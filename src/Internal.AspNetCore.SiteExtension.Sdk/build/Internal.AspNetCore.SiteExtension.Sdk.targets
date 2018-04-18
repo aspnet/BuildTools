@@ -36,6 +36,7 @@
          />
 
         <ManifestLines Include="&lt;Project Sdk=&quot;Microsoft.NET.Sdk&quot;&gt;&lt;ItemGroup&gt;" />
+        <ManifestLines Include="&lt;PackageReference Remove=&quot;Internal.AspNetCore.Sdk&quot; /&gt;" />
         <ManifestLines Include="&lt;PackageReference Include=&quot;%(HostingStartupPackageReference.Identity)&quot; Version=&quot;%(HostingStartupPackageReference.Version)&quot; /&gt;" />
         <ManifestLines Include="&lt;/ItemGroup&gt;&lt;/Project&gt;" />
 

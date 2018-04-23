@@ -74,12 +74,28 @@
               "items": {
                 "type": "string"
               }
-            },
-            "minVersion": {
-              "type": "string",
-              "description": "The minimum version of Visual Studio required."
             }
           }
+        },
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "minVersion": {
+                  "type": "string",
+                  "description": "The minimum version of Visual Studio required."
+                }
+              }
+            },
+            {
+              "properties": {
+                "versionRange": {
+                  "type": "string",
+                  "description": "The version range of Visual Studio required."
+                }
+              }
+            }
+          ]
         }
       ]
     }

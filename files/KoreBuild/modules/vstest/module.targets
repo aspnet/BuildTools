@@ -115,10 +115,10 @@ Runs the VSTest on all projects in the ProjectsToTest itemgroup.
       Condition="'@(BenchmarksToValidate)' != ''" />
 
     <MSBuild Projects="%(BenchmarksToValidate.Identity)" Targets="GetTargetPath" Properties="$(SolutionProperties)">
-      <Output TaskParameter="TargetOutputs" PropertyName="ExecPath" />
+      <Output TaskParameter="TargetOutputs" ItemName="BenchmarkExecPath" />
     </MSBuild>
 
-    <RunDotNet Command="$(ExecPath) * --validate-fast" />
+    <RunDotNet Arguments="%(BenchmarkExecPath.Identity);*;--validate-fast" />
   </Target>
 
 </Project>

@@ -111,7 +111,10 @@ namespace KoreBuild.Console.Commands
                     "-Channel", channel,
                     "-Version", version,
                     "-Architecture", architecture,
-                    "-InstallDir", installDir
+                    "-InstallDir", installDir,
+                    // workaround for https://github.com/dotnet/cli/issues/9143
+                    // disable the CDN, which has non-deterministic behavior when multiple builds of the same SDK version exist
+                    "-NoCdn",
                 });
 
                 var psi = new ProcessStartInfo

@@ -236,7 +236,8 @@ function Install-Tools(
             -InstallDir $installDir `
             -AzureFeed $script:config.'dotnet.feed.cdn' `
             -UncachedFeed $script:config.'dotnet.feed.uncached' `
-            -FeedCredential $script:config.'dotnet.feed.credential'
+            -FeedCredential $script:config.'dotnet.feed.credential' `
+            -NoCdn
     }
     else {
         Write-Host -ForegroundColor DarkGray ".NET Core SDK $version is already installed. Skipping installation."
@@ -417,7 +418,8 @@ function __install_shared_runtime($installScript, $installDir, [string]$arch, [s
             -InstallDir $installDir `
             -AzureFeed $script:config.'dotnet.feed.cdn' `
             -UncachedFeed $script:config.'dotnet.feed.uncached' `
-            -FeedCredential $script:config.'dotnet.feed.credential'
+            -FeedCredential $script:config.'dotnet.feed.credential' `
+            -NoCdn
     }
     else {
         Write-Host -ForegroundColor DarkGray ".NET Core runtime $version is already installed. Skipping installation."

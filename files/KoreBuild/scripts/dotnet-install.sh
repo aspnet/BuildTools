@@ -926,7 +926,7 @@ do
 done
 
 if [ "$no_cdn" = true ]; then
-    azure_feed=uncached_feed
+    azure_feed="$uncached_feed"
 fi
 
 check_min_reqs

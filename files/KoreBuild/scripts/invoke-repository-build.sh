@@ -83,7 +83,6 @@ fi
 
 korebuild_version="$(__get_korebuild_version)"
 cat > "$msbuild_response_file" <<ENDMSBUILDARGS
-/nologo
 /m
 /nodeReuse:false
 /p:KoreBuildVersion=$korebuild_version

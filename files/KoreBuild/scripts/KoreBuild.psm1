@@ -89,7 +89,6 @@ function Invoke-RepositoryBuild(
         $koreBuildVersion = Get-KoreBuildVersion
 
         $msBuildArguments = @"
-/nologo
 /m
 /nodeReuse:false
 /p:KoreBuildVersion=$koreBuildVersion

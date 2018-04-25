@@ -24,6 +24,7 @@ __install_shared_runtime() {
             --skip-non-versioned-files \
             --channel "$channel" \
             --version "$version" \
+            --no-cdn \
             $verbose_flag
 
         return $?
@@ -99,6 +100,7 @@ if [ ! -f "$install_dir/sdk/$version/dotnet.dll" ]; then
         --architecture x64 \
         --channel "$channel" \
         --version "$version" \
+        --no-cdn \
         $verbose_flag
 else
     echo -e "${GRAY}.NET Core SDK $version is already installed. Skipping installation.${RESET}"

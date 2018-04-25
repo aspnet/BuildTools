@@ -783,6 +783,7 @@ install_dir="<auto>"
 architecture="<auto>"
 dry_run=false
 no_path=false
+no_cdn=false
 azure_feed="https://dotnetcli.azureedge.net/dotnet"
 uncached_feed="https://dotnetcli.blob.core.windows.net/dotnet"
 feed_credential=""
@@ -833,6 +834,9 @@ do
             ;;
         --verbose|-[Vv]erbose)
             verbose=true
+            ;;
+        --no-cdn|-[Nn]o[Cc]dn)
+            no_cdn=true
             ;;
         --azure-feed|-[Aa]zure[Ff]eed)
             shift
@@ -895,6 +899,7 @@ do
             echo "  --verbose,-Verbose                 Display diagnostics information."
             echo "  --azure-feed,-AzureFeed            Azure feed location. Defaults to $azure_feed, This parameter typically is not changed by the user."
             echo "  --uncached-feed,-UncachedFeed      Uncached feed location. This parameter typically is not changed by the user."
+            echo "  --no-cdn,-NoCdn                    Disable downloading from the Azure CDN, and used the uncached feed directly."
             echo "  --feed-credential,-FeedCredential  Azure feed shared access token. This parameter typically is not specified."
             echo "  --runtime-id                       Installs the .NET Tools for the given platform (use linux-x64 for portable linux)."
             echo "      -RuntimeId"
@@ -919,6 +924,10 @@ do
 
     shift
 done
+
+if [ "$no_cdn" = true ]; then
+    azure_feed="$uncached_feed"
+fi
 
 check_min_reqs
 calculate_vars

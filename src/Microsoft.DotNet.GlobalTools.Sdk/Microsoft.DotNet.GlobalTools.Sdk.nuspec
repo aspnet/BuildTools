@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <authors>Microsoft</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Provides additional support to .NET Core teams producing global CLI tools. This package is only intended for internal Microsoft use.</description>
+    <copyright>$copyright$</copyright>
+    <packageTypes>
+      <packageType name="MSBuildSdk" />
+    </packageTypes>
+  </metadata>
+  <files>
+    <file src="_._" target="lib/netstandard1.0/_._" />
+    <file src="sdk\**\*" target="sdk/" />
+  </files>
+</package>

@@ -12,6 +12,7 @@ using System.Xml.Linq;
 using NuGet.Packaging;
 using Xunit;
 using Xunit.Abstractions;
+using Microsoft.Extensions.CommandLineUtils;
 
 namespace KoreBuild.FunctionalTests
 {
@@ -117,6 +118,62 @@ namespace KoreBuild.FunctionalTests
                             Assert.Equal("TestCert", a.Attribute("Certificate")?.Value);
                         });
                 });
+        }
+
+        [Fact]
+        public void BuildOfGlobalCliToolIncludesShims()
+        {
+            var app = _fixture.CreateTestApp("RepoWithGlobalTool");
+
+            var build = app.ExecuteBuild(_output, "/p:BuildNumber=0001");
+
+            Assert.Equal(0, build);
+
+            var artifactsDir = Path.Combine(app.WorkingDirectory, "artifacts", "build");
+
+            var pkg = Path.Combine(artifactsDir, "GlobalConsoleTool.1.0.0.nupkg");
+            using (var reader = new PackageArchiveReader(pkg))
+            {
+                var files = reader.GetFiles();
+                foreach (var file in files)
+                {
+                    _output.WriteLine("pkg: " + file);
+                }
+
+                var winx86 = Assert.Single(files, f => f.StartsWith("tools/netcoreapp2.1/any/shims/win-x86/"));
+                Assert.Equal("GlobalConsoleTool.exe", Path.GetFileName(winx86));
+
+                var winx64 = Assert.Single(files, f => f.StartsWith("tools/netcoreapp2.1/any/shims/win-x64/"));
+                Assert.Equal("GlobalConsoleTool.exe", Path.GetFileName(winx64));
+
+                var osx64 = Assert.Single(files, f => f.StartsWith("tools/netcoreapp2.1/any/shims/osx-x64/"));
+                Assert.Equal("GlobalConsoleTool", Path.GetFileName(osx64));
+            }
+
+            var toolsDir = Path.Combine(app.WorkingDirectory, "artifacts", "tools");
+            var installPsi = new ProcessStartInfo
+            {
+                FileName = DotNetMuxer.MuxerPathOrDefault(),
+                Arguments = ArgumentEscaper.EscapeAndConcatenate(new[]
+                {
+                    "tool",
+                    "install",
+                    "--tool-path", toolsDir,
+                    "GlobalConsoleTool",
+                    "--source-feed", artifactsDir
+                }),
+            };
+            var install = app.Run(_output, installPsi);
+            Assert.Equal(0, install);
+
+            var ext = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                ? ".exe"
+                : string.Empty;
+            var run = app.Run(_output, new ProcessStartInfo
+            {
+                FileName = Path.Combine(toolsDir, "GlobalConsoleTool" + ext),
+            });
+            Assert.Equal(0, run);
         }
 
         [Fact]

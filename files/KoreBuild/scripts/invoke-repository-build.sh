@@ -59,8 +59,16 @@ repo_path="$(cd "$repo_path" && pwd)"
 __verbose "Building $repo_path"
 
 sdk_version="$(__get_dotnet_sdk_version)"
+korebuild_version="$(__get_korebuild_version)"
 if [ "$sdk_version" != 'latest' ]; then
-    echo "{ \"sdk\": { \"version\": \"${sdk_version}\" } }" > "$repo_path/global.json"
+    echo "{
+        \"sdk\": {
+            \"version\": \"${sdk_version}\"
+        },
+        \"msbuild-sdks\": {
+            \"Microsoft.DotNet.GlobalTools.Sdk\": \"${korebuild_version}\"
+        }
+    }" > "$repo_path/global.json"
 else
     __verbose "Skipping global.json generation because the \$sdk_version = $sdk_version"
 fi
@@ -81,7 +89,6 @@ if [ ! -f "$msbuild_artifacts_dir" ]; then
     mkdir -p "$msbuild_artifacts_dir"
 fi
 
-korebuild_version="$(__get_korebuild_version)"
 cat > "$msbuild_response_file" <<ENDMSBUILDARGS
 /nologo
 /m

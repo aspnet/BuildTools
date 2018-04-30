@@ -1,0 +1,11 @@
+<Project>
+  <PropertyGroup Condition="'$(DisableDefaultTargets)' != 'true'">
+    <PrepareDependsOn>PreinstallBundledPackages;$(PrepareDependsOn)</PrepareDependsOn>
+  </PropertyGroup>
+
+  <Target Name="PreinstallBundledPackages">
+    <MSBuild Targets="Restore"
+      Projects="$(MSBuildThisFileDirectory)BundledPackageRestorer.csproj"
+      Properties="RestoreSources=$(KoreBuildBundledPackageFolder)" />
+  </Target>
+</Project>

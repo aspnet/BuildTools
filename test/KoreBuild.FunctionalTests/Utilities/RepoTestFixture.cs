@@ -17,6 +17,7 @@ namespace KoreBuild.FunctionalTests
             "Internal.AspNetCore.Sdk",
             "Internal.AspNetCore.SiteExtension.Sdk",
             "Microsoft.AspNetCore.BuildTools.ApiCheck",
+            "Microsoft.DotNet.GlobalTools.Sdk",
         };
 
         private static readonly string _solutionDir;

@@ -1,0 +1,5 @@
+<Project>
+  <PropertyGroup Label="Package Versions">
+  </PropertyGroup>
+  <Import Project="$(DotNetPackageVersionPropsPath)" Condition=" '$(DotNetPackageVersionPropsPath)' != '' "/>
+</Project>

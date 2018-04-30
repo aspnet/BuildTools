@@ -44,10 +44,6 @@ namespace KoreBuild.FunctionalTests
         private int ExecuteScript(ITestOutputHelper output, string script, string[] koreBuildArgs, params string[] commandArgs)
         {
             output.WriteLine("Starting in " + WorkingDirectory);
-            void Write(object sender, DataReceivedEventArgs e)
-            {
-                output.WriteLine(e.Data ?? string.Empty);
-            }
 
             var arguments = new List<string>();
             string cmd;
@@ -75,22 +71,36 @@ namespace KoreBuild.FunctionalTests
 
             arguments.Add("/bl:" + _logFile);
 
+            var psi = new ProcessStartInfo
+            {
+                FileName = cmd,
+                Arguments = ArgumentEscaper.EscapeAndConcatenate(arguments),
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+
+                WorkingDirectory = WorkingDirectory,
+            };
+
+            return Run(output, psi);
+        }
+
+        public int Run(ITestOutputHelper output, ProcessStartInfo psi)
+        {
+            void Write(object sender, DataReceivedEventArgs e)
+            {
+                output.WriteLine(e.Data ?? string.Empty);
+            }
+
+            psi.RedirectStandardError = true;
+            psi.RedirectStandardOutput = true;
+            psi.Environment["PATH"] = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + Path.PathSeparator + Environment.GetEnvironmentVariable("PATH");
+
+            // set this to suppress TC service messages such as ##teamcity[importData]
+            psi.Environment["TEAMCITY_VERSION"] = "";
+
             var process = new Process
             {
-                StartInfo =
-                {
-                    FileName = cmd,
-                    Arguments = ArgumentEscaper.EscapeAndConcatenate(arguments),
-                    RedirectStandardError = true,
-                    RedirectStandardOutput = true,
-                    Environment =
-                    {
-                        ["PATH"] = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + Path.PathSeparator + Environment.GetEnvironmentVariable("PATH"),
-                        // set this to suppress TC service messages such as ##teamcity[importData]
-                        ["TEAMCITY_VERSION"] = "",
-                    },
-                    WorkingDirectory = WorkingDirectory,
-                },
+                StartInfo = psi,
                 EnableRaisingEvents = true
             };
             process.OutputDataReceived += Write;

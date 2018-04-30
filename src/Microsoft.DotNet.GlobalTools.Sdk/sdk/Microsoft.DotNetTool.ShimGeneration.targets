@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
-    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);GenerateDotNetToolShims</TargetsForTfmSpecificContentInPackage>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);GetDotNetToolShimPackageContent</TargetsForTfmSpecificContentInPackage>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -23,9 +23,29 @@
   </PropertyGroup>
 
   <!--
+  ************************************************************
+  Target: GetDotNetToolShimPackageContent
+
+  Gets package content items for the global shim, without building anything.
+  ************************************************************
+  -->
+  <Target Name="GetDotNetToolShimPackageContent" DependsOnTargets="_ComputeGeneratedDotNetToolShims">
+    <ItemGroup>
+      <!-- Add the file to the package -->
+      <TfmSpecificPackageFile Include="@(GeneratedDotNetToolShim)" />
+    </ItemGroup>
+  </Target>
+
+  <!--
+  ************************************************************
+  Target: GenerateDotNetToolShims
+
+  Generates the dotnettool shims
+  ************************************************************
   -->
   <Target Name="GenerateDotNetToolShims"
-    DependsOnTargets="_ComputeGeneratedDotNetToolShims;_CoreGenerateDotNetToolShim" />
+    DependsOnTargets="_ComputeGeneratedDotNetToolShims;_CoreGenerateDotNetToolShim"
+    BeforeTargets="CoreCompile" />
 
   <Target Name="_ComputeGeneratedDotNetToolShims">
     <PropertyGroup>
@@ -43,9 +63,6 @@
         <PackagePath>tools/$(TargetFramework)/any/shims/%(_ShimRids.Identity)/</PackagePath>
         <RelativeAppBinaryFilePath>.store/$(PackageId.ToLowerInvariant())/$(_NormalizedPackageVersion)/$(PackageId.ToLowerInvariant())/$(_NormalizedPackageVersion)/tools/$(TargetFramework)/any/$(TargetFileName)</RelativeAppBinaryFilePath>
       </GeneratedDotNetToolShim>
-
-      <!-- Add the file to the package -->
-      <TfmSpecificPackageFile Include="@(GeneratedDotNetToolShim)" />
     </ItemGroup>
   </Target>
 
@@ -53,6 +70,7 @@
   <UsingTask TaskName="EmbedAppNameInHost" AssemblyFile="$(MicrosoftNETBuildTasksAssembly)" />
 
   <Target Name="_CoreGenerateDotNetToolShim"
+    DependsOnTargets="_ComputeGeneratedDotNetToolShims"
     Inputs="$(MSBuildAllProjects);$(ProjectAssetsFile)"
     Outputs="@(GeneratedDotNetToolShim)">
 

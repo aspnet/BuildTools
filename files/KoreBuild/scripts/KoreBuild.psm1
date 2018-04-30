@@ -322,7 +322,8 @@ function Set-KoreBuildSettings(
         $env:MSBUILDDEBUGPATH = Join-Paths $RepoPath ('artifacts', 'logs')
     }
 
-    $env:DOTNET_ROOT = $DotNetHome
+    $arch = __get_dotnet_arch
+    $env:DOTNET_ROOT = if ($IS_WINDOWS) { Join-Path $DotNetHome $arch } else { $DotNetHome }
 
     $global:KoreBuildSettings = @{
         ToolsSource = $ToolsSource

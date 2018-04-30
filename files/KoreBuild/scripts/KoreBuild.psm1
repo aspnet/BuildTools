@@ -359,8 +359,9 @@ function Invoke-KoreBuildCommand(
     }
 
     $sdkVersion = __get_dotnet_sdk_version
+    $korebuildVersion = Get-KoreBuildVersion
     if ($sdkVersion -ne 'latest') {
-        "{ `"sdk`": { `"version`": `"$sdkVersion`" } }" | Out-File (Join-Path $global:KoreBuildSettings.RepoPath 'global.json') -Encoding ascii
+        "{ `"sdk`": { `n`"version`": `"$sdkVersion`" },`n`"msbuild-sdks`": {`n`"Microsoft.DotNet.GlobalTools.Sdk`": `"$korebuildVersion`"}`n }" | Out-File (Join-Path $global:KoreBuildSettings.RepoPath 'global.json') -Encoding ascii
     }
     else {
         Write-Verbose "Skipping global.json generation because the `$sdkVersion = $sdkVersion"

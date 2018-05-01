@@ -8,8 +8,16 @@
     This pre-populates the NuGet cache with bundled packages.
   -->
   <Target Name="PreinstallBundledPackages">
+    <PropertyGroup>
+      <_BundledRestoreSentinel>$(MSBuildThisFileDirectory)restore.sentinel</_BundledRestoreSentinel>
+      <_ShouldRunBundledRestore Condition="Exists('$(_BundledRestoreSentinel)')">false</_ShouldRunBundledRestore>
+    </PropertyGroup>
+
+    <Touch Files="$(_BundledRestoreSentinel)" AlwaysCreate="true" Condition=" ! Exists('$(_BundledRestoreSentinel)') " />
+
     <MSBuild Targets="Restore"
       Projects="$(MSBuildThisFileDirectory)BundledPackageRestorer.csproj"
-      Properties="RestoreSources=$(KoreBuildBundledPackageFolder)" />
+      Properties="RestoreSources=$(KoreBuildBundledPackageFolder)"
+      Condition="'$(_ShouldRunBundledRestore)' != 'false'" />
   </Target>
 </Project>

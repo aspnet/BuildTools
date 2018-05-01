@@ -18,4 +18,4 @@ branches:
     - /^release\/.*/
     - /^(.*\/)?ci-.*$/
 script:
-  - ./build.sh
+  - ./build.sh --ci

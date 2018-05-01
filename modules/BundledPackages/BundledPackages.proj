@@ -23,21 +23,25 @@
       <BundledPackageRestorerContent>
 <![CDATA[
 <Project Sdk="Microsoft.NET.Sdk">
+
+  <Sdk Name="Microsoft.DotNet.GlobalTools.Sdk" Version="$(Version)" />
+
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
   </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Internal.AspNetCore.Sdk" Version="$(Version)" />
-    <PackageReference Include="Microsoft.DotNet.GlobalTools.Sdk" Version="$(Version)" />
   </ItemGroup>
+
 </Project>
 ]]>
       </BundledPackageRestorerContent>
     </PropertyGroup>
 
     <WriteLinesToFile File="$(PublishDir)BundledPackageRestorer.csproj" Lines="$(BundledPackageRestorerContent)" Overwrite="true" />
-    <Copy SourceFiles="module.props;module.targets" DestinationFolder="$(PublishDir)" />
+    <Copy SourceFiles="module.props;module.targets;NuGet.config" DestinationFolder="$(PublishDir)" />
   </Target>
 
 </Project>

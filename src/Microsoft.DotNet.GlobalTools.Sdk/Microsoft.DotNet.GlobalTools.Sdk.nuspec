@@ -8,6 +8,7 @@
     <description>Provides additional support to .NET Core teams producing global CLI tools. This package is only intended for internal Microsoft use.</description>
     <copyright>$copyright$</copyright>
     <packageTypes>
+      <!-- This project needs to be MSBuildSdk because its targets need to influence the way /t:Restore works -->
       <packageType name="MSBuildSdk" />
     </packageTypes>
   </metadata>

@@ -15,6 +15,11 @@
       RemoveProperties="PublishDir" />
 
     <PropertyGroup>
+      <!--
+        This is a workaround for https://github.com/Microsoft/msbuild/issues/2914.
+        Currently, the only way to configure the NuGetSdkResolver is with NuGet.config, which is not generally used in aspnet org projects.
+        This project is restored so that it pre-populates the NuGet cache with SDK packages.
+      -->
       <BundledPackageRestorerContent>
 <![CDATA[
 <Project Sdk="Microsoft.NET.Sdk">

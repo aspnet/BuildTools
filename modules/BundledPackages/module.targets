@@ -3,6 +3,10 @@
     <PrepareDependsOn>PreinstallBundledPackages;$(PrepareDependsOn)</PrepareDependsOn>
   </PropertyGroup>
 
+  <!--
+    This is a workaround for https://github.com/Microsoft/msbuild/issues/2914.
+    This pre-populates the NuGet cache with bundled packages.
+  -->
   <Target Name="PreinstallBundledPackages">
     <MSBuild Targets="Restore"
       Projects="$(MSBuildThisFileDirectory)BundledPackageRestorer.csproj"

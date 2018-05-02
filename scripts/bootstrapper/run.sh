@@ -186,7 +186,7 @@ while [[ $# -gt 0 ]]; do
         --reinstall|-[Rr]einstall)
             reinstall=true
             ;;
-        --ci)
+        --ci|-[Cc][Ii])
             ci=true
             ;;
         --verbose|-Verbose)

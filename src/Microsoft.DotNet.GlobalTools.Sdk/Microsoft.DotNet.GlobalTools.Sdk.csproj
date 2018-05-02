@@ -1,0 +1,27 @@
+﻿<Project>
+
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <NuspecFile>$(MSBuildThisFileDirectory)$(MSBuildProjectName).nuspec</NuspecFile>
+    <Serviceable>false</Serviceable>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <IncludeSource>false</IncludeSource>
+    <IncludeSymbols>false</IncludeSymbols>
+  </PropertyGroup>
+
+  <Target Name="SetPackageProperties" BeforeTargets="GenerateNuspec">
+    <PropertyGroup>
+      <NuspecProperties>$(NuspecProperties);id=$(PackageId)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);version=$(PackageVersion)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);copyright=$(Copyright)</NuspecProperties>
+    </PropertyGroup>
+  </Target>
+
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+
+  <Target Name="Compile" />
+  <Target Name="CopyFilesToOutputDirectory" />
+</Project>

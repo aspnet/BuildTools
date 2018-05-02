@@ -4,6 +4,8 @@
 <#
 .DESCRIPTION
     Builds this repository
+.PARAMETER CI
+    Treat build as a CI build
 .PARAMETER SkipTests
     Skip tests
 .PARAMETER DotNetHome
@@ -21,6 +23,7 @@
 #>
 [CmdletBinding(PositionalBinding = $false)]
 param(
+    [switch]$CI,
     [switch]$SkipTests,
     [string]$DotNetHome = $null,
     [string]$ToolsSource = 'https://aspnetcore.blob.core.windows.net/buildtools',
@@ -62,7 +65,7 @@ try {
         $MSBuildArguments += "-p:DotNetRestoreSources=$RestoreSources"
     }
 
-    Set-KoreBuildSettings -ToolsSource $ToolsSource -DotNetHome $DotNetHome -RepoPath $PSScriptRoot -ConfigFile $ConfigFile
+    Set-KoreBuildSettings -ToolsSource $ToolsSource -DotNetHome $DotNetHome -RepoPath $PSScriptRoot -ConfigFile $ConfigFile -CI:$CI
     Invoke-KoreBuildCommand "default-build" @MSBuildArguments
 }
 finally {

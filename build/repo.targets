@@ -75,7 +75,7 @@
 
     <ItemGroup>
       <_ModuleProjects Include="$(RepositoryRoot)modules\%(KoreBuildModule.Identity)\%(Identity).*proj">
-        <AdditionalProperties>PublishDir=$(_KoreBuildIntermediateDir)modules\%(Identity)\</AdditionalProperties>
+        <AdditionalProperties>Version=$(Version);PublishDir=$(_KoreBuildIntermediateDir)modules\%(Identity)\</AdditionalProperties>
       </_ModuleProjects>
     </ItemGroup>
 

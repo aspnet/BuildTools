@@ -17,6 +17,7 @@ set_korebuildsettings() {
     [ -z "${dot_net_home:-}" ] && dot_net_home="$HOME/.dotnet"
     [ -z "${tools_source:-}" ] && tools_source="$default_tools_source"
 
+
     if [ "$ci" = true ]; then
         dot_net_home="$repo_path/.dotnet"
 
@@ -28,6 +29,8 @@ set_korebuildsettings() {
         export DOTNET_HOME="$dot_net_home"
         export MSBUILDDEBUGPATH="$repo_path/artifacts/logs"
     fi
+
+    export DOTNET_ROOT="$DOTNET_HOME"
 
     return 0
 }

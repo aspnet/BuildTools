@@ -25,3 +25,4 @@ global.json
 launchSettings.json
 korebuild-lock.txt
 *.binlog
+.dotnet/

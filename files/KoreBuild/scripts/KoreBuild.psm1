@@ -314,12 +314,16 @@ function Set-KoreBuildSettings(
         $DotNetHome = Join-Path $RepoPath ".dotnet"
 
         $env:CI = 'true'
+        $env:DOTNET_HOME = $DotNetHome
         $env:DOTNET_CLI_TELEMETRY_OPTOUT = 'true'
         $env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE = 'true'
         $env:NUGET_SHOW_STACK = 'true'
         $env:NUGET_PACKAGES = Join-Paths $RepoPath ('.nuget', 'packages')
         $env:MSBUILDDEBUGPATH = Join-Paths $RepoPath ('artifacts', 'logs')
     }
+
+    $arch = __get_dotnet_arch
+    $env:DOTNET_ROOT = if ($IS_WINDOWS) { Join-Path $DotNetHome $arch } else { $DotNetHome }
 
     $global:KoreBuildSettings = @{
         ToolsSource = $ToolsSource
@@ -356,8 +360,9 @@ function Invoke-KoreBuildCommand(
     }
 
     $sdkVersion = __get_dotnet_sdk_version
+    $korebuildVersion = Get-KoreBuildVersion
     if ($sdkVersion -ne 'latest') {
-        "{ `"sdk`": { `"version`": `"$sdkVersion`" } }" | Out-File (Join-Path $global:KoreBuildSettings.RepoPath 'global.json') -Encoding ascii
+        "{ `"sdk`": { `n`"version`": `"$sdkVersion`" },`n`"msbuild-sdks`": {`n`"Microsoft.DotNet.GlobalTools.Sdk`": `"$korebuildVersion`"}`n }" | Out-File (Join-Path $global:KoreBuildSettings.RepoPath 'global.json') -Encoding ascii
     }
     else {
         Write-Verbose "Skipping global.json generation because the `$sdkVersion = $sdkVersion"

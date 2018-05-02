@@ -5,6 +5,7 @@
     <ItemGroup>
       <Projects Include="$(MSBuildThisFileDirectory)..\..\src\Internal.AspNetCore.Sdk\Internal.AspNetCore.Sdk.csproj" />
       <Projects Include="$(MSBuildThisFileDirectory)..\..\src\ApiCheck.Console\ApiCheck.Console.csproj" />
+      <Projects Include="$(MSBuildThisFileDirectory)..\..\src\Microsoft.DotNet.GlobalTools.Sdk\Microsoft.DotNet.GlobalTools.Sdk.csproj" />
     </ItemGroup>
 
     <MSBuild Projects="@(Projects)"
@@ -13,7 +14,34 @@
       BuildInParallel="true"
       RemoveProperties="PublishDir" />
 
-    <Copy SourceFiles="module.props" DestinationFolder="$(PublishDir)" />
+    <PropertyGroup>
+      <!--
+        This is a workaround for https://github.com/Microsoft/msbuild/issues/2914.
+        Currently, the only way to configure the NuGetSdkResolver is with NuGet.config, which is not generally used in aspnet org projects.
+        This project is restored so that it pre-populates the NuGet cache with SDK packages.
+      -->
+      <BundledPackageRestorerContent>
+<![CDATA[
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Sdk Name="Microsoft.DotNet.GlobalTools.Sdk" Version="$(Version)" />
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Internal.AspNetCore.Sdk" Version="$(Version)" />
+  </ItemGroup>
+
+</Project>
+]]>
+      </BundledPackageRestorerContent>
+    </PropertyGroup>
+
+    <WriteLinesToFile File="$(PublishDir)BundledPackageRestorer.csproj" Lines="$(BundledPackageRestorerContent)" Overwrite="true" />
+    <Copy SourceFiles="module.props;module.targets;NuGet.config" DestinationFolder="$(PublishDir)" />
   </Target>
 
 </Project>

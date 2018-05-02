@@ -14,6 +14,7 @@ __usage() {
     echo "    -v|--verbose             Show verbose output."
     echo "    -d|--dotnet-home <DIR>   The directory where .NET Core tools will be stored. Defaults to '$DOTNET_HOME'."
     echo "    -s|--tools-source <URL>  The base url where build tools can be downloaded. Defaults to '$tools_source'."
+    echo "    --ci                     Apply CI specific settings and environment variables."
     exit 2
 }
 
@@ -25,6 +26,7 @@ __usage() {
 config_file="$DIR/korebuild.json"
 tools_source='https://aspnetcore.blob.core.windows.net/buildtools'
 verbose=false
+ci=false
 while [[ $# -gt 0 ]]; do
     case $1 in
         -\?|-h|--help)
@@ -43,6 +45,9 @@ while [[ $# -gt 0 ]]; do
         -v|--verbose)
             verbose=true
             ;;
+        --ci|-[Cc][Ii])
+            ci=true
+            ;;
         --)
             shift
             break
@@ -54,6 +59,6 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-set_korebuildsettings "$tools_source" "$DOTNET_HOME" "$DIR" "$config_file"
+set_korebuildsettings "$tools_source" "$DOTNET_HOME" "$DIR" "$config_file" "$ci"
 
 invoke_korebuild_command "default-build" "$@"

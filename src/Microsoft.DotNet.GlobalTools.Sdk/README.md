@@ -40,4 +40,4 @@ Default value = `false`
 
 A semi-colon separate list of RIDs for which to generate and pack the shim.
 
-Default value = `win-x86;win-x64;osx-x64`
+Default value = `win-x86;win-x64`

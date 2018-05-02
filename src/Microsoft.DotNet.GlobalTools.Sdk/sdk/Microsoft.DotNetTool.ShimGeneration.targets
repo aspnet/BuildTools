@@ -14,7 +14,7 @@
     <!--
       Only generate shims for these platforms.
     -->
-    <GeneratedShimRuntimeIdentifiers Condition="'$(GeneratedShimRuntimeIdentifiers)' == ''">win-x86;win-x64;osx-x64</GeneratedShimRuntimeIdentifiers>
+    <GeneratedShimRuntimeIdentifiers Condition="'$(GeneratedShimRuntimeIdentifiers)' == ''">win-x86;win-x64</GeneratedShimRuntimeIdentifiers>
 
     <!--
       Define runtime identifiers to NuGet will restore the apphost for that RID.

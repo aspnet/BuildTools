@@ -427,8 +427,8 @@ function __get_dotnet_sdk_version {
         Write-Warning "dotnet SDK version overridden by KOREBUILD_DOTNET_VERSION"
         return $env:KOREBUILD_DOTNET_VERSION
     }
-    $json = Get-Content (Join-Path $global:KoreBuildSettings.RepoPath 'global.json')
-    $globalObj = ConvertFrom-Json -InputObject $json
+
+    $globalObj = Get-Content(Join-Path $RepoRoot "global.json") -Raw | ConvertFrom-Json
     return $globalObj.sdk.version
 }
 

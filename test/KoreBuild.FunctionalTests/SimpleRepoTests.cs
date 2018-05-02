@@ -145,9 +145,6 @@ namespace KoreBuild.FunctionalTests
 
                 var winx64 = Assert.Single(files, f => f.StartsWith("tools/netcoreapp2.1/any/shims/win-x64/"));
                 Assert.Equal("GlobalConsoleTool.exe", Path.GetFileName(winx64));
-
-                var osx64 = Assert.Single(files, f => f.StartsWith("tools/netcoreapp2.1/any/shims/osx-x64/"));
-                Assert.Equal("GlobalConsoleTool", Path.GetFileName(osx64));
             }
 
             var toolsDir = Path.Combine(app.WorkingDirectory, "artifacts", "tools");

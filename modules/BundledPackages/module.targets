@@ -13,7 +13,11 @@
       <_ShouldRunBundledRestore Condition="Exists('$(_BundledRestoreSentinel)')">false</_ShouldRunBundledRestore>
     </PropertyGroup>
 
-    <Touch Files="$(_BundledRestoreSentinel)" AlwaysCreate="true" Condition=" ! Exists('$(_BundledRestoreSentinel)') " />
+    <Touch
+      Files="$(_BundledRestoreSentinel)"
+      AlwaysCreate="true"
+      Condition=" ! Exists('$(_BundledRestoreSentinel)') "
+      ContinueOnError="true" />
 
     <MSBuild Targets="Restore"
       Projects="$(MSBuildThisFileDirectory)BundledPackageRestorer.csproj"

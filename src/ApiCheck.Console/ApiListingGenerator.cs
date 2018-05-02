@@ -39,7 +39,7 @@ namespace ApiCheck
         public ApiListing GenerateApiListing()
         {
             var types = _assembly.DefinedTypes
-#if NETCOREAPP2_1 // Reflection does not provide a hook to enumerate forwarded types in .NET Framework.
+#if NETCOREAPP2_2 // Reflection does not provide a hook to enumerate forwarded types in .NET Framework.
                 .Concat(_assembly
                     .GetForwardedTypes()
                     .Select(type => type.GetTypeInfo()))
@@ -327,9 +327,9 @@ namespace ApiCheck
                     return null;
 
                 case MemberTypes.TypeInfo:
-                    // There should not be any member passed into this method that is not a top level type.
+                // There should not be any member passed into this method that is not a top level type.
                 case MemberTypes.Custom:
-                    // We don't know about custom member types, so better throw if we find something we don't understand.
+                // We don't know about custom member types, so better throw if we find something we don't understand.
                 case MemberTypes.All:
                     throw new InvalidOperationException($"'{type.MemberType}' [{member}] is not supported.");
 

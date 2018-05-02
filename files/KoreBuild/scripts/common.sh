@@ -61,7 +61,8 @@ __ensure_macos_version() {
 
 __get_dotnet_sdk_version() {
     local src="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-    version=$(< "$src/../config/sdk.version" head -1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+
+    version=$(< "$src/../../../global.json" head -1 | grep -Po '"version":.*?[^\\]",' global.json)
     # environment override
     if [ ! -z "${KOREBUILD_DOTNET_VERSION:-}" ]; then
         version=${KOREBUILD_DOTNET_VERSION:-}

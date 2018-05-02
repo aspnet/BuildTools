@@ -89,7 +89,7 @@ namespace Microsoft.AspNetCore.BuildTools
 
                     var entry = zip.CreateEntryFromFile(file.ItemSpec, entryName);
 #if NET46
-#elif NETCOREAPP2_0
+#elif NETCOREAPP2_2
                     if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                     {
                         // This isn't required when creating a zip on Windows. unzip will check which

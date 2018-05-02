@@ -5,7 +5,7 @@
     <GenerateFullPaths Condition="'$(VSCODE_PID)' != ''">true</GenerateFullPaths>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
-    <!-- Set explicitly to make it clear that this is not a console app, even though it targets netcoreapp2.0 -->
+    <!-- Set explicitly to make it clear that this is not a console app, even though it targets netcoreapp2.2 -->
     <OutputType>library</OutputType>
 
     <!--

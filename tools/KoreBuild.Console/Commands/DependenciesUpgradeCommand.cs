@@ -14,6 +14,7 @@ namespace KoreBuild.Console.Commands
         private CommandOption _packageVersionOpt;
         private CommandOption _sourceDeps;
         private CommandOption _fileOpt;
+        private CommandOption _globalJson;
 
         public DependenciesUpgradeCommand(CommandContext context) : base(context)
         {
@@ -36,6 +37,8 @@ MORE INFO:
         <MyPackageVersion>1.0.0</MyPackageVersion>
       </PropertyGroup>
     </Project>
+
+    It also upgrades the sdk version in global.json.
 ";
 
             _sourceOpt = application.Option("-s|--source <SOURCE>",
@@ -44,6 +47,7 @@ MORE INFO:
             _packageVersionOpt = application.Option("--version <PACKAGE_VERISON>", "Specifies the lineup package version to use.", CommandOptionType.SingleValue);
             _sourceDeps = application.Option("--source-deps <PACKAGE_VERISON>", "The dependencies.props file to use as a source of versions.", CommandOptionType.SingleValue);
             _fileOpt = application.Option("--deps-file <FILEPATH>", "The dependencies.props file to upgrade.", CommandOptionType.SingleValue);
+            _globalJson = application.Option("--global-json <FILEPATH>", "The global.json file to upgrade.", CommandOptionType.SingleValue);
 
             base.Configure(application);
         }
@@ -75,6 +79,11 @@ MORE INFO:
             if (_sourceDeps.HasValue())
             {
                 args.Add("-p:LineupDependenciesFile=" + _sourceDeps.Value());
+            }
+
+            if (_globalJson.HasValue())
+            {
+                args.Add("-p:GlobalJsonFile=" + _globalJson);
             }
 
             if (_fileOpt.HasValue())

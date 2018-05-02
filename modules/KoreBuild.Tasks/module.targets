@@ -11,6 +11,7 @@
     <KoreBuildConfigFile Condition="'$(KoreBuildConfigFile)' == ''">$(RepositoryRoot)korebuild.json</KoreBuildConfigFile>
     <DependencyVersionsFile Condition="'$(DependencyVersionsFile)' == ''">$(RepositoryRoot)build\dependencies.props</DependencyVersionsFile>
     <SignRequestOutputPath>$(ArtifactsDir)signrequest.xml</SignRequestOutputPath>
+    <GlobalJsonFile>$(RepositoryRoot)global.json</GlobalJsonFile>
   </PropertyGroup>
 
 <!--
@@ -104,7 +105,8 @@ dependencies.props file in the current project to use latest versions.
       LineupPackageId="$(LineupPackageId)"
       LineupPackageVersion="$(LineupPackageVersion)"
       LineupPackageRestoreSource="$(LineupPackageRestoreSource)"
-      LineupDependenciesFile="$(LineupDependenciesFile)" />
+      LineupDependenciesFile="$(LineupDependenciesFile)"
+      GlobalJsonFile="$(GlobalJsonFile)" />
   </Target>
 
 <!--

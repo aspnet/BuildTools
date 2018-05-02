@@ -428,7 +428,7 @@ function __get_dotnet_sdk_version {
         return $env:KOREBUILD_DOTNET_VERSION
     }
 
-    $globalObj = Get-Content(Join-Path $RepoRoot "global.json") -Raw | ConvertFrom-Json
+    $globalObj = Get-Content(Join-Path $global:KoreBuildSettings.RepoPath "global.json") -Raw | ConvertFrom-Json
     return $globalObj.sdk.version
 }
 

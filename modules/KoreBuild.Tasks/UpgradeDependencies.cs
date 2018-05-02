@@ -56,6 +56,12 @@ namespace KoreBuild.Tasks
         [Required]
         public string DependenciesFile { get; set; }
 
+        /// <summary>
+        /// The global.json file to update
+        /// </summary>
+        [Required]
+        public string GlobalJsonFile { get; set; }
+
         public void Cancel()
         {
             _cts.Cancel();
@@ -84,7 +90,6 @@ namespace KoreBuild.Tasks
                 Log.LogMessage(MessageImportance.High, $"No version variables could be found in {DependenciesFile}");
                 return true;
             }
-
 
             var tmpNupkgPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             var logger = new MSBuildLogger(Log);
@@ -194,7 +199,7 @@ namespace KoreBuild.Tasks
             using (var reader = new XmlTextReader(stream))
             {
                 var projectRoot = ProjectRootElement.Create(reader);
-                return  DependencyVersionsFile.Load(projectRoot);
+                return DependencyVersionsFile.Load(projectRoot);
             }
         }
 
@@ -209,6 +214,12 @@ namespace KoreBuild.Tasks
                 {
                     newValue = KoreBuildVersion.Current;
                     Log.LogMessage(MessageImportance.Low, "Setting InternalAspNetCoreSdkPackageVersion to the current version of KoreBuild");
+                }
+                else if (var.Key == "SdkPackageVersion")
+                {
+                    var globalFile = new GlobalJsonFile(GlobalJsonFile);
+                    globalFile.SetSdkVersion(var.Value);
+                    continue;
                 }
                 else if (!remoteDepsVersionFile.VersionVariables.TryGetValue(var.Key, out newValue))
                 {

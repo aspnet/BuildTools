@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.IO;
 using System.Net.Http;
 using System.Runtime.InteropServices;
@@ -56,7 +57,7 @@ namespace NuGetPackageVerifier
         }
 
         [Fact]
-        public async Task Validate_ReturnsEmpty()
+        public void Validate_ReturnsEmpty()
         {
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -65,25 +66,21 @@ namespace NuGetPackageVerifier
             }
 
             // Arrange
-            const string DownloadUri = "https://dotnet.myget.org/F/dotnet-core/api/v2/package/Microsoft.AspNetCore.All/2.1.0-rc1-30682";
-            using (var disposableDirectory = new DisposableDirectory())
+            var signedNupkgFile = Path.Combine(AppContext.BaseDirectory, "SignedNupkg.nupkg");
+
+            var context = new PackageAnalysisContext
             {
-                var file = await DownloadFileAsync(DownloadUri, disposableDirectory.Path);
+                Logger = new TestLogger(_output),
+                PackageFileInfo = new FileInfo(signedNupkgFile),
+            };
 
-                var context = new PackageAnalysisContext
-                {
-                    Logger = new TestLogger(_output),
-                    PackageFileInfo = new FileInfo(file),
-                };
+            var rule = GetRule();
 
-                var rule = GetRule();
+            // Act
+            var issues = rule.Validate(context);
 
-                // Act
-                var issues = rule.Validate(context);
-
-                // Assert
-                Assert.Empty(issues);
-            }
+            // Assert
+            Assert.Empty(issues);
         }
 
         private static PackageSigningRule GetRule()
@@ -96,21 +93,6 @@ namespace NuGetPackageVerifier
             }
 
             return new PackageSigningRule(nugetExe);
-        }
-
-        private async Task<string> DownloadFileAsync(string downloadUri, string basePath)
-        {
-            var client = new HttpClient();
-            var response = await client.GetAsync(downloadUri);
-
-            var fileName = Path.GetRandomFileName();
-            var filePath = Path.Combine(basePath, fileName);
-            using (var fileStream = File.Create(filePath))
-            {
-                await response.Content.CopyToAsync(fileStream);
-            }
-
-            return filePath;
         }
     }
 }

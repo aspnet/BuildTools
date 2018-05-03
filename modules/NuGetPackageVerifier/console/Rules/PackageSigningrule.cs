@@ -59,7 +59,7 @@ namespace NuGetPackageVerifier.Rules
             };
 
             var process = Process.Start(psi);
-            process.WaitForExit();
+            process.WaitForExit(60 * 1000);
 
             if (process.ExitCode != 0)
             {

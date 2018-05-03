@@ -3,11 +3,11 @@
 
 using System;
 using NuGetPackageVerifier.Rules;
-using NuGetPackageVerifier.Tests.Utilities;
+using NuGetPackageVerifier.Utilities;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace NuGetPackageVerifier.Tests
+namespace NuGetPackageVerifier
 {
     public class SignRequestListsAllSignableFilesRuleTests
     {
@@ -27,23 +27,27 @@ namespace NuGetPackageVerifier.Tests
     </Container>
 </SignRequest>";
 
-            var context = TestHelper.CreateAnalysisContext(_output,
-            new[] { "lib/netstandard2.0/Test.dll", "tools/MyScript.psd1" },
-            signRequest: signRequest);
+            var context = TestPackageAnalysisContext.CreateContext(
+                _output,
+                new[] { "lib/netstandard2.0/Test.dll", "tools/MyScript.psd1" },
+                signRequest: signRequest);
 
-            var rule = new SignRequestListsAllSignableFiles();
+            using (context)
+            {
+                var rule = new SignRequestListsAllSignableFiles();
 
-            var errors = rule.Validate(context);
+                var errors = rule.Validate(context);
 
-            Assert.NotEmpty(errors);
+                Assert.NotEmpty(errors);
 
-            Assert.Contains(errors, e =>
-                e.Instance.Equals("lib/netstandard2.0/Test.dll", StringComparison.Ordinal)
-                && e.IssueId.Equals("FILE_MISSING_FROM_SIGN_REQUEST", StringComparison.Ordinal));
+                Assert.Contains(errors, e =>
+                    e.Instance.Equals("lib/netstandard2.0/Test.dll", StringComparison.Ordinal) &&
+                    e.IssueId.Equals("FILE_MISSING_FROM_SIGN_REQUEST", StringComparison.Ordinal));
 
-            Assert.Contains(errors, e =>
-                e.Instance.Equals("tools/MyScript.psd1", StringComparison.Ordinal)
-                && e.IssueId.Equals("FILE_MISSING_FROM_SIGN_REQUEST", StringComparison.Ordinal));
+                Assert.Contains(errors, e =>
+                    e.Instance.Equals("tools/MyScript.psd1", StringComparison.Ordinal) &&
+                    e.IssueId.Equals("FILE_MISSING_FROM_SIGN_REQUEST", StringComparison.Ordinal));
+            }
         }
 
         [Fact]
@@ -57,15 +61,19 @@ namespace NuGetPackageVerifier.Tests
     </Container>
 </SignRequest>";
 
-            var context = TestHelper.CreateAnalysisContext(_output,
+            var context = TestPackageAnalysisContext.CreateContext(
+                _output,
                 new[] { "lib/netstandard2.0/Test.dll", "tools/MyScript.psd1" },
                 signRequest: signRequest);
 
-            var rule = new SignRequestListsAllSignableFiles();
+            using (context)
+            {
+                var rule = new SignRequestListsAllSignableFiles();
 
-            var errors = rule.Validate(context);
+                var errors = rule.Validate(context);
 
-            Assert.Empty(errors);
+                Assert.Empty(errors);
+            }
         }
 
         [Fact]
@@ -79,15 +87,19 @@ namespace NuGetPackageVerifier.Tests
     </Container>
 </SignRequest>";
 
-            var context = TestHelper.CreateAnalysisContext(_output,
+            var context = TestPackageAnalysisContext.CreateContext(
+                _output,
                  new[] { "lib/netstandard2.0/Test.dll", "tools/MyScript.psd1" },
                 signRequest: signRequest);
 
-            var rule = new SignRequestListsAllSignableFiles();
+            using (context)
+            {
+                var rule = new SignRequestListsAllSignableFiles();
 
-            var errors = rule.Validate(context);
+                var errors = rule.Validate(context);
 
-            Assert.Empty(errors);
+                Assert.Empty(errors);
+            }
         }
     }
 }

@@ -205,6 +205,15 @@ namespace NuGetPackageVerifier
                 PackageIssueLevel.Error);
         }
 
+        public static PackageVerifierIssue PackageSignVerificationFailed(string packageId, string issueText)
+        {
+            return new PackageVerifierIssue(
+                "PACKAGE_SIGN_VERIFICATION_FAILED",
+                packageId,
+                $"Sign verification for package {packageId} failed: {issueText}",
+                PackageIssueLevel.Error);
+        }
+
         public static PackageVerifierIssue AuthorIsIncorrect(string packageId, string expectedAuthor, string actualAuthor)
         {
             return new PackageVerifierIssue("PACKAGE_AUTHOR_INCORRECT", packageId, string.Format(

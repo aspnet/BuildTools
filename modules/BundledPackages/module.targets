@@ -1,13 +1,9 @@
-<Project>
-  <PropertyGroup Condition="'$(DisableDefaultTargets)' != 'true'">
-    <PrepareDependsOn>PreinstallBundledPackages;$(PrepareDependsOn)</PrepareDependsOn>
-  </PropertyGroup>
-
+<Project InitialTargets="PreinstallBundledPackages">
   <!--
     This is a workaround for https://github.com/Microsoft/msbuild/issues/2914.
     This pre-populates the NuGet cache with bundled packages.
   -->
-  <Target Name="PreinstallBundledPackages">
+  <Target Name="PreinstallBundledPackages" Condition="'$(DisableBundledPackages)' != 'true'">
     <PropertyGroup>
       <_BundledRestoreSentinel>$(MSBuildThisFileDirectory)restore.sentinel</_BundledRestoreSentinel>
       <_ShouldRunBundledRestore Condition="Exists('$(_BundledRestoreSentinel)')">false</_ShouldRunBundledRestore>
@@ -22,6 +18,7 @@
     <MSBuild Targets="Restore"
       Projects="$(MSBuildThisFileDirectory)BundledPackageRestorer.csproj"
       Properties="RestoreSources=$(KoreBuildBundledPackageFolder)"
-      Condition="'$(_ShouldRunBundledRestore)' != 'false'" />
+      Condition="'$(_ShouldRunBundledRestore)' != 'false'"
+      ContinueOnError="true" />
   </Target>
 </Project>

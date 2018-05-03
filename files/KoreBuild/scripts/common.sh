@@ -59,15 +59,34 @@ __ensure_macos_version() {
     fi
 }
 
+__machine_has() {
+    hash "$1" > /dev/null 2>&1
+    return $?
+}
+
 __get_dotnet_sdk_version() {
+    local repo_path=$1
     local src="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-    version=$(< "$src/../../../global.json" head -1 | grep -Po '"version":.*?[^\\]",' global.json)
-    # environment override
-    if [ ! -z "${KOREBUILD_DOTNET_VERSION:-}" ]; then
-        version=${KOREBUILD_DOTNET_VERSION:-}
-        __warn "Dotnet SDK version changed by KOREBUILD_DOTNET_VERSION"
+    local global_json="$repo_path/global.json"
+    local version
+
+    if __machine_has jq ; then
+        if jq '.' "$global_json" >/dev/null ; then
+            version="$(jq -r 'select(.sdk!=null) | .sdk.version' "$global_json")"
+        else
+            __warn "$global_json is invalid JSON. Its settings will be ignored."
+        fi
+    elif __machine_has python ; then
+        if python -c "import json,codecs;obj=json.load(codecs.open('$global_json', 'r', 'utf-8-sig'))" >/dev/null ; then
+            version="$(python -c "import json,codecs;obj=json.load(codecs.open('$global_json', 'r', 'utf-8-sig'));print(obj['sdk']['version'] if 'channel' in obj else '')")"
+        else
+            __warn "$config_file is invalid JSON. Its settings will be ignored."
+        fi
+    else
+        __warn 'Missing required command: jq or pyton. Could not parse the JSON file. Its settings will be ignored.'
     fi
+
     echo $version
 }
 

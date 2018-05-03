@@ -423,11 +423,6 @@ function __install_shared_runtime($installScript, $installDir, [string]$arch, [s
 }
 
 function __get_dotnet_sdk_version {
-    if ($env:KOREBUILD_DOTNET_VERSION) {
-        Write-Warning "dotnet SDK version overridden by KOREBUILD_DOTNET_VERSION"
-        return $env:KOREBUILD_DOTNET_VERSION
-    }
-
     $globalObj = Get-Content(Join-Path $global:KoreBuildSettings.RepoPath "global.json") -Raw | ConvertFrom-Json
     return $globalObj.sdk.version
 }

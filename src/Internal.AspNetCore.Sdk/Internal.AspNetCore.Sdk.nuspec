@@ -13,7 +13,7 @@
   </metadata>
   <files>
     <file src="_._" target="lib\netstandard1.0\_._" />
-    <file src="bin\$config$\netcoreapp2.2\Internal.AspNetCore.Sdk.dll" target="tools\netcoreapp2.2\Internal.AspNetCore.Sdk.dll" />
+    <file src="bin\$config$\netcoreapp2.0\Internal.AspNetCore.Sdk.dll" target="tools\netcoreapp2.0\Internal.AspNetCore.Sdk.dll" />
     <file src="bin\$config$\net46\Internal.AspNetCore.Sdk.dll" target="tools\net46\Internal.AspNetCore.Sdk.dll" />
     <file src="..\..\modules\BuildTools.Tasks\BuildTools.Tasks.props" target="build\" />
     <file src="build\" target="build\" />

@@ -65,7 +65,7 @@ if [ ! -z "${KOREBUILD_SKIP_RUNTIME_INSTALL:-}" ]; then
 fi
 
 channel='preview'
-version=$(__get_dotnet_sdk_version)
+version=$(__get_dotnet_sdk_version )
 runtime_channel='master'
 runtime_version=$(< "$__script_dir/../config/runtime.version" head -1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
 

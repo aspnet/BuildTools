@@ -39,7 +39,7 @@ namespace ApiCheck
         public ApiListing GenerateApiListing()
         {
             var types = _assembly.DefinedTypes
-#if NETCOREAPP2_2 // Reflection does not provide a hook to enumerate forwarded types in .NET Framework.
+#if NETCOREAPP2_0 // Reflection does not provide a hook to enumerate forwarded types in .NET Framework.
                 .Concat(_assembly
                     .GetForwardedTypes()
                     .Select(type => type.GetTypeInfo()))

@@ -2,12 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Tools.Internal;
+using Newtonsoft.Json;
 
 namespace KoreBuild.Console.Commands
 {
@@ -61,16 +63,16 @@ namespace KoreBuild.Console.Commands
 
         private string GetDotnetSDKVersion()
         {
-            var sdkVersionEnv = Environment.GetEnvironmentVariable("KOREBUILD_DOTNET_VERSION");
-            if (sdkVersionEnv != null)
+            var globalJsonPath = Path.Combine(RepoPath, "global.json");
+
+            if (!File.Exists(globalJsonPath))
             {
-                return sdkVersionEnv;
+                throw new FileNotFoundException($"{globalJsonPath} doesn't exist. Your repo root must have a valid global.json.");
             }
-            else
-            {
-                var sdkVersionPath = Path.Combine(ConfigDirectory, "sdk.version");
-                return File.ReadAllText(sdkVersionPath).Trim();
-            }
+
+            var globalJson = JsonConvert.DeserializeObject<Dictionary<string, object>>(File.ReadAllText(globalJsonPath));
+
+            return ((Dictionary<string, string>)globalJson["sdk"])["version"];
         }
 
         private string GetDotNetHome()

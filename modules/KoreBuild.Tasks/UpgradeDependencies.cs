@@ -45,6 +45,11 @@ namespace KoreBuild.Tasks
         public string LineupDependenciesFile { get; set; }
 
         /// <summary>
+        /// The tools.props file to use versions from
+        /// </summary>
+        public string LineupToolsFile { get; set; }
+
+        /// <summary>
         /// The NuGet feed containing the lineup package
         /// </summary>
         [Required]
@@ -96,7 +101,7 @@ namespace KoreBuild.Tasks
 
             try
             {
-                var remoteDepsVersionFile = await TryDownloadLineupDepsFile() ?? await TryDownloadLineupPackage(logger, tmpNupkgPath);
+                var remoteDepsVersionFile = await TryDownloadLineupDepsFile() ?? (await TryDownloadLineupPackage(logger, tmpNupkgPath)).DepsFile;
 
                 if (remoteDepsVersionFile == null)
                 {
@@ -115,6 +120,21 @@ namespace KoreBuild.Tasks
                     Log.LogMessage($"Versions in {DependenciesFile} are already up to date");
                 }
 
+                var remoteToolsVersionFile = await TryDownloadLineupToolsFile() ?? (await TryDownloadLineupPackage(logger, tmpNupkgPath)).ToolsFile;
+
+                var globalFile = new GlobalJsonFile(GlobalJsonFile);
+                var toolsCount = UpdateTools(globalFile, remoteToolsVersionFile);
+
+                if(toolsCount > 0)
+                {
+                    Log.LogMessage($"Finished updating {toolsCount} sdks in {GlobalJsonFile}");
+                    globalFile.Save();
+                }
+                else
+                {
+                    Log.LogMessage($"Versions in {GlobalJsonFile} are already up to date");
+                }
+
                 return !Log.HasLoggedErrors;
             }
             finally
@@ -126,6 +146,42 @@ namespace KoreBuild.Tasks
             }
         }
 
+        private const string CLIVersionVariableName = "DotNetCliVersion";
+
+        private int UpdateTools(GlobalJsonFile global, DependencyVersionsFile toolsFile)
+        {
+            var updateCount = 0;
+
+            foreach (var var in global.MSBuildSdks)
+            {
+                if(!toolsFile.VersionVariables.TryGetValue(var.Key, out string newValue))
+                {
+                    Log.LogKoreBuildWarning(global.Path, KoreBuildErrors.PackageVersionNotFoundInLineup,
+                        $"A new version variable for {var.Key} could not be found in {LineupPackageId}. This might be an unsupported external dependency.");
+                    continue;
+                }
+
+                if(newValue != var.Value)
+                {
+                    updateCount++;
+                    global.MSBuildSdks[var.Key] = newValue;
+                }
+            }
+
+            if(toolsFile.VersionVariables.ContainsKey(CLIVersionVariableName))
+            {
+                global.SDKVersion = toolsFile.VersionVariables[CLIVersionVariableName];
+                updateCount++;
+            }
+            else
+            {
+                Log.LogKoreBuildWarning(global.Path, KoreBuildErrors.PackageVersionNotFoundInLineup,
+                        $"A new version variable for DotNetCliVersion could not be found in {LineupPackageId}. This might mean the lineup is broken.");
+            }
+
+            return updateCount;
+        }
+
         private async Task<DependencyVersionsFile> TryDownloadLineupDepsFile()
         {
             if (string.IsNullOrEmpty(LineupDependenciesFile))
@@ -133,7 +189,21 @@ namespace KoreBuild.Tasks
                 return null;
             }
 
-            var path = LineupDependenciesFile;
+            return await TryDownloadLineupFile(LineupDependenciesFile);
+        }
+
+        private async Task<DependencyVersionsFile> TryDownloadLineupToolsFile()
+        {
+            if (string.IsNullOrEmpty(LineupToolsFile))
+            {
+                return null;
+            }
+
+            return await TryDownloadLineupFile(LineupToolsFile);
+        }
+
+        private async Task<DependencyVersionsFile> TryDownloadLineupFile(string path)
+        {
             string text;
             if (path.StartsWith("http"))
             {
@@ -156,7 +226,7 @@ namespace KoreBuild.Tasks
             }
         }
 
-        private async Task<DependencyVersionsFile> TryDownloadLineupPackage(MSBuildLogger logger, string tmpNupkgPath)
+        private async Task<LineupPackage> TryDownloadLineupPackage(MSBuildLogger logger, string tmpNupkgPath)
         {
             VersionRange versionRange;
 
@@ -194,13 +264,24 @@ namespace KoreBuild.Tasks
                 return null;
             }
 
+            var lineupPackage = new LineupPackage();
             using (var nupkgReader = new PackageArchiveReader(tmpNupkgPath))
             using (var stream = nupkgReader.GetStream("build/dependencies.props"))
             using (var reader = new XmlTextReader(stream))
             {
                 var projectRoot = ProjectRootElement.Create(reader);
-                return DependencyVersionsFile.Load(projectRoot);
+                lineupPackage.DepsFile = DependencyVersionsFile.Load(projectRoot);
             }
+
+            using (var nupkgReader = new PackageArchiveReader(tmpNupkgPath))
+            using (var stream = nupkgReader.GetStream("build/tools.props"))
+            using (var reader = new XmlTextReader(stream))
+            {
+                var projectRoot = ProjectRootElement.Create(reader);
+                lineupPackage.ToolsFile = DependencyVersionsFile.Load(projectRoot);
+            }
+
+            return lineupPackage;
         }
 
         private int UpdateDependencies(DependencyVersionsFile localVersionsFile, DependencyVersionsFile remoteDepsVersionFile)
@@ -214,12 +295,6 @@ namespace KoreBuild.Tasks
                 {
                     newValue = KoreBuildVersion.Current;
                     Log.LogMessage(MessageImportance.Low, "Setting InternalAspNetCoreSdkPackageVersion to the current version of KoreBuild");
-                }
-                else if (var.Key == "SdkPackageVersion")
-                {
-                    var globalFile = new GlobalJsonFile(GlobalJsonFile);
-                    globalFile.SetSdkVersion(var.Value);
-                    continue;
                 }
                 else if (!remoteDepsVersionFile.VersionVariables.TryGetValue(var.Key, out newValue))
                 {

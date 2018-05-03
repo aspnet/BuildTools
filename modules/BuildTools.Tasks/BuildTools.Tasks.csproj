@@ -3,7 +3,7 @@
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);BuildTools</DefineConstants>
     <Description>MSBuild tasks. This package is intended for Microsoft use only</Description>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>0</TargetFramework>
     <RootNamespace>Microsoft.AspNetCore.BuildTools</RootNamespace>
     <AssemblyName>Internal.AspNetCore.BuildTools.Tasks</AssemblyName>
   </PropertyGroup>

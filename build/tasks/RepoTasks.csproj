@@ -17,6 +17,8 @@
     <Compile Include="..\..\modules\BuildTools.Tasks\RunBase.cs" />
     <Compile Include="..\..\modules\BuildTools.Tasks\RunDotNet.cs" />
     <Compile Include="..\..\modules\BuildTools.Tasks\ZipArchive.cs" />
+
+    <Compile Include="..\..\modules\KoreBuild.Tasks\DownloadFile.cs" />
   </ItemGroup>
 
   <Import Project="$(RepoTasksSdkPath)\Sdk.targets" Condition="'$(RepoTasksSdkPath)' != '' "/>

@@ -4,7 +4,7 @@
 using NuGetPackageVerifier.Logging;
 using Xunit.Abstractions;
 
-namespace NuGetPackageVerifier.Tests.Utilities
+namespace NuGetPackageVerifier.Utilities
 {
     internal class TestLogger : IPackageVerifierLogger
     {

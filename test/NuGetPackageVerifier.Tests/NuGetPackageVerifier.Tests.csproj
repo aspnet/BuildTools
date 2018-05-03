@@ -14,4 +14,8 @@
     <ProjectReference Include="..\..\modules\NuGetPackageVerifier\console\NuGetPackageVerifier.Console.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="SignedNupkg.nupkg" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

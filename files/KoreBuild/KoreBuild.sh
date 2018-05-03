@@ -98,7 +98,7 @@ __install_tools() {
 
     # Call "sync" between "chmod" and execution to prevent "text file busy" error in Docker (aufs)
     chmod +x "$__korebuild_dir/scripts/get-dotnet.sh"; sync
-    "$__korebuild_dir/scripts/get-dotnet.sh" $verbose_flag "$install_dir" "$repo_path"\
+    "$__korebuild_dir/scripts/get-dotnet.sh" $verbose_flag "$install_dir" \
         || return 1
 
     # Set environment variables

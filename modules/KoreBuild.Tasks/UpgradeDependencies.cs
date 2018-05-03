@@ -125,7 +125,7 @@ namespace KoreBuild.Tasks
                 var globalFile = new GlobalJsonFile(GlobalJsonFile);
                 var toolsCount = UpdateTools(globalFile, remoteToolsVersionFile);
 
-                if(toolsCount > 0)
+                if (toolsCount > 0)
                 {
                     Log.LogMessage($"Finished updating {toolsCount} sdks in {GlobalJsonFile}");
                     globalFile.Save();
@@ -154,21 +154,21 @@ namespace KoreBuild.Tasks
 
             foreach (var var in global.MSBuildSdks)
             {
-                if(!toolsFile.VersionVariables.TryGetValue(var.Key, out string newValue))
+                if (!toolsFile.VersionVariables.TryGetValue(var.Key, out string newValue))
                 {
                     Log.LogKoreBuildWarning(global.Path, KoreBuildErrors.PackageVersionNotFoundInLineup,
                         $"A new version variable for {var.Key} could not be found in {LineupPackageId}. This might be an unsupported external dependency.");
                     continue;
                 }
 
-                if(newValue != var.Value)
+                if (newValue != var.Value)
                 {
                     updateCount++;
                     global.MSBuildSdks[var.Key] = newValue;
                 }
             }
 
-            if(toolsFile.VersionVariables.ContainsKey(CLIVersionVariableName))
+            if (toolsFile.VersionVariables.ContainsKey(CLIVersionVariableName))
             {
                 global.SDKVersion = toolsFile.VersionVariables[CLIVersionVariableName];
                 updateCount++;

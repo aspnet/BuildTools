@@ -29,16 +29,6 @@ namespace KoreBuild.Console.Commands
             Reporter.Verbose($"Building {Context.RepoPath}.");
             Reporter.Verbose($"dotnet = {Context.RepoPath}");
 
-            if (Context.SDKVersion != "latest")
-            {
-                var globalFile = Path.Combine(Context.RepoPath, "global.json");
-                File.WriteAllText(globalFile, $"{{ \"sdk\": {{ \"version\": \"{Context.SDKVersion}\" }} }}", System.Text.Encoding.ASCII);
-            }
-            else
-            {
-                Reporter.Verbose($"Skipping global.json generation because the SDKVersion = {Context.SDKVersion}");
-            }
-
             var makeFileProj = Path.Combine(Context.KoreBuildDir, "KoreBuild.proj");
             var msBuildArtifactsDir = Path.Combine(Context.RepoPath, "artifacts", "msbuild");
             var msBuildResponseFile = Path.Combine(msBuildArtifactsDir, "msbuild.rsp");

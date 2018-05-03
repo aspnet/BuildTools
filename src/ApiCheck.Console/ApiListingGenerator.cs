@@ -327,9 +327,9 @@ namespace ApiCheck
                     return null;
 
                 case MemberTypes.TypeInfo:
-                    // There should not be any member passed into this method that is not a top level type.
+                // There should not be any member passed into this method that is not a top level type.
                 case MemberTypes.Custom:
-                    // We don't know about custom member types, so better throw if we find something we don't understand.
+                // We don't know about custom member types, so better throw if we find something we don't understand.
                 case MemberTypes.All:
                     throw new InvalidOperationException($"'{type.MemberType}' [{member}] is not supported.");
 

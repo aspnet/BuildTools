@@ -18,8 +18,8 @@
 
 
     <ItemGroup Condition="'@(HostingStartupRuntimeStoreFrameworks->Count())' == '0'">
-      <HostingStartupRuntimeStoreTargets Include="netcoreapp2.1" Runtime="win7-x64" />
-      <HostingStartupRuntimeStoreTargets Include="netcoreapp2.1" Runtime="win7-x86" />
+      <HostingStartupRuntimeStoreTargets Include="netcoreapp2.0" Runtime="win7-x64" />
+      <HostingStartupRuntimeStoreTargets Include="netcoreapp2.0" Runtime="win7-x86" />
     </ItemGroup>
 
     <ItemGroup>

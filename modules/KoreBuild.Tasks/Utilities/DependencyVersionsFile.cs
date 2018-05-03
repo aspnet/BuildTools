@@ -53,7 +53,6 @@ namespace KoreBuild.Tasks.Utilities
             return sb.ToString();
         }
 
-
         public static DependencyVersionsFile Create(bool addOverrideImport, string[] additionalImports = null)
         {
             var projectRoot = ProjectRootElement.Create(NewProjectFileOptions.None);

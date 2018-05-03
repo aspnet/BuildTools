@@ -21,7 +21,6 @@ project.lock.json
 .build
 .vs/
 .vscode/
-global.json
 launchSettings.json
 korebuild-lock.txt
 *.binlog

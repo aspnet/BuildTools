@@ -17,7 +17,7 @@ namespace ApiCheck.Test
         public Assembly V1Assembly => typeof(ApiCheckApiListingV1).GetTypeInfo().Assembly;
         public Assembly V2Assembly => typeof(ApiCheckApiListingV2).GetTypeInfo().Assembly;
 
-        public IEnumerable<Func<MemberInfo, bool>> TestFilters => new Func<MemberInfo, bool> []
+        public IEnumerable<Func<MemberInfo, bool>> TestFilters => new Func<MemberInfo, bool>[]
         {
             ti => (ti as TypeInfo)?.Namespace?.StartsWith("ComparisonScenarios") == false
         };
@@ -359,7 +359,7 @@ namespace ApiCheck.Test
 
             // Assert
             var interfaceBreakingChanges = breakingChanges
-                .Where( b => b.TypeId == "public interface ComparisonScenarios.IInterfaceToAddMembersTo")
+                .Where(b => b.TypeId == "public interface ComparisonScenarios.IInterfaceToAddMembersTo")
                 .ToList();
             Assert.Single(interfaceBreakingChanges,
                 b => b.MemberId == "System.Int32 get_NewMember()" && b.Kind == ChangeKind.Addition);
@@ -409,7 +409,7 @@ namespace ApiCheck.Test
 
             // Assert
             var interfaceBreakingChanges = breakingChanges
-                .Where( b => b.TypeId == "public interface ComparisonScenarios.IInterfaceWithMembersThatWillGetRenamedRemovedAndAdded")
+                .Where(b => b.TypeId == "public interface ComparisonScenarios.IInterfaceWithMembersThatWillGetRenamedRemovedAndAdded")
                 .ToList();
             Assert.Single(interfaceBreakingChanges,
                 b => b.MemberId == "System.Void MemberToBeRenamed()" && b.Kind == ChangeKind.Removal);

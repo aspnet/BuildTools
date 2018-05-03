@@ -124,7 +124,7 @@ function Invoke-RepositoryBuild(
         }
         else {
             [string[]]$repoTasksArgs = $MSBuildArgs | Where-Object { ($_ -like '-p:*') -or ($_ -like '/p:*') -or ($_ -like '-property:') -or ($_ -like '/property:') }
-            $repoTasksArgs += ,"@$msBuildLogRspFile"
+            $repoTasksArgs += , "@$msBuildLogRspFile"
             __build_task_project $Path $repoTasksArgs
         }
 
@@ -359,15 +359,6 @@ function Invoke-KoreBuildCommand(
         throw "Set-KoreBuildSettings must be called before Invoke-KoreBuildCommand."
     }
 
-    $sdkVersion = __get_dotnet_sdk_version
-    $korebuildVersion = Get-KoreBuildVersion
-    if ($sdkVersion -ne 'latest') {
-        "{ `"sdk`": { `n`"version`": `"$sdkVersion`" },`n`"msbuild-sdks`": {`n`"Microsoft.DotNet.GlobalTools.Sdk`": `"$korebuildVersion`"}`n }" | Out-File (Join-Path $global:KoreBuildSettings.RepoPath 'global.json') -Encoding ascii
-    }
-    else {
-        Write-Verbose "Skipping global.json generation because the `$sdkVersion = $sdkVersion"
-    }
-
     if ($Command -eq "default-build") {
         Install-Tools
         Invoke-RepositoryBuild $global:KoreBuildSettings.RepoPath @Arguments
@@ -432,11 +423,8 @@ function __install_shared_runtime($installScript, $installDir, [string]$arch, [s
 }
 
 function __get_dotnet_sdk_version {
-    if ($env:KOREBUILD_DOTNET_VERSION) {
-        Write-Warning "dotnet SDK version overridden by KOREBUILD_DOTNET_VERSION"
-        return $env:KOREBUILD_DOTNET_VERSION
-    }
-    return Get-Content (Join-Paths $PSScriptRoot ('..', 'config', 'sdk.version'))
+    $globalObj = Get-Content(Join-Path $global:KoreBuildSettings.RepoPath "global.json") -Raw | ConvertFrom-Json
+    return $globalObj.sdk.version
 }
 
 function __build_task_project($RepoPath, [string[]]$msbuildArgs) {

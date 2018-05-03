@@ -40,12 +40,12 @@ invoke_korebuild_command(){
     shift
 
     if [ "$command" = "default-build" ]; then
-        __install_tools "$tools_source" "$dot_net_home"
+        __install_tools "$tools_source" "$dot_net_home" "$repo_path"
         __invoke_repository_build "$repo_path" "$@"
     elif [ "$command" = "msbuild" ]; then
         __invoke_repository_build "$repo_path" "$@"
     elif [ "$command" = "install-tools" ]; then
-        __install_tools "$tools_source" "$dot_net_home"
+        __install_tools "$tools_source" "$dot_net_home" "$repo_path"
     else
         __ensure_dotnet
 
@@ -80,6 +80,7 @@ __invoke_repository_build() {
 __install_tools() {
     local tools_source=$1
     local install_dir=$2
+    local repo_path=$3
     local tools_home="$install_dir/buildtools"
     local netfx_version='4.6.1'
 

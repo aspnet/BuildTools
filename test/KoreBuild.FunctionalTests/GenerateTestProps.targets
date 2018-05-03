@@ -8,6 +8,12 @@
     <RestoreSources>$([MSBuild]::Escape($(RestoreSources)))</RestoreSources>
     <RuntimeFrameworkVersion Condition="'%24(TargetFramework)' == 'netcoreapp2.0'">$(MicrosoftNETCoreApp20PackageVersion)</RuntimeFrameworkVersion>
     <RuntimeFrameworkVersion Condition="'%24(TargetFramework)' == 'netcoreapp2.1'">$(MicrosoftNETCoreApp21PackageVersion)</RuntimeFrameworkVersion>
+    <RuntimeFrameworkVersion Condition="'%24(TargetFramework)' == 'netcoreapp2.2'">$(MicrosoftNETCoreApp22PackageVersion)</RuntimeFrameworkVersion>
+  </PropertyGroup>
+
+  <!-- aspnet/BuildTools#662 Don't police what version of NetCoreApp we use -->
+  <PropertyGroup>
+    <NETCoreAppMaximumVersion>99.9</NETCoreAppMaximumVersion>
   </PropertyGroup>
 </Project>
 ]]>

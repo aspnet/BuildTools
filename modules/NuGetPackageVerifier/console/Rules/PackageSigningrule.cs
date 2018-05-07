@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.CommandLineUtils;
 
@@ -31,9 +32,17 @@ namespace NuGetPackageVerifier.Rules
 
         private static string GetKorebuildNuGetPath()
         {
-            // KoreBuild/nuget.exe
-            // KoreBuild/modules/NuGetPackageVerifier/
-            return Path.Combine(AppContext.BaseDirectory, "..", "..", "nuget.exe");
+            var searchPaths = new[]
+            {
+                // KoreBuild/nuget.exe
+                // KoreBuild/modules/NuGetPackageVerifier/
+                Path.Combine(AppContext.BaseDirectory, "..", "..", "nuget.exe"),
+
+                // obj/nuget.exe in local build root
+                Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "..", "obj", "nuget.exe"),
+            };
+
+            return searchPaths.First(File.Exists);
         }
 
         public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)

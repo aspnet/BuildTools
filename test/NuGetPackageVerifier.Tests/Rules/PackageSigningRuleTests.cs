@@ -3,9 +3,7 @@
 
 using System;
 using System.IO;
-using System.Net.Http;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using NuGetPackageVerifier.Rules;
 using NuGetPackageVerifier.Utilities;
 using Xunit;
@@ -13,11 +11,11 @@ using Xunit.Abstractions;
 
 namespace NuGetPackageVerifier
 {
-    public class PackagSigningRuleTests
+    public class PackageSigningRuleTests
     {
         private readonly ITestOutputHelper _output;
 
-        public PackagSigningRuleTests(ITestOutputHelper output)
+        public PackageSigningRuleTests(ITestOutputHelper output)
         {
             _output = output;
         }

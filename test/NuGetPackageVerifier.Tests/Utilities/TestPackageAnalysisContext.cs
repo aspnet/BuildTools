@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.IO;
+using System.Linq;
 using NuGet.Packaging;
 using NuGet.Versioning;
 using NuGetPackageVerifier.Manifests;
@@ -25,20 +26,39 @@ namespace NuGetPackageVerifier.Utilities
             string version = "1.0.0",
             string signRequest = null)
         {
+            return Create(output,
+                new ManifestMetadata
+                {
+                    Id = PackageId,
+                    Version = new NuGetVersion(version),
+                },
+                emptyFiles,
+                signRequest);
+        }
+
+        public static PackageAnalysisContext Create(
+            ITestOutputHelper output,
+            ManifestMetadata metadata,
+            string[] emptyFiles = null,
+            string signRequest = null)
+        {
             var disposableDirectory = new DisposableDirectory();
             var basePath = disposableDirectory.Path;
-            var nupkgFileName = $"{PackageId}.{version}.nupkg";
+            var nupkgFileName = $"{PackageId}.{metadata.Version}.nupkg";
             var nupkgPath = Path.Combine(basePath, nupkgFileName);
+
+            // set required metadata
+            metadata.Id = metadata.Id ?? "Test";
+            metadata.Version = metadata.Version ?? new NuGetVersion("1.0.0");
+            metadata.Authors = metadata.Authors.Any() ? metadata.Authors : new[] { "test" };
+            metadata.Description = metadata.Description ?? "Description";
+
+            // prevent PackageException for packages with no dependencies or content
+            emptyFiles = emptyFiles ?? new[] { "_._" };
 
             var builder = new PackageBuilder();
 
-            builder.Populate(new ManifestMetadata
-            {
-                Id = PackageId,
-                Version = new NuGetVersion(version),
-                Authors = new[] { "Test" },
-                Description = "Test",
-            });
+            builder.Populate(metadata);
 
             using (var nupkg = File.Create(nupkgPath))
             {

@@ -19,6 +19,38 @@ namespace NuGetPackageVerifier
             );
         }
 
+        public static PackageVerifierIssue PackageRepositoryMetadataMissing()
+        {
+            return new PackageVerifierIssue(
+                "PACKAGE_MISSING_REPO_METADATA",
+                "The package is missing metadata about the repository that produced this package.",
+                PackageIssueLevel.Warning);
+        }
+
+        public static PackageVerifierIssue PackageRepositoryUrl()
+        {
+            return new PackageVerifierIssue(
+              "PACKAGE_MISSING_REPO_URL",
+              "The package is missing metadata about the repository url.",
+              PackageIssueLevel.Warning);
+        }
+
+        public static PackageVerifierIssue PackageRepositoryType()
+        {
+            return new PackageVerifierIssue(
+              "PACKAGE_MISSING_REPO_TYPE",
+              "The package is missing metadata about the repository type.",
+              PackageIssueLevel.Warning);
+        }
+
+        public static PackageVerifierIssue PackageRepositoryCommit()
+        {
+            return new PackageVerifierIssue(
+             "PACKAGE_MISSING_REPO_COMMIT",
+             "The package is missing metadata about the repository commit.",
+             PackageIssueLevel.Warning);
+        }
+
         public static PackageVerifierIssue DotNetToolMissingEntryPoint(string manifestPath, string filePath)
         {
             return new PackageVerifierIssue(

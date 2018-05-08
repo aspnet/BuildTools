@@ -37,7 +37,7 @@
         <IsContainer>true</IsContainer>
       </ArtifactInfo>
 
-      <ArtifactInfo Include="$(SymbolsPackageOutputPath)" Condition="'$(IncludeSymbols)' == 'true' AND '$(NuspecFile)' == ''">
+      <ArtifactInfo Include="$(SymbolsPackageOutputPath)" Condition="'$(IncludeSymbols)' == 'true' ">
         <ArtifactType>NuGetSymbolsPackage</ArtifactType>
         <PackageId>$(PackageId)</PackageId>
         <Version>$(NormalizedPackageVersion)</Version>
@@ -64,12 +64,12 @@
         <Container>$(FullPackageOutputPath)</Container>
       </ArtifactInfo>
 
-      <ArtifactInfo Include="@(SignedPackageFile)" Condition=" '$(DisableCodeSigning)' != 'true' AND '$(IncludeSymbols)' == 'true' AND '$(NuspecFile)' == ''">
+      <ArtifactInfo Include="@(SignedPackageFile)" Condition=" '$(DisableCodeSigning)' != 'true' AND '$(IncludeSymbols)' == 'true' ">
         <ShouldBeSigned>true</ShouldBeSigned>
         <Container>$(SymbolsPackageOutputPath)</Container>
       </ArtifactInfo>
 
-      <ArtifactInfo Include="@(ExcludePackageFileFromSigning)" Condition="'$(IncludeSymbols)' == 'true' AND '$(NuspecFile)' == ''">
+      <ArtifactInfo Include="@(ExcludePackageFileFromSigning)" Condition="'$(IncludeSymbols)' == 'true' ">
         <ShouldBeSigned>false</ShouldBeSigned>
         <Container>$(SymbolsPackageOutputPath)</Container>
       </ArtifactInfo>

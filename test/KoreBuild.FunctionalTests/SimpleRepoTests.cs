@@ -157,7 +157,7 @@ namespace KoreBuild.FunctionalTests
                     "install",
                     "--tool-path", toolsDir,
                     "GlobalConsoleTool",
-                    "--source-feed", artifactsDir
+                    "--add-source", artifactsDir
                 }),
             };
             var install = app.Run(_output, installPsi);

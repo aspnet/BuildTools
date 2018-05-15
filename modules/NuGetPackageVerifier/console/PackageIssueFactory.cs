@@ -326,7 +326,7 @@ namespace NuGetPackageVerifier
 
         public static PackageVerifierIssue DependencyVersionIsPrereleaseForRTMPackage(string id, NuGetVersion version, string dependencyId, NuGetVersion dependencyVersion, NuGetFramework TFM)
         {
-            return new PackageVerifierIssue("PACKAGE_DEPENDENCY_PRERELEASE", id, $"The RTM package '{id}' {version} cannot depend on a pre-release package '{dependencyId}' {dependencyVersion}. Target Framework: '{TFM}'.", PackageIssueLevel.Error);
+            return new PackageVerifierIssue("PACKAGE_DEPENDENCY_PRERELEASE", dependencyId, $"The RTM package '{id}' {version} cannot depend on a pre-release package '{dependencyId}' {dependencyVersion}. Target Framework: '{TFM}'.", PackageIssueLevel.Error);
         }
 
         public static PackageVerifierIssue DotNetCliToolMissingPrefercliRuntime()

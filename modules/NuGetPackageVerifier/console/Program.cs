@@ -23,6 +23,7 @@ namespace NuGetPackageVerifier
         public static int Main(string[] args)
         {
             var application = new CommandLineApplication();
+            application.HelpOption("--help");
             var verbose = application.Option("--verbose", "Verbose output and assistance", CommandOptionType.NoValue);
             var ruleFile = application.Option("--rule-file", "Path to NPV.json", CommandOptionType.SingleValue);
             var excludedRules = application.Option("--excluded-rule", "Rules to exclude. Calculcated after composite rules are evaluated.", CommandOptionType.MultipleValue);

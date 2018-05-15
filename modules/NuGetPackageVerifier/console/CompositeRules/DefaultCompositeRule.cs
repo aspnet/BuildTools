@@ -27,6 +27,7 @@ namespace NuGetPackageVerifier.Rules
             new DotNetCliToolPackageRule(),
             new DotNetToolPackageRule(),
             new PackageTypesRule(),
+            new PrereleaseDependenciesVersionRule(),
             new PackageVersionMatchesAssemblyVersionRule(),
             new BuildItemsRule(),
             new SignRequestListsAllSignableFiles(),

@@ -38,7 +38,10 @@
         <ManifestLines Include="&lt;PackageReference Remove=&quot;Internal.AspNetCore.Sdk&quot; /&gt;" />
         <ManifestLines Include="&lt;PackageReference Include=&quot;Microsoft.AspNetCore.App&quot; Version=&quot;$(MicrosoftAspNetCoreAppPackageVersion)&quot; IsImplicitlyDefined=&quot;true&quot;/&gt;" />
         <ManifestLines Include="&lt;PackageReference Include=&quot;%(HostingStartupPackageReference.Identity)&quot; Version=&quot;%(HostingStartupPackageReference.Version)&quot; /&gt;" />
-        <ManifestLines Include="&lt;/ItemGroup&gt;&lt;/Project&gt;" />
+        <ManifestLines Include="&lt;/ItemGroup&gt;" />
+        <ManifestLines Include="&lt;PropertyGroup&gt;" />
+        <ManifestLines Include="&lt;NETCoreAppMaximum&gt;99.9&lt;/NETCoreAppMaximum&gt;" />
+        <ManifestLines Include="&lt;/PropertyGroup&gt; &lt;/Project&gt;" />
 
     </ItemGroup>
 

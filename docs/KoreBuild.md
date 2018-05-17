@@ -18,7 +18,7 @@ default-build         | Runs install-tools followed by msbuild (like build.cmd u
 msbuild               | Runs the build normally.                                         | .\run.ps1 msbuild /t:SomeTarget /p:Parameters
 upgrade deps          | Upgrade the dependencies.props of this project.                  | .\run.ps1 upgrade deps
 generate deps         | Generate a dependencies.props for this project.                  | .\run.ps1 generate deps
-generate api-baseline | Re-generate baselines for all projects.                          | .\run.ps1 generate api-baseline
+generate api-baselines | Re-generate baselines for all projects.                         | .\run.ps1 generate api-baselines
 
 ### KoreBuild properties
 

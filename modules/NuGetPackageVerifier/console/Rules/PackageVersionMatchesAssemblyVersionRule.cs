@@ -13,6 +13,12 @@ namespace NuGetPackageVerifier.Rules
     {
         public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
+            if (context.Metadata.PackageTypes.Any(p => p == Constants.DotNetTool))
+            {
+                // Skip for dotnet global tool packages which contain assemblies from other teams and projects
+                yield break;
+            }
+
             AssemblyAttributesDataHelper.SetAssemblyAttributesData(context);
             foreach (var assemblyData in context.AssemblyData)
             {

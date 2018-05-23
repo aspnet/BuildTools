@@ -26,6 +26,6 @@
   <PropertyGroup>
     <MicrosoftBuildVersion>15.3.409</MicrosoftBuildVersion>
     <JsonNetInMSBuildVersion>9.0.1</JsonNetInMSBuildVersion>
-    <NuGetInMSBuildVersion>4.3.0</NuGetInMSBuildVersion>
+    <NuGetInMSBuildVersion>4.7.0</NuGetInMSBuildVersion>
   </PropertyGroup>
 </Project>

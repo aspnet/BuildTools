@@ -270,7 +270,7 @@ namespace NuGetPackageVerifier
         {
             return new PackageVerifierIssue(
                 "WRONG_THIRDPARTY_DEPENDENCY_VERSION",
-                $"{packageId}; {targetFramework}",
+                $"{dependencyPackageId}; {targetFramework}",
                 $"The package '{packageId}' references the wrong version of `{dependencyPackageId}` package. Current version '{currentVersion}'; Expected version '{expectedVersion}'.  See https://github.com/aspnet/BuildTools/wiki/Third-party-dependency-version-check for details.",
                 PackageIssueLevel.Error);
         }

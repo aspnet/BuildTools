@@ -14,11 +14,9 @@ namespace NuGetPackageVerifier.Rules
     {
         private const string ToolManifestFileName = "DotnetToolSettings.xml";
 
-        private static PackageType DotNetTool = new PackageType("DotnetTool", PackageType.EmptyVersion);
-
         public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
-            if (!context.Metadata.PackageTypes.Any(p => p == DotNetTool))
+            if (!context.Metadata.PackageTypes.Any(p => p == Constants.DotNetTool))
             {
                 yield break;
             }
@@ -28,7 +26,7 @@ namespace NuGetPackageVerifier.Rules
 
             if (packageFiles == null || manifests.Count() == 0)
             {
-                yield return PackageIssueFactory.DotNetToolMustHaveManifest(DotNetTool.Name, ToolManifestFileName);
+                yield return PackageIssueFactory.DotNetToolMustHaveManifest(Constants.DotNetTool.Name, ToolManifestFileName);
                 yield break;
             }
 

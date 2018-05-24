@@ -3,41 +3,14 @@ trigger:
 - release/*
 
 phases:
-- phase: Windows
-  queue:
-    name: Hosted VS2017
-    demands: cmd
-  steps:
-  - script: build.cmd -ci
-  - task: PublishTestResults@2
-    condition: always()
-    inputs:
-      testRunner: vstest
-      testResultsFiles: 'artifacts/logs/**/*.trx'
+- template: ../templates/phases/default-build.yml
+  parameters:
+    agentOs: macOS
 
+- template: ../templates/phases/default-build.yml
+  parameters:
+    agentOs: Linux
 
-- phase: macOS
-  queue:
-    name: Hosted macOS Preview
-    demands: agent.os -equals Darwin
-  steps:
-  - script: ./build.sh --ci
-  - task: PublishTestResults@2
-    condition: always()
-    inputs:
-      testRunner: vstest
-      testResultsFiles: 'artifacts/logs/**/*.trx'
-
-
-- phase: Linux
-  queue:
-    name: Hosted Linux Preview
-    demands: agent.os -equals Linux
-  steps:
-  - script: ./build.sh --ci
-  - task: PublishTestResults@2
-    condition: always()
-    inputs:
-      testRunner: vstest
-      testResultsFiles: 'artifacts/logs/**/*.trx'
-
+- template: ../templates/phases/default-build.yml
+  parameters:
+    agentOs: Windows

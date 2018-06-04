@@ -1,10 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <AssemblyName>Internal.AspNetCore.KoreBuild.Tasks</AssemblyName>
   </PropertyGroup>
-
   <ItemGroup>
     <Content Include="*.props" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="*.targets" CopyToPublishDirectory="PreserveNewest" />
@@ -14,7 +12,6 @@
     <Content Include="$(VSWhereDir)vswhere.exe" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="$(MSBuildThisFileDirectory)SkipStrongNames.xml" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
-
   <ItemGroup>
     <!-- set as private assets all so these assemblies get resolved from the version bundled in the .NET Core SDK -->
     <PackageReference Include="Microsoft.Build" Version="$(MicrosoftBuildPackageVersion)" PrivateAssets="All" />
@@ -26,5 +23,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="$(Tooling_NewtonsoftJsonPackageVersion)" PrivateAssets="All" />
     <PackageReference Include="vswhere" Version="$(VSWherePackageVersion)" PrivateAssets="All" />
   </ItemGroup>
-
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Internal.AspNetCore.CodeSign.Abstractions\Internal.AspNetCore.CodeSign.Abstractions.csproj" />
+  </ItemGroup>
 </Project>

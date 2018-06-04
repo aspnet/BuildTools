@@ -37,7 +37,7 @@ namespace KoreBuild.Tasks.Tests
                     new Hashtable
                     {
                         ["IsContainer"] = "true",
-                        ["Type"] = "zip",
+                        ["Type"] = "nupkg",
                     }),
                 new TaskItem(Path.Combine(AppContext.BaseDirectory, "MyLib.dll"),
                     new Hashtable
@@ -78,11 +78,11 @@ namespace KoreBuild.Tasks.Tests
 
             var expected = $@"<SignRequest>
   <File Path=`build/MyLib.dll` Certificate=`Cert1` />
-  <Container Path=`build/MyLib.nupkg` Type=`zip`>
+  <Nupkg Path=`build/MyLib.nupkg`>
     <ExcludedFile Path=`lib/NotMyLib.dll` />
     <File Path=`lib/netstandard2.0/MyLib.dll` Certificate=`Cert1` StrongName=`Key1` />
-  </Container>
-  <Container Path=`build/ZZApp.vsix` Type=`vsix` Certificate=`Cert4` />
+  </Nupkg>
+  <Vsix Path=`build/ZZApp.vsix` Certificate=`Cert4` />
 </SignRequest>".Replace('`', '"');
             _output.WriteLine(sb.ToString());
 

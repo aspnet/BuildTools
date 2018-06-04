@@ -6,20 +6,23 @@ and information about the strongname or certificate that should be used.
 
 ## Format
 
-The signing request manifest supports three element types. A minimal example looks like this. See [Elements](#Elements) below for details
+The signing request manifest supports multiple element types. Each element represents a specific kind of action to take on a file. A minimal example looks like this. See [Elements](#Elements) below for details
 
 ```xml
 <SigningRequest>
   <File Path="MyAssembly.dll" Certificate="MyCert" StrongName="MyStrongName" />
   <File Path="build/Another.dll" Certificate="MyCert" />
-  <Container Path="MyLib.1.0.0.nupkg" Type="nupkg" Certificate="NuGetCert">
+  <Nupkg Path="MyLib.1.0.0.nupkg" Certificate="NuGetCert">
     <File Path="lib/netstandard2.0/MyLib.dll" Certificate="MyCert" />
-  </Container>
-  <Container Path="MyVSTool.vsix" Type="vsix" Certificate="VsixCert">
+  </Nupkg>
+  <Vsix Path="MyVSTool.vsix" Certificate="VsixCert">
     <File Path="MyVSTool.dll" Certificate="MyCert" />
     <!-- excluded from signing, but useful if you want to assert all files in a container are accounted for. -->
     <ExcludedFile Path="NotMyLib.dll" />
-  </Container>
+  </Vsix>
+  <Zip Path="assemblies.zip">
+    <File Path="MyLib.dll" Certificate="MyCert" />
+  </Zip>
 </SigningRequest>
 ```
 
@@ -60,7 +63,7 @@ This will generate a signing request like this:
 
 ```xml
 <SigningRequest>
-  <Container Path="MyLib.1.0.0.nupkg" Type="nupkg" Certificate="NuGetCert" />
+  <Nupkg Path="MyLib.1.0.0.nupkg" Certificate="NuGetCert" />
 </SigningRequest>
 ```
 
@@ -79,9 +82,9 @@ This will generate a signing request like this:
 
 ```xml
 <SigningRequest>
-  <Container Path="MyLib.1.0.0.nupkg" Type="nupkg" Certificate="NuGetCert">
+  <Nupkg Path="MyLib.1.0.0.nupkg" Certificate="NuGetCert">
     <File Path="lib/netstandard2.0/MyLib.dll" Certificate="MyCert" />
-  </Container>
+  </Nupkg>
 </SigningRequest>
 ```
 
@@ -154,28 +157,33 @@ Root element. No options.
 
 A file to be signed.
 
-**Path** - file path, relative to the file path. If nested in a `<Container>`, is relative to the organization within the container
+**Path** - file path, relative to the file path. If nested in a parent element, is relative to the organization within the containing package
 
 **Certificate** - the name of the certificate to use
 
 **StrongName** - for assemblies only. This is used to strong name assemblies that were delay signed in public.
 
-#### `Container`
+#### `Nupkg`
 
-A container is an archive file, installer, or some kind of bundle that can be signed, or that has files that can be signed
-inside it. Nested elements can be added for `<File>` and `<ExcludedFile>`.
+A NuGet package to be signed. Nested elements can be added for `<File>` and `<ExcludedFile>`.
 
 **Path** - file path to the container
 
 **Certificate** - the name of the certificate to use
 
-**Type** - The type of the container. Instructs the consumer how to extract the container. Example values:
+#### `Vsix`
 
-  - zip
-  - tar.gz
-  - vsix
-  - nupkg
-  - msi
+A vsix package to be signed. Nested elements can be added for `<File>` and `<ExcludedFile>`.
+
+**Path** - file path to the container
+
+**Certificate** - the name of the certificate to use
+
+#### `Zip`
+
+A zip which contains elements to be signed. Nested elements can be added for `<File>` and `<ExcludedFile>`.
+
+**Path** - file path to the zip
 
 #### `ExcludedFile`
 

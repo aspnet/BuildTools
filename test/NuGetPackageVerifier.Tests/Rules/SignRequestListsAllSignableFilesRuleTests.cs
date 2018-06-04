@@ -23,8 +23,8 @@ namespace NuGetPackageVerifier
         {
             var signRequest = @"
 <SignRequest>
-    <Container Path=""TestPackage.1.0.0.nupkg"" Type=""nupkg"">
-    </Container>
+    <Nupkg Path=""TestPackage.1.0.0.nupkg"">
+    </Nupkg>
 </SignRequest>";
 
             var context = TestPackageAnalysisContext.CreateContext(
@@ -55,10 +55,10 @@ namespace NuGetPackageVerifier
         {
             var signRequest = @"
 <SignRequest>
-    <Container Path=""TestPackage.1.0.0.nupkg"" Type=""nupkg"">
+    <Nupkg Path=""TestPackage.1.0.0.nupkg"">
         <File Path=""lib/netstandard2.0/Test.dll"" />
         <File Path=""tools/MyScript.psd1"" />
-    </Container>
+    </Nupkg>
 </SignRequest>";
 
             var context = TestPackageAnalysisContext.CreateContext(
@@ -81,10 +81,10 @@ namespace NuGetPackageVerifier
         {
             var signRequest = @"
 <SignRequest>
-    <Container Path=""TestPackage.1.0.0.nupkg"" Type=""nupkg"">
+    <Nupkg Path=""TestPackage.1.0.0.nupkg"">
         <ExcludedFile Path=""lib/netstandard2.0/Test.dll"" />
         <ExcludedFile Path=""tools/MyScript.psd1"" />
-    </Container>
+    </Nupkg>
 </SignRequest>";
 
             var context = TestPackageAnalysisContext.CreateContext(

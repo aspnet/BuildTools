@@ -73,14 +73,20 @@ namespace Microsoft.AspNetCore.BuildTools.CodeSign
                 case "Zip":
                     return ReadZip(element);
                 case "File":
-                    return SignRequestItem.CreateFile(GetPath(element), GetCertificate(element), GetStrongName(element));
+                    return ReadFile(element);
                 case "ExcludedFile":
-                    return SignRequestItem.CreateExclusion(GetPath(element));
+                    return ReadExclusion(element);
                 default:
                     IXmlLineInfo lineInfo = element;
                     throw new InvalidDataException($"Unrecognized element type {element.Name} on line {lineInfo.LineNumber}");
             }
         }
+
+        private static SignRequestItem ReadExclusion(XElement element)
+            => SignRequestItem.CreateExclusion(GetPath(element));
+
+        private static SignRequestItem ReadFile(XElement element)
+            => SignRequestItem.CreateFile(GetPath(element), GetCertificate(element), GetStrongName(element));
 
         private SignRequestItem ReadNupkg(XElement element)
         {

@@ -157,7 +157,8 @@ Root element. No options.
 
 A file to be signed.
 
-**Path** - file path, relative to the file path. If nested in a parent element, is relative to the organization within the containing package
+**Path** - file path. If nested in a parent element, is relative to the organization within the containing package.
+If not, this is relative to the XML file.
 
 **Certificate** - the name of the certificate to use
 

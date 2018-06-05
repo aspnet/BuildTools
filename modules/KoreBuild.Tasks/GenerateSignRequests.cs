@@ -47,8 +47,8 @@ namespace KoreBuild.Tasks
 
         public override bool Execute()
         {
-            OutputPath = OutputPath.Replace('\\', '/');
-            BasePath = BasePath.Replace('\\', '/');
+            OutputPath = NormalizePath(OutputPath);
+            BasePath = NormalizePath(BasePath);
 
             return Execute(() =>
             {
@@ -74,7 +74,7 @@ namespace KoreBuild.Tasks
                         : item.GetMetadata("Type");
 
                     var type = SignRequestItem.GetTypeFromFileExtension(itemType);
-                    var normalizedPath = NormalizePath(BasePath, item.ItemSpec);
+                    var normalizedPath = GetRelativePath(BasePath, item.ItemSpec);
                     SignRequestItem container;
 
                     switch (type)
@@ -107,7 +107,7 @@ namespace KoreBuild.Tasks
                 }
 
                 var item = Requests[i];
-                var normalizedPath = NormalizePath(BasePath, item.ItemSpec);
+                var normalizedPath = GetRelativePath(BasePath, item.ItemSpec);
                 var containerPath = item.GetMetadata("Container");
                 if (!string.IsNullOrEmpty(containerPath))
                 {
@@ -118,10 +118,7 @@ namespace KoreBuild.Tasks
                         continue;
                     }
 
-                    var packagePath = item.GetMetadata("PackagePath");
-                    normalizedPath = string.IsNullOrEmpty(packagePath)
-                        ? normalizedPath
-                        : packagePath.Replace('\\', '/');
+                    normalizedPath = NormalizePath(item.GetMetadata("PackagePath"));
                     var file = SignRequestItem.CreateFile(normalizedPath,
                         item.GetMetadata("Certificate"),
                         item.GetMetadata("StrongName"));
@@ -140,7 +137,7 @@ namespace KoreBuild.Tasks
             {
                 foreach (var item in Exclusions)
                 {
-                    var normalizedPath = NormalizePath(BasePath, item.ItemSpec);
+                    var normalizedPath = GetRelativePath(BasePath, item.ItemSpec);
 
                     var containerPath = item.GetMetadata("Container");
                     if (!string.IsNullOrEmpty(containerPath))
@@ -152,10 +149,7 @@ namespace KoreBuild.Tasks
                             continue;
                         }
 
-                        var packagePath = item.GetMetadata("PackagePath");
-                        normalizedPath = string.IsNullOrEmpty(packagePath)
-                            ? normalizedPath
-                            : packagePath.Replace('\\', '/');
+                        normalizedPath = NormalizePath(item.GetMetadata("PackagePath"));
                         var file = SignRequestItem.CreateExclusion(normalizedPath);
                         container.AddChild(file);
                     }
@@ -183,9 +177,12 @@ namespace KoreBuild.Tasks
             return !Log.HasLoggedErrors;
         }
 
-        private static string NormalizePath(string basePath, string path)
-        {
-            return Path.GetRelativePath(basePath, path).Replace('\\', '/');
-        }
+        private static string GetRelativePath(string basePath, string path)
+            => NormalizePath(Path.GetRelativePath(basePath, path));
+
+        private static string NormalizePath(string path)
+            => string.IsNullOrEmpty(path)
+            ? path
+            : path.Replace('\\', '/');
     }
 }

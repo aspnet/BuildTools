@@ -42,32 +42,32 @@ namespace Microsoft.AspNetCore.BuildTools.CodeSign
 
         private static void AddRequest(XElement parent, SignRequestItem item)
         {
-            var path = new XAttribute("Path", item.Path);
+            var path = new XAttribute(XmlElementNames.Path, item.Path);
             switch (item.ItemType)
             {
                 case SignRequestItemType.Zip:
-                    AddContainer(parent, item, "Zip");
+                    AddContainer(parent, item, XmlElementNames.Zip);
                     break;
                 case SignRequestItemType.Nupkg:
-                    AddContainer(parent, item, "Nupkg");
+                    AddContainer(parent, item, XmlElementNames.Nupkg);
                     break;
                 case SignRequestItemType.Vsix:
-                    AddContainer(parent, item, "Vsix");
+                    AddContainer(parent, item, XmlElementNames.Vsix);
                     break;
                 case SignRequestItemType.Exclusion:
-                    parent.Add(new XElement("ExcludedFile", path));
+                    parent.Add(new XElement(XmlElementNames.ExcludedFile, path));
                     break;
                 case SignRequestItemType.File:
-                    var file = new XElement("File", path);
+                    var file = new XElement(XmlElementNames.File, path);
 
                     if (!string.IsNullOrEmpty(item.Certificate))
                     {
-                        file.Add(new XAttribute("Certificate", item.Certificate));
+                        file.Add(new XAttribute(XmlElementNames.Certificate, item.Certificate));
                     }
 
                     if (!string.IsNullOrEmpty(item.StrongName))
                     {
-                        file.Add(new XAttribute("StrongName", item.StrongName));
+                        file.Add(new XAttribute(XmlElementNames.StrongName, item.StrongName));
                     }
 
                     parent.Add(file);
@@ -79,11 +79,11 @@ namespace Microsoft.AspNetCore.BuildTools.CodeSign
 
         private static void AddContainer(XElement parent, SignRequestItem item, string elementType)
         {
-            var container = new XElement(elementType, new XAttribute("Path", item.Path));
+            var container = new XElement(elementType, new XAttribute(XmlElementNames.Path, item.Path));
 
             if (!string.IsNullOrEmpty(item.Certificate))
             {
-                container.Add(new XAttribute("Certificate", item.Certificate));
+                container.Add(new XAttribute(XmlElementNames.Certificate, item.Certificate));
             }
 
             parent.Add(container);

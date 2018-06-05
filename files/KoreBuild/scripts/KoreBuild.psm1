@@ -242,6 +242,18 @@ function Install-Tools(
     else {
         Write-Host -ForegroundColor DarkGray ".NET Core SDK $version is already installed. Skipping installation."
     }
+
+    # This is a workaround for https://github.com/Microsoft/msbuild/issues/2914.
+    # Currently, the only way to configure the NuGetSdkResolver is with NuGet.config, which is not generally used in aspnet org projects.
+    # This project is restored so that it pre-populates the NuGet cache with SDK packages.
+    $restorerfile = "$PSScriptRoot/../modules/BundledPackages/BundledPackageRestorer.csproj"
+    $restorerfilelock="$env:NUGET_PACKAGES/internal.aspnetcore.sdk/$(Get-KoreBuildVersion)/korebuild.sentinel"
+    if ((Test-Path $restorerfile) -and -not (Test-Path $restorerfilelock)) {
+        mkdir -p $(Split-Path -Parent $restorerfilelock) -ea ignore | Out-Null
+        New-Item -ItemType File $restorerfilelock -ea ignore | Out-Null
+        __exec $global:dotnet msbuild -restore '-t:noop' '-v:m' "$restorerfile"
+    }
+    # end workaround
 }
 
 <#
@@ -321,6 +333,13 @@ function Set-KoreBuildSettings(
         $env:NUGET_PACKAGES = Join-Paths $RepoPath ('.nuget', 'packages')
         $env:MSBUILDDEBUGPATH = Join-Paths $RepoPath ('artifacts', 'logs')
     }
+    else {
+        if (-not $env:NUGET_PACKAGES) {
+            $env:NUGET_PACKAGES = Join-Paths $env:USERPROFILE ('.nuget', 'packages')
+        }
+    }
+
+    $env:NUGET_PACKAGES = $env:NUGET_PACKAGES.TrimEnd('\') + '\'
 
     $arch = __get_dotnet_arch
     $env:DOTNET_ROOT = if ($IS_WINDOWS) { Join-Path $DotNetHome $arch } else { $DotNetHome }
@@ -362,7 +381,17 @@ function Invoke-KoreBuildCommand(
     $sdkVersion = __get_dotnet_sdk_version
     $korebuildVersion = Get-KoreBuildVersion
     if ($sdkVersion -ne 'latest') {
-        "{ `"sdk`": { `n`"version`": `"$sdkVersion`" },`n`"msbuild-sdks`": {`n`"Microsoft.DotNet.GlobalTools.Sdk`": `"$korebuildVersion`"}`n }" | Out-File (Join-Path $global:KoreBuildSettings.RepoPath 'global.json') -Encoding ascii
+        @"
+{
+    `"sdk`": {
+        `"version`": `"$sdkVersion`"
+    },
+    `"msbuild-sdks`": {
+        `"Microsoft.DotNet.GlobalTools.Sdk`": `"$korebuildVersion`",
+        `"Internal.AspNetCore.Sdk`": `"$korebuildVersion`"
+    }
+}
+"@ | Out-File (Join-Path $global:KoreBuildSettings.RepoPath 'global.json') -Encoding ascii
     }
     else {
         Write-Verbose "Skipping global.json generation because the `$sdkVersion = $sdkVersion"

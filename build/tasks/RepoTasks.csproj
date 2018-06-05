@@ -1,10 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="$(RepoTasksSdkPath)\Sdk.props" Condition="'$(RepoTasksSdkPath)' != '' "/>
+<Project>
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.props" />
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <DefineConstants>$(DefineConstants);BuildTools</DefineConstants>
     <NoWarn>$(NoWarn);NU1603</NoWarn>
+    <ProjectType>RepoTasks</ProjectType>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,6 +22,5 @@
     <Compile Include="..\..\modules\KoreBuild.Tasks\DownloadFile.cs" />
   </ItemGroup>
 
-  <Import Project="$(RepoTasksSdkPath)\Sdk.targets" Condition="'$(RepoTasksSdkPath)' != '' "/>
-
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.targets" />
 </Project>

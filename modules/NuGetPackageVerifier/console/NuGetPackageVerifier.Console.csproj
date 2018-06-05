@@ -1,4 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project>
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.props" />
 
   <PropertyGroup>
     <Description>Verifies Asp.Net Core NuGet packages.</Description>
@@ -21,4 +22,5 @@
 
   <Target Name="GetRuntimeVersion" Returns="$(RuntimeFrameworkVersion)" />
 
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.targets" />
 </Project>

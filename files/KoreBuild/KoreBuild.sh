@@ -19,18 +19,27 @@ set_korebuildsettings() {
 
 
     if [ "$ci" = true ]; then
-        dot_net_home="$repo_path/.dotnet"
-
         export CI=true
         export DOTNET_CLI_TELEMETRY_OPTOUT=true
         export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
+        export HOME="$repo_path/.build/home"
+        export TEMP="$repo_path/.build/tmp"
+        export TMP="$TEMP"
         export NUGET_SHOW_STACK=true
-        export NUGET_PACKAGES="$repo_path/.nuget/packages"
+        export NUGET_PACKAGES="$repo_path/.build/.nuget/packages"
+        dot_net_home="$repo_path/.build/.dotnet"
         export DOTNET_HOME="$dot_net_home"
         export MSBUILDDEBUGPATH="$repo_path/artifacts/logs"
+        mkdir -p "$TMP"
+        mkdir -p "$HOME"
+        mkdir -p "$dot_net_home"
+    else
+        if [[ -z $NUGET_PACKAGES ]]; then
+            export NUGET_PACKAGES="$HOME/.nuget/packages"
+        fi
     fi
 
-    export DOTNET_ROOT="$DOTNET_HOME"
+    export DOTNET_ROOT="$dot_net_home"
 
     return 0
 }
@@ -99,6 +108,18 @@ __install_tools() {
     chmod +x "$__korebuild_dir/scripts/get-dotnet.sh"; sync
     "$__korebuild_dir/scripts/get-dotnet.sh" $verbose_flag "$install_dir" \
         || return 1
+
+    # This is a workaround for https://github.com/Microsoft/msbuild/issues/2914.
+    # Currently, the only way to configure the NuGetSdkResolver is with NuGet.config, which is not generally used in aspnet org projects.
+    # This project is restored so that it pre-populates the NuGet cache with SDK packages.
+    local restorerfile="$__korebuild_dir/modules/BundledPackages/BundledPackageRestorer.csproj"
+    local restorerfilelock="$NUGET_PACKAGES/internal.aspnetcore.sdk/$(__get_korebuild_version)/korebuild.sentinel"
+    if [[ -e "$restorerfile" ]] && [[ ! -e "$restorerfilelock" ]]; then
+        mkdir -p "$(dirname $restorerfilelock)"
+        touch "$restorerfilelock"
+        __exec dotnet msbuild -restore -t:noop -v:m "$restorerfile"
+    fi
+    # end workaround
 
     # Set environment variables
     export PATH="$install_dir:$PATH"

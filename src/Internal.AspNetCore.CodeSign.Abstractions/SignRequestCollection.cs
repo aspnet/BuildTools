@@ -32,5 +32,12 @@ namespace Microsoft.AspNetCore.BuildTools.CodeSign
         {
             _items.Add(item.Path, item);
         }
+
+        /// <summary>
+        /// Determines if the collection already contains an entry for a given path.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public bool ContainsItemForPath(string path) => _items.ContainsKey(path);
     }
 }

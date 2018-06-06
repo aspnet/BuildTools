@@ -98,6 +98,12 @@ namespace KoreBuild.Tasks
                     }
 
                     containers[item.ItemSpec] = container;
+                    if (signRequestCollection.ContainsItemForPath(container.Path))
+                    {
+                        Log.LogError(
+                            $"Duplicate sign request for {container.ItemType} '{container.Path}'");
+                        continue;
+                    }
                     signRequestCollection.Add(container);
                 }
             }
@@ -134,6 +140,12 @@ namespace KoreBuild.Tasks
                     var file = SignRequestItem.CreateFile(normalizedPath,
                         item.GetMetadata("Certificate"),
                         item.GetMetadata("StrongName"));
+
+                    if (container.ContainsChildPath(file.Path))
+                    {
+                        Log.LogError($"Duplicate sign request for file '{file.Path}' inside '{container.Path}'");
+                        continue;
+                    }
                     container.AddChild(file);
                 }
                 else
@@ -141,6 +153,14 @@ namespace KoreBuild.Tasks
                     var file = SignRequestItem.CreateFile(normalizedPath,
                         item.GetMetadata("Certificate"),
                         item.GetMetadata("StrongName"));
+
+                    if (signRequestCollection.ContainsItemForPath(file.Path))
+                    {
+                        Log.LogError(
+                            $"Duplicate sign request for file '{file.Path}'");
+                        continue;
+                    }
+
                     signRequestCollection.Add(file);
                 }
             }
@@ -165,17 +185,28 @@ namespace KoreBuild.Tasks
                         if (string.IsNullOrEmpty(itemPath))
                         {
                             Log.LogError(null, null, null, item.GetMetadata(ProjectFileMetadataName), 0, 0, 0, 0,
-                                message: $"Could not identify the path for the signable file {item.ItemSpec}");
+                                message: $"Could not identify the path for signing exclusion {item.ItemSpec}");
                             continue;
                         }
 
                         normalizedPath = NormalizePath(itemPath);
                         var file = SignRequestItem.CreateExclusion(normalizedPath);
+
+                        if (container.ContainsChildPath(file.Path))
+                        {
+                            // ignore duplicate exclusions
+                            continue;
+                        }
                         container.AddChild(file);
                     }
                     else
                     {
                         var file = SignRequestItem.CreateExclusion(normalizedPath);
+                        if (signRequestCollection.ContainsItemForPath(file.Path))
+                        {
+                            // ignore duplicate exclusions
+                            continue;
+                        }
                         signRequestCollection.Add(file);
                     }
                 }
@@ -205,14 +236,11 @@ namespace KoreBuild.Tasks
             {
                 // allow defining SignedPackageFile using just ItemSpec
                 var projectFile = item.GetMetadata(ProjectFileMetadataName);
-                if (!string.IsNullOrEmpty(projectFile))
-                {
-                    // users will typically write items with relative itemspecs, but we can't get the original item spec.
-                    // Infer the original item spec by getting the path relative to the project directory
-                    return Path.IsPathRooted(item.ItemSpec) && !string.IsNullOrEmpty(projectFile)
-                        ? Path.GetRelativePath(Path.GetDirectoryName(projectFile), item.ItemSpec)
-                        : item.ItemSpec;
-                }
+                // users will typically write items with relative itemspecs, but we can't get the original item spec.
+                // Infer the original item spec by getting the path relative to the project directory
+                return Path.IsPathRooted(item.ItemSpec) && !string.IsNullOrEmpty(projectFile)
+                    ? Path.GetRelativePath(Path.GetDirectoryName(projectFile), item.ItemSpec)
+                    : item.ItemSpec;
             }
 
             if (itemPath.EndsWith('/') || itemPath.EndsWith('\\'))

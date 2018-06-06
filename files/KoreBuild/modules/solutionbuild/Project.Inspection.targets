@@ -115,15 +115,20 @@ Items:
           Condition=" '$(TargetFramework)' != '' "
           DependsOnTargets="BuiltProjectOutputGroup;SatelliteDllsProjectOutputGroup">
 
+    <PropertyGroup>
+      <_PackageBasePath>$(BuildOutputTargetFolder.TrimEnd('/'))</_PackageBasePath>
+      <_PackageBasePath>$(_PackageBasePath.TrimEnd('\'))</_PackageBasePath>
+    </PropertyGroup>
+
     <ItemGroup Condition=" '$(NuspecFile)' == '' AND '$(IncludeBuildOutput)' != 'false' AND ('$(AssemblySigningCertName)' != '' OR '$(AssemblySigningStrongName)' != '') ">
       <SignedPackageFile Include="@(BuiltProjectOutputGroupOutput)" Condition="'%(BuiltProjectOutputGroupOutput.Extension)' == '.dll' OR '%(BuiltProjectOutputGroupOutput.Extension)' == '.exe'">
-        <PackagePath>$(BuildOutputTargetFolder)/$(TargetFramework)/%(BuiltProjectOutputGroupOutput.FileName)%(BuiltProjectOutputGroupOutput.Extension)</PackagePath>
+        <PackagePath>$(_PackageBasePath)/$(TargetFramework)/%(BuiltProjectOutputGroupOutput.FileName)%(BuiltProjectOutputGroupOutput.Extension)</PackagePath>
         <Certificate>$(AssemblySigningCertName)</Certificate>
         <StrongName>$(AssemblySigningStrongName)</StrongName>
       </SignedPackageFile>
 
       <SignedPackageFile Include="@(SatelliteDllsProjectOutputGroupOutput)" Condition="'%(SatelliteDllsProjectOutputGroupOutput.Extension)' == '.dll' OR '%(SatelliteDllsProjectOutputGroupOutput.Extension)' == '.exe'">
-        <PackagePath>$(BuildOutputTargetFolder)/$(TargetFramework)/%(SatelliteDllsProjectOutputGroupOutput.FileName)%(SatelliteDllsProjectOutputGroupOutput.Extension)</PackagePath>
+        <PackagePath>$(_PackageBasePath)/$(TargetFramework)/%(SatelliteDllsProjectOutputGroupOutput.FileName)%(SatelliteDllsProjectOutputGroupOutput.Extension)</PackagePath>
         <Certificate>$(AssemblySigningCertName)</Certificate>
         <StrongName>$(AssemblySigningStrongName)</StrongName>
       </SignedPackageFile>

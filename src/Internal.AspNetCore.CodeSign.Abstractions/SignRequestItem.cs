@@ -168,5 +168,12 @@ namespace Microsoft.AspNetCore.BuildTools.CodeSign
 
             _children.Add(item);
         }
+
+        /// <summary>
+        /// Checks if a child already exists at a given path.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public bool ContainsChildPath(string path) => _children.ContainsItemForPath(path);
     }
 }

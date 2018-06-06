@@ -8,6 +8,9 @@ for use outside of Microsoft.
     <SignedPackageFile>
       <Visible>false</Visible>
     </SignedPackageFile>
+    <ExcludePackageFileFromSigning>
+      <Visible>false</Visible>
+    </ExcludePackageFileFromSigning>
   </ItemDefinitionGroup>
 
   <Import Project="$(MSBuildThisFileDirectory)..\build\Common.props" />

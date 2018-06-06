@@ -3,9 +3,9 @@
 
 using System.IO;
 using System.Linq;
+using Microsoft.AspNetCore.BuildTools.CodeSign;
 using NuGet.Packaging;
 using NuGet.Versioning;
-using NuGetPackageVerifier.Manifests;
 using Xunit.Abstractions;
 
 namespace NuGetPackageVerifier.Utilities
@@ -72,13 +72,13 @@ namespace NuGetPackageVerifier.Utilities
                 builder.Save(nupkg);
             }
 
-            PackageSignRequest packageSignRequest = null;
+            SignRequestItem packageSignRequest = null;
 
             if (signRequest != null)
             {
                 var reader = new StringReader(signRequest);
-                var signManifest = SignRequestManifest.Parse(reader, basePath);
-                packageSignRequest = signManifest.PackageSignRequests[nupkgPath];
+                var signManifest = SignRequestManifestXmlReader.Load(reader, basePath);
+                packageSignRequest = signManifest.First(f => f.Path == nupkgFileName);
             }
 
             var context = new TestPackageAnalysisContext(disposableDirectory)

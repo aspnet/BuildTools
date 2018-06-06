@@ -65,12 +65,11 @@ namespace KoreBuild.FunctionalTests
             var sign = XDocument.Load(signRequest);
             var excluded = Assert.Single(sign.Descendants("ExcludedFile"));
             Assert.Equal("build/Simple.Sources.1.0.0-beta-0001.nupkg", excluded.Attribute("Path")?.Value);
-            Assert.Collection(sign.Descendants("Container"),
+            Assert.Collection(sign.Descendants("Nupkg"),
                 pkg =>
                 {
                     Assert.Equal("build/Simple.CliTool.1.0.0-beta-0001.nupkg", pkg.Attribute("Path")?.Value);
                     Assert.Null(pkg.Attribute("Certificate"));
-                    Assert.Equal("nupkg", pkg.Attribute("Type")?.Value);
                     Assert.Collection(pkg.Descendants("File"),
                         a =>
                         {
@@ -91,7 +90,6 @@ namespace KoreBuild.FunctionalTests
                 {
                     Assert.Equal("build/Simple.Lib.1.0.0-beta-0001.nupkg", pkg.Attribute("Path")?.Value);
                     Assert.Null(pkg.Attribute("Certificate"));
-                    Assert.Equal("nupkg", pkg.Attribute("Type")?.Value);
                     Assert.Collection(pkg.Descendants("File"),
                         a =>
                         {
@@ -108,8 +106,6 @@ namespace KoreBuild.FunctionalTests
                 {
                     Assert.Equal("build/Simple.Lib.1.0.0-beta-0001.symbols.nupkg", pkg.Attribute("Path")?.Value);
                     Assert.Null(pkg.Attribute("Certificate"));
-                    Assert.Equal("nupkg", pkg.Attribute("Type")?.Value);
-                    Assert.Equal("nupkg", pkg.Attribute("Type")?.Value);
                     Assert.Collection(pkg.Descendants("File"),
                         a =>
                         {

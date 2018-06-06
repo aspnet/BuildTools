@@ -94,6 +94,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NuGetPackageVerifier.Tests"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.DotNet.GlobalTools.Sdk", "src\Microsoft.DotNet.GlobalTools.Sdk\Microsoft.DotNet.GlobalTools.Sdk.csproj", "{449E2FD8-AE30-4C4E-8FC2-E797B99CF339}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Internal.AspNetCore.CodeSign.Abstractions", "src\Internal.AspNetCore.CodeSign.Abstractions\Internal.AspNetCore.CodeSign.Abstractions.csproj", "{CF3B27B5-5E04-4456-A852-DDFFF7BC3C38}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -172,6 +174,10 @@ Global
 		{449E2FD8-AE30-4C4E-8FC2-E797B99CF339}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{449E2FD8-AE30-4C4E-8FC2-E797B99CF339}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{449E2FD8-AE30-4C4E-8FC2-E797B99CF339}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF3B27B5-5E04-4456-A852-DDFFF7BC3C38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF3B27B5-5E04-4456-A852-DDFFF7BC3C38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF3B27B5-5E04-4456-A852-DDFFF7BC3C38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF3B27B5-5E04-4456-A852-DDFFF7BC3C38}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -196,6 +202,7 @@ Global
 		{418F99A5-5EC4-4895-B8EB-7F8BBA241DB2} = {A4F4353B-C3D2-40B0-909A-5B48A748EA76}
 		{439CC7A3-F6E6-46B8-B6A0-05E22E558FC2} = {60A938B2-D95A-403C-AA7A-3683AD64DFA0}
 		{449E2FD8-AE30-4C4E-8FC2-E797B99CF339} = {A4F4353B-C3D2-40B0-909A-5B48A748EA76}
+		{CF3B27B5-5E04-4456-A852-DDFFF7BC3C38} = {A4F4353B-C3D2-40B0-909A-5B48A748EA76}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1B8809C8-A6C3-4761-BC91-B12841F49AE1}

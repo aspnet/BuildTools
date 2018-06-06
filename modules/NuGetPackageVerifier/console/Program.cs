@@ -6,11 +6,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using Microsoft.AspNetCore.BuildTools.CodeSign;
 using Microsoft.Extensions.CommandLineUtils;
 using Newtonsoft.Json;
 using NuGet.Packaging;
 using NuGetPackageVerifier.Logging;
-using NuGetPackageVerifier.Manifests;
 
 namespace NuGetPackageVerifier
 {
@@ -72,7 +72,7 @@ namespace NuGetPackageVerifier
 
 
                 var signRequestManifest = signRequest.HasValue()
-                    ? SignRequestManifest.Parse(signRequest.Value())
+                    ? SignRequestManifestXmlReader.Load(signRequest.Value())
                     : default;
 
                 logger.LogNormal("Read {0} package set(s) from {1}", packageSets.Count, ruleFile.Value());
@@ -93,7 +93,7 @@ namespace NuGetPackageVerifier
         private static int Execute(
             IDictionary<string, PackageSet> packageSets,
             IEnumerable<FileInfo> nupkgs,
-            SignRequestManifest signRequestManifest,
+            SignRequestCollection signRequestManifest,
             List<string> excludedRuleNames,
             IPackageVerifierLogger logger,
             IgnoreAssistanceMode ignoreAssistanceMode)
@@ -185,8 +185,9 @@ namespace NuGetPackageVerifier
                             var package = packagePair.Key;
                             logger.LogInfo("Analyzing {0} ({1})", package.Id, package.Version);
 
-                            PackageSignRequest signRequest = null;
-                            signRequestManifest?.PackageSignRequests.TryGetValue(packagePair.Value.FullName, out signRequest);
+                            var signRequest = signRequestManifest?
+                                .FirstOrDefault(i => i.ItemType == SignRequestItemType.Nupkg
+                                                     && string.Equals(packagePair.Value.FullName, Path.Combine(signRequestManifest.BasePath, i.Path), StringComparison.OrdinalIgnoreCase));
 
                             List<PackageVerifierIssue> issues;
                             using (var context = new PackageAnalysisContext
@@ -250,8 +251,9 @@ namespace NuGetPackageVerifier
                 {
                     logger.LogInfo("Analyzing {0} ({1})", unlistedPackage.Id, unlistedPackage.Version);
 
-                    PackageSignRequest signRequest = null;
-                    signRequestManifest?.PackageSignRequests.TryGetValue(packages[unlistedPackage].FullName, out signRequest);
+                    var signRequest = signRequestManifest?
+                        .FirstOrDefault(i => i.ItemType== SignRequestItemType.Nupkg
+                                              && string.Equals(packages[unlistedPackage].FullName, Path.Combine(signRequestManifest.BasePath, i.Path), StringComparison.OrdinalIgnoreCase));
 
                     List<PackageVerifierIssue> issues;
                     PackageVerifierOptions packageOptions = null;

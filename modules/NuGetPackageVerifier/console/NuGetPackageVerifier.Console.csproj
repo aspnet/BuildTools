@@ -20,6 +20,10 @@
     <PackageReference Include="NuGet.Packaging" Version="$(NuGetPackagingPackageVersion)" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Internal.AspNetCore.CodeSign.Abstractions\Internal.AspNetCore.CodeSign.Abstractions.csproj" />
+  </ItemGroup>
+
   <Target Name="GetRuntimeVersion" Returns="$(RuntimeFrameworkVersion)" />
 
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.targets" />

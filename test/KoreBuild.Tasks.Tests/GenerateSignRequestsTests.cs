@@ -3,9 +3,11 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using BuildTools.Tasks.Tests;
+using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using Xunit;
 using Xunit.Abstractions;
@@ -25,7 +27,7 @@ namespace KoreBuild.Tasks.Tests
         public void ItCreatesSignRequest()
         {
             var nupkgPath = Path.Combine(AppContext.BaseDirectory, "build", "MyLib.nupkg");
-            var requests = new[]
+            var requests = new ITaskItem[]
             {
                 new TaskItem(Path.Combine(AppContext.BaseDirectory, "build", "ZZApp.vsix"),
                     new Hashtable
@@ -37,7 +39,7 @@ namespace KoreBuild.Tasks.Tests
                     new Hashtable
                     {
                         ["IsContainer"] = "true",
-                        ["Type"] = "zip",
+                        ["Type"] = "nupkg",
                     }),
                 new TaskItem(Path.Combine(AppContext.BaseDirectory, "MyLib.dll"),
                     new Hashtable
@@ -52,16 +54,29 @@ namespace KoreBuild.Tasks.Tests
                     {
                         ["Certificate"] = "Cert1",
                     }),
+                new MockTaskItem(Path.Combine("C:\\MyProject", "lib", "net461", "MyLib.dll"))
+                {
+                    ["Container"] = nupkgPath,
+                    ["DefiningProjectDirectory"] = "C:\\MyProject",
+                    ["DefiningProjectFullPath"] = "C:\\MyProject\\MyProject.csproj",
+                    ["Certificate"] = "Cert1",
+                },
             };
 
-            var exclusions = new[]
+            var exclusions = new ITaskItem[]
             {
                 new TaskItem(Path.Combine(AppContext.BaseDirectory, "NotMyLib.dll"),
                     new Hashtable
                     {
                         ["PackagePath"] = "lib/NotMyLib.dll",
                         ["Container"] = nupkgPath,
-                    })
+                    }),
+                new MockTaskItem(Path.Combine("C:\\MyProject", "tool", "net461", "NotMyLib.dll"))
+                {
+                    ["Container"] = nupkgPath,
+                    ["DefiningProjectDirectory"] = "C:\\MyProject",
+                    ["DefiningProjectFullPath"] = "C:\\MyProject\\MyProject.csproj",
+                },
             };
 
             var task = new GenerateSignRequest
@@ -78,11 +93,13 @@ namespace KoreBuild.Tasks.Tests
 
             var expected = $@"<SignRequest>
   <File Path=`build/MyLib.dll` Certificate=`Cert1` />
-  <Container Path=`build/MyLib.nupkg` Type=`zip`>
+  <Nupkg Path=`build/MyLib.nupkg`>
     <ExcludedFile Path=`lib/NotMyLib.dll` />
+    <File Path=`lib/net461/MyLib.dll` Certificate=`Cert1` />
     <File Path=`lib/netstandard2.0/MyLib.dll` Certificate=`Cert1` StrongName=`Key1` />
-  </Container>
-  <Container Path=`build/ZZApp.vsix` Type=`vsix` Certificate=`Cert4` />
+    <ExcludedFile Path=`tool/net461/NotMyLib.dll` />
+  </Nupkg>
+  <Vsix Path=`build/ZZApp.vsix` Certificate=`Cert4` />
 </SignRequest>".Replace('`', '"');
             _output.WriteLine(sb.ToString());
 

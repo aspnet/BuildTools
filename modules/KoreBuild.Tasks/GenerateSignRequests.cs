@@ -18,8 +18,7 @@ namespace KoreBuild.Tasks
     public class GenerateSignRequest : Microsoft.Build.Utilities.Task
     {
         // well-known metadata on items set by the MSBuild engine
-        private const string ProjectDirMetadataName = "DefiningProjectDirectory";
-        private const string ProjectFileMetadataName = "DefiningProjectFullPath";
+        private const string ProjectFileMetadataName = "MSBuildSourceProjectFile";
 
         /// <summary>
         /// Files or containers of files that should be signed.
@@ -198,19 +197,21 @@ namespace KoreBuild.Tasks
             return !Log.HasLoggedErrors;
         }
 
-        private static string GetPathWithinContainer(ITaskItem item)
+        private string GetPathWithinContainer(ITaskItem item)
         {
             // always prefer an explicit package path
             var itemPath = item.GetMetadata("PackagePath");
             if (string.IsNullOrEmpty(itemPath))
             {
                 // allow defining SignedPackageFile using just ItemSpec
-                var projectDir = item.GetMetadata(ProjectDirMetadataName);
-                if (!string.IsNullOrEmpty(projectDir))
+                var projectFile = item.GetMetadata(ProjectFileMetadataName);
+                if (!string.IsNullOrEmpty(projectFile))
                 {
                     // users will typically write items with relative itemspecs, but we can't get the original item spec.
                     // Infer the original item spec by getting the path relative to the project directory
-                    return Path.GetRelativePath(projectDir, item.ItemSpec);
+                    return Path.IsPathRooted(item.ItemSpec) && !string.IsNullOrEmpty(projectFile)
+                        ? Path.GetRelativePath(Path.GetDirectoryName(projectFile), item.ItemSpec)
+                        : item.ItemSpec;
                 }
             }
 

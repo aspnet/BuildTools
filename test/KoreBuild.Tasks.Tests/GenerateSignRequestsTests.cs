@@ -65,8 +65,7 @@ namespace KoreBuild.Tasks.Tests
                 new MockTaskItem(Path.Combine("C:\\MyProject", "lib", "net461", "MyLib.dll"))
                 {
                     ["Container"] = nupkgPath,
-                    ["DefiningProjectDirectory"] = "C:\\MyProject",
-                    ["DefiningProjectFullPath"] = "C:\\MyProject\\MyProject.csproj",
+                    ["MSBuildSourceProjectFile"] = "C:\\MyProject\\MyProject.csproj",
                     ["Certificate"] = "Cert1",
                 },
             };
@@ -82,8 +81,7 @@ namespace KoreBuild.Tasks.Tests
                 new MockTaskItem(Path.Combine("C:\\MyProject", "tool", "net461", "NotMyLib.dll"))
                 {
                     ["Container"] = nupkgPath,
-                    ["DefiningProjectDirectory"] = "C:\\MyProject",
-                    ["DefiningProjectFullPath"] = "C:\\MyProject\\MyProject.csproj",
+                    ["MSBuildSourceProjectFile"] = "C:\\MyProject\\MyProject.csproj",
                 },
             };
 

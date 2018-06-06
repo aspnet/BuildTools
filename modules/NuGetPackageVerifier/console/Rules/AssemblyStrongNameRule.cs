@@ -16,6 +16,11 @@ namespace NuGetPackageVerifier.Rules
 
         public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
+            if (context.Metadata.IsDotNetToolPackage())
+            {
+                yield break;
+            }
+
             foreach (var currentFile in context.PackageReader.GetFiles())
             {
                 var extension = Path.GetExtension(currentFile);

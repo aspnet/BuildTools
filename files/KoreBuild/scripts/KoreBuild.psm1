@@ -273,7 +273,12 @@ function Ensure-Dotnet() {
 
 function Get-DotnetMajorVersion() {
     if (Get-Variable "dotnet" -Scope Global -ErrorAction SilentlyContinue) {
-        $infoOutput = dotnet --version
+        $infoOutput = & $global:dotnet --version
+
+        if (-not $infoOutput) {
+            Write-Verbose 'Could not determine the version of dotnet from `dotnet --version`'
+            return 0
+        }
 
         $version = $infoOutput.SubString(0, $infoOutput.IndexOf('.'))
         $versionInt = [convert]::ToInt32($version, 10)

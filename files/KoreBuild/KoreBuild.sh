@@ -109,6 +109,9 @@ __install_tools() {
     "$__korebuild_dir/scripts/get-dotnet.sh" $verbose_flag "$install_dir" \
         || return 1
 
+    # Set environment variables
+    export PATH="$install_dir:$PATH"
+
     # This is a workaround for https://github.com/Microsoft/msbuild/issues/2914.
     # Currently, the only way to configure the NuGetSdkResolver is with NuGet.config, which is not generally used in aspnet org projects.
     # This project is restored so that it pre-populates the NuGet cache with SDK packages.
@@ -120,9 +123,6 @@ __install_tools() {
         __exec dotnet msbuild -restore -t:noop -v:m "$restorerfile"
     fi
     # end workaround
-
-    # Set environment variables
-    export PATH="$install_dir:$PATH"
 }
 
 __show_version_info() {

@@ -249,8 +249,8 @@ function Install-Tools(
     $restorerfile = "$PSScriptRoot/../modules/BundledPackages/BundledPackageRestorer.csproj"
     $restorerfilelock="$env:NUGET_PACKAGES/internal.aspnetcore.sdk/$(Get-KoreBuildVersion)/korebuild.sentinel"
     if ((Test-Path $restorerfile) -and -not (Test-Path $restorerfilelock)) {
-        mkdir -p $(Split-Path -Parent $restorerfilelock) -ea ignore | Out-Null
-        New-Item -ItemType File $restorerfilelock -ea ignore | Out-Null
+        New-Item -ItemType Directory $(Split-Path -Parent $restorerfilelock) -ErrorAction Ignore | Out-Null
+        New-Item -ItemType File $restorerfilelock -ErrorAction Ignore | Out-Null
         __exec $global:dotnet msbuild -restore '-t:noop' '-v:m' "$restorerfile"
     }
     # end workaround

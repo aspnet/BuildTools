@@ -15,6 +15,7 @@ namespace Microsoft.AspNetCore.BuildTools.CodeSign
             new Dictionary<string, SignRequestItemType>(StringComparer.OrdinalIgnoreCase)
             {
                 ["zip"] = SignRequestItemType.Zip,
+                ["mpack"] = SignRequestItemType.Zip,
                 ["vsix"] = SignRequestItemType.Vsix,
                 ["nupkg"] = SignRequestItemType.Nupkg,
                 ["dll"] = SignRequestItemType.File,

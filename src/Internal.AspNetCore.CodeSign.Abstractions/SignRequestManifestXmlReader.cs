@@ -117,8 +117,8 @@ namespace Microsoft.AspNetCore.BuildTools.CodeSign
             }
         }
 
-        private static string GetStrongName(XElement element) => element.Attribute("StrongName")?.Value;
-        private static string GetCertificate(XElement element) => element.Attribute("Certificate")?.Value;
-        private static string GetPath(XElement element) => element.Attribute("Path")?.Value;
+        private static string GetStrongName(XElement element) => element.Attribute(XmlElementNames.StrongName)?.Value;
+        private static string GetCertificate(XElement element) => element.Attribute(XmlElementNames.Certificate)?.Value;
+        private static string GetPath(XElement element) => element.Attribute(XmlElementNames.Path)?.Value;
     }
 }

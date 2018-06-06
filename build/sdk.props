@@ -1,0 +1,3 @@
+<Project>
+  <Import Project="..\src\Internal.AspNetCore.Sdk\sdk\Sdk.props" />
+</Project>

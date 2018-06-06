@@ -1,6 +1,4 @@
-<Project>
-  <Sdk Name="Microsoft.NET.Sdk" />
-  <Sdk Name="Microsoft.DotNet.GlobalTools.Sdk" />
+<Project Sdk="Internal.AspNetCore.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>

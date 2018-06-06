@@ -25,23 +25,21 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <Sdk Name="Microsoft.DotNet.GlobalTools.Sdk" Version="$(Version)" />
+  <Sdk Name="Internal.AspNetCore.Sdk" Version="$(Version)" />
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Internal.AspNetCore.Sdk" Version="$(Version)" />
-  </ItemGroup>
-
+  <Target Name="noop" />
 </Project>
 ]]>
       </BundledPackageRestorerContent>
     </PropertyGroup>
 
     <WriteLinesToFile File="$(PublishDir)BundledPackageRestorer.csproj" Lines="$(BundledPackageRestorerContent)" Overwrite="true" />
-    <Copy SourceFiles="module.props;module.targets;NuGet.config" DestinationFolder="$(PublishDir)" />
+    <Copy SourceFiles="NuGet.config" DestinationFolder="$(PublishDir)" />
   </Target>
 
 </Project>

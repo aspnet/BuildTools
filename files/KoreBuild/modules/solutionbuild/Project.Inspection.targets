@@ -15,7 +15,7 @@
         Workaround for design time builds on projects using Internal.AspNetCore.Sdk that have not yet been restored.
         IncludeSymbols and IncludeSource are off by default but are enabled in Internal.AspNetCore.Sdk.
       -->
-      <_ReferencesInternalAspNetCoreSdk>@(PackageReference->AnyHaveMetadataValue('Identity', 'Internal.AspNetCore.Sdk'))</_ReferencesInternalAspNetCoreSdk>
+      <_ReferencesInternalAspNetCoreSdk Condition="'$(_ReferencesInternalAspNetCoreSdk)' == ''">@(PackageReference->AnyHaveMetadataValue('Identity', 'Internal.AspNetCore.Sdk'))</_ReferencesInternalAspNetCoreSdk>
       <IncludeSymbols Condition="'$(IncludeSymbols)' == '' AND $(_ReferencesInternalAspNetCoreSdk)">true</IncludeSymbols>
       <IncludeSource Condition="'$(IncludeSource)' == '' AND $(_ReferencesInternalAspNetCoreSdk)">true</IncludeSource>
     </PropertyGroup>

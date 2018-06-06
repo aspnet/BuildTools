@@ -1,8 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project>
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.props" />
 
   <PropertyGroup>
     <TargetFrameworks>netstandard1.6;net452;netcoreapp2.1</TargetFrameworks>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.targets" />
 </Project>

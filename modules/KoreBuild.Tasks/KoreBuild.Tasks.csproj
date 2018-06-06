@@ -1,4 +1,6 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project>
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.props" />
+
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <AssemblyName>Internal.AspNetCore.KoreBuild.Tasks</AssemblyName>
@@ -23,7 +25,10 @@
     <PackageReference Include="Newtonsoft.Json" Version="$(Tooling_NewtonsoftJsonPackageVersion)" PrivateAssets="All" />
     <PackageReference Include="vswhere" Version="$(VSWherePackageVersion)" PrivateAssets="All" />
   </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\Internal.AspNetCore.CodeSign.Abstractions\Internal.AspNetCore.CodeSign.Abstractions.csproj" />
   </ItemGroup>
+
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.targets" />
 </Project>

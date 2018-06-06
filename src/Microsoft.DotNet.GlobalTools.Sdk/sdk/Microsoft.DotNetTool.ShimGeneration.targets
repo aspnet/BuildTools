@@ -22,6 +22,10 @@
     <RuntimeIdentifiers>$(RuntimeIdentifiers);$(GeneratedShimRuntimeIdentifiers)</RuntimeIdentifiers>
   </PropertyGroup>
 
+  <ItemGroup Condition="'$(DisableImplicitFrameworkReferences)' != 'true'">
+    <PackageReference Include="Microsoft.NETCore.DotNetAppHost" Version="$(MicrosoftNETCoreDotNetAppHostImplicitPackageVersion)" PrivateAssets="All" />
+  </ItemGroup>
+
   <!--
   ************************************************************
   Target: GetDotNetToolShimPackageContent

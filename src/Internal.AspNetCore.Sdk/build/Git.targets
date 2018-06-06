@@ -20,7 +20,7 @@
 
       Only set this in CI builds, otherwise it will mess up the debugger.
     -->
-    <DeterministicSourceRoot Condition=" '$(CI)' == 'true' ">/_/</DeterministicSourceRoot>
+    <DeterministicSourceRoot Condition=" '$(CI)' == 'true' AND '$(RepositoryRoot)' != '' ">/_/</DeterministicSourceRoot>
 
     <SourceLinkRoot Condition="'$(DeterministicSourceRoot)' != ''">$(DeterministicSourceRoot)</SourceLinkRoot>
     <SourceLinkRoot Condition="'$(SourceLinkRoot)' == '' AND '$(RepositoryRoot)' != ''">$([MSBuild]::NormalizeDirectory($(RepositoryRoot)))</SourceLinkRoot>

@@ -1,5 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<Project>
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.props" />
   <PropertyGroup>
     <PackageId>Internal.AspNetCore.SiteExtension.Sdk</PackageId>
     <TargetFrameworks>netcoreapp2.0;net46</TargetFrameworks>
@@ -28,4 +28,5 @@
     </PropertyGroup>
   </Target>
 
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.targets" />
 </Project>

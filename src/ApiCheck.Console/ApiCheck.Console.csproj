@@ -1,4 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project>
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.props" />
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.1;net46</TargetFrameworks>
@@ -45,4 +46,6 @@
   </Target>
 
   <Target Name="GetPackageVersion" Returns="$(PackageVersion)" />
+
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.targets" />
 </Project>

@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using BuildTools.Tasks.Tests;
 using Microsoft.Build.Framework;
@@ -26,6 +27,7 @@ namespace KoreBuild.Tasks.Tests
         [Fact]
         public void ItCreatesSignRequest()
         {
+            var rootDir = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "C:/" : "/";
             var nupkgPath = Path.Combine(AppContext.BaseDirectory, "build", "MyLib.nupkg");
             var requests = new ITaskItem[]
             {
@@ -62,10 +64,10 @@ namespace KoreBuild.Tasks.Tests
                     {
                         ["Certificate"] = "Cert1",
                     }),
-                new MockTaskItem(Path.Combine("C:\\MyProject", "lib", "net461", "MyLib.dll"))
+                new MockTaskItem(Path.Combine(rootDir + "MyProject", "lib", "net461", "MyLib.dll"))
                 {
                     ["Container"] = nupkgPath,
-                    ["MSBuildSourceProjectFile"] = "C:\\MyProject\\MyProject.csproj",
+                    ["MSBuildSourceProjectFile"] = rootDir + "MyProject/MyProject.csproj",
                     ["Certificate"] = "Cert1",
                 },
             };
@@ -78,10 +80,10 @@ namespace KoreBuild.Tasks.Tests
                         ["PackagePath"] = "lib/NotMyLib.dll",
                         ["Container"] = nupkgPath,
                     }),
-                new MockTaskItem(Path.Combine("C:\\MyProject", "tool", "net461", "NotMyLib.dll"))
+                new MockTaskItem(Path.Combine(rootDir + "MyProject", "tool", "net461", "NotMyLib.dll"))
                 {
                     ["Container"] = nupkgPath,
-                    ["MSBuildSourceProjectFile"] = "C:\\MyProject\\MyProject.csproj",
+                    ["MSBuildSourceProjectFile"] = rootDir + "MyProject/MyProject.csproj",
                 },
             };
 

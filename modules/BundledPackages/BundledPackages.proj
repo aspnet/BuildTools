@@ -22,8 +22,7 @@
       -->
       <BundledPackageRestorerContent>
 <![CDATA[
-<Project Sdk="Microsoft.NET.Sdk">
-
+<Project>
   <Sdk Name="Microsoft.DotNet.GlobalTools.Sdk" Version="$(Version)" />
   <Sdk Name="Internal.AspNetCore.Sdk" Version="$(Version)" />
 

@@ -214,6 +214,11 @@ namespace KoreBuild.Tasks
                 }
             }
 
+            if (itemPath.EndsWith('/') || itemPath.EndsWith('\\'))
+            {
+                return Path.Combine(itemPath, Path.GetFileName(item.ItemSpec));
+            }
+
             return itemPath;
         }
 

@@ -49,6 +49,14 @@ namespace KoreBuild.Tasks.Tests
                         ["Certificate"] = "Cert1",
                         ["StrongName"] = "Key1",
                     }),
+                new TaskItem(Path.Combine(AppContext.BaseDirectory, "MyRefLib.dll"),
+                    new Hashtable
+                    {
+                        ["Container"] = nupkgPath,
+                        ["PackagePath"] = "ref/netstandard2.0/",
+                        ["Certificate"] = "Cert1",
+                        ["StrongName"] = "Key1",
+                    }),
                 new TaskItem(Path.Combine(AppContext.BaseDirectory, "build", "MyLib.dll"),
                     new Hashtable
                     {
@@ -97,6 +105,7 @@ namespace KoreBuild.Tasks.Tests
     <ExcludedFile Path=`lib/NotMyLib.dll` />
     <File Path=`lib/net461/MyLib.dll` Certificate=`Cert1` />
     <File Path=`lib/netstandard2.0/MyLib.dll` Certificate=`Cert1` StrongName=`Key1` />
+    <File Path=`ref/netstandard2.0/MyRefLib.dll` Certificate=`Cert1` StrongName=`Key1` />
     <ExcludedFile Path=`tool/net461/NotMyLib.dll` />
   </Nupkg>
   <Vsix Path=`build/ZZApp.vsix` Certificate=`Cert4` />

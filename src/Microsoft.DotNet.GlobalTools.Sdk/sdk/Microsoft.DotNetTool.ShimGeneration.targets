@@ -3,6 +3,7 @@
   <PropertyGroup>
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);GetDotNetToolShimPackageContent</TargetsForTfmSpecificContentInPackage>
+    <GetSignedPackageFilesDependsOn>$(GetSignedPackageFilesDependsOn);_GetSignedPackageFilesForGeneratedShims</GetSignedPackageFilesDependsOn>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -25,6 +26,15 @@
   <ItemGroup Condition="'$(DisableImplicitFrameworkReferences)' != 'true'">
     <PackageReference Include="Microsoft.NETCore.DotNetAppHost" Version="$(MicrosoftNETCoreDotNetAppHostImplicitPackageVersion)" PrivateAssets="All" />
   </ItemGroup>
+
+  <Target Name="_GetSignedPackageFilesForGeneratedShims" DependsOnTargets="_ComputeGeneratedDotNetToolShims" Condition="'$(AssemblySigningCertName)' != ''">
+    <ItemGroup>
+      <SignedPackageFile Include="@(GeneratedDotNetToolShim)" Certificate="$(AssemblySigningCertName)" />
+      <SignedPackageFile Include="$(TargetPath)" Certificate="$(AssemblySigningCertName)">
+        <PackagePath>tools/$(TargetFramework)/any/$(TargetFileName)</PackagePath>
+      </SignedPackageFile>
+    </ItemGroup>
+  </Target>
 
   <!--
   ************************************************************
@@ -58,6 +68,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <_ShimRids Remove="@(_ShimRids)" />
       <_ShimRids Include="$(GeneratedShimRuntimeIdentifiers)" AppHostFileName="$(AssemblyName)" />
       <_ShimRids Update="%(_ShimRids.Identity)" AppHostFileName="$(AssemblyName).exe" Condition="$([System.String]::new('%(_ShimRids.Identity)').StartsWith('win'))" />
 

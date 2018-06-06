@@ -69,16 +69,26 @@ namespace KoreBuild.FunctionalTests
                 pkg =>
                 {
                     Assert.Equal("build/Simple.CliTool.1.0.0-beta-0001.nupkg", pkg.Attribute("Path")?.Value);
-                    Assert.Null(pkg.Attribute("Certificate"));
+                    Assert.Equal("MyPackageSigningCert", pkg.Attribute("Certificate")?.Value);
                     Assert.Collection(pkg.Descendants("File"),
                         a =>
                         {
-                            Assert.Equal("tools/any/netcoreapp2.1/Newtonsoft.Json.dll", a.Attribute("Path")?.Value);
+                            Assert.Equal("tools/netcoreapp2.1/any/Newtonsoft.Json.dll", a.Attribute("Path")?.Value);
                             Assert.Equal("Test3rdPartyCert", a.Attribute("Certificate")?.Value);
                         },
                         a =>
                         {
-                            Assert.Equal("tools/any/netcoreapp2.1/cowsay.dll", a.Attribute("Path")?.Value);
+                            Assert.Equal("tools/netcoreapp2.1/any/cowsay.dll", a.Attribute("Path")?.Value);
+                            Assert.Equal("TestCert", a.Attribute("Certificate")?.Value);
+                        },
+                        a =>
+                        {
+                            Assert.Equal("tools/netcoreapp2.1/any/shims/win-x64/cowsay.exe", a.Attribute("Path")?.Value);
+                            Assert.Equal("TestCert", a.Attribute("Certificate")?.Value);
+                        },
+                        a =>
+                        {
+                            Assert.Equal("tools/netcoreapp2.1/any/shims/win-x86/cowsay.exe", a.Attribute("Path")?.Value);
                             Assert.Equal("TestCert", a.Attribute("Certificate")?.Value);
                         });
                 },

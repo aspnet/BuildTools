@@ -34,7 +34,7 @@ set_korebuildsettings() {
         mkdir -p "$HOME"
         mkdir -p "$dot_net_home"
     else
-        if [[ -z $NUGET_PACKAGES ]]; then
+        if [[ -z "${NUGET_PACKAGES:-}" ]]; then
             export NUGET_PACKAGES="$HOME/.nuget/packages"
         fi
     fi

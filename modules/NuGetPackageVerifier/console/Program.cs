@@ -187,7 +187,7 @@ namespace NuGetPackageVerifier
 
                             var signRequest = signRequestManifest?
                                 .FirstOrDefault(i => i.ItemType == SignRequestItemType.Nupkg
-                                                     && string.Equals(packagePair.Value.FullName, Path.Combine(signRequestManifest.BasePath, i.Path), StringComparison.OrdinalIgnoreCase));
+                                                     && string.Equals(packagePair.Value.FullName, Path.Combine(signRequestManifest.BasePath, i.Path.Replace('/', Path.DirectorySeparatorChar)), StringComparison.OrdinalIgnoreCase));
 
                             List<PackageVerifierIssue> issues;
                             using (var context = new PackageAnalysisContext
@@ -252,8 +252,8 @@ namespace NuGetPackageVerifier
                     logger.LogInfo("Analyzing {0} ({1})", unlistedPackage.Id, unlistedPackage.Version);
 
                     var signRequest = signRequestManifest?
-                        .FirstOrDefault(i => i.ItemType== SignRequestItemType.Nupkg
-                                              && string.Equals(packages[unlistedPackage].FullName, Path.Combine(signRequestManifest.BasePath, i.Path), StringComparison.OrdinalIgnoreCase));
+                        .FirstOrDefault(i => i.ItemType == SignRequestItemType.Nupkg
+                                              && string.Equals(packages[unlistedPackage].FullName, Path.Combine(signRequestManifest.BasePath, i.Path.Replace('/', Path.DirectorySeparatorChar)), StringComparison.OrdinalIgnoreCase));
 
                     List<PackageVerifierIssue> issues;
                     PackageVerifierOptions packageOptions = null;

@@ -42,12 +42,17 @@ Default layout and configuration.
   </PropertyGroup>
 
   <!-- Use build number from CI if available -->
-  <PropertyGroup Condition=" '$(BuildNumber)' == '' ">
+  <PropertyGroup>
     <!--
       See https://confluence.jetbrains.com/display/TCD10/Predefined+Build+Parameters.
       This environment variable is automatically set by TeamCity.
     -->
-    <BuildNumber Condition=" '$(BUILD_NUMBER)' != '' ">$(BUILD_NUMBER)</BuildNumber>
+    <BuildNumber Condition=" '$(BuildNumber)' == '' ">$(BUILD_NUMBER)</BuildNumber>
+    <!--
+      See https://docs.microsoft.com/en-us/vsts/pipelines/build/variables
+      This environment variable is automatically set by VSTS.
+    -->
+    <BuildNumber Condition="  '$(BuildNumber)' == '' ">$(BUILD_BUILDNUMBER)</BuildNumber>
   </PropertyGroup>
 
   <!-- Create a temporary build number if not assigned by the CI server -->

@@ -42,11 +42,11 @@ namespace KoreBuild.Tasks
 
         protected internal bool Execute(Func<TextWriter> writerFactory)
         {
-            var newDoc = XDocument.Load(Files[0].ItemSpec);
+            var newDoc = XDocument.Load(Files[0].ItemSpec, LoadOptions.PreserveWhitespace);
 
             for (var i = 1; i < Files.Length; i++)
             {
-                var next = XDocument.Load(Files[i].ItemSpec);
+                var next = XDocument.Load(Files[i].ItemSpec, LoadOptions.PreserveWhitespace);
                 if (newDoc.Root.Name != next.Root.Name)
                 {
                     Log.LogError($"Can only merge documents with the same root element. {Files[0].ItemSpec} has <{newDoc.Root.Name}> but {Files[i].ItemSpec} has <{next.Root.Name}>");

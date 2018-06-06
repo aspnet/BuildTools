@@ -1,38 +1,25 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.IO;
 using BuildTools.Tasks.Tests;
 using Microsoft.Build.Utilities;
+using System.IO;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace KoreBuild.Tasks.Tests
 {
     [Collection(nameof(MSBuildTestCollection))]
-    public class CheckPackageReferenceTests : IDisposable
+    public class CheckPackageReferenceTests : TaskTestBase
     {
-        private readonly string _tempDir;
-        private readonly MockEngine _engine;
-
-        public CheckPackageReferenceTests(ITestOutputHelper output, MSBuildTestCollectionFixture fixture)
+        public CheckPackageReferenceTests(ITestOutputHelper output, MSBuildTestCollectionFixture fixture) : base(output, fixture)
         {
-            _tempDir = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-            Directory.CreateDirectory(_tempDir);
-            _engine = new MockEngine(output);
-            fixture.InitializeEnvironment(output);
-        }
-
-        public void Dispose()
-        {
-            Directory.Delete(_tempDir, recursive: true);
         }
 
         [Fact]
         public void PassesWhenAllRequirementsAreSatisifed()
         {
-            var depsProps = Path.Combine(_tempDir, "dependencies.props");
+            var depsProps = Path.Combine(TempDir, "dependencies.props");
             File.WriteAllText(depsProps, $@"
 <Project>
   <PropertyGroup Label=`Package Versions`>
@@ -41,7 +28,7 @@ namespace KoreBuild.Tasks.Tests
 </Project>
 ".Replace('`', '"'));
 
-            var csproj = Path.Combine(_tempDir, "Test.csproj");
+            var csproj = Path.Combine(TempDir, "Test.csproj");
             File.WriteAllText(csproj, $@"
 <Project>
   <ItemGroup>
@@ -53,10 +40,10 @@ namespace KoreBuild.Tasks.Tests
 </Project>
 ".Replace('`', '"'));
 
-            _engine.ContinueOnError = true;
+            MockEngine.ContinueOnError = true;
             var task = new CheckPackageReferences
             {
-                BuildEngine = _engine,
+                BuildEngine = MockEngine,
                 DependenciesFile = depsProps,
                 Projects = new[] { new TaskItem(csproj) }
             };
@@ -67,14 +54,14 @@ namespace KoreBuild.Tasks.Tests
         [Fact]
         public void IgnoresUpdateAndRemoveItems()
         {
-            var depsProps = Path.Combine(_tempDir, "dependencies.props");
+            var depsProps = Path.Combine(TempDir, "dependencies.props");
             File.WriteAllText(depsProps, $@"
 <Project>
   <PropertyGroup Label=`Package Versions` />
 </Project>
 ".Replace('`', '"'));
 
-            var csproj = Path.Combine(_tempDir, "Test.csproj");
+            var csproj = Path.Combine(TempDir, "Test.csproj");
             File.WriteAllText(csproj, $@"
 <Project>
   <ItemGroup>
@@ -84,10 +71,10 @@ namespace KoreBuild.Tasks.Tests
 </Project>
 ".Replace('`', '"'));
 
-            _engine.ContinueOnError = true;
+            MockEngine.ContinueOnError = true;
             var task = new CheckPackageReferences
             {
-                BuildEngine = _engine,
+                BuildEngine = MockEngine,
                 DependenciesFile = depsProps,
                 Projects = new[] { new TaskItem(csproj) }
             };
@@ -98,7 +85,7 @@ namespace KoreBuild.Tasks.Tests
         [Fact]
         public void FailsWhenDependenciesHasNoPropGroup()
         {
-            var depsFile = Path.Combine(_tempDir, "deps.props");
+            var depsFile = Path.Combine(TempDir, "deps.props");
             File.WriteAllText(depsFile, $@"
 <Project>
   <PropertyGroup>
@@ -107,23 +94,23 @@ namespace KoreBuild.Tasks.Tests
 </Project>
 ".Replace('`', '"'));
 
-            _engine.ContinueOnError = true;
+            MockEngine.ContinueOnError = true;
             var task = new CheckPackageReferences
             {
-                BuildEngine = _engine,
+                BuildEngine = MockEngine,
                 Projects = new[] { new TaskItem(depsFile) },
                 DependenciesFile = depsFile,
             };
 
             Assert.True(task.Execute(), "Task is expected to pass");
-            Assert.NotEmpty(_engine.Warnings);
-            Assert.Contains(_engine.Warnings, e => e.Code == KoreBuildErrors.Prefix + KoreBuildErrors.PackageRefPropertyGroupNotFound);
+            Assert.NotEmpty(MockEngine.Warnings);
+            Assert.Contains(MockEngine.Warnings, e => e.Code == KoreBuildErrors.Prefix + KoreBuildErrors.PackageRefPropertyGroupNotFound);
         }
 
         [Fact]
         public void FailsWhenVariableIsNotInDependenciesPropsFile()
         {
-            var depsProps = Path.Combine(_tempDir, "dependencies.props");
+            var depsProps = Path.Combine(TempDir, "dependencies.props");
             File.WriteAllText(depsProps, $@"
 <Project>
   <PropertyGroup Label=`Package Versions`>
@@ -131,7 +118,7 @@ namespace KoreBuild.Tasks.Tests
 </Project>
 ".Replace('`', '"'));
 
-            var csproj = Path.Combine(_tempDir, "Test.csproj");
+            var csproj = Path.Combine(TempDir, "Test.csproj");
             File.WriteAllText(csproj, $@"
 <Project>
   <ItemGroup>
@@ -140,23 +127,23 @@ namespace KoreBuild.Tasks.Tests
 </Project>
 ".Replace('`', '"'));
 
-            _engine.ContinueOnError = true;
+            MockEngine.ContinueOnError = true;
             var task = new CheckPackageReferences
             {
-                BuildEngine = _engine,
+                BuildEngine = MockEngine,
                 Projects = new[] { new TaskItem(csproj) },
                 DependenciesFile = depsProps,
             };
 
             Assert.False(task.Execute(), "Task is expected to fail");
-            Assert.NotEmpty(_engine.Errors);
-            Assert.Contains(_engine.Errors, e => e.Code == KoreBuildErrors.Prefix + KoreBuildErrors.VariableNotFoundInDependenciesPropsFile);
+            Assert.NotEmpty(MockEngine.Errors);
+            Assert.Contains(MockEngine.Errors, e => e.Code == KoreBuildErrors.Prefix + KoreBuildErrors.VariableNotFoundInDependenciesPropsFile);
         }
 
         [Fact]
         public void FailsWhenPackageVersionFloat()
         {
-            var depsProps = Path.Combine(_tempDir, "dependencies.props");
+            var depsProps = Path.Combine(TempDir, "dependencies.props");
             File.WriteAllText(depsProps, $@"
 <Project>
   <PropertyGroup Label=`Package Versions`>
@@ -165,7 +152,7 @@ namespace KoreBuild.Tasks.Tests
 </Project>
 ".Replace('`', '"'));
 
-            var csproj = Path.Combine(_tempDir, "Test.csproj");
+            var csproj = Path.Combine(TempDir, "Test.csproj");
             File.WriteAllText(csproj, $@"
 <Project>
   <ItemGroup>
@@ -174,23 +161,23 @@ namespace KoreBuild.Tasks.Tests
 </Project>
 ".Replace('`', '"'));
 
-            _engine.ContinueOnError = true;
+            MockEngine.ContinueOnError = true;
             var task = new CheckPackageReferences
             {
-                BuildEngine = _engine,
+                BuildEngine = MockEngine,
                 Projects = new[] { new TaskItem(csproj) },
                 DependenciesFile = depsProps,
             };
 
             Assert.False(task.Execute(), "Task is expected to fail");
-            Assert.NotEmpty(_engine.Errors);
-            Assert.Contains(_engine.Errors, e => e.Code == KoreBuildErrors.Prefix + KoreBuildErrors.PackageRefHasFloatingVersion);
+            Assert.NotEmpty(MockEngine.Errors);
+            Assert.Contains(MockEngine.Errors, e => e.Code == KoreBuildErrors.Prefix + KoreBuildErrors.PackageRefHasFloatingVersion);
         }
 
         [Fact]
         public void FailsWhenPackageVersionIsInvalid()
         {
-            var depsProps = Path.Combine(_tempDir, "dependencies.props");
+            var depsProps = Path.Combine(TempDir, "dependencies.props");
             File.WriteAllText(depsProps, $@"
 <Project>
   <PropertyGroup Label=`Package Versions`>
@@ -199,7 +186,7 @@ namespace KoreBuild.Tasks.Tests
 </Project>
 ".Replace('`', '"'));
 
-            var csproj = Path.Combine(_tempDir, "Test.csproj");
+            var csproj = Path.Combine(TempDir, "Test.csproj");
             File.WriteAllText(csproj, $@"
 <Project>
   <ItemGroup>
@@ -208,17 +195,17 @@ namespace KoreBuild.Tasks.Tests
 </Project>
 ".Replace('`', '"'));
 
-            _engine.ContinueOnError = true;
+            MockEngine.ContinueOnError = true;
             var task = new CheckPackageReferences
             {
-                BuildEngine = _engine,
+                BuildEngine = MockEngine,
                 Projects = new[] { new TaskItem(csproj) },
                 DependenciesFile = depsProps,
             };
 
             Assert.False(task.Execute(), "Task is expected to fail");
-            Assert.NotEmpty(_engine.Errors);
-            Assert.Contains(_engine.Errors, e => e.Code == KoreBuildErrors.Prefix + KoreBuildErrors.InvalidPackageVersion);
+            Assert.NotEmpty(MockEngine.Errors);
+            Assert.Contains(MockEngine.Errors, e => e.Code == KoreBuildErrors.Prefix + KoreBuildErrors.InvalidPackageVersion);
         }
 
         [Theory]
@@ -228,14 +215,14 @@ namespace KoreBuild.Tasks.Tests
         [InlineData("$(Prefix)-1.0.0")]
         public void FailsWhenPackagesReferenceVersionDoesNotCompletelyUseVariables(string version)
         {
-            var depsProps = Path.Combine(_tempDir, "dependencies.props");
+            var depsProps = Path.Combine(TempDir, "dependencies.props");
             File.WriteAllText(depsProps, $@"
 <Project>
    <PropertyGroup Label=`Package Versions` />
 </Project>
 ".Replace('`', '"'));
 
-            var csproj = Path.Combine(_tempDir, "Test.csproj");
+            var csproj = Path.Combine(TempDir, "Test.csproj");
             File.WriteAllText(csproj, $@"
 <Project>
   <ItemGroup>
@@ -244,17 +231,17 @@ namespace KoreBuild.Tasks.Tests
 </Project>
 ".Replace('`', '"'));
 
-            _engine.ContinueOnError = true;
+            MockEngine.ContinueOnError = true;
             var task = new CheckPackageReferences
             {
-                BuildEngine = _engine,
+                BuildEngine = MockEngine,
                 Projects = new[] { new TaskItem(csproj) },
                 DependenciesFile = depsProps,
             };
 
             Assert.False(task.Execute(), "Task is expected to fail");
-            Assert.NotEmpty(_engine.Errors);
-            var error = Assert.Single(_engine.Errors, e => e.Code == KoreBuildErrors.Prefix + KoreBuildErrors.PackageRefHasLiteralVersion);
+            Assert.NotEmpty(MockEngine.Errors);
+            var error = Assert.Single(MockEngine.Errors, e => e.Code == KoreBuildErrors.Prefix + KoreBuildErrors.PackageRefHasLiteralVersion);
             Assert.Equal(4, error.LineNumber);
         }
     }

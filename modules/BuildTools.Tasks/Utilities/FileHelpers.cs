@@ -1,6 +1,7 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.IO;
 
 namespace Microsoft.AspNetCore.BuildTools.Utilities
@@ -15,5 +16,10 @@ namespace Microsoft.AspNetCore.BuildTools.Utilities
         public static bool HasTrailingSlash(string path)
             => !string.IsNullOrEmpty(path) && (path[path.Length - 1] == Path.DirectorySeparatorChar ||
                                                path[path.Length - 1] == Path.AltDirectorySeparatorChar);
+
+        public static string NormalizePath(string path)
+            => string.IsNullOrEmpty(path)
+            ? path
+            : path.Replace('\\', '/');
     }
 }

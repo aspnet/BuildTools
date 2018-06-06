@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.AspNetCore.BuildTools.CodeSign;
 using Microsoft.Build.Framework;
+using static Microsoft.AspNetCore.BuildTools.Utilities.FileHelpers;
 
 namespace KoreBuild.Tasks
 {
@@ -253,11 +254,5 @@ namespace KoreBuild.Tasks
 
         private static string GetRelativePath(string basePath, string path)
             => NormalizePath(Path.GetRelativePath(basePath, path));
-
-        private static string NormalizePath(string path)
-            => string.IsNullOrEmpty(path)
-            ? path
-            : path.Replace('\\', '/');
-
     }
 }

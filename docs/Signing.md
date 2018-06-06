@@ -111,14 +111,18 @@ Sometimes other signable assemblies end up in a nupkg. Signing for these file ty
 
 ```xml
   <ItemGroup>
-    <!-- Files that come from other ASP.NET Core projects -->
-    <SignedPackageFile Include="$(PublishDir)Microsoft.Extensions.Configuration.Abstractions.dll" Certificate="$(AssemblySigningCertName)" PackagePath="tools/Microsoft.Extensions.Configuration.Abstractions.dll" Visible="false" />
+    <!-- Specifying signing for a file in a package. -->
+    <SignedPackageFile Include="tools/Microsoft.Extensions.Configuration.Abstractions.dll" Certificate="$(AssemblySigningCertName)" Visible="false" />
+
+    <!-- Specifying signing for a file in a package using an explicit path within the NuGet package. -->
+    <SignedPackageFile Include="$(OutputPath)$(TargetFileName)" Certificate="$(AssemblySigningCertName)"
+      PackagePath="tasks/net461/$(TargetFileName)" Visible="false" />
 
     <!-- Third-party cert -->
-    <SignedPackageFile Include="$(PublishDir)Newtonsoft.Json.dll" Certificate="3PartyDual" PackagePath="tools/Newtonsoft.Json.dll" Visible="false" />
+    <SignedPackageFile Include="tools/Newtonsoft.Json.dll" Certificate="3PartyDual" Visible="false" />
 
     <!-- This should already be signed by the dotnet-core team -->
-    <ExcludePackageFileFromSigning Include="$(PublishDir)System.Runtime.CompilerServices.Unsafe.dll" PackagePath="tools/System.Runtime.CompilerServices.Unsafe.dll" Visible="false" />
+    <ExcludePackageFileFromSigning Include="tools/System.Runtime.CompilerServices.Unsafe.dll" />
   </ItemGroup>
 ```
 

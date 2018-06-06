@@ -17,6 +17,10 @@ namespace KoreBuild.Tasks
     /// </summary>
     public class GenerateSignRequest : Microsoft.Build.Utilities.Task
     {
+        // well-known metadata on items set by the MSBuild engine
+        private const string ProjectDirMetadataName = "DefiningProjectDirectory";
+        private const string ProjectFileMetadataName = "DefiningProjectFullPath";
+
         /// <summary>
         /// Files or containers of files that should be signed.
         /// Required metadata 'Certificate' or 'StrongName'. Both can be specified.
@@ -118,7 +122,16 @@ namespace KoreBuild.Tasks
                         continue;
                     }
 
-                    normalizedPath = NormalizePath(item.GetMetadata("PackagePath"));
+                    var itemPath = GetPathWithinContainer(item);
+
+                    if (string.IsNullOrEmpty(itemPath))
+                    {
+                        Log.LogError(null, null, null, item.GetMetadata(ProjectFileMetadataName), 0, 0, 0, 0,
+                            message: $"Could not identify the path for the signable file {item.ItemSpec}");
+                        continue;
+                    }
+
+                    normalizedPath = NormalizePath(itemPath);
                     var file = SignRequestItem.CreateFile(normalizedPath,
                         item.GetMetadata("Certificate"),
                         item.GetMetadata("StrongName"));
@@ -149,7 +162,15 @@ namespace KoreBuild.Tasks
                             continue;
                         }
 
-                        normalizedPath = NormalizePath(item.GetMetadata("PackagePath"));
+                        var itemPath = GetPathWithinContainer(item);
+                        if (string.IsNullOrEmpty(itemPath))
+                        {
+                            Log.LogError(null, null, null, item.GetMetadata(ProjectFileMetadataName), 0, 0, 0, 0,
+                                message: $"Could not identify the path for the signable file {item.ItemSpec}");
+                            continue;
+                        }
+
+                        normalizedPath = NormalizePath(itemPath);
                         var file = SignRequestItem.CreateExclusion(normalizedPath);
                         container.AddChild(file);
                     }
@@ -177,6 +198,25 @@ namespace KoreBuild.Tasks
             return !Log.HasLoggedErrors;
         }
 
+        private static string GetPathWithinContainer(ITaskItem item)
+        {
+            // always prefer an explicit package path
+            var itemPath = item.GetMetadata("PackagePath");
+            if (string.IsNullOrEmpty(itemPath))
+            {
+                // allow defining SignedPackageFile using just ItemSpec
+                var projectDir = item.GetMetadata(ProjectDirMetadataName);
+                if (!string.IsNullOrEmpty(projectDir))
+                {
+                    // users will typically write items with relative itemspecs, but we can't get the original item spec.
+                    // Infer the original item spec by getting the path relative to the project directory
+                    return Path.GetRelativePath(projectDir, item.ItemSpec);
+                }
+            }
+
+            return itemPath;
+        }
+
         private static string GetRelativePath(string basePath, string path)
             => NormalizePath(Path.GetRelativePath(basePath, path));
 
@@ -184,5 +224,6 @@ namespace KoreBuild.Tasks
             => string.IsNullOrEmpty(path)
             ? path
             : path.Replace('\\', '/');
+
     }
 }

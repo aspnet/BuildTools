@@ -4,6 +4,12 @@ for use outside of Microsoft.
 -->
 <Project>
 
+  <ItemDefinitionGroup>
+    <SignedPackageFile>
+      <Visible>false</Visible>
+    </SignedPackageFile>
+  </ItemDefinitionGroup>
+
   <Import Project="$(MSBuildThisFileDirectory)..\build\Common.props" />
 
 </Project>

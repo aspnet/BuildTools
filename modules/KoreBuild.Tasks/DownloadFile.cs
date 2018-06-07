@@ -1,11 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.IO;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using KoreBuild.Tasks.Utilities;
 using Microsoft.Build.Framework;
 
 namespace KoreBuild.Tasks
@@ -43,64 +41,9 @@ namespace KoreBuild.Tasks
 
         public override bool Execute() => ExecuteAsync().Result;
 
-        public async Task<bool> ExecuteAsync()
+        public Task<bool> ExecuteAsync()
         {
-            if (File.Exists(DestinationPath) && !Overwrite)
-            {
-                return true;
-            }
-
-            const string FileUriProtocol = "file://";
-
-            if (Uri.StartsWith(FileUriProtocol, StringComparison.OrdinalIgnoreCase))
-            {
-                var filePath = Uri.Substring(FileUriProtocol.Length);
-                Log.LogMessage($"Copying '{filePath}' to '{DestinationPath}'");
-                File.Copy(filePath, DestinationPath);
-            }
-            else
-            {
-                Log.LogMessage($"Downloading '{Uri}' to '{DestinationPath}'");
-
-                using (var httpClient = new HttpClient
-                {
-                    // Timeout if no response starts in 2 minutes
-                    Timeout = TimeSpan.FromMinutes(2),
-                })
-                {
-                    try
-                    {
-                        var response = await httpClient.GetAsync(Uri, _cts.Token);
-                        response.EnsureSuccessStatusCode();
-                        _cts.Token.ThrowIfCancellationRequested();
-
-                        Directory.CreateDirectory(Path.GetDirectoryName(DestinationPath));
-
-                        using (var outStream = File.Create(DestinationPath))
-                        {
-                            var responseStream = response.Content.ReadAsStreamAsync();
-                            var finished = await Task.WhenAny(responseStream, Task.Delay(TimeSpan.FromSeconds(TimeoutSeconds)));
-
-                            if (!ReferenceEquals(responseStream, finished))
-                            {
-                                throw new TimeoutException($"Download failed to complete in {TimeoutSeconds} seconds.");
-                            }
-
-                            responseStream.Result.CopyTo(outStream);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.LogError($"Downloading '{Uri}' failed.");
-                        Log.LogErrorFromException(ex, showStackTrace: true);
-
-                        File.Delete(DestinationPath);
-                        return false;
-                    }
-                }
-            }
-
-            return !Log.HasLoggedErrors;
+            return DownloadFileHelper.DownloadFileAsync(Uri, DestinationPath, Overwrite,  _cts, TimeoutSeconds, Log);
         }
     }
 }

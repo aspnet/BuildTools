@@ -232,7 +232,7 @@ namespace KoreBuild.Tasks
         private string GetPathWithinContainer(ITaskItem item)
         {
             // always prefer an explicit package path
-            var itemPath = item.GetMetadata("PackagePath");
+            var itemPath = NormalizePath(item.GetMetadata("PackagePath"));
             if (string.IsNullOrEmpty(itemPath))
             {
                 // allow defining SignedPackageFile using just ItemSpec
@@ -244,7 +244,7 @@ namespace KoreBuild.Tasks
                     : item.ItemSpec;
             }
 
-            if (itemPath.EndsWith('/') || itemPath.EndsWith('\\'))
+            if (itemPath.EndsWith('/'))
             {
                 return Path.Combine(itemPath, Path.GetFileName(item.ItemSpec));
             }

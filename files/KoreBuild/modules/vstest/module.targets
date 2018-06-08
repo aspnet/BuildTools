@@ -19,7 +19,7 @@ Runs the VSTest on all projects in the ProjectsToTest itemgroup.
 ###################################################################
 -->
   <PropertyGroup>
-    <TestDependsOn>$(TestDependsOn);TestProjects;ValidateBenchmarks</TestDependsOn>
+    <TestDependsOn Condition="'$(DisableDefaultTargets)' != 'true'">$(TestDependsOn);TestProjects;ValidateBenchmarks</TestDependsOn>
     <IgnoreFailingTestProjects>false</IgnoreFailingTestProjects>
     <IgnoreFailingTestProjects Condition="'$(KOREBUILD_IGNORE_DOTNET_TEST_EXIT_CODE)' == '1'">true</IgnoreFailingTestProjects>
   </PropertyGroup>

@@ -1,5 +1,5 @@
 <Project>
-  <ItemGroup>
+  <ItemGroup Condition="'$(DisableDefaultTargets)' != 'true'">
     <!-- Ensure we have the runtime required to execute the nuget package verifier -->
     <DotNetCoreRuntime Include="${RuntimeFrameworkVersion}" />
   </ItemGroup>

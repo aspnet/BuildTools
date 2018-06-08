@@ -79,6 +79,10 @@ get_legacy_os_name_from_platform() {
             echo "fedora.23"
             return 0
             ;;
+        "fedora.27")
+            echo "fedora.27"
+            return 0
+            ;;
         "fedora.24")
             echo "fedora.24"
             return 0
@@ -89,6 +93,10 @@ get_legacy_os_name_from_platform() {
             ;;
         "opensuse.42.1")
             echo "opensuse.42.1"
+            return 0
+            ;;
+        "opensuse.42.3")
+            echo "opensuse.42.3"
             return 0
             ;;
         "rhel.7"*)
@@ -105,6 +113,10 @@ get_legacy_os_name_from_platform() {
             ;;
         "ubuntu.16.10")
             echo "ubuntu.16.10"
+            return 0
+            ;;
+        "ubuntu.18.04")
+            echo "ubuntu.18.04"
             return 0
             ;;
         "alpine.3.4.3")
@@ -124,10 +136,6 @@ get_linux_platform_name() {
     else
         if [ -e /etc/os-release ]; then
             . /etc/os-release
-            if [[ $ID == "alpine" ]]; then
-                # remove the last version digit
-                VERSION_ID=${VERSION_ID%.*}
-            fi
             echo "$ID.$VERSION_ID"
             return 0
         elif [ -e /etc/redhat-release ]; then
@@ -139,7 +147,7 @@ get_linux_platform_name() {
         fi
     fi
 
-    say_verbose "Linux specific platform name and version could not be detected: $ID.$VERSION_ID"
+    say_verbose "Linux specific platform name and version could not be detected: UName = $uname"
     return 1
 }
 
@@ -154,8 +162,11 @@ get_current_os_name() {
         local linux_platform_name
         linux_platform_name="$(get_linux_platform_name)" || { echo "linux" && return 0 ; }
 
-        if [[ $linux_platform_name == "rhel.6" || $linux_platform_name == "alpine.3.6" ]]; then
+        if [[ $linux_platform_name == "rhel.6" ]]; then
             echo $linux_platform_name
+            return 0
+        elif [[ $linux_platform_name == alpine* ]]; then
+            echo "linux-musl"
             return 0
         else
             echo "linux"
@@ -163,7 +174,7 @@ get_current_os_name() {
         fi
     fi
 
-    say_err "OS name could not be detected: $ID.$VERSION_ID"
+    say_err "OS name could not be detected: UName = $uname"
     return 1
 }
 
@@ -188,7 +199,7 @@ get_legacy_os_name() {
         fi
     fi
 
-    say_verbose "Distribution specific OS name and version could not be detected: $ID.$VERSION_ID"
+    say_verbose "Distribution specific OS name and version could not be detected: UName = $uname"
     return 1
 }
 
@@ -218,8 +229,6 @@ check_min_reqs() {
 check_pre_reqs() {
     eval $invocation
 
-    local failing=false;
-
     if [ "${DOTNET_INSTALL_SKIP_PREREQS:-}" = "1" ]; then
         return 0
     fi
@@ -235,14 +244,10 @@ check_pre_reqs() {
         local librarypath=${LD_LIBRARY_PATH:-}
         LDCONFIG_COMMAND="$LDCONFIG_COMMAND -NXv ${librarypath//:/ }"
 
-        [ -z "$($LDCONFIG_COMMAND 2>/dev/null | grep libunwind)" ] && say_err "Unable to locate libunwind. Install libunwind to continue" && failing=true
-        [ -z "$($LDCONFIG_COMMAND 2>/dev/null | grep libssl)" ] && say_err "Unable to locate libssl. Install libssl to continue" && failing=true
-        [ -z "$($LDCONFIG_COMMAND 2>/dev/null | grep libicu)" ] && say_err "Unable to locate libicu. Install libicu to continue" && failing=true
-        [ -z "$($LDCONFIG_COMMAND 2>/dev/null | grep -F libcurl.so)" ] && say_err "Unable to locate libcurl. Install libcurl to continue" && failing=true
-    fi
-
-    if [ "$failing" = true ]; then
-       return 1
+        [ -z "$($LDCONFIG_COMMAND 2>/dev/null | grep libunwind)" ] && say_warning "Unable to locate libunwind. Probable prerequisite missing; please install libunwind."
+        [ -z "$($LDCONFIG_COMMAND 2>/dev/null | grep libssl)" ] && say_warning "Unable to locate libssl. Probable prerequisite missing; please install libssl."
+        [ -z "$($LDCONFIG_COMMAND 2>/dev/null | grep libicu)" ] && say_warning "Unable to locate libicu. Probable prerequisite missing; please install libicu."
+        [ -z "$($LDCONFIG_COMMAND 2>/dev/null | grep -F libcurl.so)" ] && say_warning "Unable to locate libcurl. Probable prerequisite missing; please install libcurl."
     fi
 
     return 0
@@ -300,7 +305,21 @@ combine_paths() {
 get_machine_architecture() {
     eval $invocation
 
-    # Currently the only one supported
+    if command -v uname > /dev/null; then
+        CPUName=$(uname -m)
+        case $CPUName in
+        armv7l)
+            echo "arm"
+            return 0
+            ;;
+        aarch64)
+            echo "arm64"
+            return 0
+            ;;
+        esac
+    fi
+
+    # Always default to 'x64'
     echo "x64"
     return 0
 }
@@ -320,9 +339,13 @@ get_normalized_architecture_from_architecture() {
             echo "x64"
             return 0
             ;;
-        x86)
-            say_err "Architecture \`x86\` currently not supported"
-            return 1
+        arm)
+            echo "arm"
+            return 0
+            ;;
+        arm64)
+            echo "arm64"
+            return 0
             ;;
     esac
 
@@ -570,14 +593,21 @@ copy_files_or_dirs_from_list() {
     local root_path="$(remove_trailing_slash "$1")"
     local out_path="$(remove_trailing_slash "$2")"
     local override="$3"
-    local override_switch=$(if [ "$override" = false ]; then printf -- "-n"; fi)
+    local osname="$(get_current_os_name)"
+    local override_switch=$(
+        if [ "$override" = false ]; then
+            if [[ "$osname" == "linux-musl" ]]; then
+                printf -- "-u";
+            else
+                printf -- "-n";
+            fi
+        fi)
 
     cat | uniq | while read -r file_path; do
         local path="$(remove_beginning_slash "${file_path#$root_path}")"
         local target="$out_path/$path"
         if [ "$override" = true ] || (! ([ -d "$target" ] || [ -e "$target" ])); then
             mkdir -p "$out_path/$(dirname "$path")"
-            say_verbose "Copying '$out_path/$path' => '$target'"
             cp -R $override_switch "$root_path/$path" "$target"
         fi
     done
@@ -598,7 +628,7 @@ extract_dotnet_package() {
     tar -xzf "$zip_path" -C "$temp_out_path" > /dev/null || failed=true
 
     local folders_with_version_regex='^.*/[0-9]+\.[0-9]+[^/]+/'
-    find "$temp_out_path" -type f | grep -Eo "$folders_with_version_regex" | copy_files_or_dirs_from_list "$temp_out_path" "$out_path" false
+    find "$temp_out_path" -type f | grep -Eo "$folders_with_version_regex" | sort | copy_files_or_dirs_from_list "$temp_out_path" "$out_path" false
     find "$temp_out_path" -type f | grep -Ev "$folders_with_version_regex" | copy_files_or_dirs_from_list "$temp_out_path" "$out_path" "$override_non_versioned_files"
 
     rm -rf "$temp_out_path"
@@ -617,16 +647,6 @@ download() {
 
     local remote_path="$1"
     local out_path="${2:-}"
-
-    if [[ "$remote_path" != "http"* ]]; then
-        say_verbose "Copying from $remote_path"
-        if [ ! -z "$out_path" ]; then
-            cp "$remote_path" "$out_path"
-        else
-            cat "$remote_path"
-        fi
-        return 0
-    fi
 
     local failed=false
     if machine_has "curl"; then
@@ -734,6 +754,7 @@ install_dotnet() {
         return 1
     fi
 
+    #  Check if the SDK version is already installed.
     if is_dotnet_package_installed "$install_root" "$asset_relative_path" "$specific_version"; then
         say "$asset_name version $specific_version is already installed."
         return 0
@@ -770,6 +791,12 @@ install_dotnet() {
 
     say "Extracting zip from $download_link"
     extract_dotnet_package "$zip_path" "$install_root"
+
+    #  Check if the SDK version is now installed; if not, fail the installation.
+    if ! is_dotnet_package_installed "$install_root" "$asset_relative_path" "$specific_version"; then
+        say_err "$asset_name version $specific_version failed to install with an unknown error."
+        return 1
+    fi
 
     return 0
 }
@@ -867,7 +894,7 @@ do
             echo "$script_name is a simple command line interface for obtaining dotnet cli."
             echo ""
             echo "Options:"
-            echo "  -c,--channel <CHANNEL>         Download from the CHANNEL specified, Defaults to \`$channel\`."
+            echo "  -c,--channel <CHANNEL>         Download from the channel specified, Defaults to \`$channel\`."
             echo "      -Channel"
             echo "          Possible values:"
             echo "          - Current - most current release"
@@ -886,8 +913,9 @@ do
             echo "              examples: 2.0.0-preview2-006120; 1.1.0"
             echo "  -i,--install-dir <DIR>             Install under specified location (see Install Location below)"
             echo "      -InstallDir"
-            echo "  --architecture <ARCHITECTURE>      Architecture of .NET Tools. Currently only x64 is supported."
+            echo "  --architecture <ARCHITECTURE>      Architecture of dotnet binaries to be installed, Defaults to \`$architecture\`."
             echo "      --arch,-Architecture,-Arch"
+            echo "          Possible values: x64, arm, and arm64"
             echo "  --runtime <RUNTIME>                Installs a shared runtime only, without the SDK."
             echo "      -Runtime"
             echo "          Possible values:"

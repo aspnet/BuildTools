@@ -648,6 +648,11 @@ download() {
     local remote_path="$1"
     local out_path="${2:-}"
 
+    if [[ "$remote_path" != "http"* ]]; then
+        cp "$remote_path" "$out_path"
+        return $?
+    fi
+
     local failed=false
     if machine_has "curl"; then
         downloadcurl "$remote_path" "$out_path" || failed=true
@@ -928,7 +933,7 @@ do
             echo "  --verbose,-Verbose                 Display diagnostics information."
             echo "  --azure-feed,-AzureFeed            Azure feed location. Defaults to $azure_feed, This parameter typically is not changed by the user."
             echo "  --uncached-feed,-UncachedFeed      Uncached feed location. This parameter typically is not changed by the user."
-            echo "  --no-cdn,-NoCdn                    Disable downloading from the Azure CDN, and used the uncached feed directly."
+            echo "  --no-cdn,-NoCdn                    Disable downloading from the Azure CDN, and use the uncached feed directly."
             echo "  --feed-credential,-FeedCredential  Azure feed shared access token. This parameter typically is not specified."
             echo "  --runtime-id                       Installs the .NET Tools for the given platform (use linux-x64 for portable linux)."
             echo "      -RuntimeId"

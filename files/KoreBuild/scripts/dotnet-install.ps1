@@ -74,7 +74,7 @@
     Default: false
     Skips installing non-versioned files if they already exist, such as dotnet.exe.
 .PARAMETER NoCdn
-    Disable downloading from the Azure CDN, and used the uncached feed directly.
+    Disable downloading from the Azure CDN, and use the uncached feed directly.
 #>
 [cmdletbinding()]
 param(
@@ -468,7 +468,7 @@ function Extract-Dotnet-Package([string]$ZipPath, [string]$OutPath) {
 }
 
 function DownloadFile([Uri]$Uri, [string]$OutPath) {
-    if ($Uri -like "file://*") {
+    if ($Uri -notlike "http*") {
         Say-Verbose "Copying file from $Uri to $OutPath"
         Copy-Item $Uri.AbsolutePath $OutPath
         return

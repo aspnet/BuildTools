@@ -17,12 +17,15 @@ set_korebuildsettings() {
     [ -z "${dot_net_home:-}" ] && dot_net_home="$HOME/.dotnet"
     [ -z "${tools_source:-}" ] && tools_source="$default_tools_source"
 
+    # This is required for NuGet and MSBuild
+    if [[ -z "${HOME:-}" ]]; then
+        export HOME="$repo_path/.build/home"
+    fi
 
     if [ "$ci" = true ]; then
         export CI=true
         export DOTNET_CLI_TELEMETRY_OPTOUT=true
         export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
-        export HOME="$repo_path/.build/home"
         export TEMP="$repo_path/.build/tmp"
         export TMP="$TEMP"
         export NUGET_SHOW_STACK=true

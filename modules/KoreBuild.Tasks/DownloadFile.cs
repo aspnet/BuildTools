@@ -43,7 +43,7 @@ namespace KoreBuild.Tasks
 
         public Task<bool> ExecuteAsync()
         {
-            return DownloadFileHelper.DownloadFileAsync(Uri, DestinationPath, Overwrite,  _cts, TimeoutSeconds, Log);
+            return DownloadFileHelper.DownloadFileAsync(Uri, DestinationPath, Overwrite,  _cts.Token, TimeoutSeconds, Log);
         }
     }
 }

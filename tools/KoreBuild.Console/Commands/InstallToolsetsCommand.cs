@@ -10,6 +10,7 @@ namespace KoreBuild.Console.Commands
     internal class InstallToolsetsCommand : SubCommandBase
     {
         private CommandOption _quietOpt;
+        private CommandOption _productOpt;
         private CommandOption _upgradeOpt;
 
         public InstallToolsetsCommand(CommandContext context) : base(context)
@@ -27,6 +28,9 @@ MORE INFO:
             _quietOpt = application.Option("-q|--quiet",
                 "Install toolsets without requiring user interation.",
                 CommandOptionType.NoValue);
+            _productOpt = application.Option("-p|--product",
+                "Which vs product version to install.",
+                CommandOptionType.SingleValue);
             _upgradeOpt = application.Option("-u|--upgrade",
                 "Upgrade existing toolsets.",
                 CommandOptionType.NoValue);
@@ -42,15 +46,22 @@ MORE INFO:
                 "-t:InstallToolsets",
             };
 
-            if (_quietOpt.HasValue())
+            if (_upgradeOpt.HasValue())
             {
-                args.Add("-p:Upgrade=true");
+                args.Add("-p:UpgradeVSInstallation=true");
             }
 
             if (_quietOpt.HasValue())
             {
-                args.Add("-p:Quiet=true");
+                args.Add("-p:QuietVSInstallation=true");
             }
+
+            
+            if (_productOpt.HasValue())
+            {
+                args.Add($"-p:VSProductVersionType={_productOpt.Value()}");
+            }
+
 
             if (Reporter.IsVerbose)
             {

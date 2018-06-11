@@ -115,8 +115,9 @@ Installs all VS components specified in the korebuild.json required components.
 -->
   <Target Name="InstallToolsets">
     <InstallToolsets ConfigFile="$(KoreBuildConfigFile)"
-      Quiet="$(Quiet)"
-      Upgade="$(Upgrade)" />
+      QuietVSInstallation="$(QuietVSInstallation)"
+      UpgradeVSInstallation="$(UpgradeVSInstallation)"
+      VSProductVersionType="$(VSProductVersionType)" />
   </Target>
 
 <!--

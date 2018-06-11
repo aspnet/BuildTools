@@ -17,10 +17,10 @@ namespace KoreBuild.Tasks.Utilities
             // TODO put this in an obj folder instead of temp?
             var tempPath = Path.Combine(Path.GetTempPath(), "vs_enterprise.exe");
 
-            await DownloadFileHelper.DownloadFileAsync(uri: "https://aka.ms/vs/15/pre/vs_enterprise.exe",
+            await DownloadFileHelper.DownloadFileAsync(uri: "https://aka.ms/vs/15/release/vs_enterprise.exe",
                 destinationPath: tempPath,
                 overwrite: false,
-                cts: new CancellationTokenSource(),
+                cancellationToken: new CancellationToken(),
                 timeoutSeconds: 60 * 15,
                 log);
 
@@ -45,13 +45,13 @@ namespace KoreBuild.Tasks.Utilities
             public List<string> Add { get; set; }
         }
 
-        public static string CreateVsFileFromRequiredToolset(KoreBuildSettings.VisualStudioToolset vsToolset, TaskLoggingHelper log)
+        public static string CreateVsFileFromRequiredToolset(KoreBuildSettings.VisualStudioToolset vsToolset, TaskLoggingHelper log, string vsProductType)
         {
             var vsFile = new VsJsonFile
             {
                 ChannelUri = "https://aka.ms/vs/15/release/channel",
                 ChannelId = "VisualStudio.15.Release",
-                ProductId = "Microsoft.VisualStudio.Product.Enterprise",
+                ProductId = $"Microsoft.VisualStudio.Product.{vsProductType}",
                 IncludeRecommended = false,
                 AddProductLang = new List<string>
                 {

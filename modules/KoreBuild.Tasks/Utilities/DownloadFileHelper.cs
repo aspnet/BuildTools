@@ -13,7 +13,7 @@ namespace KoreBuild.Tasks.Utilities
 {
     public class DownloadFileHelper
     {
-        public static async Task<bool> DownloadFileAsync(string uri, string destinationPath, bool overwrite, CancellationTokenSource cts, int timeoutSeconds, TaskLoggingHelper log)
+        public static async Task<bool> DownloadFileAsync(string uri, string destinationPath, bool overwrite, CancellationToken cancellationToken, int timeoutSeconds, TaskLoggingHelper log)
         {
             if (File.Exists(destinationPath) && !overwrite)
             {
@@ -40,9 +40,9 @@ namespace KoreBuild.Tasks.Utilities
                 {
                     try
                     {
-                        var response = await httpClient.GetAsync(uri, cts.Token);
+                        var response = await httpClient.GetAsync(uri, cancellationToken);
                         response.EnsureSuccessStatusCode();
-                        cts.Token.ThrowIfCancellationRequested();
+                        cancellationToken.ThrowIfCancellationRequested();
 
                         Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
 

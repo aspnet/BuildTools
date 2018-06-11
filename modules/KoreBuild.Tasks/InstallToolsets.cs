@@ -27,13 +27,19 @@ namespace KoreBuild.Tasks
         /// Whether to install toolsets with or without user interation.
         /// It will default prompting users to confirm and see installation steps.
         /// </summary>
-        public bool Quiet { get; set; }
+        public bool QuietInstallationOfToolsets { get; set; }
 
         /// <summary>
         /// Whether to upgrade existing toolsets.
         /// It will default to only adding tools that were not previously installed.
         /// </summary>
-        public bool Upgrade { get; set; }
+        public bool UpgradeVSInstallation { get; set; }
+
+        /// <summary>
+        /// Specifies what version of VS to install.
+        /// Defaults to Enterprise.
+        /// </summary>
+        public string VSProductVersionType { get; set; } = "Enterprise";
 
         public override bool Execute()
         {
@@ -70,7 +76,7 @@ namespace KoreBuild.Tasks
                 }
             }
 
-            return true;
+            return !Log.HasLoggedErrors;
         }
 
         private async Task InstallVsComponents(KoreBuildSettings.VisualStudioToolset vsToolset)
@@ -90,7 +96,7 @@ namespace KoreBuild.Tasks
 
             var vs = VsWhere.FindLatestCompatibleInstallation(vsToolset, Log);
             var vsExePath = await VsInstallerHelper.DownloadVsExe(Log);
-            var vsJsonFilePath = VsInstallerHelper.CreateVsFileFromRequiredToolset(vsToolset, Log);
+            var vsJsonFilePath = VsInstallerHelper.CreateVsFileFromRequiredToolset(vsToolset, Log, VSProductVersionType);
 
             var args = GetVisualStudioArgs(vs, vsJsonFilePath);
 
@@ -115,7 +121,7 @@ namespace KoreBuild.Tasks
 
             if (vs != null)
             {
-                if (Upgrade)
+                if (UpgradeVSInstallation)
                 {
                     args.Add("upgrade");
                 }
@@ -132,7 +138,7 @@ namespace KoreBuild.Tasks
             args.Add("--wait");
             args.Add("--norestart");
 
-            if (Quiet)
+            if (QuietInstallationOfToolsets)
             {
                 args.Add("--quiet");
             }

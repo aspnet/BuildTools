@@ -48,7 +48,7 @@ namespace KoreBuild.Tasks.Tests
                 ConfigFile = _configFile,
             };
 
-            Assert.True(task.Execute(), "Task is expected to pass");
+            Assert.False(task.Execute(), "Task is expected to fail");
         }
     }
 }

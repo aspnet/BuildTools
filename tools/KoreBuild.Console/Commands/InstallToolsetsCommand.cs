@@ -28,8 +28,8 @@ MORE INFO:
             _quietOpt = application.Option("-q|--quiet",
                 "Install toolsets without requiring user interation.",
                 CommandOptionType.NoValue);
-            _productOpt = application.Option("-p|--product",
-                "Which vs product version to install.",
+            _productOpt = application.Option("--product <PRODUCT_NAME>",
+                "Which vs product version to install. Valid values are Enterprise, Professional, or Community.",
                 CommandOptionType.SingleValue);
             _upgradeOpt = application.Option("-u|--upgrade",
                 "Upgrade existing toolsets.",
@@ -65,6 +65,8 @@ MORE INFO:
             {
                 args.Add("-v:n");
             }
+
+            Reporter.Verbose($"Starting msbuild with arguments: {ArgumentEscaper.EscapeAndConcatenate(args)}");
 
             return RunDotnet(args, Context.RepoPath);
         }

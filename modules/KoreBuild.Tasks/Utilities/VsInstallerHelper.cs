@@ -12,14 +12,14 @@ namespace KoreBuild.Tasks.Utilities
 {
     internal class VsInstallerHelper
     { 
-        public static async Task<string> DownloadVsExe(TaskLoggingHelper log)
+        public static async Task<string> DownloadVsExe(TaskLoggingHelper log, string vsProductType)
         {
             // TODO put this in an obj folder instead of temp?
-            var tempPath = Path.Combine(Path.GetTempPath(), "vs_enterprise.exe");
+            var tempPath = Path.Combine(Path.GetTempPath(), "vs.exe");
 
-            await DownloadFileHelper.DownloadFileAsync(uri: "https://aka.ms/vs/15/release/vs_enterprise.exe",
+            await DownloadFileHelper.DownloadFileAsync(uri: $"https://aka.ms/vs/15/release/vs_{vsProductType}.exe",
                 destinationPath: tempPath,
-                overwrite: false,
+                overwrite: true,
                 cancellationToken: new CancellationToken(),
                 timeoutSeconds: 60 * 15,
                 log);

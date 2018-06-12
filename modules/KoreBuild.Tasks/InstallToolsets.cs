@@ -27,7 +27,7 @@ namespace KoreBuild.Tasks
         /// Whether to install toolsets with or without user interation.
         /// It will default prompting users to confirm and see installation steps.
         /// </summary>
-        public bool QuietInstallationOfToolsets { get; set; }
+        public bool QuietVSInstallation { get; set; }
 
         /// <summary>
         /// Whether to upgrade existing toolsets.
@@ -95,7 +95,7 @@ namespace KoreBuild.Tasks
             }
 
             var vs = VsWhere.FindLatestCompatibleInstallation(vsToolset, Log);
-            var vsExePath = await VsInstallerHelper.DownloadVsExe(Log);
+            var vsExePath = await VsInstallerHelper.DownloadVsExe(Log, VSProductVersionType);
             var vsJsonFilePath = VsInstallerHelper.CreateVsFileFromRequiredToolset(vsToolset, Log, VSProductVersionType);
 
             var args = GetVisualStudioArgs(vs, vsJsonFilePath);
@@ -138,7 +138,7 @@ namespace KoreBuild.Tasks
             args.Add("--wait");
             args.Add("--norestart");
 
-            if (QuietInstallationOfToolsets)
+            if (QuietVSInstallation)
             {
                 args.Add("--quiet");
             }

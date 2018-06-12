@@ -55,13 +55,11 @@ MORE INFO:
             {
                 args.Add("-p:QuietVSInstallation=true");
             }
-
             
             if (_productOpt.HasValue())
             {
                 args.Add($"-p:VSProductVersionType={_productOpt.Value()}");
             }
-
 
             if (Reporter.IsVerbose)
             {

@@ -40,7 +40,7 @@ namespace KoreBuild.Tasks.Utilities
                 args.Add("-prerelease");
             }
             args.Add("-products");
-            args.Add(vsProductVersion);
+            args.Add($"Microsoft.VisualStudio.Product.{vsProductVersion}");
 
             return GetInstallations(args, log).FirstOrDefault();
         }

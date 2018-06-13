@@ -99,11 +99,11 @@ namespace KoreBuild.Tasks
 
             if (vs != null)
             {
-                Log.LogMessage(MessageImportance.Low, $"Found vs installation located at {vs.InstallationPath}");
+                Log.LogMessage($"Found vs installation located at {vs.InstallationPath}");
             }
             else
             {
-                Log.LogMessage(MessageImportance.Low, $"No vs installation found.");
+                Log.LogMessage($"No vs installation found.");
             }
 
             var vsExePath = await VsInstallerHelper.DownloadVsExe(Log, VSProductVersionType);

@@ -14,10 +14,10 @@ namespace KoreBuild.Tasks.Utilities
     { 
         public static async Task<string> DownloadVsExe(TaskLoggingHelper log, string vsProductType)
         {
-            // TODO put this in an obj folder instead of temp?
-            var tempPath = Path.Combine(Path.GetTempPath(), "vs.exe");
+            var exeName = $"vs_{vsProductType}.exe";
+            var tempPath = Path.Combine(Path.GetTempPath(), exeName);
 
-            await DownloadFileHelper.DownloadFileAsync(uri: $"https://aka.ms/vs/15/release/vs_{vsProductType}.exe",
+            await DownloadFileHelper.DownloadFileAsync(uri: $"https://aka.ms/vs/15/release/{exeName}",
                 destinationPath: tempPath,
                 overwrite: true,
                 cancellationToken: new CancellationToken(),
@@ -60,7 +60,7 @@ namespace KoreBuild.Tasks.Utilities
                 Add = new List<string>(vsToolset.RequiredWorkloads)
             };
 
-            var tempFile = Path.Combine(Path.GetTempPath(), "vs.json");
+            var tempFile = Path.Combine(Path.GetTempPath(), $"vs_{vsProductType}.json");
 
             var json = JsonConvert.SerializeObject(vsFile);
             File.WriteAllText(tempFile, json);

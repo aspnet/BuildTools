@@ -94,23 +94,35 @@ namespace KoreBuild.Tasks
                 return;
             }
 
-            var vs = VsWhere.FindLatestCompatibleInstallation(vsToolset, Log);
+            // Update the vs installation based on the product version specified.
+            var vs = VsWhere.FindLatestInstallation(includePrerelease: true, vsProductVersion: VSProductVersionType, log: Log);
+
+            if (vs != null)
+            {
+                Log.LogMessage(MessageImportance.Low, $"Found vs installation located at {vs.InstallationPath}");
+            }
+            else
+            {
+                Log.LogMessage(MessageImportance.Low, $"No vs installation found.");
+            }
+
             var vsExePath = await VsInstallerHelper.DownloadVsExe(Log, VSProductVersionType);
             var vsJsonFilePath = VsInstallerHelper.CreateVsFileFromRequiredToolset(vsToolset, Log, VSProductVersionType);
 
             var args = GetVisualStudioArgs(vs, vsJsonFilePath);
 
-            var psi = new ProcessStartInfo
+            StartVsExe(vsExePath, args);
+
+            // Cleanup temp files created.
+            try
             {
-                FileName = vsExePath,
-                Arguments = args
-            };
-
-            Log.LogMessage($"Calling: {psi.FileName} {psi.Arguments}");
-
-            var process = Process.Start(psi);
-
-            process.WaitForExit();
+                File.Delete(vsExePath);
+                File.Delete(vsJsonFilePath);
+            }
+            catch (IOException ioe)
+            {
+                Log.LogWarning($"Could not delete vs installation files in temp directory: {ioe.Message}.");
+            }
 
             return;
         }
@@ -129,10 +141,10 @@ namespace KoreBuild.Tasks
                 {
                     args.Add("modify");
                 }
+                args.Add("--installPath");
+                args.Add($"{vs.InstallationPath}");
             }
 
-            args.Add("--installPath");
-            args.Add($"{vs.InstallationPath}");
             args.Add("--in");
             args.Add($"{vsJsonFilePath}");
             args.Add("--wait");
@@ -143,6 +155,21 @@ namespace KoreBuild.Tasks
                 args.Add("--quiet");
             }
             return ArgumentEscaper.EscapeAndConcatenate(args);
+        }
+
+        private void StartVsExe(string vsExePath, string args)
+        {
+            var psi = new ProcessStartInfo
+            {
+                FileName = vsExePath,
+                Arguments = args
+            };
+
+            Log.LogMessage($"Calling: {psi.FileName} {psi.Arguments}");
+
+            var process = Process.Start(psi);
+
+            process.WaitForExit();
         }
     }
 }

@@ -44,7 +44,7 @@ namespace KoreBuild.Tasks.Tests
 }");
             var task = new InstallToolsets
             {
-                BuildEngine = new MockEngine(),
+                BuildEngine = new MockEngine { ContinueOnError = true },
                 ConfigFile = _configFile,
             };
 

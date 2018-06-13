@@ -98,7 +98,7 @@ namespace KoreBuild.Tasks
                 if (vsToolset.Required != KoreBuildSettings.RequiredPlatforms.None)
                 {
                     Log.LogError($"Could not find an installation of Visual Studio that satisifies the specified requirements in {ConfigFile}" +
-                        "See https://docs.microsoft.com/en-us/visualstudio/install/workload-component-id-vs-community for more details on any missing components.");
+                        "Execute run.ps1 install vs to update or install the current vs installation.");
                 }
                 return;
             }

@@ -29,6 +29,22 @@ namespace KoreBuild.Tasks.Utilities
             return GetInstallations(args, log).FirstOrDefault();
         }
 
+        public static VsInstallation FindLatestInstallation(bool includePrerelease, string vsProductVersion, TaskLoggingHelper log)
+        {
+            var args = new List<string>
+            {
+                "-latest",
+            };
+            if (includePrerelease)
+            {
+                args.Add("-prerelease");
+            }
+            args.Add("-products");
+            args.Add(vsProductVersion);
+
+            return GetInstallations(args, log).FirstOrDefault();
+        }
+
         public static VsInstallation FindLatestCompatibleInstallation(KoreBuildSettings.VisualStudioToolset toolset, TaskLoggingHelper log)
         {
             var args = new List<string> { "-latest" };

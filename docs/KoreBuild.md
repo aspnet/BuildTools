@@ -13,6 +13,7 @@ Previously repositories were runable in only one way, by doing `.\build.cmd`. Bu
 Command               | Purpose                                                          | Example
 ----------------------|------------------------------------------------------------------|----------
 install-tools         | Installs dotnet, CLI and Shared runtimes.                        | .\run.ps1 install-tools
+install vs            | Installs/Updates VS components                                   | .\run.ps1 install vs --quiet --product Enterprise
 docker-build          | Runs the build inside docker.                                    | .\run.ps1 docker-build {jessie\|winservercore} /t:SomeTarget /p:Parameters
 default-build         | Runs install-tools followed by msbuild (like build.cmd used to). | .\run.ps1 default-build /t:SomeTarget /p:Parameters
 msbuild               | Runs the build normally.                                         | .\run.ps1 msbuild /t:SomeTarget /p:Parameters

@@ -20,6 +20,7 @@
     <Compile Include="..\..\modules\BuildTools.Tasks\ZipArchive.cs" />
 
     <Compile Include="..\..\modules\KoreBuild.Tasks\DownloadFile.cs" />
+    <Compile Include="..\..\modules\KoreBuild.Tasks\Utilities\DownloadFileHelper.cs" />
   </ItemGroup>
 
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.targets" />

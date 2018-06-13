@@ -50,7 +50,6 @@ Downloads and extracts .NET Core shared runtimes and SDKs.
       InstallScript="$(_DotNetInstall)"/>
   </Target>
 
-
 <!--
 ####################################################################################
 Target: CheckPackageReferences
@@ -105,6 +104,20 @@ dependencies.props file in the current project to use latest versions.
       LineupPackageVersion="$(LineupPackageVersion)"
       LineupPackageRestoreSource="$(LineupPackageRestoreSource)"
       LineupDependenciesFile="$(LineupDependenciesFile)" />
+  </Target>
+
+<!--
+####################################################################################
+Target: InstallToolsets
+
+Installs all VS components specified in the korebuild.json required components.
+####################################################################################
+-->
+  <Target Name="InstallToolsets">
+    <InstallToolsets ConfigFile="$(KoreBuildConfigFile)"
+      QuietVSInstallation="$(QuietVSInstallation)"
+      UpgradeVSInstallation="$(UpgradeVSInstallation)"
+      VSProductVersionType="$(VSProductVersionType)" />
   </Target>
 
 <!--

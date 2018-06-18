@@ -29,6 +29,8 @@ phases:
   variables:
     BuildScriptArgs: ${{ parameters.buildArgs }}
     DOTNET_HOME: $(Build.Repository.LocalPath)\.dotnet
+    DOTNET_CLI_TELEMETRY_OPTOUT: 1
+    DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
   steps:
   - checkout: self
     clean: true

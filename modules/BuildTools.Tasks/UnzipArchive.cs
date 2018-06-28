@@ -72,7 +72,7 @@ namespace Microsoft.AspNetCore.BuildTools
                     {
                         if (entry.FullName.IndexOf('\\') >= 0)
                         {
-                            Log.LogWarning(null, null, null, File, 0, 0, 0, 0,
+                            Log.LogMessage(null, null, null, File, 0, 0, 0, 0, MessageImportance.Low,
                                 message: $"Zip entry '{entry.FullName}' has been normalized because it contains a backslash. Set DisablePathNormalization=true to disable this.");
                             entryPath = entry.FullName.Replace('\\', '/');
                         }

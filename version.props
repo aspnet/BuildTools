@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <KoreBuildChannel>dev</KoreBuildChannel>
+    <KoreBuildChannel>release/2.2</KoreBuildChannel>
     <VersionPrefix>2.2.0</VersionPrefix>
     <VersionSuffix>preview1</VersionSuffix>
     <BuildNumber Condition="'$(BuildNumber)' == ''">t000</BuildNumber>

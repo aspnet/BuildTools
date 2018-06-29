@@ -1,4 +1,4 @@
 {
   "$schema": "./tools/korebuild.schema.json",
-  "channel": "dev"
+  "channel": "master"
 }

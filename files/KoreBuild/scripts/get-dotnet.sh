@@ -7,31 +7,6 @@ set -euo pipefail
 
 source "$__script_dir/common.sh"
 
-__install_shared_runtime() {
-    local install_dir=$1
-    local version=$2
-    local channel=$3
-
-    local runtime_path="$install_dir/shared/Microsoft.NETCore.App/$version"
-    if [ ! -d "$runtime_path" ]; then
-
-        __verbose "Installing .NET Core runtime to $runtime_path"
-
-        "$__script_dir/dotnet-install.sh" \
-            --install-dir "$install_dir" \
-            --architecture x64 \
-            --runtime 'dotnet' \
-            --skip-non-versioned-files \
-            --channel "$channel" \
-            --version "$version" \
-            $verbose_flag
-
-        return $?
-    else
-        echo -e "${GRAY}.NET Core runtime $version is already installed. Skipping installation.${RESET}"
-    fi
-}
-
 #
 # Main
 #

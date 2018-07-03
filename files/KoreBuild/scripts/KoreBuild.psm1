@@ -211,7 +211,6 @@ function Install-Tools(
     if (!(Test-Path (Join-Paths $installDir ('sdk', $version, 'dotnet.dll')))) {
         Write-Verbose "Installing dotnet $version to $installDir"
         & $scriptPath `
-            -Channel $channel `
             -Version $version `
             -Architecture $arch `
             -InstallDir $installDir `
@@ -388,26 +387,6 @@ function __get_dotnet_arch {
         return $env:KOREBUILD_DOTNET_ARCH
     }
     return 'x64'
-}
-
-function __install_shared_runtime($installScript, $installDir, [string]$arch, [string] $version, [string] $channel) {
-    $sharedRuntimePath = Join-Paths $installDir ('shared', 'Microsoft.NETCore.App', $version)
-    # Avoid redownloading the CLI if it's already installed.
-    if (!(Test-Path $sharedRuntimePath)) {
-        Write-Verbose "Installing .NET Core runtime $version"
-        & $installScript `
-            -Channel $channel `
-            -Runtime 'dotnet' `
-            -Version $version `
-            -Architecture $arch `
-            -InstallDir $installDir `
-            -AzureFeed $script:config.'dotnet.feed.cdn' `
-            -UncachedFeed $script:config.'dotnet.feed.uncached' `
-            -FeedCredential $script:config.'dotnet.feed.credential'
-    }
-    else {
-        Write-Host -ForegroundColor DarkGray ".NET Core runtime $version is already installed. Skipping installation."
-    }
 }
 
 function __get_dotnet_sdk_version {

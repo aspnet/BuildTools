@@ -63,41 +63,16 @@ if [ ! -z "${KOREBUILD_SKIP_RUNTIME_INSTALL:-}" ]; then
      exit 0
 fi
 
-channel='preview'
-version=$(__get_dotnet_sdk_version)
-runtime_channel='master'
-runtime_version=$(< "$__script_dir/../config/runtime.version" head -1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-
-# environment overrides
-if [ ! -z "${KOREBUILD_DOTNET_CHANNEL:-}" ]; then
-    channel=${KOREBUILD_DOTNET_CHANNEL:-}
-    __warn "dotnet channel was overridden by KOREBUILD_DOTNET_CHANNEL."
-fi
-
-if [ ! -z "${KOREBUILD_DOTNET_SHARED_RUNTIME_CHANNEL:-}" ]; then
-    runtime_channel=${KOREBUILD_DOTNET_SHARED_RUNTIME_CHANNEL:-}
-    __warn "dotnet shared runtime channel overridden by KOREBUILD_DOTNET_SHARED_RUNTIME_CHANNEL"
-fi
-
-if [ ! -z "${KOREBUILD_DOTNET_SHARED_RUNTIME_VERSION:-}" ]; then
-    runtime_version=${KOREBUILD_DOTNET_SHARED_RUNTIME_VERSION:-}
-    __warn "dotnet shared runtime version overridden by KOREBUILD_DOTNET_SHARED_RUNTIME_VERSION"
-fi
-
 # Call "sync" between "chmod" and execution to prevent "text file busy" error in Docker (aufs)
 chmod +x "$__script_dir/dotnet-install.sh"; sync
 
-if [ "$runtime_version" != "" ]; then
-    __install_shared_runtime "$install_dir" "$runtime_version" "$runtime_channel"
-fi
-
+version=$(__get_dotnet_sdk_version)
 __verbose "Installing .NET Core SDK $version"
 
 if [ ! -f "$install_dir/sdk/$version/dotnet.dll" ]; then
     "$__script_dir/dotnet-install.sh" \
         --install-dir "$install_dir" \
         --architecture x64 \
-        --channel "$channel" \
         --version "$version" \
         $verbose_flag
 else

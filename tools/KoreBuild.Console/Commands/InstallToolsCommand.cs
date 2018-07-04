@@ -76,30 +76,14 @@ namespace KoreBuild.Console.Commands
                 process.WaitForExit();
             }
 
-            var channel = GetChannel();
-            var runtimeChannel = GetRuntimeChannel();
-            var runtimeVersion = GetRuntimeVersion();
-
-            var runtimesToInstall = new List<Tuple<string, string>>();
-
-            if (runtimeVersion != null)
-            {
-                runtimesToInstall.Add(new Tuple<string, string>(runtimeVersion, runtimeChannel));
-            }
-
             var architecture = Context.GetArchitecture();
 
-            foreach (var runtime in runtimesToInstall)
-            {
-                InstallSharedRuntime(scriptPath, installDir, architecture, runtime.Item1, runtime.Item2);
-            }
-
-            InstallCLI(scriptPath, installDir, architecture, Context.SDKVersion, channel);
+            InstallCLI(scriptPath, installDir, architecture, Context.SDKVersion);
 
             return 0;
         }
 
-        private void InstallCLI(string script, string installDir, string architecture, string version, string channel)
+        private void InstallCLI(string script, string installDir, string architecture, string version)
         {
             var sdkPath = Path.Combine(installDir, "sdk", version, "dotnet.dll");
 
@@ -108,7 +92,6 @@ namespace KoreBuild.Console.Commands
                 Reporter.Verbose($"Installing dotnet {version} to {installDir}");
 
                 var args = ArgumentEscaper.EscapeAndConcatenate(new string[] {
-                    "-Channel", channel,
                     "-Version", version,
                     "-Architecture", architecture,
                     "-InstallDir", installDir,
@@ -130,66 +113,6 @@ namespace KoreBuild.Console.Commands
             {
                 Reporter.Output($".NET Core SDK {version} is already installed. Skipping installation.");
             }
-        }
-
-        private void InstallSharedRuntime(string script, string installDir, string architecture, string version, string channel)
-        {
-            var sharedRuntimePath = Path.Combine(installDir, "shared", "Microsoft.NETCore.App", version);
-
-            if (!Directory.Exists(sharedRuntimePath))
-            {
-                var args = ArgumentEscaper.EscapeAndConcatenate(new string[]
-                {
-                    "-Channel", channel,
-                    "-Runtime", "dotnet",
-                    "-Version", version,
-                    "-Architecture", architecture,
-                    "-InstallDir", installDir
-                });
-
-                var psi = new ProcessStartInfo
-                {
-                    FileName = script,
-                    Arguments = args
-                };
-
-                var process = Process.Start(psi);
-                process.WaitForExit();
-            }
-            else
-            {
-                Reporter.Output($".NET Core runtime {version} is already installed. Skipping installation.");
-            }
-        }
-
-        private static string GetChannel()
-        {
-            var channel = "preview";
-            var channelEnv = Environment.GetEnvironmentVariable("KOREBUILD_DOTNET_CHANNEL");
-            if (channelEnv != null)
-            {
-                channel = channelEnv;
-            }
-
-            return channel;
-        }
-
-        private static string GetRuntimeChannel()
-        {
-            var runtimeChannel = "master";
-            var runtimeEnv = Environment.GetEnvironmentVariable("KOREBUILD_DOTNET_SHARED_RUNTIME_CHANNEL");
-            if (runtimeEnv != null)
-            {
-                runtimeChannel = runtimeEnv;
-            }
-
-            return runtimeChannel;
-        }
-
-        private string GetRuntimeVersion()
-        {
-            var runtimeVersionPath = Path.Combine(Context.ConfigDirectory, "runtime.version");
-            return File.ReadAllText(runtimeVersionPath).Trim();
         }
 
         private static string GetCommandFromPath(string command)

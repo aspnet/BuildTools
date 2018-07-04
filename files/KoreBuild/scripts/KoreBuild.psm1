@@ -204,33 +204,12 @@ function Install-Tools(
         & chmod +x $scriptPath
     }
 
-    $channel = "preview"
-    $runtimeChannel = "master"
     $version = __get_dotnet_sdk_version
-    $runtimeVersion = Get-Content (Join-Paths $PSScriptRoot ('..', 'config', 'runtime.version'))
-
-    if ($env:KOREBUILD_DOTNET_CHANNEL) {
-        $channel = $env:KOREBUILD_DOTNET_CHANNEL
-        Write-Warning "dotnet channel overridden by KOREBUILD_DOTNET_CHANNEL"
-    }
-    if ($env:KOREBUILD_DOTNET_SHARED_RUNTIME_CHANNEL) {
-        $runtimeChannel = $env:KOREBUILD_DOTNET_SHARED_RUNTIME_CHANNEL
-        Write-Warning "dotnet shared runtime channel overridden by KOREBUILD_DOTNET_SHARED_RUNTIME_CHANNEL"
-    }
-    if ($env:KOREBUILD_DOTNET_SHARED_RUNTIME_VERSION) {
-        $runtimeVersion = $env:KOREBUILD_DOTNET_SHARED_RUNTIME_VERSION
-        Write-Warning "dotnet shared runtime version overridden by KOREBUILD_DOTNET_SHARED_RUNTIME_VERSION"
-    }
-
-    if ($runtimeVersion) {
-        __install_shared_runtime $scriptPath $installDir -arch $arch -version $runtimeVersion -channel $runtimeChannel -SkipNonVersionedFiles
-    }
 
     # Install the main CLI
     if (!(Test-Path (Join-Paths $installDir ('sdk', $version, 'dotnet.dll')))) {
         Write-Verbose "Installing dotnet $version to $installDir"
         & $scriptPath `
-            -Channel $channel `
             -Version $version `
             -Architecture $arch `
             -InstallDir $installDir `
@@ -442,27 +421,6 @@ function __get_dotnet_arch {
         return $env:KOREBUILD_DOTNET_ARCH
     }
     return 'x64'
-}
-
-function __install_shared_runtime($installScript, $installDir, [string]$arch, [string] $version, [string] $channel) {
-    $sharedRuntimePath = Join-Paths $installDir ('shared', 'Microsoft.NETCore.App', $version)
-    # Avoid redownloading the CLI if it's already installed.
-    if (!(Test-Path $sharedRuntimePath)) {
-        Write-Verbose "Installing .NET Core runtime $version"
-        & $installScript `
-            -Channel $channel `
-            -Runtime 'dotnet' `
-            -Version $version `
-            -Architecture $arch `
-            -InstallDir $installDir `
-            -AzureFeed $script:config.'dotnet.feed.cdn' `
-            -UncachedFeed $script:config.'dotnet.feed.uncached' `
-            -FeedCredential $script:config.'dotnet.feed.credential' `
-            -NoCdn
-    }
-    else {
-        Write-Host -ForegroundColor DarkGray ".NET Core runtime $version is already installed. Skipping installation."
-    }
 }
 
 function __get_dotnet_sdk_version {

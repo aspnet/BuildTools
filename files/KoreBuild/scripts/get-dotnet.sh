@@ -7,32 +7,6 @@ set -euo pipefail
 
 source "$__script_dir/common.sh"
 
-__install_shared_runtime() {
-    local install_dir=$1
-    local version=$2
-    local channel=$3
-
-    local runtime_path="$install_dir/shared/Microsoft.NETCore.App/$version"
-    if [ ! -d "$runtime_path" ]; then
-
-        __verbose "Installing .NET Core runtime to $runtime_path"
-
-        "$__script_dir/dotnet-install.sh" \
-            --install-dir "$install_dir" \
-            --architecture x64 \
-            --runtime 'dotnet' \
-            --skip-non-versioned-files \
-            --channel "$channel" \
-            --version "$version" \
-            --no-cdn \
-            $verbose_flag
-
-        return $?
-    else
-        echo -e "${GRAY}.NET Core runtime $version is already installed. Skipping installation.${RESET}"
-    fi
-}
-
 #
 # Main
 #
@@ -64,41 +38,16 @@ if [ ! -z "${KOREBUILD_SKIP_RUNTIME_INSTALL:-}" ]; then
      exit 0
 fi
 
-channel='preview'
-version=$(__get_dotnet_sdk_version)
-runtime_channel='master'
-runtime_version=$(< "$__script_dir/../config/runtime.version" head -1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-
-# environment overrides
-if [ ! -z "${KOREBUILD_DOTNET_CHANNEL:-}" ]; then
-    channel=${KOREBUILD_DOTNET_CHANNEL:-}
-    __warn "dotnet channel was overridden by KOREBUILD_DOTNET_CHANNEL."
-fi
-
-if [ ! -z "${KOREBUILD_DOTNET_SHARED_RUNTIME_CHANNEL:-}" ]; then
-    runtime_channel=${KOREBUILD_DOTNET_SHARED_RUNTIME_CHANNEL:-}
-    __warn "dotnet shared runtime channel overridden by KOREBUILD_DOTNET_SHARED_RUNTIME_CHANNEL"
-fi
-
-if [ ! -z "${KOREBUILD_DOTNET_SHARED_RUNTIME_VERSION:-}" ]; then
-    runtime_version=${KOREBUILD_DOTNET_SHARED_RUNTIME_VERSION:-}
-    __warn "dotnet shared runtime version overridden by KOREBUILD_DOTNET_SHARED_RUNTIME_VERSION"
-fi
-
 # Call "sync" between "chmod" and execution to prevent "text file busy" error in Docker (aufs)
 chmod +x "$__script_dir/dotnet-install.sh"; sync
 
-if [ "$runtime_version" != "" ]; then
-    __install_shared_runtime "$install_dir" "$runtime_version" "$runtime_channel"
-fi
-
+version=$(__get_dotnet_sdk_version)
 __verbose "Installing .NET Core SDK $version"
 
 if [ ! -f "$install_dir/sdk/$version/dotnet.dll" ]; then
     "$__script_dir/dotnet-install.sh" \
         --install-dir "$install_dir" \
         --architecture x64 \
-        --channel "$channel" \
         --version "$version" \
         --no-cdn \
         $verbose_flag

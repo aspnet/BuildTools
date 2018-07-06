@@ -1,0 +1,37 @@
+resources:
+- repo: self
+  clean: true
+queue: Hosted VS2017
+variables:
+  Arguments: ''
+  ScriptFileName: ''
+steps:
+- task: PowerShell@1
+  displayName: Run Script
+  inputs:
+    scriptType: inlineScript
+    arguments: '-ScriptFileName "$(ScriptFileName)" -Arguments "$(Arguments)" -Secrets @{"BotAccount-dotnet-maestro-bot-PAT"="$(BotAccount-dotnet-maestro-bot-PAT)"}'
+    failOnStandardError: false
+    inlineScript: |
+     param(
+     [string]$ScriptFileName,
+     [string]$Arguments,
+     [hashtable]$Secrets)
+
+     # evaluate PS expressions in the Arguments (to resolve the secret values)
+     $Arguments = Invoke-Expression "`"$Arguments`""
+
+     # clear the rest of the secrets out, so the script doesn't have access to them
+     $Secrets = @{}
+     $pwd = Get-Location
+     try {
+       Invoke-Expression "& `"$pwd\$ScriptFileName`" $Arguments"
+       if ($LASTEXITCODE -ne 0) {
+          throw "Script returned exit code $LASTEXITCODE"
+       }
+     } catch {
+        write-error $_
+        exit 1
+     }
+
+

@@ -294,17 +294,16 @@ by creating a merge commit, *not* a squash or rebase commit.
 
 You can also do this on command line:
 ``````
-git checkout $HeadBranch
-git fetch https://github.com/$prOwnerName/$RepoName ${mergeBranchName}:${mergeBranchName}
+git checkout $BaseBranch
+git fetch --force https://github.com/$prOwnerName/$RepoName ${mergeBranchName}:${mergeBranchName}
 git merge ${mergeBranchName}
 git push
 ``````
 
-:warning: If there are merge conflicts, you will need to resolve them manually on command line before merging.
-Resolving conflicts in GitHub's web UI has been known to cause issues, so proceed with caution.
+:warning: If there are merge conflicts, you will need to resolve them manually before merging.
 
 Please contact ASP.NET Core Engineering if you have questions or issues.
-Also, if this PR was generated incorrectly, checkout https://github.com/aspnet/BuildTools/tree/master/scripts/GitHubMergeBranches.ps1
+Also, if this PR was generated incorrectly, help us fix it. See https://github.com/aspnet/BuildTools/tree/master/scripts/GitHubMergeBranches.ps1.
 "@
 
         $data = @{

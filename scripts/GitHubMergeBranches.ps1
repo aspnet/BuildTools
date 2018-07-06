@@ -281,7 +281,9 @@ try {
         }
 
         $prBody = @"
-I'm experimenting with automation to merge branches to prevent drift, so sorry if this change looks funny.
+I detected changes in the $HeadBranch branch which have not been merged yet to $BaseBranch.
+I'm a robot and am configured to help you automatically keep $BaseBranch up to date, so
+I've opened this PR.
 
 $prComment
 

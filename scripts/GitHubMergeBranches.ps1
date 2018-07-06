@@ -301,9 +301,10 @@ git push
 ``````
 
 :warning: If there are merge conflicts, you will need to resolve them manually on command line before merging.
-Resolving conflicts in GitHub's web UI has known to cause issues, so proceed with caution.
+Resolving conflicts in GitHub's web UI has been known to cause issues, so proceed with caution.
 
 Please contact ASP.NET Core Engineering if you have questions or issues.
+Also, if this PR was generated incorrectly, checkout https://github.com/aspnet/BuildTools/tree/master/scripts/GitHubMergeBranches.ps1
 "@
 
         $data = @{

@@ -78,6 +78,8 @@ function GetCommiterGitHubName($sha) {
     $email = & git show -s --format='%ce' $sha
     $key = 'committer'
 
+    # Exclude noreply@github.com - these map to https://github.com/web-flow, which is the user account
+    # added as the 'committer' when users commit via the GitHub web UI on their own PRs
     if ((-not $email) -or ($email -eq 'noreply@github.com')) {
         $key = 'author'
         $email = & git show -s --format='%ae' $sha
@@ -96,13 +98,25 @@ function GetCommiterGitHubName($sha) {
                 "https://api.github.com/repos/$RepoOwner/$RepoName/commits/$sha"
             $resp | Write-Verbose
             if ($resp -and $resp.$key) {
-                $script:emails[$email] = $resp.committer.login
+                $script:emails[$email] = $resp.$key.login
             }
             return $resp.$key.login
         }
         catch {
             Write-Warning "Failed to find github user for $committerEmail. $_"
         }
+    }
+    return $null
+}
+
+function RepoExists($owner, $name) {
+    try {
+        $resp = Invoke-RestMethod -Headers $headers "https://api.github.com/repos/$owner/$name"
+        $resp | Write-Verbose
+        return ($resp -ne $null)
+    }
+    catch {
+        return $false
     }
 }
 
@@ -115,7 +129,7 @@ if (-not (Test-Path $workDir)) {
     Invoke-Block { & git clone "https://github.com/$RepoOwner/$RepoName.git" $workDir `
             --quiet `
             --no-tags `
-            --branch $HeadBranch
+            --branch $BaseBranch
     }
 }
 
@@ -125,17 +139,17 @@ $formatString = '%h %cn <%ce>: %s (%cr)'
 Push-Location $workDir
 try {
     if ($fetch) {
-        Invoke-Block { & git fetch --quiet }
-        Invoke-Block { & git checkout --quiet $HeadBranch }
-        Invoke-Block { & git reset --hard origin/$HeadBranch }
+        Invoke-Block { & git fetch --quiet origin }
+        Invoke-Block { & git checkout --quiet $BaseBranch }
+        Invoke-Block { & git reset --hard origin/$BaseBranch }
     }
 
-    Write-Host -f Magenta "${HeadBranch}:`t`t$(& git log --format=$formatString -1 HEAD)"
+    Write-Host -f Magenta "${BaseBranch}:`t`t$(& git log --format=$formatString -1 HEAD)"
 
-    Invoke-Block { & git checkout --quiet $BaseBranch }
-    Invoke-Block { & git reset --quiet --hard origin/$BaseBranch }
+    Invoke-Block { & git checkout --quiet $HeadBranch }
+    Invoke-Block { & git reset --quiet --hard origin/$HeadBranch }
 
-    Write-Host -f Magenta "${BaseBranch}:`t$(& git log --format=$formatString -1 HEAD)"
+    Write-Host -f Magenta "${HeadBranch}:`t$(& git log --format=$formatString -1 HEAD)"
 
     [string[]] $commitsToMerge = & git rev-list "$BaseBranch..$HeadBranch" # find all commits which will be merged
 
@@ -151,30 +165,55 @@ try {
         | Get-Unique
 
     $list = $authors | % { "* @$_" }
-    $prMessage = "This PR merges commits made on $HeadBranch by the following committers:`n`n$($list -join "`n")"
 
-    Write-Host $prMessage
+    $prComment = "This PR merges commits made on $HeadBranch by the following committers:`n`n$($list -join "`n")"
 
-    $mergeBranchName = "automerge/$HeadBranch"
+    Write-Host $prComment
+
+    $mergeBranchName = "merge/$HeadBranch"
     Invoke-Block { & git checkout -B $mergeBranchName  }
-
-    try {
-        Invoke-Block { & git merge $HeadBranch `
-                -m "[automated] Merge branch '$HeadBranch'" `
-                --no-ff }
-    }
-    catch {
-        # fallback if the automatic merge produces conflicts
-        Write-Warning "Could not automatically merge, but proceeding to open PR anyways"
-    }
 
     $remoteName = 'origin'
     $prOwnerName = 'aspnet'
 
     if ($Fork) {
         $remoteName = 'fork'
-        Invoke-Block { & git remote add -f fork "https://${Username}:${AuthToken}@github.com/${Username}/${RepoName}.git" }
+
+        try {
+            # remove remote if it already exists and re-confgure
+            Invoke-Block { & git remote remove fork }
+        }
+        catch { }
+
+        Invoke-Block { & git remote add fork "https://${Username}:${AuthToken}@github.com/${Username}/${RepoName}.git" }
         $prOwnerName = $Username
+
+        if (-not (RepoExists $Username $RepoName)) {
+            if ($PSCmdlet.ShouldProcess("Creating fork ${Username}/${RepoName}")) {
+
+                Write-Host -ForegroundColor Yellow "Creating a fork ${Username}/${RepoName}"
+
+                $resp = Invoke-RestMethod -Method Post -Headers $Headers `
+                    "https://api.github.com/repos/aspnet/$RepoName/forks"
+                $resp | Write-Verbose
+
+                $retries = 10
+                $repoCreated = $false
+                do {
+                    $retries -= 1
+                    if (RepoExists $Username $RepoName) {
+                        $repoCreated = $true
+                        break
+                    }
+                    Write-Host "Repo ${Username}/${RepoName} does not exist yet. Waiting to check again..."
+                    Start-Sleep -Seconds 30
+                } while ($retries -gt 0)
+
+                if (-not $repoCreated) {
+                    throw "Could not create a fork for ${Username}/${RepoName}"
+                }
+            }
+        }
     }
 
     if ($PSCmdlet.ShouldProcess("Update remote branch $mergeBranchName on $remoteName")) {
@@ -221,7 +260,7 @@ try {
 
     if ($matchingPr) {
         $data = @{
-            body = "This pull request has been updated.`n`n$prMessage"
+            body = "This pull request has been updated.`n`n$prComment"
         }
 
         $prNumber = $matchingPr.number
@@ -242,11 +281,34 @@ try {
             Authorization = "bearer $AuthToken"
         }
 
+        $prBody = @"
+I'm experimenting with automation to merge branches to prevent drift, so sorry if this change looks funny.
+
+$prComment
+
+## Instructions for merging
+
+This PR will not be auto-merged. When pull request checks pass, please complete this PR
+by creating a merge commit, *not* a squash or rebase commit.
+
+<img alt="merge button instructions" src="https://i.imgur.com/GepcNJV.png" width="300" />
+
+You can also do this on command line:
+``````
+git checkout $HeadBranch
+git fetch https://github.com/$prOwnerName/$RepoName ${mergeBranchName}:${mergeBranchName}
+git merge ${mergeBranchName}
+git push
+``````
+
+Please contact ASP.NET Core Engineering if you have questions or issues.
+"@
+
         $data = @{
             title                 = "[automated] Merge branch '$HeadBranch' => '$BaseBranch'"
             head                  = "${prOwnerName}:${mergeBranchName}"
             base                  = $BaseBranch
-            body                  = $prMessage
+            body                  = $prBody
             maintainer_can_modify = $true
         }
 

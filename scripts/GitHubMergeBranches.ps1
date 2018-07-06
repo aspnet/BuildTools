@@ -303,7 +303,7 @@ git push
 :warning: If there are merge conflicts, you will need to resolve them manually before merging.
 
 Please contact ASP.NET Core Engineering if you have questions or issues.
-Also, if this PR was generated incorrectly, help us fix it. See https://github.com/aspnet/BuildTools/tree/master/scripts/GitHubMergeBranches.ps1.
+Also, if this PR was generated incorrectly, help us fix it. See https://github.com/aspnet/BuildTools/blob/master/scripts/GitHubMergeBranches.ps1.
 "@
 
         $data = @{

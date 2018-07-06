@@ -102,7 +102,7 @@ function GetCommiterGitHubName($sha) {
             return $resp.$key.login
         }
         catch {
-            Write-Warning "Failed to find github user for $committerEmail. $_"
+            Write-Warning "Failed to find github user for $email. $_"
         }
     }
     return $null
@@ -154,7 +154,7 @@ try {
 
     if (-not $commitsToMerge) {
         Write-Warning "There were no commits to be merged from $HeadBranch into $BaseBranch"
-        return 0
+        exit 0
     }
 
     $authors = $commitsToMerge `

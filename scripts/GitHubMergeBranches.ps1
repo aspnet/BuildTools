@@ -173,7 +173,7 @@ try {
     Invoke-Block { & git checkout -B $mergeBranchName  }
 
     $remoteName = 'origin'
-    $prOwnerName = 'aspnet'
+    $prOwnerName = $RepoOwner
 
     if ($Fork) {
         $remoteName = 'fork'
@@ -193,7 +193,7 @@ try {
                 Write-Host -ForegroundColor Yellow "Creating a fork ${Username}/${RepoName}"
 
                 $resp = Invoke-RestMethod -Method Post -Headers $Headers `
-                    "https://api.github.com/repos/aspnet/$RepoName/forks"
+                    "https://api.github.com/repos/$RepoOwner/$RepoName/forks"
                 $resp | Write-Verbose
 
                 $retries = 10
@@ -219,8 +219,8 @@ try {
         Invoke-Block { & git push --force $remoteName "${mergeBranchName}:${mergeBranchName}" }
     }
 
-    $query = 'query ($repoName: String!, $baseName: String!) {
-        repository(owner: "aspnet", name: $repoName) {
+    $query = 'query ($repoOwner: String!, $repoName: String!, $baseName: String!) {
+        repository(owner: $repoOwner, name: $repoName) {
           pullRequests(baseRefName: $baseName, states: OPEN, first: 100) {
             totalCount
             nodes {
@@ -242,6 +242,7 @@ try {
     $data = @{
         query     = $query
         variables = @{
+            repoOwner   = $RepoOwner
             repoName    = $RepoName
             baseRefName = $BaseBranch
         }
@@ -263,11 +264,11 @@ try {
         }
 
         $prNumber = $matchingPr.number
-        $prUrl = "https://github.com/aspnet/$RepoName/pull/$prNumber"
+        $prUrl = "https://github.com/$RepoOwner/$RepoName/pull/$prNumber"
 
         if ($PSCmdlet.ShouldProcess("Update $prUrl")) {
             $resp = Invoke-RestMethod -Method Post -Headers $headers `
-                "https://api.github.com/repos/aspnet/$RepoName/issues/$prNumber/comments" `
+                "https://api.github.com/repos/$RepoOwner/$RepoName/issues/$prNumber/comments" `
                 -Body ($data | ConvertTo-Json)
             $resp | Write-Verbose
             Write-Host -f green "Updated pull request $url"
@@ -318,10 +319,10 @@ Also, if this PR was generated incorrectly, help us fix it. See https://github.c
 
         if ($PSCmdlet.ShouldProcess("Create PR from ${prOwnerName}:${mergeBranchName} to $BaseBranch on $Reponame")) {
             $resp = Invoke-RestMethod -Method POST -Headers $previewHeaders `
-                https://api.github.com/repos/aspnet/$RepoName/pulls `
+                https://api.github.com/repos/$RepoOwner/$RepoName/pulls `
                 -Body ($data | ConvertTo-Json)
             $resp | Write-Verbose
-            Write-Host -f green "Created pull request https://github.com/aspnet/$RepoName/pull/$($resp.number)"
+            Write-Host -f green "Created pull request https://github.com/$RepoOwner/$RepoName/pull/$($resp.number)"
         }
     }
 }

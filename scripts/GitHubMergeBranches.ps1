@@ -97,9 +97,8 @@ function GetCommiterGitHubName($sha) {
             $resp = Invoke-RestMethod -Method GET -Headers $headers `
                 "https://api.github.com/repos/$RepoOwner/$RepoName/commits/$sha"
             $resp | Write-Verbose
-            if ($resp -and $resp.$key) {
-                $script:emails[$email] = $resp.$key.login
-            }
+
+            $script:emails[$email] = $resp.$key.login
             return $resp.$key.login
         }
         catch {

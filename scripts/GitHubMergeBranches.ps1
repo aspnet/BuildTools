@@ -169,7 +169,7 @@ try {
 
     Write-Host $prComment
 
-    $mergeBranchName = "merge/$HeadBranch"
+    $mergeBranchName = "merge/$HeadBranch-to-$BaseBranch"
     Invoke-Block { & git checkout -B $mergeBranchName  }
 
     $remoteName = 'origin'

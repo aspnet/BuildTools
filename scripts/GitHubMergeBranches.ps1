@@ -48,6 +48,7 @@ param(
 
 $ErrorActionPreference = 'stop'
 Set-StrictMode -Version 1
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 if ($Fork -and (-not $Username)) {
     throw 'You must specify -Username if you also specify -Fork'
@@ -166,11 +167,10 @@ try {
         | % { Write-Host -f Cyan "Merging:`t$(git log --format=$formatString -1 $_)"; $_ } `
         | % { GetCommiterGitHubName $_ } `
         | ? { $_ -ne $null } `
-        | Get-Unique
+        | % { "* @$_" } `
+        | select -Unique
 
-    $list = $authors | % { "* @$_" }
-
-    $prComment = "This PR merges commits made on $HeadBranch by the following committers:`n`n$($list -join "`n")"
+    $prComment = "This PR merges commits made on $HeadBranch by the following committers:`n`n$($authors -join "`n")"
 
     Write-Host $prComment
 

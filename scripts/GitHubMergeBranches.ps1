@@ -53,6 +53,11 @@ if ($Fork -and (-not $Username)) {
     throw 'You must specify -Username if you also specify -Fork'
 }
 
+# Workaround for quirk in how dotnet-maestro-bot triggers this script
+if ($RepoName -like "$RepoOwner/*") {
+    $RepoName = $RepoName.Substring("$RepoOwner/".Length)
+}
+
 $headers = @{
     Authorization = "bearer $AuthToken"
 }

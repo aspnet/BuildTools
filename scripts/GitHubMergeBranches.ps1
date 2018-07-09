@@ -206,6 +206,8 @@ try {
                 do {
                     $retries -= 1
                     if (RepoExists $Username $RepoName) {
+                        # Fork creation is an async operation. Wait a minute to give GitHub more time to finish fork creation
+                        Start-Sleep -Seconds 90
                         $repoCreated = $true
                         break
                     }
@@ -224,9 +226,9 @@ try {
         Invoke-Block { & git push --force $remoteName "${mergeBranchName}:${mergeBranchName}" }
     }
 
-    $query = 'query ($repoOwner: String!, $repoName: String!, $baseName: String!) {
+    $query = 'query ($repoOwner: String!, $repoName: String!, $baseRefName: String!) {
         repository(owner: $repoOwner, name: $repoName) {
-          pullRequests(baseRefName: $baseName, states: OPEN, first: 100) {
+          pullRequests(baseRefName: $baseRefName, states: OPEN, first: 100) {
             totalCount
             nodes {
               number

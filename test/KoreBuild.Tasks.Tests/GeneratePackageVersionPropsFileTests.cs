@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.IO;
 using BuildTools.Tasks.Tests;
+using KoreBuild.Tasks.Utilities;
 using Microsoft.Build.Construction;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
@@ -57,7 +58,7 @@ namespace KoreBuild.Tasks.Tests
             Assert.Empty(allProjectsProp.Condition);
             Assert.Equal("$(MSBuildAllProjects);$(MSBuildThisFileFullPath)", allProjectsProp.Value);
 
-            var versions = Assert.Single(project.PropertyGroups, pg => pg.Label == "Package Versions");
+            var versions = Assert.Single(project.PropertyGroups, pg => pg.Label == DependencyVersionsFile.AutoPackageVersionsLabel);
 
             // Order is important. These should be sorted.
             Assert.Collection(versions.Properties,

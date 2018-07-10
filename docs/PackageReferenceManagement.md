@@ -50,15 +50,22 @@ Each repository should have this file, and it should look like this.
   <PropertyGroup>
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
   </PropertyGroup>
-  <PropertyGroup Label="Package Versions">
+  <PropertyGroup Label="Package Versions: Auto">
     <NewtonsoftJsonPackageVersion>10.0.1</NewtonsoftJsonPackageVersion>
     <MicrosoftNETTestSdkPackageVersion>15.3.0</MicrosoftNETTestSdkPackageVersion>
     <MoqPackageVersion>4.7.49</MoqPackageVersion>
     <XunitPackageVersion>2.3.0</XunitPackageVersion>
   </PropertyGroup>
   <Import Project="$(DotNetPackageVersionPropsPath)" Condition=" '$(DotNetPackageVersionPropsPath)' != '' " />
+  <PropertyGroup Label="Package Versions: Pinned">
+    <StablePackageVersion>10.0.1</StablePackageVersion>
+  </PropertyGroup>
 </Project>
 ```
+
+The `<PropertyGroup Label="Package Versions: Auto">` section is for variables which should be automatically updated.
+
+The `<PropertyGroup Label="Package Versions: Pinned">` section is for variables which upgrade automation should not touch.
 
 ### 2. PackageReference's should use variables to set versions
 

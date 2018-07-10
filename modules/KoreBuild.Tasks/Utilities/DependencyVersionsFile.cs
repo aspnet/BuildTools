@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Microsoft.Build.Construction;
 using Microsoft.Build.Evaluation;
@@ -13,16 +14,20 @@ namespace KoreBuild.Tasks.Utilities
     {
         public const string PackageVersionsLabel = "Package Versions";
 
-        private readonly Dictionary<string, string> _versionVariables
-            = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        public const string AutoPackageVersionsLabel = "Package Versions: Auto";
+        public const string PinnedPackageVersionsLabel = "Package Versions: Pinned";
 
-        private readonly SortedDictionary<string, ProjectPropertyElement> _versionElements
-            = new SortedDictionary<string, ProjectPropertyElement>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, PackageVersionVariable> _versionVariables
+            = new Dictionary<string, PackageVersionVariable>(StringComparer.OrdinalIgnoreCase);
+
+        //private readonly SortedDictionary<string, ProjectPropertyElement> _versionElements
+        //    = new SortedDictionary<string, ProjectPropertyElement>(StringComparer.OrdinalIgnoreCase);
 
         private readonly ProjectRootElement _document;
-        private ProjectPropertyGroupElement _versionsPropGroup;
+        private ProjectPropertyGroupElement _autoPackageVersions;
+        private ProjectPropertyGroupElement _pinnedPackageVersions;
 
-        public DependencyVersionsFile(ProjectRootElement xDocument)
+        private DependencyVersionsFile(ProjectRootElement xDocument)
         {
             _document = xDocument;
         }
@@ -60,8 +65,8 @@ namespace KoreBuild.Tasks.Utilities
 
             projectRoot.AddPropertyGroup().AddProperty("MSBuildAllProjects", "$(MSBuildAllProjects);$(MSBuildThisFileFullPath)");
 
-            var packageVersions = projectRoot.AddPropertyGroup();
-            packageVersions.Label = PackageVersionsLabel;
+            var autoPackageVersions = projectRoot.AddPropertyGroup();
+            autoPackageVersions.Label = AutoPackageVersionsLabel;
 
             if (additionalImports != null)
             {
@@ -78,9 +83,14 @@ namespace KoreBuild.Tasks.Utilities
                 import.Condition = " '$(DotNetPackageVersionPropsPath)' != '' ";
             }
 
-            var file = new DependencyVersionsFile(projectRoot);
-            file._versionsPropGroup = packageVersions;
-            return file;
+            var pinnedPackageVersions = projectRoot.AddPropertyGroup();
+            pinnedPackageVersions.Label = PinnedPackageVersionsLabel;
+
+            return new DependencyVersionsFile(projectRoot)
+            {
+                _autoPackageVersions = autoPackageVersions,
+                _pinnedPackageVersions = pinnedPackageVersions,
+            };
         }
 
         public static bool TryLoad(string sourceFile, out DependencyVersionsFile file)
@@ -108,71 +118,115 @@ namespace KoreBuild.Tasks.Utilities
             var file = new DependencyVersionsFile(document);
 
             var propGroups = file._document.PropertyGroups;
+
+            var listPropertyGroups = new List<ProjectPropertyGroupElement>();
+
             foreach (var propGroup in propGroups)
             {
                 var attr = propGroup.Label;
-                if (attr != null && attr.Equals(PackageVersionsLabel, StringComparison.OrdinalIgnoreCase))
+                if (attr != null && attr.StartsWith(PackageVersionsLabel, StringComparison.OrdinalIgnoreCase))
                 {
-                    file._versionsPropGroup = propGroup;
-                    break;
+                    file.HasVersionsPropertyGroup = true;
+                    listPropertyGroups.Add(propGroup);
                 }
             }
 
-            if (file._versionsPropGroup != null)
+            foreach (var group in listPropertyGroups)
             {
-                foreach (var child in file._versionsPropGroup.Properties)
+                var isReadOnly = string.Equals(group.Label, PinnedPackageVersionsLabel, StringComparison.OrdinalIgnoreCase);
+                if (isReadOnly)
                 {
-                    file._versionVariables[child.Name.ToString()] = child.Value?.Trim() ?? string.Empty;
-                    file._versionElements[child.Name.ToString()] = child;
+                    file._pinnedPackageVersions = group;
+                }
+                else
+                {
+                    file._autoPackageVersions = group;
+                }
+
+                foreach (var child in group.Properties)
+                {
+                    var variable = new PackageVersionVariable(child, isReadOnly);
+                    file._versionVariables[variable.Name] = variable;
                 }
             }
 
+            file.EnsureGroupsCreated();
             return file;
+        }
+
+        private void EnsureGroupsCreated()
+        {
+            if (_autoPackageVersions == null)
+            {
+                _autoPackageVersions = _document.AddPropertyGroup();
+                _autoPackageVersions.Label = AutoPackageVersionsLabel;
+            }
+
+            if (_pinnedPackageVersions == null)
+            {
+                _pinnedPackageVersions = _document.AddPropertyGroup();
+                _pinnedPackageVersions.Label = PinnedPackageVersionsLabel;
+            }
         }
 
         public static DependencyVersionsFile LoadFromProject(Project project)
         {
             var file = new DependencyVersionsFile(ProjectRootElement.Create(NewProjectFileOptions.None));
 
-            foreach (var property in project.AllEvaluatedProperties)
+            foreach (var property in project.AllEvaluatedProperties.Where(p => p.Xml != null))
             {
-                file._versionVariables[property.Name] = property.EvaluatedValue?.Trim() ?? string.Empty;
-                file._versionElements[property.Name] = property.Xml;
+                var group = (ProjectPropertyGroupElement)property.Xml.Parent;
+                var isReadOnly = string.Equals(group.Label, PinnedPackageVersionsLabel, StringComparison.OrdinalIgnoreCase);
+
+                var variable = new PackageVersionVariable(property.Xml, property.EvaluatedValue?.Trim(), isReadOnly);
+                file._versionVariables[property.Name] = variable;
             }
+
+            file.EnsureGroupsCreated();
 
             return file;
         }
 
-        public bool HasVersionsPropertyGroup() => _versionsPropGroup != null;
+        public bool HasVersionsPropertyGroup { get; private set; }
 
         // copying is required so calling .Set while iterating on this doesn't raise an InvalidOperationException
-        public IReadOnlyDictionary<string, string> VersionVariables
-            => new Dictionary<string, string>(_versionVariables, StringComparer.OrdinalIgnoreCase);
+        public IReadOnlyDictionary<string, PackageVersionVariable> VersionVariables
+            => new Dictionary<string, PackageVersionVariable>(_versionVariables, StringComparer.OrdinalIgnoreCase);
 
-        public ProjectPropertyElement Set(string variableName, string version)
+        public PackageVersionVariable Update(string variableName, string version)
         {
-            _versionVariables[variableName] = version;
-            if (!_versionElements.TryGetValue(variableName, out var element))
+            if (!_versionVariables.TryGetValue(variableName, out var variable))
             {
-                element = _document.CreatePropertyElement(variableName);
-                _versionElements.Add(variableName, element);
+                var element = _document.CreatePropertyElement(variableName);
+                variable = new PackageVersionVariable(element, version, isReadOnly: false);
+                _versionVariables[variableName] = variable;
+                variable.AddToGroup(_autoPackageVersions);
             }
-            element.Value = version;
-            return element;
+
+            variable.UpdateVersion(version);
+            return variable;
+        }
+
+        public PackageVersionVariable AddPinnedVariable(string variableName, string version)
+        {
+            if (_versionVariables.ContainsKey(variableName))
+            {
+                throw new InvalidOperationException("Key already exists: " + variableName);
+            }
+
+            var element = _document.CreatePropertyElement(variableName);
+            var variable = new PackageVersionVariable(element, version, isReadOnly: true);
+            _versionVariables.Add(variableName, variable);
+            variable.AddToGroup(_pinnedPackageVersions);
+            return variable;
         }
 
         public void Save(string filePath)
         {
-            if (_versionsPropGroup == null)
+            _autoPackageVersions.RemoveAllChildren();
+            foreach (var item in _versionVariables.Values.Where(v => !v.IsReadOnly).OrderBy(v => v.Name))
             {
-                _versionsPropGroup = _document.AddPropertyGroup();
-                _versionsPropGroup.Label = PackageVersionsLabel;
-            }
-
-            _versionsPropGroup.RemoveAllChildren();
-            foreach (var item in _versionElements.Values)
-            {
-                _versionsPropGroup.AppendChild(item);
+                item.AddToGroup(_autoPackageVersions);
             }
 
             _document.Save(filePath, Encoding.UTF8);

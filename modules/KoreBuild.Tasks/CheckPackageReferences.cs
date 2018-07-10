@@ -53,9 +53,9 @@ namespace KoreBuild.Tasks
                 return false;
             }
 
-            if (!depsFile.HasVersionsPropertyGroup())
+            if (!depsFile.HasVersionsPropertyGroup)
             {
-                Log.LogKoreBuildWarning(KoreBuildErrors.PackageRefPropertyGroupNotFound, $"No PropertyGroup with Label=\"{DependencyVersionsFile.PackageVersionsLabel}\" could be found in {DependenciesFile}");
+                Log.LogKoreBuildWarning(KoreBuildErrors.PackageRefPropertyGroupNotFound, $"No PropertyGroup with Label=\"{DependencyVersionsFile.PackageVersionsLabel}\" or Label=\"{DependencyVersionsFile.AutoPackageVersionsLabel}\" could be found in {DependenciesFile}");
             }
 
             foreach (var proj in Projects)
@@ -79,7 +79,7 @@ namespace KoreBuild.Tasks
             return !Log.HasLoggedErrors;
         }
 
-        private void VerifyPackageReferences(string filePath, IReadOnlyDictionary<string, string> versionVariables)
+        private void VerifyPackageReferences(string filePath, IReadOnlyDictionary<string, PackageVersionVariable> versionVariables)
         {
             ProjectRootElement doc;
             try
@@ -127,12 +127,13 @@ namespace KoreBuild.Tasks
 
                 var versionVarName = versionRaw.Substring(2, versionRaw.Length - 3);
 
-                if (!versionVariables.TryGetValue(versionVarName, out var versionValue))
+                if (!versionVariables.TryGetValue(versionVarName, out var variable))
                 {
                     Log.LogKoreBuildError(pkgRef.Location.File, pkgRef.Location.Line, KoreBuildErrors.VariableNotFoundInDependenciesPropsFile, $"The variable {versionRaw} could not be found in {DependenciesFile}");
                     continue;
                 }
 
+                var versionValue = variable.Version;
                 if (!VersionRange.TryParse(versionValue, out var nugetVersion))
                 {
                     Log.LogKoreBuildError(pkgRef.Location.File, pkgRef.Location.Line, KoreBuildErrors.InvalidPackageVersion, $"PackageReference to {id} has an invalid version identifier: '{versionValue}'");

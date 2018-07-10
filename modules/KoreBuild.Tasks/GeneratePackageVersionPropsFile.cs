@@ -76,10 +76,10 @@ namespace KoreBuild.Tasks
                     continue;
                 }
 
-                var item = depsFile.Set(packageVarName, packageVersion);
+                var item = depsFile.Update(packageVarName, packageVersion);
                 if (!SuppressVariableLabels)
                 {
-                    item.Label = pkg.ItemSpec;
+                    item.SetLabel(pkg.ItemSpec);
                 }
             }
 

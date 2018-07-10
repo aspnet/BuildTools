@@ -1,0 +1,10 @@
+phases:
+- template: phases/default-build.yml
+  parameters:
+    agentOs: macOS
+- template: phases/default-build.yml
+  parameters:
+    agentOs: Windows
+- template: phases/default-build.yml
+  parameters:
+    agentOs: Linux

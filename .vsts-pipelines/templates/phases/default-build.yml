@@ -1,0 +1,49 @@
+# default-build.yml
+# Description: Defines a build phase for invoking build.sh/cmd
+# Parameters:
+#   agentOs: [Windows (default), Linux, macOS]
+#       Used in templates to define variables which are OS specific
+#   buildArgs: string
+#       Additional arguments to pass to the build.sh/cmd script.
+#       Note: -ci is always passed
+#   beforeBuild: [steps]
+#       Additional steps to run before build.sh/cmd
+#   afterBuild: [steps]
+#       Additional steps to run after build.sh/cmd
+
+parameters:
+  agentOs: 'Windows'
+  buildArgs: ''
+  beforeBuild: []
+  afterBuild: []
+
+phases:
+- phase: ${{ parameters.agentOs }}
+  queue:
+    ${{ if eq(parameters.agentOs, 'macOS') }}:
+      name: Hosted macOS Preview
+    ${{ if eq(parameters.agentOs, 'Linux') }}:
+      name: Hosted Linux Preview
+    ${{ if eq(parameters.agentOs, 'Windows') }}:
+      name: Hosted VS2017
+  variables:
+    BuildScriptArgs: ${{ parameters.buildArgs }}
+    DOTNET_HOME: $(Agent.WorkFolder)/.dotnet
+  steps:
+  - checkout: self
+    clean: true
+  - ${{ parameters.beforeBuild }}
+  - ${{ if eq(parameters.agentOs, 'Windows') }}:
+    - script: .\build.cmd -ci $(BuildScriptArgs)
+      displayName: Run build.cmd
+  - ${{ if ne(parameters.agentOs, 'Windows') }}:
+    - script: ./build.sh -ci $(BuildScriptArgs)
+      displayName: Run build.sh
+  - task: PublishTestResults@2
+    displayName: Publish test results
+    condition: always()
+    inputs:
+      testRunner: vstest
+      testResultsFiles: 'artifacts/logs/**/*.trx'
+  - ${{ parameters.afterBuild }}
+

@@ -1,0 +1,16 @@
+trigger:
+- master
+- release/*
+
+phases:
+- template: ../templates/phases/default-build.yml
+  parameters:
+    agentOs: macOS
+
+- template: ../templates/phases/default-build.yml
+  parameters:
+    agentOs: Linux
+
+- template: ../templates/phases/default-build.yml
+  parameters:
+    agentOs: Windows

@@ -305,6 +305,7 @@ by creating a merge commit, *not* a squash or rebase commit.
 You can also do this on command line:
 ``````
 git checkout $BaseBranch
+git pull
 git fetch --force https://github.com/$prOwnerName/$RepoName ${mergeBranchName}:${mergeBranchName}
 git merge ${mergeBranchName}
 git push

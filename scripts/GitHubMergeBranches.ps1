@@ -170,6 +170,11 @@ try {
         | % { "* @$_" } `
         | select -Unique
 
+    if ((($authors | measure).Count -eq 1) -and ($authors | select -first 1) -eq 'aspnetci') {
+        Write-Host -ForegroundColor Yellow 'Skipping PR generation because it appears this PR would only contain automated commits by aspnetci'
+        exit 0
+    }
+
     $prComment = "This PR merges commits made on $HeadBranch by the following committers:`n`n$($authors -join "`n")"
 
     Write-Host $prComment

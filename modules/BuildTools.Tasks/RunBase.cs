@@ -53,12 +53,10 @@ namespace Microsoft.AspNetCore.BuildTools
         /// </summary>
         public int MaxRetries { get; set; }
 
-        protected override bool HandleTaskExecutionErrors()
-        {
-            return IgnoreExitCode || base.HandleTaskExecutionErrors();
-        }
-
-        protected override string GetWorkingDirectory() => WorkingDirectory;
+        /// <summary>
+        /// Ignore standard error and warning formatting
+        /// </summary>
+        public bool IgnoreStandardErrorWarningFormat { get; set; }
 
         // increase the default output importance from Low to High
         /// <inheritdoc />
@@ -66,6 +64,25 @@ namespace Microsoft.AspNetCore.BuildTools
 
         /// <inheritdoc />
         protected override MessageImportance StandardOutputLoggingImportance => MessageImportance.High;
+
+        protected override bool HandleTaskExecutionErrors()
+        {
+            return IgnoreExitCode || base.HandleTaskExecutionErrors();
+        }
+
+        protected override void LogEventsFromTextOutput(string singleLine, MessageImportance messageImportance)
+        {
+            if (IgnoreStandardErrorWarningFormat)
+            {
+                Log.LogMessage(messageImportance, singleLine);
+            }
+            else
+            {
+                base.LogEventsFromTextOutput(singleLine, messageImportance);
+            }
+        }
+
+        protected override string GetWorkingDirectory() => WorkingDirectory;
 
         protected override bool ValidateParameters()
         {

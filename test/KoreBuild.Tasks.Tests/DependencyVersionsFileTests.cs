@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.IO;
+using System.Linq;
 using BuildTools.Tasks.Tests;
 using KoreBuild.Tasks.Utilities;
 using Microsoft.Build.Construction;
@@ -38,14 +39,14 @@ namespace KoreBuild.Tasks.Tests
         public void ItSortsVariablesAlphabetically()
         {
             var depsFile = DependencyVersionsFile.Create(addOverrideImport: true);
-            depsFile.Set("XyzPackageVersion", "123");
-            depsFile.Set("AbcPackageVersion", "456");
+            depsFile.Update("XyzPackageVersion", "123");
+            depsFile.Update("AbcPackageVersion", "456");
             depsFile.Save(_tempFile);
 
             var project = ProjectRootElement.Open(_tempFile);
             _output.WriteLine(File.ReadAllText(_tempFile));
 
-            var versions = Assert.Single(project.PropertyGroups, p => !string.IsNullOrEmpty(p.Label));
+            var versions = Assert.Single(project.PropertyGroups, p => p.Label == DependencyVersionsFile.AutoPackageVersionsLabel);
             Assert.Collection(versions.Properties,
                 v => Assert.Equal("AbcPackageVersion", v.Name),
                 v => Assert.Equal("XyzPackageVersion", v.Name));
@@ -55,14 +56,14 @@ namespace KoreBuild.Tasks.Tests
         public void SetIsCaseInsensitive()
         {
             var depsFile = DependencyVersionsFile.Create(addOverrideImport: true);
-            depsFile.Set("XunitRunnerVisualStudioVersion", "2.3.0");
-            depsFile.Set("XunitRunnerVisualstudioVersion", "2.4.0");
+            depsFile.Update("XunitRunnerVisualStudioVersion", "2.3.0");
+            depsFile.Update("XunitRunnerVisualstudioVersion", "2.4.0");
             depsFile.Save(_tempFile);
 
             var project = ProjectRootElement.Open(_tempFile);
             _output.WriteLine(File.ReadAllText(_tempFile));
 
-            var versions = Assert.Single(project.PropertyGroups, p => !string.IsNullOrEmpty(p.Label));
+            var versions = Assert.Single(project.PropertyGroups, p => p.Label == DependencyVersionsFile.AutoPackageVersionsLabel);
             var prop = Assert.Single(versions.Properties);
             Assert.Equal("XunitRunnerVisualStudioVersion", prop.Name);
             Assert.Equal("2.4.0", prop.Value);

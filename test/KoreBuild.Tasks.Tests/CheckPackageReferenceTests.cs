@@ -17,6 +17,46 @@ namespace KoreBuild.Tasks.Tests
         }
 
         [Fact]
+        public void ItAllowsPinnedAndUnpinnedVersions()
+        {
+            var depsProps = Path.Combine(TempDir, "dependencies.props");
+            File.WriteAllText(depsProps, $@"
+<Project>
+  <PropertyGroup Label=`Package Versions: Latest`>
+    <LatestPackageVersion>1.0.0</LatestPackageVersion>
+  </PropertyGroup>
+
+  <Import Project=`$(DotNetPackageVersionsPropsPath)` />
+
+  <PropertyGroup Label=`Package Versions: Pinned`>
+    <BaseLinePackageVersion>1.0.0</BaseLinePackageVersion>
+  </PropertyGroup>
+</Project>
+".Replace('`', '"'));
+
+            var csproj = Path.Combine(TempDir, "Test.csproj");
+            File.WriteAllText(csproj, $@"
+<Project>
+  <ItemGroup>
+    <PackageReference Include=`Latest` Version=`$(LatestPackageVersion)` />
+    <PackageReference Include=`BaseLine`>
+       <Version>$(BaseLinePackageVersion)</Version>
+    </PackageReference>
+  </ItemGroup>
+</Project>
+".Replace('`', '"'));
+
+            var task = new CheckPackageReferences
+            {
+                BuildEngine = MockEngine,
+                DependenciesFile = depsProps,
+                Projects = new[] { new TaskItem(csproj) }
+            };
+
+            Assert.True(task.Execute(), "Task is expected to pass");
+        }
+
+        [Fact]
         public void PassesWhenAllRequirementsAreSatisifed()
         {
             var depsProps = Path.Combine(TempDir, "dependencies.props");

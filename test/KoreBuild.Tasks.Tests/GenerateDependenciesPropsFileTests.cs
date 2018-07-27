@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.IO;
 using BuildTools.Tasks.Tests;
+using KoreBuild.Tasks.Utilities;
 using Microsoft.Build.Construction;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
@@ -45,7 +46,7 @@ namespace KoreBuild.Tasks.Tests
             Assert.True(task.Execute(), "Task is expected to pass");
             var depsFile = ProjectRootElement.Open(generatedFile);
             _output.WriteLine(File.ReadAllText(generatedFile));
-            var pg = Assert.Single(depsFile.PropertyGroups, p => p.Label == "Package Versions");
+            var pg = Assert.Single(depsFile.PropertyGroups, p => p.Label == DependencyVersionsFile.AutoPackageVersionsLabel);
             var prop = Assert.Single(pg.Properties, p => p.Name == "MyDependencyPackageVersion");
             Assert.Equal("1.2.3", prop.Value);
         }
@@ -73,7 +74,7 @@ namespace KoreBuild.Tasks.Tests
             Assert.True(task.Execute(), "Task is expected to pass");
             var depsFile = ProjectRootElement.Open(generatedFile);
             _output.WriteLine(File.ReadAllText(generatedFile));
-            var pg = Assert.Single(depsFile.PropertyGroups, p => p.Label == "Package Versions");
+            var pg = Assert.Single(depsFile.PropertyGroups, p => p.Label == DependencyVersionsFile.AutoPackageVersionsLabel);
             Assert.Empty(pg.Properties);
         }
 

@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -74,7 +75,7 @@ namespace KoreBuild.Tasks
                 return false;
             }
 
-            if (!localVersionsFile.HasVersionsPropertyGroup())
+            if (!localVersionsFile.HasVersionsPropertyGroup)
             {
                 Log.LogKoreBuildWarning(KoreBuildErrors.PackageRefPropertyGroupNotFound, $"No PropertyGroup with Label=\"{DependencyVersionsFile.PackageVersionsLabel}\" could be found in {DependenciesFile}");
             }
@@ -146,7 +147,7 @@ namespace KoreBuild.Tasks
             using (var stringReader = new StringReader(text))
             using (var reader = new XmlTextReader(stringReader))
             {
-                Project project = new Project(ProjectRootElement.Create(reader));
+                var project = new Project(ProjectRootElement.Create(reader));
                 return DependencyVersionsFile.LoadFromProject(project);
             }
         }
@@ -194,34 +195,42 @@ namespace KoreBuild.Tasks
             using (var reader = new XmlTextReader(stream))
             {
                 var projectRoot = ProjectRootElement.Create(reader);
-                return  DependencyVersionsFile.Load(projectRoot);
+                return DependencyVersionsFile.Load(projectRoot);
             }
         }
 
         private int UpdateDependencies(DependencyVersionsFile localVersionsFile, DependencyVersionsFile remoteDepsVersionFile)
         {
             var updateCount = 0;
-            foreach (var var in localVersionsFile.VersionVariables)
+            foreach (var localVariable in localVersionsFile.VersionVariables.Values.Where(v => !v.IsReadOnly))
             {
-                string newValue;
+                string remoteVariableVersion;
                 // special case any package bundled in KoreBuild
-                if (!string.IsNullOrEmpty(KoreBuildVersion.Current) && var.Key == "InternalAspNetCoreSdkPackageVersion")
+                if (!string.IsNullOrEmpty(KoreBuildVersion.Current) && localVariable.Name == "InternalAspNetCoreSdkPackageVersion")
                 {
-                    newValue = KoreBuildVersion.Current;
+                    remoteVariableVersion = KoreBuildVersion.Current;
                     Log.LogMessage(MessageImportance.Low, "Setting InternalAspNetCoreSdkPackageVersion to the current version of KoreBuild");
                 }
-                else if (!remoteDepsVersionFile.VersionVariables.TryGetValue(var.Key, out newValue))
+                else
                 {
-                    Log.LogKoreBuildWarning(
-                        DependenciesFile, KoreBuildErrors.PackageVersionNotFoundInLineup,
-                        $"A new version variable for {var.Key} could not be found in {LineupPackageId}. This might be an unsupported external dependency.");
-                    continue;
+                    if (remoteDepsVersionFile.VersionVariables.TryGetValue(localVariable.Name, out var remoteVariable))
+                    {
+                        remoteVariableVersion = remoteVariable.Version;
+                    }
+                    else
+                    {
+                        Log.LogKoreBuildWarning(
+                            DependenciesFile, KoreBuildErrors.PackageVersionNotFoundInLineup,
+                            $"A new version variable for {localVariable.Name} could not be found in {LineupPackageId}. This might be an unsupported external dependency.");
+                        continue;
+                    }
                 }
 
-                if (newValue != var.Value)
+
+                if (remoteVariableVersion != localVariable.Version)
                 {
                     updateCount++;
-                    localVersionsFile.Set(var.Key, newValue);
+                    localVersionsFile.Update(localVariable.Name, remoteVariableVersion);
                 }
             }
 

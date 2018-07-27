@@ -15,6 +15,12 @@ namespace Microsoft.AspNetCore.BuildTools
     /// </summary>
     public abstract class RunBase : ToolTask
     {
+        protected RunBase()
+        {
+            // only use exit code to determine error by default.
+            LogStandardErrorAsError = false;
+        }
+
         private static readonly char[] EqualsArray = new[] { '=' };
 
         private const int OK = 0;
@@ -54,6 +60,7 @@ namespace Microsoft.AspNetCore.BuildTools
 
         protected override string GetWorkingDirectory() => WorkingDirectory;
 
+        // increase the default output importance from Low to High
         /// <inheritdoc />
         protected override MessageImportance StandardErrorLoggingImportance => MessageImportance.High;
 

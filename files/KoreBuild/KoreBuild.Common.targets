@@ -1,4 +1,4 @@
-<Project>
+<Project InitialTargets="UpdateCIParams">
 
 <!--
 ###################################################################
@@ -54,4 +54,10 @@ extending the *DependsOn property
 
   <!-- For external analysis of inputs/outputs. -->
   <Target Name="GetArtifactInfo" DependsOnTargets="$(GetArtifactInfoDependsOn)" Returns="@(ArtifactInfo)" />
+
+  <!-- Update the displayed build number of VSTS -->
+  <Target Name="UpdateCIParams" Condition="'$(SkipUpdateCIParams)' != 'true' AND '$(CI)' == 'true' AND '$(TF_BUILD)' == 'true' " >
+    <Message Text="##vso[task.setvariable variable=CIParamsWereAutoUpdated]true" Importance="High" />
+    <Message Text="##vso[build.updatebuildnumber]$(Version)" Importance="High" />
+  </Target>
 </Project>

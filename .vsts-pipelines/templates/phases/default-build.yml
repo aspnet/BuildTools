@@ -51,7 +51,7 @@ phases:
       displayName: Upload artifacts
       condition: and(always(), eq(variables['system.pullrequest.isfork'], false))
       inputs:
-        pathtoPublish: $(parameters.artifactsPath)
+        pathtoPublish: ${{ parameters.artifactsPath }}
         artifactName: format('build-{0}', parameters.agentOs)
         artifactType: Container
   - ${{ parameters.afterBuild }}

@@ -46,13 +46,8 @@ if (!$AzureStorageAccount) {
     Write-Error 'Expected -AzureStorageAccount or $env:AZURE_STORAGE_ACCOUNT to be set'
 }
 
-if (!($env:AZURE_STORAGE_SAS_TOKEN)) {
-    Write-Warning 'Expected $env:AZURE_STORAGE_SAS_TOKEN to be set'
-}
-
 if (!(Test-Path $ArtifactsDir)) {
-    Write-Warning "Skipping Azure publish because $ArtifactsDir does not exist"
-    exit 0
+    Write-Error "$ArtifactsDir does not exist"
 }
 
 $globs = (

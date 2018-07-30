@@ -35,7 +35,8 @@ if (!(Get-Command 'az' -ErrorAction Ignore)) {
 }
 
 if (-not $Channel) {
-    $Channel = Get-Content "$PSScriptRoot/channel.txt" -Raw -ErrorAction Ignore
+    $Channel = Get-Content "$ArtifactsDir/channel.txt" -Raw -ErrorAction Ignore
+    $Channel = $Channel.trim()
 }
 
 if (-not $Channel) {

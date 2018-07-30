@@ -4,6 +4,14 @@
     <PrepareDependsOn>$(PrepareDependsOn);_UseVolatileFeed;ResolveCommitHash</PrepareDependsOn>
   </PropertyGroup>
 
+  <!-- This target is optional. You can manually chain it into a repo build if you need branch name. -->
+  <Target Name="ResolveRepositoryBranch" Condition="'$(RepositoryBranch)' == ''">
+    <GetGitCommitHash WorkingDirectory="$(RepositoryRoot)"
+                      ContinueOnError="WarnAndContinue">
+      <Output TaskParameter="Branch" PropertyName="RepositoryBranch" />
+    </GetGitCommitHash>
+  </Target>
+
   <Target Name="ResolveCommitHash" Condition="'$(RepositoryCommit)' == ''">
     <PropertyGroup>
       <RepositoryCommit Condition="'$(APPVEYOR_REPO_COMMIT)' != ''">$(APPVEYOR_REPO_COMMIT)</RepositoryCommit>

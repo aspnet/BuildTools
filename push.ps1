@@ -53,9 +53,9 @@ if ($PublishType -eq 'default') {
 
     Write-Host "Pushing azure artifacts for '$channelName' channel"
 
-    & "$PSScriptRoot/scripts/UploadBlobs.ps1" `
+    & "$artifacts/korebuild/upload.ps1" `
         -Channel $channelName `
-        -ArtifactsDir $artifacts `
+        -ArtifactsDir "$artifacts/korebuild" `
         -AzureStorageAccount $AzureStorageAccount `
         -WhatIf:$WhatIfPreference
 }

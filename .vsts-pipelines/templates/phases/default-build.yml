@@ -49,10 +49,10 @@ phases:
   - ${{ if ne(parameters.artifactsPath, '') }}:
     - task: PublishBuildArtifacts@1
       displayName: Upload artifacts
-      condition: and(always(), eq(variables['System.PullRequest.IsFork'], ''))
+      condition: and(always(), not(variables['System.PullRequest.IsFork']))
       inputs:
         pathtoPublish: $(parameters.artifactsPath)
-        artifactName: build
+        artifactName: format('build-{0}', parameters.agentOs)
         artifactType: Container
   - ${{ parameters.afterBuild }}
 

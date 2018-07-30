@@ -1,4 +1,4 @@
-<Project>
+<Project InitialTargets="UpdateCIParams">
 
 <!--
 ###################################################################
@@ -16,6 +16,7 @@ after all other property imports.
 
   <PropertyGroup>
     <PackageVersion Condition="'$(PackageVersion)' == '' AND '$(Version)' != '' ">$(Version)</PackageVersion>
+    <CDReleaseName Condition="'$(CDReleaseName)' == ''">Release $(PackageVersion)</CDReleaseName>
     <SolutionProperties>$(SolutionProperties);RepoVersion=$(Version);RepoPackageVersion=$(PackageVersion)</SolutionProperties>
     <SolutionProperties Condition=" ! Exists('$(RepositoryRoot)version.props') ">$(SolutionProperties);VerifyVersion=false</SolutionProperties>
   </PropertyGroup>
@@ -54,4 +55,11 @@ extending the *DependsOn property
 
   <!-- For external analysis of inputs/outputs. -->
   <Target Name="GetArtifactInfo" DependsOnTargets="$(GetArtifactInfoDependsOn)" Returns="@(ArtifactInfo)" />
+
+  <!-- Update the displayed build number of VSTS -->
+  <Target Name="UpdateCIParams" Condition="'$(SkipUpdateCIParams)' != 'true' AND '$(CI)' == 'true' AND '$(TF_BUILD)' == 'true' " >
+    <Message Text="##vso[task.setvariable variable=CIParamsWereAutoUpdated]true" Importance="High" />
+    <Message Text="##vso[build.updatebuildnumber]$(Version)" Importance="High" />
+    <Message Text="##vso[release.updatereleasename]$(CDReleaseName)" Importance="High" />
+  </Target>
 </Project>

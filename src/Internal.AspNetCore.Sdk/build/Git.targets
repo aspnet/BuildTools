@@ -26,6 +26,14 @@
     <PathMap Condition=" '$(DeterministicSourceRoot)' != '' ">$([MSBuild]::NormalizeDirectory($(RepositoryRoot)))=$(DeterministicSourceRoot)</PathMap>
   </PropertyGroup>
 
+  <!-- This target is optional. Projects can manually call it if they need it. -->
+  <Target Name="ResolveRepositoryBranch" Condition="'$(RepositoryBranch)'==''">
+    <Sdk_GetGitBranch WorkingDirectory="$(MSBuildProjectDirectory)"
+                      ContinueOnError="WarnAndContinue">
+      <Output TaskParameter="Branch" PropertyName="RepositoryBranch" />
+    </Sdk_GetGitBranch>
+  </Target>
+
   <Target Name="ResolveCommitHash" Condition="'$(RepositoryCommit)'==''">
 
     <PropertyGroup>

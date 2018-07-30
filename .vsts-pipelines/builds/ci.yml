@@ -14,3 +14,13 @@ phases:
 - template: ../templates/phases/default-build.yml
   parameters:
     agentOs: Windows
+    # Ensures the alignment of branch name and deployment params
+    buildArgs: '/warnaserror:BUILD1001'
+    afterBuild:
+    - task: PublishBuildArtifacts@1
+      displayName: Upload KoreBuild artifact
+      condition: and(succeeded(), eq(variables['system.pullrequest.isfork'], false))
+      inputs:
+        pathtoPublish: artifacts/korebuild/
+        artifactName: korebuild
+        artifactType: Container

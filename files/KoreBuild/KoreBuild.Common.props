@@ -42,12 +42,21 @@ Default layout and configuration.
   </PropertyGroup>
 
   <!-- Use build number from CI if available -->
-  <PropertyGroup Condition=" '$(BuildNumber)' == '' ">
+  <PropertyGroup>
     <!--
       See https://confluence.jetbrains.com/display/TCD10/Predefined+Build+Parameters.
       This environment variable is automatically set by TeamCity.
     -->
-    <BuildNumber Condition=" '$(BUILD_NUMBER)' != '' ">$(BUILD_NUMBER)</BuildNumber>
+    <BuildNumber Condition=" '$(BuildNumber)' == '' ">$(BUILD_NUMBER)</BuildNumber>
+    <!--
+      See https://docs.microsoft.com/en-us/vsts/pipelines/build/variables
+      This environment variable is automatically set by VSTS.
+    -->
+    <BuildNumber Condition=" '$(BuildNumber)' == '' ">$(BUILD_BUILDNUMBER)</BuildNumber>
+    <RepositoryBranch Condition=" '$(RepositoryBranch)' == '' ">$(BUILD_SOURCEBRANCH)</RepositoryBranch>
+    <RepositoryBranch Condition=" '$(RepositoryBranch)' != '' AND $(RepositoryBranch.StartsWith('refs/heads/')) ">$(RepositoryBranch.Substring(11))</RepositoryBranch>
+    <RepositoryBranch Condition=" '$(RepositoryBranch)' != '' AND $(RepositoryBranch.StartsWith('refs/pull/')) ">$(RepositoryBranch.Substring(10))</RepositoryBranch>
+    <RepositoryCommit Condition=" '$(RepositoryCommit)' == '' ">$(BUILD_SOURCEVERSION)</RepositoryCommit>
   </PropertyGroup>
 
   <!-- Create a temporary build number if not assigned by the CI server -->
@@ -68,6 +77,8 @@ Default layout and configuration.
 
   <PropertyGroup>
     <SolutionProperties Condition="'$(BuildNumber)' != ''">$(SolutionProperties);BuildNumber=$(BuildNumber)</SolutionProperties>
+    <SolutionProperties Condition="'$(RepositoryCommit)' != ''">$(SolutionProperties);RepositoryCommit=$(RepositoryCommit)</SolutionProperties>
+    <SolutionProperties Condition="'$(RepositoryBranch)' != ''">$(SolutionProperties);RepositoryBranch=$(RepositoryBranch)</SolutionProperties>
   </PropertyGroup>
 
 </Project>

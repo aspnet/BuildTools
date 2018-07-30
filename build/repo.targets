@@ -6,16 +6,24 @@
     <_KoreBuildOutDir>$(ArtifactsDir)korebuild\artifacts\$(Version)\</_KoreBuildOutDir>
     <_ChannelOutDir>$(ArtifactsDir)korebuild\channels\$(KoreBuildChannel)\</_ChannelOutDir>
     <KoreBuildArchiveFile>$(_KoreBuildOutDir)korebuild.$(Version).zip</KoreBuildArchiveFile>
+    <KoreBuildUploadScriptFile>$(ArtifactsDir)korebuild\upload.ps1</KoreBuildUploadScriptFile>
     <KoreBuildBadgeFile>$(_ChannelOutDir)badge.svg</KoreBuildBadgeFile>
     <KoreBuildLatestTxtFile>$(_ChannelOutDir)latest.txt</KoreBuildLatestTxtFile>
+    <KoreBuildChannelTxtFile>$(ArtifactsDir)korebuild\channel.txt</KoreBuildChannelTxtFile>
     <PrepareDependsOn>$(PrepareDependsOn);SetTeamCityBuildNumberToVersion</PrepareDependsOn>
   </PropertyGroup>
 
   <ItemGroup>
+    <ArtifactInfo Include="$(KoreBuildUploadScriptFile)">
+      <ArtifactType>PowershellScript</ArtifactType>
+    </ArtifactInfo>
     <ArtifactInfo Include="$(KoreBuildArchiveFile)">
       <ArtifactType>ZipArchive</ArtifactType>
     </ArtifactInfo>
     <ArtifactInfo Include="$(KoreBuildLatestTxtFile)">
+      <ArtifactType>TextFile</ArtifactType>
+    </ArtifactInfo>
+    <ArtifactInfo Include="$(KoreBuildChannelTxtFile)">
       <ArtifactType>TextFile</ArtifactType>
     </ArtifactInfo>
     <ArtifactInfo Include="$(KoreBuildBadgeFile)">
@@ -48,7 +56,7 @@
 
     <!-- passing /warnaserror:BUILD1001 on CI to prevent channel/branch mismatch -->
     <Warning Text="Current branch '$(RepositoryBranch)' does not match the value of KoreBuildChannel: '$(KoreBuildChannel)'"
-      Condition="'$(RepositoryBranch)' != '$(KoreBuildChannel)' AND '$(CI)' == 'true'"
+      Condition="'$(RepositoryBranch)' != '$(KoreBuildChannel)' AND '$(CI)' == 'true' AND '$(BUILD_REASON)' != 'PullRequest'"
       Code="BUILD1001" />
 
     <ItemGroup>
@@ -88,7 +96,9 @@
       <KoreBuildFiles Include="$(_KoreBuildIntermediateDir)**\*" />
     </ItemGroup>
 
+    <Copy SourceFiles="$(RepositoryRoot)scripts\UploadKoreBuild.ps1" DestinationFiles="$(KoreBuildUploadScriptFile)" SkipUnchangedFiles="true" />
     <WriteLinesToFile File="$(KoreBuildLatestTxtFile)" Lines="@(VersionFileLines)" Overwrite="true"/>
+    <WriteLinesToFile File="$(KoreBuildChannelTxtFile)" Lines="$(KoreBuildChannel)" Overwrite="true"/>
     <GenerateSvgBadge Label="version" Value="$(Version)" OutputPath="$(KoreBuildBadgeFile)" />
     <ZipArchive WorkingDirectory="$(_KoreBuildIntermediateDir)" File="$(KoreBuildArchiveFile)" SourceFiles="@(KoreBuildFiles)" />
   </Target>

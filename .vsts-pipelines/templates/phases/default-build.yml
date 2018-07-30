@@ -10,12 +10,16 @@
 #       Additional steps to run before build.sh/cmd
 #   afterBuild: [steps]
 #       Additional steps to run after build.sh/cmd
+#   artifactsPath: string
+#       The path to the folder of build output to capture. Defaults to artifacts/build/.
+#       If this is set to empty, no artifacts will be published.
 
 parameters:
   agentOs: 'Windows'
   buildArgs: ''
   beforeBuild: []
   afterBuild: []
+  artifactsPath: 'artifacts/build/'
 
 phases:
 - phase: ${{ parameters.agentOs }}
@@ -45,5 +49,13 @@ phases:
     inputs:
       testRunner: vstest
       testResultsFiles: 'artifacts/logs/**/*.trx'
+  - ${{ if ne(parameters.artifactsPath, '') }}:
+    - task: PublishBuildArtifacts@1
+      displayName: Upload artifacts
+      condition: and(succeeded(), eq(variables['system.pullrequest.isfork'], false))
+      inputs:
+        pathtoPublish: ${{ parameters.artifactsPath }}
+        artifactName: ${{ format('build-{0}', parameters.agentOs) }}
+        artifactType: Container
   - ${{ parameters.afterBuild }}
 

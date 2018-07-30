@@ -16,6 +16,7 @@ parameters:
   buildArgs: ''
   beforeBuild: []
   afterBuild: []
+  artifactsPath: 'artifacts/build/'
 
 phases:
 - phase: ${{ parameters.agentOs }}
@@ -45,5 +46,13 @@ phases:
     inputs:
       testRunner: vstest
       testResultsFiles: 'artifacts/logs/**/*.trx'
+  - ${{ if ne(parameters.artifactsPath, '') }}:
+    - task: PublishBuildArtifacts@1
+      displayName: Upload artifacts
+      condition: eq(System.PullRequest.IsFork, '')
+      inputs:
+        pathtoPublish: $(parameters.artifactsPath)
+        artifactName: BuildArtifacts
+        artifactType: Container
   - ${{ parameters.afterBuild }}
 

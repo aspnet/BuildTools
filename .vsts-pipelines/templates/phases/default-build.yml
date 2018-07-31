@@ -27,7 +27,7 @@ parameters:
     path: 'artifacts/build/'  # TODO: this is going to change when we converge with dotnet/arcade tooling
 
 phases:
-- phase: ${{ format('{0}:{1}', parameters.agentOs, parameters.configuration) }}
+- phase: ${{ format('{0}_{1}', parameters.agentOs, parameters.configuration) }}
   queue:
     ${{ if eq(parameters.agentOs, 'macOS') }}:
       name: Hosted macOS Preview

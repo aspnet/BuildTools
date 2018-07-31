@@ -10,19 +10,24 @@
 #       Additional steps to run before build.sh/cmd
 #   afterBuild: [steps]
 #       Additional steps to run after build.sh/cmd
-#   artifactsPath: string
-#       The path to the folder of build output to capture. Defaults to artifacts/build/.
-#       If this is set to empty, no artifacts will be published.
+#   artifacts:
+#      publish: (boolean)
+#          Should artifacts be published
+#      path: (string) the path
+#          The file path to artifacts output
 
 parameters:
   agentOs: 'Windows'
+  configuration: 'Release'
   buildArgs: ''
   beforeBuild: []
   afterBuild: []
-  artifactsPath: 'artifacts/build/'
+  artifacts:
+    publish: true
+    path: 'artifacts/build/'  # TODO: this is going to change when we converge with dotnet/arcade tooling
 
 phases:
-- phase: ${{ parameters.agentOs }}
+- phase: ${{ format('{0}_{1}', parameters.agentOs, parameters.configuration) }}
   queue:
     ${{ if eq(parameters.agentOs, 'macOS') }}:
       name: Hosted macOS Preview
@@ -31,17 +36,19 @@ phases:
     ${{ if eq(parameters.agentOs, 'Windows') }}:
       name: Hosted VS2017
   variables:
-    BuildScriptArgs: ${{ parameters.buildArgs }}
+    param.agentOS: ${{ parameters.agentOs }}
+    param.buildArgs: ${{ parameters.buildArgs }}
+    param.configuration: ${{ parameters.configuration }}
     DOTNET_HOME: $(Agent.WorkFolder)/.dotnet
   steps:
   - checkout: self
     clean: true
   - ${{ parameters.beforeBuild }}
   - ${{ if eq(parameters.agentOs, 'Windows') }}:
-    - script: .\build.cmd -ci $(BuildScriptArgs)
+    - script: .\build.cmd -ci /p:Configuration=$(param.configuration) $(param.buildArgs)
       displayName: Run build.cmd
   - ${{ if ne(parameters.agentOs, 'Windows') }}:
-    - script: ./build.sh -ci $(BuildScriptArgs)
+    - script: ./build.sh -ci -p:Configuration=$(param.configuration) $(param.buildArgs)
       displayName: Run build.sh
   - task: PublishTestResults@2
     displayName: Publish test results
@@ -49,13 +56,13 @@ phases:
     inputs:
       testRunner: vstest
       testResultsFiles: 'artifacts/logs/**/*.trx'
-  - ${{ if ne(parameters.artifactsPath, '') }}:
+  - ${{ if eq(parameters.artifacts.publish, 'true') }}:
     - task: PublishBuildArtifacts@1
       displayName: Upload artifacts
       condition: and(succeeded(), eq(variables['system.pullrequest.isfork'], false))
       inputs:
-        pathtoPublish: ${{ parameters.artifactsPath }}
-        artifactName: ${{ format('build-{0}', parameters.agentOs) }}
+        pathtoPublish: ${{ parameters.artifacts.path }}
+        artifactName: ${{ format('packages-{0}-{1}', parameters.agentOs, parameters.configuration) }}
         artifactType: Container
   - ${{ parameters.afterBuild }}
 

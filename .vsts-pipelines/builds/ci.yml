@@ -10,7 +10,7 @@ phases:
     afterBuild:
     - task: PublishBuildArtifacts@1
       displayName: Upload KoreBuild artifact
-      condition: and(succeeded(), eq(variables['param.configuration', 'Release']), eq(variables['param.agentOs'], 'Windows'), eq(variables['system.pullrequest.isfork'], false))
+      condition: and(succeeded(), eq(variables['param.configuration'], 'Release'), eq(variables['param.agentOs'], 'Windows'), eq(variables['system.pullrequest.isfork'], false))
       inputs:
         pathtoPublish: artifacts/korebuild/
         artifactName: korebuild

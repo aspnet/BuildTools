@@ -3,9 +3,15 @@
 #   buildArgs: string
 #       Additional arguments to pass to the build.sh/cmd script.
 #       Note: -ci is always passed
+#   beforeBuild: [steps]
+#       Additional steps to run before build.sh/cmd
+#   afterBuild: [steps]
+#       Additional steps to run after build.sh/cmd
 
 parameters:
   buildArgs: ''
+  beforeBuild: []
+  afterBuild: []
 
 phases:
 - template: phases/default-build.yml
@@ -13,28 +19,40 @@ phases:
     agentOs: Windows
     configuration: Release
     buildArgs: ${{ parameters.buildArgs }}
+    beforeBuild: ${{ parameters.beforeBuild }}
+    afterBuild: ${{ parameters.afterBuild }}
 - template: phases/default-build.yml
   parameters:
     agentOs: Windows
     configuration: Debug
     buildArgs: ${{ parameters.buildArgs }}
+    beforeBuild: ${{ parameters.beforeBuild }}
+    afterBuild: ${{ parameters.afterBuild }}
 - template: phases/default-build.yml
   parameters:
     agentOs: macOS
     configuration: Release
     buildArgs: ${{ parameters.buildArgs }}
+    beforeBuild: ${{ parameters.beforeBuild }}
+    afterBuild: ${{ parameters.afterBuild }}
 - template: phases/default-build.yml
   parameters:
     agentOs: macOS
     configuration: Debug
     buildArgs: ${{ parameters.buildArgs }}
+    beforeBuild: ${{ parameters.beforeBuild }}
+    afterBuild: ${{ parameters.afterBuild }}
 - template: phases/default-build.yml
   parameters:
     agentOs: Linux
     configuration: Release
     buildArgs: ${{ parameters.buildArgs }}
+    beforeBuild: ${{ parameters.beforeBuild }}
+    afterBuild: ${{ parameters.afterBuild }}
 - template: phases/default-build.yml
   parameters:
     agentOs: Linux
     configuration: Debug
     buildArgs: ${{ parameters.buildArgs }}
+    beforeBuild: ${{ parameters.beforeBuild }}
+    afterBuild: ${{ parameters.afterBuild }}

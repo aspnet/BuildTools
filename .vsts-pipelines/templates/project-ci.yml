@@ -1,10 +1,22 @@
+# Description: Runs build.cmd/sh on macOS, Linux, and Windows
+# Parameters:
+#   buildArgs: string
+#       Additional arguments to pass to the build.sh/cmd script.
+#       Note: -ci is always passed
+
+parameters:
+  buildArgs: ''
+
 phases:
 - template: phases/default-build.yml
   parameters:
     agentOs: macOS
+    buildArgs: ${{ parameters.buildArgs }}
 - template: phases/default-build.yml
   parameters:
     agentOs: Windows
+    buildArgs: ${{ parameters.buildArgs }}
 - template: phases/default-build.yml
   parameters:
     agentOs: Linux
+    buildArgs: ${{ parameters.buildArgs }}

@@ -1,8 +1,8 @@
 # default-build.yml
 # Description: Defines a build phase for invoking build.sh/cmd
 # Parameters:
-#   agentOs: [Windows (default), Linux, macOS]
-#       Used in templates to define variables which are OS specific
+#   agentOs: string
+#       Used in templates to define variables which are OS specific. Typically from the set { Windows, Linux, macOS }
 #   buildArgs: string
 #       Additional arguments to pass to the build.sh/cmd script.
 #       Note: -ci is always passed
@@ -11,22 +11,32 @@
 #   afterBuild: [steps]
 #       Additional steps to run after build.sh/cmd
 #   artifacts:
-#      publish: (boolean)
-#          Should artifacts be published
-#      path: (string) the path
-#          The file path to artifacts output
+#      publish: boolean
+#           Should artifacts be published
+#      path: string
+#           The file path to artifacts output
+#      name: string
+#           The name of the artifact container
+#   matrix: { string: { string: string } }
+#     A map of matrix configurations and variables. https://docs.microsoft.com/en-us/vsts/pipelines/yaml-schema?view=vsts#matrix
+#   demands: string | [ string ]
+#     A list of agent demands. https://docs.microsoft.com/en-us/vsts/pipelines/yaml-schema?view=vsts#demands
+#   dependsOn: string | [ string ]
+#     For fan-out/fan-in. https://docs.microsoft.com/en-us/vsts/pipelines/yaml-schema?view=vsts#phase
 
 #
-# See https://docs.microsoft.com/en-us/vsts/pipelines/yaml-schema for details on this schema and the template expression syntax
+# See https://docs.microsoft.com/en-us/vsts/pipelines/yaml-schema for details
 #
 
 parameters:
   agentOs: 'Windows'
   buildArgs: ''
   configuration: 'Release'
+  demands: {}
   beforeBuild: []
   afterBuild: []
-  matrix: {}
+  dependsOn: ''
+  # matrix: {} - don't define an empty object default because there is no way in template expression yet to check "if isEmpty(parameters.matrix)"
   artifacts:
     publish: true
     path: 'artifacts/build/'  # TODO: this is going to change when we converge with dotnet/arcade tooling
@@ -36,7 +46,7 @@ phases:
   queue:
     # If a matrix of builds has been configured, run the matrix in parallel
     ${{ if ne(parameters.matrix, '') }}:
-      parallel: 4
+      parallel: 4 # Pick 4 as the default because we usually don't have a matrix of more than 4 configs, and there is no way to say parallel: all
     matrix: ${{ parameters.matrix }}
     # Map friendly OS names to the right queue
     ${{ if eq(parameters.agentOs, 'macOS') }}:
@@ -45,6 +55,8 @@ phases:
       name: Hosted Linux Preview
     ${{ if eq(parameters.agentOs, 'Windows') }}:
       name: Hosted VS2017
+    demands: ${{ parameters.demands }}
+    dependsOn: ${{ parameters.dependsOn }}
   variables:
     AgentOsName: ${{ parameters.agentOs }}
     DOTNET_HOME: $(Agent.WorkFolder)/.dotnet

@@ -22,6 +22,7 @@ parameters:
   buildArgs: ''
   beforeBuild: []
   afterBuild: []
+  matrix: {}
   artifacts:
     publish: true
     path: 'artifacts/build/'  # TODO: this is going to change when we converge with dotnet/arcade tooling
@@ -29,6 +30,8 @@ parameters:
 phases:
 - phase: ${{ format('{0}_{1}', parameters.agentOs, parameters.configuration) }}
   queue:
+    parallel: 4
+    matrix: ${{ parameters.matrix }}
     ${{ if eq(parameters.agentOs, 'macOS') }}:
       name: Hosted macOS Preview
     ${{ if eq(parameters.agentOs, 'Linux') }}:
@@ -38,17 +41,18 @@ phases:
   variables:
     param.agentOS: ${{ parameters.agentOs }}
     param.buildArgs: ${{ parameters.buildArgs }}
-    param.configuration: ${{ parameters.configuration }}
+    BuildConfiguration: ${{ parameters.configuration }}
     DOTNET_HOME: $(Agent.WorkFolder)/.dotnet
+    ${{ insert }}: ${{ parameters.variables }}
   steps:
   - checkout: self
     clean: true
   - ${{ parameters.beforeBuild }}
   - ${{ if eq(parameters.agentOs, 'Windows') }}:
-    - script: .\build.cmd -ci /p:Configuration=$(param.configuration) $(param.buildArgs)
+    - script: .\build.cmd -ci /p:Configuration=$(BuildConfiguration) $(param.buildArgs)
       displayName: Run build.cmd
   - ${{ if ne(parameters.agentOs, 'Windows') }}:
-    - script: ./build.sh -ci -p:Configuration=$(param.configuration) $(param.buildArgs)
+    - script: ./build.sh -ci -p:Configuration=$(BuildConfiguration) $(param.buildArgs)
       displayName: Run build.sh
   - task: PublishTestResults@2
     displayName: Publish test results

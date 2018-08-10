@@ -66,7 +66,7 @@ phases:
       condition: and(succeeded(), eq(variables['system.pullrequest.isfork'], false))
       inputs:
         pathtoPublish: ${{ parameters.artifacts.path }}
-        artifactName: ${{ format('packages-{0}-{1}', parameters.agentOs) }}-$(BuildConfiguration)
+        artifactName: ${{ format('packages-{0}-{1}', parameters.agentOs, variables['BuildConfiguration']) }}
         artifactType: Container
   - ${{ parameters.afterBuild }}
 

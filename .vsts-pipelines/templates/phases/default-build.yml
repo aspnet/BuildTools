@@ -1,6 +1,8 @@
 # default-build.yml
 # Description: Defines a build phase for invoking build.sh/cmd
 # Parameters:
+#   phaseName: string
+#       The name of the phase. Defaults to the name of the OS.
 #   agentOs: string
 #       Used in templates to define variables which are OS specific. Typically from the set { Windows, Linux, macOS }
 #   buildArgs: string
@@ -30,19 +32,20 @@
 
 parameters:
   agentOs: 'Windows'
+  # phaseName: ''
   buildArgs: ''
   configuration: 'Release'
   demands: []
   beforeBuild: []
   afterBuild: []
   dependsOn: ''
-  matrix: ~
+  # matrix: {} - don't define an empty object default because there is no way in template expression yet to check "if isEmpty(parameters.matrix)"
   artifacts:
     publish: true
     path: 'artifacts/build/'  # TODO: this is going to change when we converge with dotnet/arcade tooling
 
 phases:
-- phase: ${{ parameters.agentOs }}
+- phase: ${{ coalesce(parameters.phaseName, parameters.agentOs) }}
   dependsOn: ${{ parameters.dependsOn }}
   queue:
     # If a matrix of builds has been configured, run the matrix in parallel

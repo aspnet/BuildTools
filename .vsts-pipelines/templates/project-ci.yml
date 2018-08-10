@@ -35,7 +35,7 @@ phases:
 - template: phases/default-build.yml
   parameters:
     agentOs: macOS
-    matrix: ${{ parameters.matrix }}
+    # matrix: {}
     buildArgs: ${{ parameters.buildArgs }}
     beforeBuild: ${{ parameters.beforeBuild }}
     afterBuild: ${{ parameters.afterBuild }}

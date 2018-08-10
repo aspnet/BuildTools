@@ -7,8 +7,6 @@ phases:
   parameters:
     # Ensures the alignment of branch name and deployment params
     buildArgs: '/warnaserror:BUILD1001'
-    variables:
-      TEAMCITY_VERSION: 10
     afterBuild:
     - task: PublishBuildArtifacts@1
       displayName: Upload KoreBuild artifact

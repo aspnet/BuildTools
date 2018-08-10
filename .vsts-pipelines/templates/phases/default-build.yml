@@ -19,6 +19,7 @@
 parameters:
   agentOs: 'Windows'
   buildArgs: ''
+  configuration: ''
   beforeBuild: []
   afterBuild: []
   matrix: {}
@@ -38,20 +39,20 @@ phases:
     ${{ if eq(parameters.agentOs, 'Windows') }}:
       name: Hosted VS2017
   variables:
-    param.agentOS: ${{ parameters.agentOs }}
-    param.buildArgs: ${{ parameters.buildArgs }}
-    BuildConfiguration: Release
     DOTNET_HOME: $(Agent.WorkFolder)/.dotnet
+    BuildScriptArgs: ${{ parameters.buildArgs }}
+    ${{ if ne(parameters.configuration, '') }}:
+      BuildConfiguration: ${{ parameters.configuration }}
     ${{ insert }}: ${{ parameters.variables }}
   steps:
   - checkout: self
     clean: true
   - ${{ parameters.beforeBuild }}
   - ${{ if eq(parameters.agentOs, 'Windows') }}:
-    - script: .\build.cmd -ci /p:Configuration=$(BuildConfiguration) $(param.buildArgs)
+    - script: .\build.cmd -ci /p:Configuration=$(BuildConfiguration) $(BuildScriptArgs)
       displayName: Run build.cmd
   - ${{ if ne(parameters.agentOs, 'Windows') }}:
-    - script: ./build.sh -ci -p:Configuration=$(BuildConfiguration) $(param.buildArgs)
+    - script: ./build.sh -ci -p:Configuration=$(BuildConfiguration) $(BuildScriptArgs)
       displayName: Run build.sh
   - task: PublishTestResults@2
     displayName: Publish test results
@@ -65,7 +66,7 @@ phases:
       condition: and(succeeded(), eq(variables['system.pullrequest.isfork'], false))
       inputs:
         pathtoPublish: ${{ parameters.artifacts.path }}
-        artifactName: ${{ format('packages-{0}-{1}', parameters.agentOs, parameters.configuration) }}
+        artifactName: ${{ format('packages-{0}-{1}', parameters.agentOs) }}-$(BuildConfiguration)
         artifactType: Container
   - ${{ parameters.afterBuild }}
 

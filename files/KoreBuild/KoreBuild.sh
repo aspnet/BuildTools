@@ -44,6 +44,9 @@ set_korebuildsettings() {
 
     export DOTNET_ROOT="$dot_net_home"
 
+    # Workaround perpetual issues in node reuse and custom task assemblies
+    export MSBUILDDISABLENODEREUSE=1
+
     return 0
 }
 

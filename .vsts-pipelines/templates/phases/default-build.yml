@@ -58,11 +58,11 @@ phases:
     # Map friendly OS names to the right queue
     ${{ if ne(parameters.queueName, '') }}:
       name: ${{ parameters.queueName }}
-    ${{ if and(eq(parameters.queueName, ''), eq(parameters.agentOs, 'macOS') }}:
+    ${{ if and(eq(parameters.queueName, ''), eq(parameters.agentOs, 'macOS')) }}:
       name: Hosted macOS Preview
-    ${{ if and(eq(parameters.queueName, ''), eq(parameters.agentOs, 'Linux') }}:
+    ${{ if and(eq(parameters.queueName, ''), eq(parameters.agentOs, 'Linux')) }}:
       name: Hosted Linux Preview
-    ${{ if and(eq(parameters.queueName, ''), eq(parameters.agentOs, 'Windows') }}:
+    ${{ if and(eq(parameters.queueName, ''), eq(parameters.agentOs, 'Windows')) }}:
       name: Hosted VS2017
     demands: ${{ parameters.demands }}
   variables:

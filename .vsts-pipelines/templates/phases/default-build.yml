@@ -43,11 +43,12 @@ parameters:
 
 phases:
 - phase: ${{ parameters.agentOs }}
+  dependsOn: ${{ parameters.dependsOn }}
   queue:
     # If a matrix of builds has been configured, run the matrix in parallel
     ${{ if ne(parameters.matrix, '') }}:
       parallel: 4 # Pick 4 as the default because we usually don't have a matrix of more than 4 configs, and there is no way to say parallel: all
-    matrix: ${{ parameters.matrix }}
+      matrix: ${{ parameters.matrix }}
     # Map friendly OS names to the right queue
     ${{ if eq(parameters.agentOs, 'macOS') }}:
       name: Hosted macOS Preview
@@ -56,7 +57,6 @@ phases:
     ${{ if eq(parameters.agentOs, 'Windows') }}:
       name: Hosted VS2017
     demands: ${{ parameters.demands }}
-    dependsOn: ${{ parameters.dependsOn }}
   variables:
     AgentOsName: ${{ parameters.agentOs }}
     DOTNET_HOME: $(Agent.WorkFolder)/.dotnet

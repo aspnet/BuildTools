@@ -3,6 +3,8 @@
 # Parameters:
 #   phaseName: string
 #       The name of the phase. Defaults to the name of the OS.
+#   queueName: string
+#       The name of the VSTS agent queue to use.
 #   agentOs: string
 #       Used in templates to define variables which are OS specific. Typically from the set { Windows, Linux, macOS }
 #   buildArgs: string
@@ -33,6 +35,7 @@
 parameters:
   agentOs: 'Windows'
   # phaseName: ''
+  queueName: ''
   buildArgs: ''
   configuration: 'Release'
   demands: []
@@ -53,11 +56,13 @@ phases:
       parallel: 4 # Pick 4 as the default because we usually don't have a matrix of more than 4 configs, and there is no way to say parallel: all
       matrix: ${{ parameters.matrix }}
     # Map friendly OS names to the right queue
-    ${{ if eq(parameters.agentOs, 'macOS') }}:
+    ${{ if ne(parameters.queueName, '') }}:
+      name: ${{ parameters.queueName }}
+    ${{ if and(eq(parameters.queueName, ''), eq(parameters.agentOs, 'macOS') }}:
       name: Hosted macOS Preview
-    ${{ if eq(parameters.agentOs, 'Linux') }}:
+    ${{ if and(eq(parameters.queueName, ''), eq(parameters.agentOs, 'Linux') }}:
       name: Hosted Linux Preview
-    ${{ if eq(parameters.agentOs, 'Windows') }}:
+    ${{ if and(eq(parameters.queueName, ''), eq(parameters.agentOs, 'Windows') }}:
       name: Hosted VS2017
     demands: ${{ parameters.demands }}
   variables:

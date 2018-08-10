@@ -304,6 +304,9 @@ function Set-KoreBuildSettings(
     $arch = __get_dotnet_arch
     $env:DOTNET_ROOT = if ($IS_WINDOWS) { Join-Path $DotNetHome $arch } else { $DotNetHome }
 
+    # Workaround perpetual issues in node reuse and custom task assemblies
+    $env:MSBUILDDISABLENODEREUSE = 1
+
     $global:KoreBuildSettings = @{
         ToolsSource = $ToolsSource
         DotNetHome  = $DotNetHome

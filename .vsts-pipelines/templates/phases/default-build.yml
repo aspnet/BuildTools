@@ -21,6 +21,8 @@
 #           The file path to artifacts output
 #      name: string
 #           The name of the artifact container
+#   variables: { string: string }
+#     A map of custom variables
 #   matrix: { string: { string: string } }
 #     A map of matrix configurations and variables. https://docs.microsoft.com/en-us/vsts/pipelines/yaml-schema?view=vsts#matrix
 #   demands: string | [ string ]
@@ -41,6 +43,7 @@ parameters:
   demands: []
   beforeBuild: []
   afterBuild: []
+  variables: {}
   dependsOn: ''
   # matrix: {} - don't define an empty object default because there is no way in template expression yet to check "if isEmpty(parameters.matrix)"
   artifacts:

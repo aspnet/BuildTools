@@ -32,7 +32,7 @@ parameters:
   agentOs: 'Windows'
   buildArgs: ''
   configuration: 'Release'
-  demands: {}
+  demands: []
   beforeBuild: []
   afterBuild: []
   dependsOn: ''

@@ -16,10 +16,14 @@
 #      path: (string) the path
 #          The file path to artifacts output
 
+#
+# See https://docs.microsoft.com/en-us/vsts/pipelines/yaml-schema for details on this schema and the template expression syntax
+#
+
 parameters:
   agentOs: 'Windows'
   buildArgs: ''
-  configuration: ''
+  configuration: 'Release'
   beforeBuild: []
   afterBuild: []
   matrix: {}
@@ -30,8 +34,11 @@ parameters:
 phases:
 - phase: ${{ parameters.agentOs }}
   queue:
-    parallel: 4
+    # If a matrix of builds has been configured, run the matrix in parallel
+    ${{ if ne(parameters.matrix, '') }}:
+      parallel: 4
     matrix: ${{ parameters.matrix }}
+    # Map friendly OS names to the right queue
     ${{ if eq(parameters.agentOs, 'macOS') }}:
       name: Hosted macOS Preview
     ${{ if eq(parameters.agentOs, 'Linux') }}:
@@ -42,8 +49,7 @@ phases:
     AgentOsName: ${{ parameters.agentOs }}
     DOTNET_HOME: $(Agent.WorkFolder)/.dotnet
     BuildScriptArgs: ${{ parameters.buildArgs }}
-    ${{ if ne(parameters.configuration, '') }}:
-      BuildConfiguration: ${{ parameters.configuration }}
+    BuildConfiguration: ${{ parameters.configuration }}
     ${{ insert }}: ${{ parameters.variables }}
   steps:
   - checkout: self

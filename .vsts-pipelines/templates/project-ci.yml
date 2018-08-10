@@ -27,7 +27,7 @@ phases:
 - template: phases/default-build.yml
   parameters:
     agentOs: Windows
-    matrix: ${{ parameters.matrix }}
+    # matrix: ${{ parameters.matrix }}
     buildArgs: ${{ parameters.buildArgs }}
     beforeBuild: ${{ parameters.beforeBuild }}
     afterBuild: ${{ parameters.afterBuild }}
@@ -35,7 +35,7 @@ phases:
 - template: phases/default-build.yml
   parameters:
     agentOs: macOS
-    # matrix: {}
+    matrix: ${{ parameters.matrix }}
     buildArgs: ${{ parameters.buildArgs }}
     beforeBuild: ${{ parameters.beforeBuild }}
     afterBuild: ${{ parameters.afterBuild }}
@@ -43,7 +43,7 @@ phases:
 - template: phases/default-build.yml
   parameters:
     agentOs: Linux
-    matrix: ${{ parameters.matrix }}
+    # matrix: ${{ parameters.matrix }}
     buildArgs: ${{ parameters.buildArgs }}
     beforeBuild: ${{ parameters.beforeBuild }}
     afterBuild: ${{ parameters.afterBuild }}

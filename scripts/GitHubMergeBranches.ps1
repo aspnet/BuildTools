@@ -285,7 +285,7 @@ try {
         } else {
             @"
 :x: Uh oh, this pull request could not be updated automatically. New commits were pushed to $HeadBranch, but I could not automatically push those to $mergeBranchName to update this PR.
-You may need to fix this problem by merging branches with this PR. Contact the ASP.NET Core Engineering if you are not sure what to do about this.
+You may need to fix this problem by merging branches with this PR. Contact ASP.NET Core Engineering if you are not sure what to do about this.
 "@
         }
 

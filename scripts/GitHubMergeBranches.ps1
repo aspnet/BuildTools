@@ -173,12 +173,12 @@ try {
         Write-Host -ForegroundColor Yellow 'Skipping PR generation because it appears this PR would only contain automated commits by aspnetci'
         exit 0
     }
-    
+
     $authors = $authors | % { "* @$_" }
 
-    $prComment = "This PR merges commits made on $HeadBranch by the following committers:`n`n$($authors -join "`n")"
+    $committersList = "This PR merges commits made on $HeadBranch by the following committers:`n`n$($authors -join "`n")"
 
-    Write-Host $prComment
+    Write-Host $committersList
 
     $mergeBranchName = "merge/$HeadBranch-to-$BaseBranch"
     Invoke-Block { & git checkout -B $mergeBranchName  }
@@ -228,10 +228,6 @@ try {
         }
     }
 
-    if ($PSCmdlet.ShouldProcess("Update remote branch $mergeBranchName on $remoteName")) {
-        Invoke-Block { & git push --force $remoteName "${mergeBranchName}:${mergeBranchName}" }
-    }
-
     $query = 'query ($repoOwner: String!, $repoName: String!, $baseRefName: String!) {
         repository(owner: $repoOwner, name: $repoName) {
           pullRequests(baseRefName: $baseRefName, states: OPEN, first: 100) {
@@ -272,8 +268,29 @@ try {
         | select -First 1
 
     if ($matchingPr) {
+        $prUpdatedSuccess = $false
+
+        try {
+            if ($PSCmdlet.ShouldProcess("Update remote branch $mergeBranchName on $remoteName")) {
+                Invoke-Block { & git push $remoteName "${mergeBranchName}:${mergeBranchName}" }
+            }
+            $prUpdatedSuccess = $true
+        }
+        catch {
+            Write-Warning "Failed to update existing PR"
+        }
+
+        $prMessage = if ($prUpdatedSuccess) {
+            "This pull request has been updated.`n`n$committersList"
+        } else {
+            @"
+:x: Uh oh, this pull request could not be updated automatically. New commits were pushed to $HeadBranch, but I could not automatically push those to $mergeBranchName to update this PR.
+You may need to fix this problem by merging branches with this PR. Contact the ASP.NET Core Engineering if you are not sure what to do about this.
+"@
+        }
+
         $data = @{
-            body = "This pull request has been updated.`n`n$prComment"
+            body = $prMessage
         }
 
         $prNumber = $matchingPr.number
@@ -288,6 +305,13 @@ try {
         }
     }
     else {
+        # Use --force because the merge branch may have been used for a previous PR.
+        # This should only happen if there is no existing PR for the merge
+
+        if ($PSCmdlet.ShouldProcess("Force updating remote branch $mergeBranchName on $remoteName")) {
+            Invoke-Block { & git push --force $remoteName "${mergeBranchName}:${mergeBranchName}" }
+        }
+
         $previewHeaders = @{
             #  Required while this api is in preview: https://developer.github.com/v3/pulls/#create-a-pull-request
             Accept        = 'application/vnd.github.symmetra-preview+json'
@@ -299,7 +323,7 @@ I detected changes in the $HeadBranch branch which have not been merged yet to $
 I'm a robot and am configured to help you automatically keep $BaseBranch up to date, so
 I've opened this PR.
 
-$prComment
+$committersList
 
 ## Instructions for merging
 
@@ -317,7 +341,15 @@ git merge ${mergeBranchName}
 git push
 ``````
 
+## Instructions for resolving conflicts
+
 :warning: If there are merge conflicts, you will need to resolve them manually before merging.
+You can do this [using GitHub](https://help.github.com/articles/resolving-a-merge-conflict-on-github/)
+or using the [command line](https://help.github.com/articles/resolving-a-merge-conflict-using-the-command-line/).
+
+Maintainers of this repo have permission to the branch '$mergeBranchName' on https://github.com/$prOwnerName/$RepoName.
+You can push changes to this branch to resolve conflicts or other issues in this pull request. The bot will attempt
+to update this branch as more changes are discovered on $HeadBranch.
 
 Please contact ASP.NET Core Engineering if you have questions or issues.
 Also, if this PR was generated incorrectly, help us fix it. See https://github.com/aspnet/BuildTools/blob/master/scripts/GitHubMergeBranches.ps1.

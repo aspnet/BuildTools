@@ -10,16 +10,16 @@ Usage: this should be imported once via NuGet at the top of the file.
 
   <!-- common package options -->
   <PropertyGroup>
-    <Authors>Microsoft</Authors>
-    <Company>Microsoft Corporation.</Company>
-    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
-    <IncludeSymbols>true</IncludeSymbols>
-    <NeutralLanguage>en-US</NeutralLanguage>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/aspnet/Home/2.0.0/LICENSE.txt</PackageLicenseUrl>
-    <PackageIconUrl>https://go.microsoft.com/fwlink/?LinkID=288859</PackageIconUrl>
-    <PackageProjectUrl>https://asp.net</PackageProjectUrl>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <Authors Condition="'$(Authors)' == ''">Microsoft</Authors>
+    <Company Condition="'$(Company)' == ''">Microsoft Corporation.</Company>
+    <Copyright Condition="'$(Copyright)' == ''">© Microsoft Corporation. All rights reserved.</Copyright>
+    <IncludeSymbols Condition="'$(IncludeSymbols)' == ''">true</IncludeSymbols>
+    <NeutralLanguage Condition="'$(NeutralLanguage)' == ''">en-US</NeutralLanguage>
+    <PackageLicenseUrl Condition="'$(PackageLicenseUrl)' == ''">https://raw.githubusercontent.com/aspnet/Home/2.0.0/LICENSE.txt</PackageLicenseUrl>
+    <PackageIconUrl Condition="'$(PackageIconUrl)' == ''">https://go.microsoft.com/fwlink/?LinkID=288859</PackageIconUrl>
+    <PackageProjectUrl Condition="'$(PackageProjectUrl)' == ''">https://asp.net</PackageProjectUrl>
+    <PackageRequireLicenseAcceptance Condition="'$(PackageRequireLicenseAcceptance)' == ''">true</PackageRequireLicenseAcceptance>
+    <NoPackageAnalysis Condition="'$(NoPackageAnalysis)' == ''">true</NoPackageAnalysis>
     <Serviceable Condition="'$(Configuration)' == 'Release'">true</Serviceable>
     <LangVersion Condition="'$(LangVersion)' == ''">7.2</LangVersion>
     <!-- Instructs the compiler to use SHA256 instead of SHA1 when adding file hashes to PDBs. -->

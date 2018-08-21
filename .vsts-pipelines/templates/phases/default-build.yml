@@ -90,6 +90,12 @@ phases:
     inputs:
       testRunner: vstest
       testResultsFiles: 'artifacts/logs/**/*.trx'
+  - task: PublishTestResults@2
+    displayName: Publish junit test results
+    condition: always()
+    inputs:
+      testRunner: junit
+      testResultsFiles: 'artifacts/logs/**/*.junit.xml'
   - ${{ if eq(parameters.artifacts.publish, 'true') }}:
     - task: PublishBuildArtifacts@1
       displayName: Upload artifacts

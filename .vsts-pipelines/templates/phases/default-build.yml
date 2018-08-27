@@ -23,6 +23,8 @@
 #           The name of the artifact container
 #   variables: { string: string }
 #     A map of custom variables
+#   env: { string: string }
+#     A map of environment variables to set during the build script.
 #   matrix: { string: { string: string } }
 #     A map of matrix configurations and variables. https://docs.microsoft.com/en-us/vsts/pipelines/yaml-schema?view=vsts#matrix
 #   demands: string | [ string ]
@@ -46,6 +48,7 @@ parameters:
   variables: {}
   dependsOn: ''
   # matrix: {} - don't define an empty object default because there is no way in template expression yet to check "if isEmpty(parameters.matrix)"
+  # env: {} - don't define an empty object default because there is no way in template expression yet to check "if isEmpty(parameters.env)"
   artifacts:
     publish: true
     path: 'artifacts/build/'  # TODO: this is going to change when we converge with dotnet/arcade tooling
@@ -81,9 +84,13 @@ phases:
   - ${{ if eq(parameters.agentOs, 'Windows') }}:
     - script: .\build.cmd -ci /p:Configuration=$(BuildConfiguration) $(BuildScriptArgs)
       displayName: Run build.cmd
+      ${{ if ne(parameters.env, '') }}:
+        env: ${{ parameters.env }}
   - ${{ if ne(parameters.agentOs, 'Windows') }}:
     - script: ./build.sh -ci -p:Configuration=$(BuildConfiguration) $(BuildScriptArgs)
       displayName: Run build.sh
+      ${{ if ne(parameters.env, '') }}:
+        env: ${{ parameters.env }}
   - task: PublishTestResults@2
     displayName: Publish test results
     condition: always()

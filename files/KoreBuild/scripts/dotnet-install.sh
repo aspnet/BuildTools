@@ -210,7 +210,6 @@ machine_has() {
     return $?
 }
 
-
 check_min_reqs() {
     local hasMinimum=false
     if machine_has "curl"; then
@@ -766,6 +765,26 @@ install_dotnet() {
     fi
 
     mkdir -p "$install_root"
+
+    lockFile="$install_root/dotnetinstall.lock"
+    waitTime=0
+    while [ -f "$lockFile" ] && [ $waitTime -lt 120 ]
+    do
+        say "Another installation of .NET Core is in process. Waiting for that installation to complete..."
+        sleep 10
+        let "waitTime += 10"
+    done
+
+    if [ $waitTime -ge 120 ]; then
+        say_err "Timed out waiting for $lockFile to be removed."
+        exit 1
+    fi
+    touch $lockFile
+    function finish {
+        rm $lockFile
+    }
+    trap finish EXIT
+
     zip_path="$(mktemp "$temporary_file_template")"
     say_verbose "Zip path: $zip_path"
 

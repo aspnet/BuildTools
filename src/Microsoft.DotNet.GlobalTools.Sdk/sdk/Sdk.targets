@@ -4,7 +4,7 @@
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
   </PropertyGroup>
 
-  <Import
-    Project="Microsoft.DotNetTool.ShimGeneration.targets"
-    Condition="'$(PackAsTool)' == 'true' AND '$(GenerateToolShims)' == 'true' AND '$(TargetFramework)' != ''" />
+  <Target Name="WarnAboutThisSdk" BeforeTargets="Build">
+    <Warning Text="Microsoft.DotNet.GlobalTools.Sdk is obsolete. The features it provides are now part of the default SDK. You can remove the reference to this and set PackAsToolShimRuntimeIdentifiers=win-x86;win-x64" />
+  </Target>
 </Project>

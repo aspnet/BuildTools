@@ -7,7 +7,7 @@
     <AssemblyName>cowsay</AssemblyName>
     <PackageId>Simple.CliTool</PackageId>
     <PackAsTool>true</PackAsTool>
-    <GenerateToolShims>true</GenerateToolShims>
+    <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86</PackAsToolShimRuntimeIdentifiers>
     <AssemblySigningCertName>TestCert</AssemblySigningCertName>
     <PackageSigningCertName>MyPackageSigningCert</PackageSigningCertName>
   </PropertyGroup>

@@ -11,8 +11,4 @@
 
   <Import Project="DefaultItems.targets" />
 
-  <Import
-    Project="Microsoft.DotNetTool.ShimGeneration.targets"
-    Condition="'$(PackAsTool)' == 'true' AND '$(GenerateToolShims)' == 'true' AND '$(TargetFramework)' != ''" />
-
 </Project>

@@ -19,7 +19,6 @@
     <file src="build\" target="build\" />
     <file src="buildMultiTargeting\" target="buildMultiTargeting\" />
     <file src="sdk\" target="sdk\" />
-    <file src="..\Microsoft.DotNet.GlobalTools.Sdk\sdk\Microsoft.DotNetTool.ShimGeneration.targets" target="sdk/" />
     <file src="$bundledVersionFile$" target="sdk/" />
   </files>
 </package>

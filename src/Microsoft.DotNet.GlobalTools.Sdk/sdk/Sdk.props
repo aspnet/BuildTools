@@ -1,5 +1,0 @@
-﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup>
-    <PackAsToolShimRuntimeIdentifiers Condition="'$(PackAsToolShimRuntimeIdentifiers)' == ''">win-x86;win-x64</PackAsToolShimRuntimeIdentifiers>
-  </PropertyGroup>
-</Project>

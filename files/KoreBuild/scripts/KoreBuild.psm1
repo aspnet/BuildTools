@@ -374,7 +374,6 @@ function Invoke-KoreBuildCommand(
         `"version`": `"$sdkVersion`"
     },
     `"msbuild-sdks`": {
-        `"Microsoft.DotNet.GlobalTools.Sdk`": `"$korebuildVersion`",
         `"Internal.AspNetCore.Sdk`": `"$korebuildVersion`"
     }
 }

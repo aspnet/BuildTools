@@ -66,7 +66,6 @@ if [ "$sdk_version" != 'latest' ]; then
             \"version\": \"${sdk_version}\"
         },
         \"msbuild-sdks\": {
-            \"Microsoft.DotNet.GlobalTools.Sdk\": \"${korebuild_version}\",
             \"Internal.AspNetCore.Sdk\": \"${korebuild_version}\"
         }
     }" > "$repo_path/global.json"

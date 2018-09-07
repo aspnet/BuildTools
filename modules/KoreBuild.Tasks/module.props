@@ -13,7 +13,6 @@
   <UsingTask TaskName="KoreBuild.Tasks.GetToolsets" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.InstallDotNet" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.InstallToolsets" AssemblyFile="$(KoreBuildTasksDll)" />
-  <UsingTask TaskName="KoreBuild.Tasks.MergeXmlFiles" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.PackNuSpec" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.PushNuGetPackages" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.UpgradeDependencies" AssemblyFile="$(KoreBuildTasksDll)" />

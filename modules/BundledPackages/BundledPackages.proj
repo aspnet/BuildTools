@@ -5,7 +5,6 @@
     <ItemGroup>
       <Projects Include="$(MSBuildThisFileDirectory)..\..\src\Internal.AspNetCore.Sdk\Internal.AspNetCore.Sdk.csproj" />
       <Projects Include="$(MSBuildThisFileDirectory)..\..\src\ApiCheck.Console\ApiCheck.Console.csproj" />
-      <Projects Include="$(MSBuildThisFileDirectory)..\..\src\Microsoft.DotNet.GlobalTools.Sdk\Microsoft.DotNet.GlobalTools.Sdk.csproj" />
     </ItemGroup>
 
     <MSBuild Projects="@(Projects)"
@@ -23,7 +22,6 @@
       <BundledPackageRestorerContent>
 <![CDATA[
 <Project>
-  <Sdk Name="Microsoft.DotNet.GlobalTools.Sdk" Version="$(Version)" />
   <Sdk Name="Internal.AspNetCore.Sdk" Version="$(Version)" />
 
   <PropertyGroup>

@@ -3,14 +3,10 @@
   <PropertyGroup>
     <PrepareDependsOn Condition=" '$(DisableDefaultTargets)' != 'true' ">GetToolsets;$(PrepareDependsOn)</PrepareDependsOn>
     <RestoreDependsOn Condition=" '$(DisableDefaultTargets)' != 'true' ">InstallDotNet;CheckPackageReferences;$(RestoreDependsOn)</RestoreDependsOn>
-    <PackageDependsOn Condition=" '$(DisableDefaultTargets)' != 'true' ">$(PackageDependsOn);GenerateSignRequest</PackageDependsOn>
-
-    <GenerateSignRequest Condition="'$(GenerateSignRequest)' == ''">true</GenerateSignRequest>
 
     <DisablePackageReferenceRestrictions Condition=" '$(DisablePackageReferenceRestrictions)' == '' ">false</DisablePackageReferenceRestrictions>
     <KoreBuildConfigFile Condition="'$(KoreBuildConfigFile)' == ''">$(RepositoryRoot)korebuild.json</KoreBuildConfigFile>
     <DependencyVersionsFile Condition="'$(DependencyVersionsFile)' == ''">$(RepositoryRoot)build\dependencies.props</DependencyVersionsFile>
-    <SignRequestOutputPath>$(ArtifactsDir)signrequest.xml</SignRequestOutputPath>
   </PropertyGroup>
 
 <!--
@@ -158,7 +154,6 @@ and NodeJS.
     </GetToolsets>
   </Target>
 
-
 <!--
 ####################################################################################
 Target: VerifySignRequestItems
@@ -168,27 +163,12 @@ Verifies all artifact items have a corresponding sign item.
 -->
   <Target Name="VerifySignRequestItems"
           DependsOnTargets="GetArtifactInfo"
-          Condition="'$(GenerateSignRequest)' == 'true' AND '$(SkipArtifactVerification)' != 'true'">
+          Condition="'$(DisableCodeSigning)' != 'true' AND '$(SkipArtifactVerification)' != 'true'">
 
     <ItemGroup>
-      <_ExpectedFileToSign Remove="@(_ExpectedFileToSign)" />
-      <_ExpectedFileToSign Include="@(ArtifactInfo)" />
-      <_ExpectedFileToSign Remove="@(FilesToSign);@(FilesToExcludeFromSigning);$(SignRequestOutputPath)" />
       <_FilesToSignMissingConfig Remove="@(_FilesToSignMissingConfig)" />
       <_FilesToSignMissingConfig Include="@(FilesToSign)" Condition=" '%(FilesToSign.Certificate)' == '' AND '%(FilesToSign.StrongName)' == '' AND '%(FilesToSign.IsContainer)' != 'true' " />
     </ItemGroup>
-
-    <PropertyGroup>
-      <_SigningErrorMessage Condition=" @(_ExpectedFileToSign->Count()) != 0 ">
-Could not determine signing information for all ArtifactInfo items.
-Fix this error by adding these items to FilesToSign or FilesToExcludeFromSigning:
-  - @(_ExpectedFileToSign, '%0A  - ')
-      </_SigningErrorMessage>
-    </PropertyGroup>
-
-    <Error Text="$(_SigningErrorMessage.Trim())"
-           Code="KRB5003"
-           Condition=" @(_ExpectedFileToSign->Count()) != 0 " />
 
     <PropertyGroup>
       <_SigningErrorMessage Condition=" @(_FilesToSignMissingConfig->Count()) != 0 ">
@@ -200,36 +180,6 @@ The following FilesToSign did not specify a Certificate or StrongName to use.
     <Error Text="$(_SigningErrorMessage.Trim())"
            Code="KRB5004"
            Condition=" @(_FilesToSignMissingConfig->Count()) != 0 " />
-  </Target>
-
-<!--
-####################################################################################
-Target: GenerateSignRequest
-
-Generates a manifest that contains signing requests for files.
-
-[in] (items) FilesToSign
-[in] (items) FilesToExcludeFromSigning
-
-[out] SignRequestOutputPath - the bom file
-####################################################################################
--->
-  <ItemGroup Condition=" '$(GenerateSignRequest)' == 'true' ">
-    <ArtifactInfo Include="$(SignRequestOutputPath)">
-      <ArtifactType>XmlFile</ArtifactType>
-      <Category>noship</Category>
-    </ArtifactInfo>
-  </ItemGroup>
-
-  <Target Name="GenerateSignRequest"
-          DependsOnTargets="GetArtifactInfo;VerifySignRequestItems"
-          Condition=" '$(GenerateSignRequest)' == 'true' ">
-
-    <GenerateSignRequest
-      Requests="@(FilesToSign)"
-      Exclusions="@(FilesToExcludeFromSigning)"
-      BasePath="$(ArtifactsDir)"
-      OutputPath="$(SignRequestOutputPath)" />
   </Target>
 
 </Project>

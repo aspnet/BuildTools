@@ -3,7 +3,6 @@
 
 using System.IO;
 using System.Linq;
-using Microsoft.AspNetCore.BuildTools.CodeSign;
 using NuGet.Packaging;
 using NuGet.Versioning;
 using Xunit.Abstractions;
@@ -23,8 +22,7 @@ namespace NuGetPackageVerifier.Utilities
         public static PackageAnalysisContext CreateContext(
             ITestOutputHelper output,
             string[] emptyFiles,
-            string version = "1.0.0",
-            string signRequest = null)
+            string version = "1.0.0")
         {
             return Create(output,
                 new ManifestMetadata
@@ -32,15 +30,13 @@ namespace NuGetPackageVerifier.Utilities
                     Id = PackageId,
                     Version = new NuGetVersion(version),
                 },
-                emptyFiles,
-                signRequest);
+                emptyFiles);
         }
 
         public static PackageAnalysisContext Create(
             ITestOutputHelper output,
             ManifestMetadata metadata,
-            string[] emptyFiles = null,
-            string signRequest = null)
+            string[] emptyFiles = null)
         {
             var disposableDirectory = new DisposableDirectory();
             var basePath = disposableDirectory.Path;
@@ -72,20 +68,10 @@ namespace NuGetPackageVerifier.Utilities
                 builder.Save(nupkg);
             }
 
-            SignRequestItem packageSignRequest = null;
-
-            if (signRequest != null)
-            {
-                var reader = new StringReader(signRequest);
-                var signManifest = SignRequestManifestXmlReader.Load(reader, basePath);
-                packageSignRequest = signManifest.First(f => f.Path == nupkgFileName);
-            }
-
             var context = new TestPackageAnalysisContext(disposableDirectory)
             {
                 Logger = new TestLogger(output),
                 PackageFileInfo = new FileInfo(nupkgPath),
-                SignRequest = packageSignRequest,
                 Metadata = builder,
             };
 

@@ -11,7 +11,7 @@ for use outside of Microsoft.
 
   <Import
     Project="DotNetTool.targets"
-    Condition="'$(PackAsTool)' == 'true' AND '$(GenerateToolShims)' == 'true' AND '$(TargetFramework)' != ''" />
+    Condition="'$(PackAsTool)' == 'true' AND '$(TargetFramework)' != ''" />
 
   <Target Name="Resx"
           DependsOnTargets="PrepareResourceNames;_CoreGenerateCSharpForResources" />

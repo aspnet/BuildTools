@@ -5,14 +5,6 @@
     <GetSignedPackageFilesDependsOn>$(GetSignedPackageFilesDependsOn);_GetSignedPackageFilesForGeneratedShims</GetSignedPackageFilesDependsOn>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <!--
-      Only generate shims for these platforms.
-    -->
-    <PackAsToolShimRuntimeIdentifiers Condition="'$(PackAsToolShimRuntimeIdentifiers)' == ''">win-x86;win-x64</PackAsToolShimRuntimeIdentifiers>
-    <RuntimeIdentifiers>$(RuntimeIdentifiers);$(PackAsToolShimRuntimeIdentifiers)</RuntimeIdentifiers>
-  </PropertyGroup>
-
   <Target Name="_GetSignedPackageFilesForGeneratedShims" Condition="'$(AssemblySigningCertName)' != ''">
     <ItemGroup>
       <_ShimRids Include="$(PackAsToolShimRuntimeIdentifiers)" />

@@ -30,7 +30,6 @@ namespace NuGetPackageVerifier.Rules
             new PrereleaseDependenciesVersionRule(),
             new PackageVersionMatchesAssemblyVersionRule(),
             new BuildItemsRule(),
-            new SignRequestListsAllSignableFiles(),
         };
     }
 }

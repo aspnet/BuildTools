@@ -27,8 +27,6 @@ namespace NuGetPackagerVerifier
 
         public string[] ExcludedRules { get; set; }
 
-        public string SignRequestManifest { get; set; }
-
         public override bool Execute()
         {
             if (string.IsNullOrEmpty(RuleFile) || !File.Exists(RuleFile))
@@ -58,18 +56,6 @@ namespace NuGetPackagerVerifier
                 RuleFile,
                 ArtifactDirectory,
             };
-
-            if (!string.IsNullOrEmpty(SignRequestManifest))
-            {
-                if (!File.Exists(SignRequestManifest))
-                {
-                    Log.LogError($"SignRequestManifest file {SignRequestManifest} does not exist.");
-                    return false;
-                }
-
-                arguments.Add("--sign-request");
-                arguments.Add(SignRequestManifest);
-            }
 
             foreach (var rule in ExcludedRules ?? Enumerable.Empty<string>())
             {

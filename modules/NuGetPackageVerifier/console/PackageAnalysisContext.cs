@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.AspNetCore.BuildTools.CodeSign;
 using NuGet.Packaging;
 using NuGetPackageVerifier.Logging;
 
@@ -15,7 +14,6 @@ namespace NuGetPackageVerifier
         private PackageArchiveReader _reader;
 
         public FileInfo PackageFileInfo { get; set; }
-        public SignRequestItem SignRequest { get; set; }
         public IPackageMetadata Metadata { get; set; }
         public PackageVerifierOptions Options { get; set; }
         public IPackageVerifierLogger Logger { get; set; }

@@ -8,6 +8,4 @@
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.GenerateSvgBadge" AssemblyFile="$(_RepoTaskAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.RunDotNet" AssemblyFile="$(_RepoTaskAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.ZipArchive" AssemblyFile="$(_RepoTaskAssembly)" />
-
-  <UsingTask TaskName="KoreBuild.Tasks.DownloadFile" AssemblyFile="$(_RepoTaskAssembly)" />
 </Project>

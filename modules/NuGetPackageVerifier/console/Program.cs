@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Microsoft.AspNetCore.BuildTools.CodeSign;
 using Microsoft.Extensions.CommandLineUtils;
 using Newtonsoft.Json;
 using NuGet.Packaging;
@@ -71,16 +70,17 @@ namespace NuGetPackageVerifier
                     });
 
 
-                var signRequestManifest = signRequest.HasValue()
-                    ? SignRequestManifestXmlReader.Load(signRequest.Value())
-                    : default;
+                if (signRequest.HasValue())
+                {
+                    Console.WriteLine("The --sign-request parameter is obsolete and will be ignored. It will be removed in a future version");
+                }
 
                 logger.LogNormal("Read {0} package set(s) from {1}", packageSets.Count, ruleFile.Value());
                 var nupkgs = new DirectoryInfo(packageDirectory.Value).EnumerateFiles("*.nupkg", SearchOption.TopDirectoryOnly)
                     .Where(p => !p.Name.EndsWith(".symbols.nupkg"))
                     .ToArray();
                 logger.LogNormal("Found {0} packages in {1}", nupkgs.Length, packageDirectory.Value);
-                var exitCode = Execute(packageSets, nupkgs, signRequestManifest, excludedRules.Values, logger, ignoreAssistanceMode);
+                var exitCode = Execute(packageSets, nupkgs, excludedRules.Values, logger, ignoreAssistanceMode);
                 totalTimeStopWatch.Stop();
                 logger.LogNormal("Total took {0}ms", totalTimeStopWatch.ElapsedMilliseconds);
 
@@ -93,7 +93,6 @@ namespace NuGetPackageVerifier
         private static int Execute(
             IDictionary<string, PackageSet> packageSets,
             IEnumerable<FileInfo> nupkgs,
-            SignRequestCollection signRequestManifest,
             List<string> excludedRuleNames,
             IPackageVerifierLogger logger,
             IgnoreAssistanceMode ignoreAssistanceMode)
@@ -185,10 +184,6 @@ namespace NuGetPackageVerifier
                             var package = packagePair.Key;
                             logger.LogInfo("Analyzing {0} ({1})", package.Id, package.Version);
 
-                            var signRequest = signRequestManifest?
-                                .FirstOrDefault(i => i.ItemType == SignRequestItemType.Nupkg
-                                                     && string.Equals(packagePair.Value.FullName, Path.Combine(signRequestManifest.BasePath, i.Path.Replace('/', Path.DirectorySeparatorChar)), StringComparison.OrdinalIgnoreCase));
-
                             List<PackageVerifierIssue> issues;
                             using (var context = new PackageAnalysisContext
                             {
@@ -196,7 +191,6 @@ namespace NuGetPackageVerifier
                                 Metadata = package,
                                 Logger = logger,
                                 Options = packageInfo.Value,
-                                SignRequest = signRequest,
                             })
                             {
                                 issues = analyzer.AnalyzePackage(context).ToList();
@@ -251,10 +245,6 @@ namespace NuGetPackageVerifier
                 {
                     logger.LogInfo("Analyzing {0} ({1})", unlistedPackage.Id, unlistedPackage.Version);
 
-                    var signRequest = signRequestManifest?
-                        .FirstOrDefault(i => i.ItemType == SignRequestItemType.Nupkg
-                                              && string.Equals(packages[unlistedPackage].FullName, Path.Combine(signRequestManifest.BasePath, i.Path.Replace('/', Path.DirectorySeparatorChar)), StringComparison.OrdinalIgnoreCase));
-
                     List<PackageVerifierIssue> issues;
                     PackageVerifierOptions packageOptions = null;
                     defaultPackageSet?.Packages?.TryGetValue(unlistedPackage.Id, out packageOptions);
@@ -264,7 +254,6 @@ namespace NuGetPackageVerifier
                         PackageFileInfo = packages[unlistedPackage],
                         Metadata = unlistedPackage,
                         Logger = logger,
-                        SignRequest = signRequest,
                         Options = packageOptions,
                     })
                     {

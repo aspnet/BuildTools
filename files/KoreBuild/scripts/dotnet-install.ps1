@@ -544,19 +544,25 @@ New-Item -ItemType Directory -Force -Path $InstallRoot | Out-Null
 $lockFile = Join-Path $InstallRoot "dotnetinstall.lock"
 
 $waitTime = 0
-while((Test-Path $lockFile) -and ($waitTime -lt 120))
-{
-    Say "Another installation of .NET Core is in process. Waiting for that installation to complete..."
-    Start-Sleep -Seconds 10
-    $waitTime += 10
+$success = $false
+$maxWait = 120
+while (($waitTime -lt $maxWait) -and ($success -eq $false)) {
+    try{
+        New-Item -ItemType file $lockFile -ErrorAction Stop
+        $success = $true
+    }
+    catch{
+        Say "Another installation of .NET Core is in process. Waiting for that installation to complete..."
+        Start-Sleep -Seconds 10
+        $waitTime += 10
+    }
 }
 
-if($waitTime -gt 120)
+if($waitTime -ge $maxWait)
 {
     throw "Timed out waiting for $lockFile to be removed."
 }
 
-New-Item -ItemType file $lockFile
 try{
     $installDrive = $((Get-Item $InstallRoot).PSDrive.Name);
     $free = Get-CimInstance -Class win32_logicaldisk | where Deviceid -eq "${installDrive}:"

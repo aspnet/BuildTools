@@ -770,12 +770,14 @@ install_dotnet() {
     lockFile="$install_root/dotnetinstall.lock"
     waitTime=0
 
+    # Does a lock file with our PID exist?
     while [ -e ${lockFile} ] && kill -0 `cat ${lockFile}`
     do
+
         say "Another installation of .NET Core is in process. Waiting for that installation to complete..."
         sleep 10
         let "waitTime += 10"
-        if [ $waitTime -ge 120 ]; then
+        if [ $waitTime -gt 120 ]; then
             say_err "Timed out waiting for $lockFile to be removed."
             exit 1
         fi

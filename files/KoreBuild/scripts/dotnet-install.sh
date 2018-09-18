@@ -768,12 +768,21 @@ install_dotnet() {
     mkdir -p "$install_root"
 
     lockFile="$install_root/dotnetinstall.lock"
-    lockfile -sleeptime 10 -r 12 "$lockFile"
 
-    function finish {
-        rm -f $lockFile
-    }
-    trap finish EXIT
+    while [ -e ${lockFile} ] && kill -0 `cat ${lockFile}`
+    do
+        say "Another installation of .NET Core is in process. Waiting for that installation to complete..."
+        sleep 10
+        let "waitTime += 10"
+        if [ $waitTime -ge 120 ]; then
+            say_err "Timed out waiting for $lockFile to be removed."
+            exit 1
+        fi
+    done
+
+    # make sure the lockfile is removed when we exit and then claim it
+    trap "rm -f ${lockFile}; exit" INT TERM EXIT
+    echo $$ > ${lockFile}
 
     zip_path="$(mktemp "$temporary_file_template")"
     say_verbose "Zip path: $zip_path"

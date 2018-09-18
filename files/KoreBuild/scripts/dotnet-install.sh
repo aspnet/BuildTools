@@ -768,6 +768,7 @@ install_dotnet() {
     mkdir -p "$install_root"
 
     lockFile="$install_root/dotnetinstall.lock"
+    waitTime=0
 
     while [ -e ${lockFile} ] && kill -0 `cat ${lockFile}`
     do

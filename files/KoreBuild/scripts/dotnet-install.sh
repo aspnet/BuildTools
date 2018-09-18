@@ -768,18 +768,7 @@ install_dotnet() {
     mkdir -p "$install_root"
 
     lockFile="$install_root/dotnetinstall.lock"
-    waitTime=0
-    while [[ touch file || exit ]] && [[ $waitTime -lt 120 ]]
-    do
-        say "Another installation of .NET Core is in process. Waiting for that installation to complete..."
-        sleep 10
-        let "waitTime += 10"
-    done
-
-    if [ $waitTime -ge 120 ]; then
-        say_err "Timed out waiting for $lockFile to be removed."
-        exit 1
-    fi
+    lockfile -sleeptime 10 -r 12 "$lockFile"
 
     function finish {
         rm -f $lockFile

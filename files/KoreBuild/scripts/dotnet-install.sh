@@ -769,7 +769,7 @@ install_dotnet() {
 
     lockFile="$install_root/dotnetinstall.lock"
     waitTime=0
-    while [ touch file || exit ] && [ $waitTime -lt 120 ]
+    while [[ touch file || exit ]] && [[ $waitTime -lt 120 ]]
     do
         say "Another installation of .NET Core is in process. Waiting for that installation to complete..."
         sleep 10

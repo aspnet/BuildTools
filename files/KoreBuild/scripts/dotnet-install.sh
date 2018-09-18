@@ -593,14 +593,14 @@ copy_files_or_dirs_from_list() {
     local out_path="$(remove_trailing_slash "$2")"
     local override="$3"
     local osname="$(get_current_os_name)"
-    local override_switch=$(
-        if [ "$override" = false ]; then
-            if [[ "$osname" == "linux-musl" ]]; then
-                printf -- "-u";
-            else
-                printf -- "-n";
-            fi
-        fi)
+    # local override_switch=$(
+    #     if [ "$override" = false ]; then
+    #         if [[ "$osname" == "linux-musl" ]]; then
+    #             printf -- "-u";
+    #         else
+    #             printf -- "-n";
+    #         fi
+    #     fi)
 
     cat | uniq | while read -r file_path; do
         local path="$(remove_beginning_slash "${file_path#$root_path}")"
@@ -769,7 +769,7 @@ install_dotnet() {
     lockFile="$install_root/dotnetinstall.lock"
     waitTime=0
     set -o noclobber
-    while [ [ { > $lockFile ; } &> /dev/null ] -ne 0 ] && [ $waitTime -lt 120 ]
+    while [ { { > $lockFile ; } &> /dev/null } -ne 0 ] && [ $waitTime -lt 120 ]
     do
         say "Another installation of .NET Core is in process. Waiting for that installation to complete..."
         sleep 10

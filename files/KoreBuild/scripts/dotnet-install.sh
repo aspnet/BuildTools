@@ -769,7 +769,7 @@ install_dotnet() {
     lockFile="$install_root/dotnetinstall.lock"
     waitTime=0
     set -o noclobber
-    while [ [{ > $lockFile ; } &> /dev/null] -ne 0 ] && [ $waitTime -lt 120 ]
+    while [ [ { > $lockFile ; } &> /dev/null ] -ne 0 ] && [ $waitTime -lt 120 ]
     do
         say "Another installation of .NET Core is in process. Waiting for that installation to complete..."
         sleep 10

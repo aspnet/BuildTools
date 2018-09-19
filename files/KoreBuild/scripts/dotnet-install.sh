@@ -600,7 +600,8 @@ copy_files_or_dirs_from_list() {
             else
                 printf -- "-n";
             fi
-        fi)
+        fi
+    )
 
     cat | uniq | while read -r file_path; do
         local path="$(remove_beginning_slash "${file_path#$root_path}")"
@@ -768,22 +769,23 @@ install_dotnet() {
 
     lockFile="$install_root/dotnetinstall.lock"
     waitTime=0
-    while [ -f "$lockFile" ] && [ $waitTime -lt 120 ]
+
+    # Does a lock file with our PID exist?
+    while [ -e ${lockFile} ] && kill -0 `cat ${lockFile}`
     do
+
         say "Another installation of .NET Core is in process. Waiting for that installation to complete..."
         sleep 10
         let "waitTime += 10"
+        if [ $waitTime -gt 120 ]; then
+            say_err "Timed out waiting for $lockFile to be removed."
+            exit 1
+        fi
     done
 
-    if [ $waitTime -ge 120 ]; then
-        say_err "Timed out waiting for $lockFile to be removed."
-        exit 1
-    fi
-    touch $lockFile
-    function finish {
-        rm $lockFile
-    }
-    trap finish EXIT
+    # make sure the lockfile is removed when we exit and then claim it
+    trap "rm -f ${lockFile}; exit" INT TERM EXIT
+    echo $$ > ${lockFile}
 
     zip_path="$(mktemp "$temporary_file_template")"
     say_verbose "Zip path: $zip_path"

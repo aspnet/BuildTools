@@ -26,6 +26,9 @@ namespace KoreBuild.Tasks.Utilities
                 args.Add("-prerelease");
             }
 
+            args.Add("-products");
+            args.Add("*");
+
             return GetInstallations(args, log).FirstOrDefault();
         }
 

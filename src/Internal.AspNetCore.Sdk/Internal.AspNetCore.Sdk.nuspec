@@ -9,6 +9,7 @@
     <copyright>$copyright$</copyright>
     <dependencies>
       <dependency id="Microsoft.AspNetCore.BuildTools.ApiCheck" version="$apicheckversion$" />
+      <dependency id="MicroBuild.Core" version="$microbuildversion$" />
     </dependencies>
   </metadata>
   <files>

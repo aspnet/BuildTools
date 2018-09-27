@@ -7,7 +7,12 @@
 
     <!-- Repos can explicitly define the signdata.json file if they want do. They must set SignToolDataFile to the path of the file. When set, file generation is skipped. -->
     <GenerateSignToolDataFile  Condition="'$(SignToolDataFile)' == '' ">true</GenerateSignToolDataFile>
+
+    <!-- The location of SignToolData.json. This can be handwritten if you don't want to use the generated version. -->
     <SignToolDataFile Condition="'$(GenerateSignToolDataFile)' == 'true'">$(_IntermediateSignToolDataFile)</SignToolDataFile>
+
+    <!-- Relative paths in SignToolData.json are relative to this path -->
+    <SignToolDataWorkingDir Condition=" '$(SignToolDataWorkingDir)' == '' ">$(RepositoryRoot)</SignToolDataWorkingDir>
   </PropertyGroup>
 
   <Target Name="CodeSign" Condition=" '$(SkipCodeSign)' != 'true' "
@@ -34,7 +39,7 @@
       <SignToolOptions Include="$(NuGetPackageRoot)" />
       <SignToolOptions Include="-config" />
       <SignToolOptions Include="$(SignToolDataFile)" />
-      <SignToolOptions Include="$(RepositoryRoot)" />
+      <SignToolOptions Include="$(SignToolDataWorkingDir)" />
     </ItemGroup>
 
     <Run FileName="$(RoslynSignToolPath)" Arguments="@(SignToolOptions)" Condition=" '$(SignToolDataFile)' != '' " />

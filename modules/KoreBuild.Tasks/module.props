@@ -10,6 +10,8 @@
   <UsingTask TaskName="KoreBuild.Tasks.FindVisualStudio" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.GenerateDependenciesPropsFile" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.GeneratePackageVersionPropsFile" AssemblyFile="$(KoreBuildTasksDll)" />
+  <UsingTask TaskName="KoreBuild.Tasks.GenerateSignToolDataFile" AssemblyFile="$(KoreBuildTasksDll)" />
+  <UsingTask TaskName="KoreBuild.Tasks.GetPathToFullMSBuild" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.GetToolsets" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.InstallDotNet" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.InstallToolsets" AssemblyFile="$(KoreBuildTasksDll)" />

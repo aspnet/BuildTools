@@ -4,7 +4,9 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <AssemblyName>Internal.AspNetCore.KoreBuild.Tasks</AssemblyName>
+    <RoslynSignToolDir>$(NuGetPackageRoot)roslyntools.signtool\$(RoslynToolsSignToolPackageVersion)\</RoslynSignToolDir>
   </PropertyGroup>
+
   <ItemGroup>
     <Content Include="*.props" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="*.targets" CopyToPublishDirectory="PreserveNewest" />
@@ -13,8 +15,10 @@
     <Compile Include="..\BuildTools.Tasks\Utilities\FileHelpers.cs" Link="Utilities\FileHelpers.cs" />
     <Compile Include="..\..\tools\KoreBuildSettings.cs" />
     <Content Include="$(VSWhereDir)vswhere.exe" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="$(RoslynSignToolDir)tools\**\*" Link="SignTool\%(RecursiveDir)%(FileName)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="$(MSBuildThisFileDirectory)SkipStrongNames.xml" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
+
   <ItemGroup>
     <!-- set as private assets all so these assemblies get resolved from the version bundled in the .NET Core SDK -->
     <PackageReference Include="Microsoft.Build" Version="$(MicrosoftBuildPackageVersion)" PrivateAssets="All" />
@@ -25,6 +29,7 @@
     <PackageReference Include="NuGet.Build.Tasks" Version="$(Tooling_NuGetBuildTasksPackageVersion)" PrivateAssets="All" />
     <PackageReference Include="Newtonsoft.Json" Version="$(Tooling_NewtonsoftJsonPackageVersion)" PrivateAssets="All" />
     <PackageReference Include="vswhere" Version="$(VSWherePackageVersion)" PrivateAssets="All" />
+    <PackageReference Include="RoslynTools.SignTool" Version="$(RoslynToolsSignToolPackageVersion)" />
   </ItemGroup>
 
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.targets" />

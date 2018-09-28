@@ -1,5 +1,7 @@
 <Project>
 
+  <Import Project="CodeSign.targets" />
+
   <PropertyGroup>
     <PrepareDependsOn Condition=" '$(DisableDefaultTargets)' != 'true' ">GetToolsets;$(PrepareDependsOn)</PrepareDependsOn>
     <RestoreDependsOn Condition=" '$(DisableDefaultTargets)' != 'true' ">InstallDotNet;CheckPackageReferences;$(RestoreDependsOn)</RestoreDependsOn>

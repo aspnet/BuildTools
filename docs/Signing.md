@@ -24,7 +24,7 @@ To sign NuGet packages, set the PackageSigningCertName property in the \*.csproj
 
 ```xml
 <PropertyGroup>
-  <PackageSigningCertName>NuGetCert</PackageSigningCertName>
+  <PackageSigningCertName>MyNuGetCert</PackageSigningCertName>
 </PropertyGroup>
 ```
 
@@ -35,8 +35,21 @@ For assemblies that ship in a NuGet package, you can specify multiple properties
 ```xml
 <PropertyGroup>
   <AssemblySigningCertName>MyCert</AssemblySigningCertName>
-  <PackageSigningCertName>NuGetCert</PackageSigningCertName>
+  <PackageSigningCertName>MyNuGetCert</PackageSigningCertName>
 </PropertyGroup>
+```
+
+### Recommended cert names for Microsoft projects
+
+The following certificate names should be used for Microsoft projects. These MSBuild properties are also available by using Internal.AspNetCore.SDK.
+
+```xml
+    <AssemblySigningCertName>Microsoft400</AssemblySigningCertName>
+    <AssemblySigning3rdPartyCertName>3PartySHA2</AssemblySigning3rdPartyCertName>
+    <PowerShellSigningCertName>Microsoft400</PowerShellSigningCertName>
+    <PackageSigningCertName>NuGet</PackageSigningCertName>
+    <VsixSigningCertName>VsixSHA2</VsixSigningCertName>
+    <JarSigningCertName>MicrosoftJAR</JarSigningCertName>
 ```
 
 ### Projects using nuspec
@@ -70,7 +83,7 @@ Sometimes other signable assemblies end up in a nupkg. Signing for these file ty
       PackagePath="tasks/net461/$(TargetFileName)" Visible="false" />
 
     <!-- Third-party cert -->
-    <SignedPackageFile Include="tools/Newtonsoft.Json.dll" Certificate="3PartyDual" Visible="false" />
+    <SignedPackageFile Include="tools/Newtonsoft.Json.dll" Certificate="3PartySHA2" Visible="false" />
 
     <!-- This should already be signed by the dotnet-core team -->
     <ExcludePackageFileFromSigning Include="tools/System.Runtime.CompilerServices.Unsafe.dll" />
@@ -95,9 +108,9 @@ these elements to the `build/repo.props` file. (See also [KoreBuild.md](./KoreBu
 ```xml
 <!-- build/repo.props -->
 <ItemGroup>
-  <FilesToSign Include="$(ArtifactsDir)libuv.dll" Certificate="3PartyDual" />
+  <FilesToSign Include="$(ArtifactsDir)libuv.dll" Certificate="3PartySHA2" />
 
   <!-- Files can also be listed as "do not sign", for completeness -->
-  <FilesToExcludeFromSigning Include="$(ArtifactsDir)my.test.dll" Certificate="3PartyDual" />
+  <FilesToExcludeFromSigning Include="$(ArtifactsDir)my.test.dll" Certificate="3PartySHA2" />
 </ItemGroup>
 ```

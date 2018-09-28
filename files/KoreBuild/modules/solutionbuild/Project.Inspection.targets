@@ -126,9 +126,10 @@ Items:
     <PropertyGroup>
       <_PackageBasePath>$(BuildOutputTargetFolder.TrimEnd('/'))</_PackageBasePath>
       <_PackageBasePath>$(_PackageBasePath.TrimEnd('\'))</_PackageBasePath>
+      <_IsTestProject Condition=" '$(IsTestProject)' == 'true' OR ('$(IsTestProject)' == '' AND @(PackageReference->WithMetadataValue('Identity', 'Microsoft.NET.Test.Sdk')->Count()) != 0)">true</_IsTestProject>
     </PropertyGroup>
 
-    <ItemGroup Condition=" '$(NuspecFile)' == '' AND '$(IncludeBuildOutput)' != 'false' AND ('$(AssemblySigningCertName)' != '' OR '$(AssemblySigningStrongName)' != '') ">
+    <ItemGroup Condition=" '$(_IsTestProject)' != 'true' AND '$(NuspecFile)' == '' AND '$(IncludeBuildOutput)' != 'false' AND ('$(AssemblySigningCertName)' != '' OR '$(AssemblySigningStrongName)' != '') ">
       <SignedPackageFile Include="@(BuiltProjectOutputGroupOutput)" Condition="'%(BuiltProjectOutputGroupOutput.Extension)' == '.dll' OR '%(BuiltProjectOutputGroupOutput.Extension)' == '.exe'">
         <PackagePath>$(_PackageBasePath)/$(TargetFramework)/%(BuiltProjectOutputGroupOutput.FileName)%(BuiltProjectOutputGroupOutput.Extension)</PackagePath>
         <Certificate>$(AssemblySigningCertName)</Certificate>

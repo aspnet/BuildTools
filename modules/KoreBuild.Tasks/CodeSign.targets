@@ -37,6 +37,8 @@
       <SignToolOptions Condition=" '$(SignType)' == 'test' " Include="-testSign" />
       <SignToolOptions Include="-nugetPackagesPath" />
       <SignToolOptions Include="$(NuGetPackageRoot)" />
+      <SignToolOptions Include="-intermediateOutputPath" />
+      <SignToolOptions Include="$(IntermediateDir)" />
       <SignToolOptions Include="-config" />
       <SignToolOptions Include="$(SignToolDataFile)" />
       <SignToolOptions Include="$(SignToolDataWorkingDir)" />

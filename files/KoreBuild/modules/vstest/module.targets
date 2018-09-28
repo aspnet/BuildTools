@@ -118,7 +118,10 @@ Runs the VSTest on all projects in the ProjectsToTest itemgroup.
       <Output TaskParameter="TargetOutputs" ItemName="BenchmarkExecPath" />
     </MSBuild>
 
-    <RunDotNet Arguments="%(BenchmarkExecPath.Identity);*;--validate-fast" />
+    <RunDotNet Condition="'%(BenchmarkExecPath.TargetFrameworkIdentifier)' == '.NETCoreApp'"
+      Arguments="%(BenchmarkExecPath.Identity);*;--validate-fast" />
+    <Run Condition="'%(BenchmarkExecPath.TargetFrameworkIdentifier)' == '.NETFramework'"
+      FileName="%(BenchmarkExecPath.Identity)" Arguments="*;--validate-fast" />
   </Target>
 
 </Project>

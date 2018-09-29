@@ -3,12 +3,13 @@
   <PropertyGroup>
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
     <GetSignedPackageFilesDependsOn>$(GetSignedPackageFilesDependsOn);_GetSignedPackageFilesForGeneratedShims</GetSignedPackageFilesDependsOn>
+    <PackagedShimOutputRootDirectory>$(IntermediateOutputPath)</PackagedShimOutputRootDirectory>
   </PropertyGroup>
 
   <Target Name="_GetSignedPackageFilesForGeneratedShims" Condition="'$(AssemblySigningCertName)' != ''">
     <ItemGroup>
       <_ShimRids Include="$(PackAsToolShimRuntimeIdentifiers)" />
-      <SignedPackageFile Condition="'%(_ShimRids.Identity)' != ''" Include="$(IntermediateOutputPath)shims/$(TargetFramework)/%(_ShimRids.Identity)/$(AssemblyName).exe" Certificate="$(AssemblySigningCertName)">
+      <SignedPackageFile Condition="'%(_ShimRids.Identity)' != ''" Include="$(PackagedShimOutputRootDirectory)shims/$(TargetFramework)/%(_ShimRids.Identity)/$(AssemblyName).exe" Certificate="$(AssemblySigningCertName)">
         <PackagePath>tools/$(TargetFramework)/any/shims/%(_ShimRids.Identity)/</PackagePath>
       </SignedPackageFile>
       <SignedPackageFile Include="$(TargetPath)" Certificate="$(AssemblySigningCertName)">

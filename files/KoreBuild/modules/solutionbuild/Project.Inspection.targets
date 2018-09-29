@@ -24,6 +24,14 @@
       <IncludeSource Condition="'$(IncludeSource)' == '' AND $(_ReferencesInternalAspNetCoreSdk)">true</IncludeSource>
     </PropertyGroup>
 
+    <ConvertToAbsolutePath Paths="@(SignedPackageFile)">
+      <Output TaskParameter="AbsolutePaths" ItemName="_SignedPackageFile" />
+    </ConvertToAbsolutePath>
+
+    <ConvertToAbsolutePath Paths="@(ExcludePackageFileFromSigning)">
+      <Output TaskParameter="AbsolutePaths" ItemName="_ExcludePackageFileFromSigning" />
+    </ConvertToAbsolutePath>
+
     <ItemGroup Condition="'$(IsPackable)' == 'true' ">
       <ArtifactInfo Include="$(FullPackageOutputPath)">
         <ArtifactType>NuGetPackage</ArtifactType>
@@ -36,7 +44,7 @@
         <RepositoryUrl>$(RepositoryUrl)</RepositoryUrl>
         <Category>$(PackageArtifactCategory)</Category>
         <Certificate>$(PackageSigningCertName)</Certificate>
-        <ShouldBeSigned Condition="'$(PackageSigningCertName)' != '' OR @(SignedPackageFile->Count()) != 0 ">true</ShouldBeSigned>
+        <ShouldBeSigned Condition="'$(PackageSigningCertName)' != '' OR @(_SignedPackageFile->Count()) != 0 ">true</ShouldBeSigned>
         <ShouldBeSigned Condition=" '$(DisableCodeSigning)' == 'true' ">false</ShouldBeSigned>
         <IsContainer>true</IsContainer>
       </ArtifactInfo>
@@ -53,27 +61,27 @@
         <RepositoryUrl>$(RepositoryUrl)</RepositoryUrl>
         <Category>$(PackageArtifactCategory)</Category>
         <Certificate>$(PackageSigningCertName)</Certificate>
-        <ShouldBeSigned Condition="'$(PackageSigningCertName)' != '' OR @(SignedPackageFile->Count()) != 0 ">true</ShouldBeSigned>
+        <ShouldBeSigned Condition="'$(PackageSigningCertName)' != '' OR @(_SignedPackageFile->Count()) != 0 ">true</ShouldBeSigned>
         <ShouldBeSigned Condition=" '$(DisableCodeSigning)' == 'true' ">false</ShouldBeSigned>
         <IsContainer>true</IsContainer>
       </ArtifactInfo>
 
-      <ArtifactInfo Include="@(SignedPackageFile)" Condition=" '$(DisableCodeSigning)' != 'true' ">
+      <ArtifactInfo Include="@(_SignedPackageFile)" Condition=" '$(DisableCodeSigning)' != 'true' ">
         <ShouldBeSigned>true</ShouldBeSigned>
         <Container>$(FullPackageOutputPath)</Container>
       </ArtifactInfo>
 
-      <ArtifactInfo Include="@(ExcludePackageFileFromSigning)">
+      <ArtifactInfo Include="@(_ExcludePackageFileFromSigning)">
         <ShouldBeSigned>false</ShouldBeSigned>
         <Container>$(FullPackageOutputPath)</Container>
       </ArtifactInfo>
 
-      <ArtifactInfo Include="@(SignedPackageFile)" Condition=" '$(DisableCodeSigning)' != 'true' AND '$(IncludeSymbols)' == 'true' ">
+      <ArtifactInfo Include="@(_SignedPackageFile)" Condition=" '$(DisableCodeSigning)' != 'true' AND '$(IncludeSymbols)' == 'true' ">
         <ShouldBeSigned>true</ShouldBeSigned>
         <Container>$(SymbolsPackageOutputPath)</Container>
       </ArtifactInfo>
 
-      <ArtifactInfo Include="@(ExcludePackageFileFromSigning)" Condition="'$(IncludeSymbols)' == 'true' ">
+      <ArtifactInfo Include="@(_ExcludePackageFileFromSigning)" Condition="'$(IncludeSymbols)' == 'true' ">
         <ShouldBeSigned>false</ShouldBeSigned>
         <Container>$(SymbolsPackageOutputPath)</Container>
       </ArtifactInfo>
@@ -116,15 +124,16 @@ Items:
   </Target>
 
   <Target Name="_GetSignedPackageFiles"
-          Condition=" '$(TargetFramework)' != '' "
+          Condition=" '$(TargetFramework)' != '' AND '$(DisableCodeSigning)' != 'true' "
           DependsOnTargets="BuiltProjectOutputGroup;SatelliteDllsProjectOutputGroup">
 
     <PropertyGroup>
       <_PackageBasePath>$(BuildOutputTargetFolder.TrimEnd('/'))</_PackageBasePath>
       <_PackageBasePath>$(_PackageBasePath.TrimEnd('\'))</_PackageBasePath>
+      <_IsTestProject Condition=" '$(IsTestProject)' == 'true' OR ('$(IsTestProject)' == '' AND @(PackageReference->WithMetadataValue('Identity', 'Microsoft.NET.Test.Sdk')->Count()) != 0)">true</_IsTestProject>
     </PropertyGroup>
 
-    <ItemGroup Condition=" '$(NuspecFile)' == '' AND '$(IncludeBuildOutput)' != 'false' AND ('$(AssemblySigningCertName)' != '' OR '$(AssemblySigningStrongName)' != '') ">
+    <ItemGroup Condition=" '$(_IsTestProject)' != 'true' AND '$(NuspecFile)' == '' AND '$(IncludeBuildOutput)' != 'false' AND ('$(AssemblySigningCertName)' != '' OR '$(AssemblySigningStrongName)' != '') ">
       <SignedPackageFile Include="@(BuiltProjectOutputGroupOutput)" Condition="'%(BuiltProjectOutputGroupOutput.Extension)' == '.dll' OR '%(BuiltProjectOutputGroupOutput.Extension)' == '.exe'">
         <PackagePath>$(_PackageBasePath)/$(TargetFramework)/%(BuiltProjectOutputGroupOutput.FileName)%(BuiltProjectOutputGroupOutput.Extension)</PackagePath>
         <Certificate>$(AssemblySigningCertName)</Certificate>

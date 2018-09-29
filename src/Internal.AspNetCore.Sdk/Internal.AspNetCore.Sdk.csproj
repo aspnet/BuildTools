@@ -46,6 +46,7 @@
 <Project>
   <PropertyGroup>
     <MicrosoftAspNetCoreBuildToolsApiCheckPackageVersion>$(ApiCheckPackageVersion)</MicrosoftAspNetCoreBuildToolsApiCheckPackageVersion>
+    <MicroBuildCorePackageVersion>$(MicroBuildCorePackageVersion)</MicroBuildCorePackageVersion>
     <MicrosoftBuildPackageVersion>$(MicrosoftBuildPackageVersion)</MicrosoftBuildPackageVersion>
     <JsonInMSBuildVersion>$(JsonInMSBuildVersion)</JsonInMSBuildVersion>
   </PropertyGroup>
@@ -60,6 +61,7 @@
       <NuspecProperties>$(NuspecProperties);id=$(PackageId)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);bundledVersionFile=$(IntermediateOutputPath)BundledVersions.props</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);apicheckVersion=$(ApiCheckPackageVersion)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);microbuildVersion=$(MicroBuildCorePackageVersion)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);config=$(Configuration)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);version=$(PackageVersion)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);description=$(Description)</NuspecProperties>

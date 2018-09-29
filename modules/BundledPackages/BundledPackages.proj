@@ -1,5 +1,7 @@
 <Project>
 
+  <Import Project="..\..\build\dependencies.props" />
+
   <Target Name="Publish">
 
     <ItemGroup>
@@ -25,6 +27,7 @@
   <Sdk Name="Internal.AspNetCore.Sdk" Version="$(Version)" />
 
   <PropertyGroup>
+    <DisableMicroBuild>true</DisableMicroBuild>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
   </PropertyGroup>
@@ -37,6 +40,7 @@
 
     <WriteLinesToFile File="$(PublishDir)BundledPackageRestorer.csproj" Lines="$(BundledPackageRestorerContent)" Overwrite="true" />
     <Copy SourceFiles="NuGet.config" DestinationFolder="$(PublishDir)" />
+    <DownloadFile SourceUrl="https://www.nuget.org/api/v2/package/MicroBuild.Core/$(MicroBuildCorePackageVersion)" DestinationFolder="$(PublishDir)" DestinationFileName="MicroBuild.Core.$(MicroBuildCorePackageVersion).nupkg" />
   </Target>
 
 </Project>

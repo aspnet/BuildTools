@@ -1,0 +1,50 @@
+<Project>
+  <PropertyGroup>
+    <RoslynSignToolPath>$(MSBuildThisFileDirectory)SignTool\SignTool.exe</RoslynSignToolPath>
+    <SkipCodeSign Condition=" '$(OS)' != 'Windows_NT' ">true</SkipCodeSign>
+
+    <_IntermediateSignToolDataFile>$(IntermediateDir)SignToolData.g.json</_IntermediateSignToolDataFile>
+
+    <!-- Repos can explicitly define the signdata.json file if they want do. They must set SignToolDataFile to the path of the file. When set, file generation is skipped. -->
+    <GenerateSignToolDataFile  Condition="'$(SignToolDataFile)' == '' ">true</GenerateSignToolDataFile>
+
+    <!-- The location of SignToolData.json. This can be handwritten if you don't want to use the generated version. -->
+    <SignToolDataFile Condition="'$(GenerateSignToolDataFile)' == 'true'">$(_IntermediateSignToolDataFile)</SignToolDataFile>
+
+    <!-- Relative paths in SignToolData.json are relative to this path -->
+    <SignToolDataWorkingDir Condition=" '$(SignToolDataWorkingDir)' == '' ">$(RepositoryRoot)</SignToolDataWorkingDir>
+  </PropertyGroup>
+
+  <Target Name="CodeSign" Condition=" '$(SkipCodeSign)' != 'true' "
+          AfterTargets="Package"
+          DependsOnTargets="GetArtifactInfo">
+
+    <PropertyGroup>
+    </PropertyGroup>
+
+    <GetPathToFullMSBuild>
+      <Output TaskParameter="MSBuildx86Path" PropertyName="MSBuildx86Path" />
+    </GetPathToFullMSBuild>
+
+    <GenerateSignToolDataFile Condition=" '$(GenerateSignToolDataFile)' != 'false' "
+      Files="@(FilesToSign)"
+      Exclusions="@(FilesToExcludeFromSigning)"
+      OutputPath="$(_IntermediateSignToolDataFile)" />
+
+    <ItemGroup>
+      <SignToolOptions Condition=" '$(MSBuildx86Path)' != '' " Include="-msbuildPath;$(MSBuildx86Path)" />
+      <SignToolOptions Condition=" '$(SignType)' != 'real' AND '$(SignType)' != 'test' "  Include="-test" />
+      <SignToolOptions Condition=" '$(SignType)' == 'test' " Include="-testSign" />
+      <SignToolOptions Include="-nugetPackagesPath" />
+      <SignToolOptions Include="$(NuGetPackageRoot)" />
+      <SignToolOptions Include="-intermediateOutputPath" />
+      <SignToolOptions Include="$(IntermediateDir)" />
+      <SignToolOptions Include="-config" />
+      <SignToolOptions Include="$(SignToolDataFile)" />
+      <SignToolOptions Include="$(SignToolDataWorkingDir)" />
+    </ItemGroup>
+
+    <Run FileName="$(RoslynSignToolPath)" Arguments="@(SignToolOptions)" Condition=" '$(SignToolDataFile)' != '' " />
+  </Target>
+
+</Project>

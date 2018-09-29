@@ -120,7 +120,7 @@ Items:
   </Target>
 
   <Target Name="_GetSignedPackageFiles"
-          Condition=" '$(TargetFramework)' != '' "
+          Condition=" '$(TargetFramework)' != '' AND '$(DisableCodeSigning)' != 'true' "
           DependsOnTargets="BuiltProjectOutputGroup;SatelliteDllsProjectOutputGroup">
 
     <PropertyGroup>

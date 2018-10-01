@@ -548,7 +548,7 @@ $success = $false
 $maxWait = 120
 while (($waitTime -lt $maxWait) -and ($success -eq $false)) {
     try{
-        New-Item -ItemType file $lockFile -ErrorAction Stop
+        New-Item -ItemType file $lockFile -ErrorAction Stop | Out-Null
         $success = $true
     }
     catch{

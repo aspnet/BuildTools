@@ -1,7 +1,7 @@
 <Project>
 
   <Target Name="GetArtifactInfo"
-          DependsOnTargets="GetSignedPackageFiles"
+          DependsOnTargets="GetSignedPackageFiles;GetPackageFilesExcludedFromSigning"
           Returns="@(ArtifactInfo)">
 
     <PropertyGroup>
@@ -84,6 +84,43 @@
     </ItemGroup>
 
   </Target>
+
+<!--
+####################################################################################
+Target: GetPackageFilesExcludedFromSigning
+
+Collect ExcludePackageFileFromSigning items in multi-TFM projects
+
+Items:
+[out] ExcludePackageFileFromSigning
+#####################################################################################
+-->
+  <PropertyGroup>
+    <!-- For single-TFM projects -->
+    <GetPackageFilesExcludedFromSigningDependsOn Condition=" '$(TargetFramework)' != '' ">
+      _GetPackageFilesExcludedFromSigning
+    </GetPackageFilesExcludedFromSigningDependsOn>
+  </PropertyGroup>
+
+  <Target Name="GetPackageFilesExcludedFromSigning" DependsOnTargets="$(GetPackageFilesExcludedFromSigningDependsOn)" Returns="@(ExcludePackageFileFromSigning)">
+
+    <ItemGroup Condition=" '$(TargetFramework)' == '' ">
+      <_TargetFrameworks Remove="@(_TargetFrameworks)" />
+      <_TargetFrameworks Include="$(TargetFrameworks)" />
+    </ItemGroup>
+
+    <MSBuild Projects="$(MSBuildProjectFullPath)"
+      Properties="TargetFramework=%(_TargetFrameworks.Identity)"
+      Targets="GetPackageFilesExcludedFromSigning"
+      Condition=" '%(_TargetFrameworks.Identity)' != '' AND '$(TargetFramework)' == '' "
+      BuildInParallel="true">
+      <Output TaskParameter="TargetOutputs" ItemName="ExcludePackageFileFromSigning" />
+    </MSBuild>
+  </Target>
+
+  <Target Name="_GetPackageFilesExcludedFromSigning"
+          Condition=" '$(TargetFramework)' != '' AND '$(DisableCodeSigning)' != 'true' "
+          Returns="@(ExcludePackageFileFromSigning)" />
 
 <!--
 ####################################################################################

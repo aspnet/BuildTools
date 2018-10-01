@@ -3,7 +3,7 @@
   <PropertyGroup>
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
     <GetSignedPackageFilesDependsOn>$(GetSignedPackageFilesDependsOn);_GetSignedPackageFilesForGeneratedShims</GetSignedPackageFilesDependsOn>
-    <PackagedShimOutputRootDirectory>$(IntermediateOutputPath)</PackagedShimOutputRootDirectory>
+    <PackagedShimOutputRootDirectory>$(OutDir)</PackagedShimOutputRootDirectory>
   </PropertyGroup>
 
   <Target Name="_GetSignedPackageFilesForGeneratedShims" Condition="'$(AssemblySigningCertName)' != ''">

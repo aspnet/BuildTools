@@ -12,14 +12,6 @@
       Publish="false" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(DisableMicroBuild)' != 'true'">
-    <PackageReference Include="MicroBuild.Core"
-      Version="$(MicroBuildCorePackageVersion)"
-      PrivateAssets="All"
-      IsImplicitlyDefined="true"
-      Publish="false" />
-  </ItemGroup>
-
   <ItemGroup Condition="'$(ProjectType)' == 'RepoTasks' AND '$(DisableImplicitFrameworkReferences)' != 'true'">
     <!-- set as private assets all since we don't need this in the publish output folder -->
     <PackageReference Include="Microsoft.Build" Version="$(MicrosoftBuildPackageVersion)" IsImplicitlyDefined="true" PrivateAssets="All" />

@@ -12,7 +12,7 @@
     <NewtonsoftJsonPackageVersion>10.0.1</NewtonsoftJsonPackageVersion>
     <NuGetPackagingPackageVersion>4.7.0-rtm.5148</NuGetPackagingPackageVersion>
     <NuGetProjectModelPackageVersion>4.7.0-rtm.5148</NuGetProjectModelPackageVersion>
-    <RoslynToolsSignToolPackageVersion>1.0.0-beta2-63206-01</RoslynToolsSignToolPackageVersion>
+    <RoslynToolsSignToolPackageVersion>1.0.0-beta3.18501.1</RoslynToolsSignToolPackageVersion>
     <SystemCollectionsImmutablePackageVersion>1.4.0</SystemCollectionsImmutablePackageVersion>
     <SystemReflectionMetadataPackageVersion>1.5.0</SystemReflectionMetadataPackageVersion>
     <VSWherePackageVersion>2.2.7</VSWherePackageVersion>

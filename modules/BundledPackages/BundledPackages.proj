@@ -27,7 +27,6 @@
   <Sdk Name="Internal.AspNetCore.Sdk" Version="$(Version)" />
 
   <PropertyGroup>
-    <DisableMicroBuild>true</DisableMicroBuild>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
   </PropertyGroup>

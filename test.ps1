@@ -1,5 +1,5 @@
 #requires -version 4
-[CmdletBinding(PositionalBinding = $true)]
+[CmdletBinding(PositionalBinding = $false)]
 param(
     [Parameter()]
     [string]$Command = 'default-build',

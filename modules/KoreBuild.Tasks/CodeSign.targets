@@ -13,14 +13,15 @@
 
     <!-- Relative paths in SignToolData.json are relative to this path -->
     <SignToolDataWorkingDir Condition=" '$(SignToolDataWorkingDir)' == '' ">$(RepositoryRoot)</SignToolDataWorkingDir>
+
+    <!-- Dry run checks signing config without code signing. -->
+    <SignToolDryRun Condition=" '$(SignType)' != 'real' AND '$(SignType)' != 'test' ">true</SignToolDryRun>
+    <SignToolDryRun Condition=" '$(SignToolDryRun)' == '' ">false</SignToolDryRun>
   </PropertyGroup>
 
   <Target Name="CodeSign" Condition=" '$(SkipCodeSign)' != 'true' "
           AfterTargets="Package"
           DependsOnTargets="GetArtifactInfo">
-
-    <PropertyGroup>
-    </PropertyGroup>
 
     <GetPathToFullMSBuild>
       <Output TaskParameter="MSBuildx86Path" PropertyName="MSBuildx86Path" />
@@ -33,7 +34,7 @@
 
     <ItemGroup>
       <SignToolOptions Condition=" '$(MSBuildx86Path)' != '' " Include="-msbuildPath;$(MSBuildx86Path)" />
-      <SignToolOptions Condition=" '$(SignType)' != 'real' AND '$(SignType)' != 'test' "  Include="-test" />
+      <SignToolOptions Condition=" '$(SignToolDryRun)' == 'true' "  Include="-test" />
       <SignToolOptions Condition=" '$(SignType)' == 'test' " Include="-testSign" />
       <SignToolOptions Include="-nugetPackagesPath" />
       <SignToolOptions Include="$(NuGetPackageRoot)" />
@@ -44,7 +45,14 @@
       <SignToolOptions Include="$(SignToolDataWorkingDir)" />
     </ItemGroup>
 
-    <Run FileName="$(RoslynSignToolPath)" Arguments="@(SignToolOptions)" Condition=" '$(SignToolDataFile)' != '' " />
+    <PropertyGroup>
+      <_SignToolMessage>Running SignTool</_SignToolMessage>
+      <_SignToolMessage Condition=" '$(SignToolDryRun)' == 'true' ">$(_SignToolMessage) (dry-run)</_SignToolMessage>
+    </PropertyGroup>
+
+    <Message Importance="High" Text="$(_SignToolMessage)" />
+
+    <Run FileName="$(RoslynSignToolPath)" Arguments="@(SignToolOptions)" Condition=" '$(SignToolDataFile)' != '' " StandardOutputImportance="Normal" />
   </Target>
 
 </Project>

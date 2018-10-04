@@ -48,11 +48,16 @@
     <PropertyGroup>
       <_SignToolMessage>Running SignTool</_SignToolMessage>
       <_SignToolMessage Condition=" '$(SignToolDryRun)' == 'true' ">$(_SignToolMessage) (dry-run)</_SignToolMessage>
+      <_SignToolOutputImportance>Normal</_SignToolOutputImportance>
+      <_SignToolOutputImportance Condition="'$(CI)' == 'true'">High</_SignToolOutputImportance>
     </PropertyGroup>
 
     <Message Importance="High" Text="$(_SignToolMessage)" />
 
-    <Run FileName="$(RoslynSignToolPath)" Arguments="@(SignToolOptions)" Condition=" '$(SignToolDataFile)' != '' " StandardOutputImportance="Normal" />
+    <Run Condition=" '$(SignToolDataFile)' != '' "
+      FileName="$(RoslynSignToolPath)"
+      Arguments="@(SignToolOptions)"
+      StandardOutputImportance="$(_SignToolOutputImportance)" />
   </Target>
 
 </Project>

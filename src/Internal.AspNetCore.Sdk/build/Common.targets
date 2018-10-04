@@ -15,11 +15,6 @@ For single-tfm projects, this will be imported from build/Internal.AspNetCore.Sd
     <NoWarn>$(NoWarn);NU5105</NoWarn>
   </PropertyGroup>
 
-  <!-- workaround https://github.com/NuGet/Home/issues/4726 -->
-  <PropertyGroup>
-    <IncludeSymbols Condition="'$(NuspecFile)'!=''">false</IncludeSymbols>
-  </PropertyGroup>
-
   <PropertyGroup Condition=" '$(IncludeSymbols)' != 'false' ">
     <GenerateNuspecDependsOn>$(GenerateNuspecDependsOn);_EnsureDebugTypeIsPortable</GenerateNuspecDependsOn>
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);_EnsureDebugTypeIsPortable</TargetsForTfmSpecificBuildOutput>

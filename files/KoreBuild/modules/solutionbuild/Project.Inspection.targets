@@ -32,7 +32,7 @@
       <Output TaskParameter="AbsolutePaths" ItemName="_ExcludePackageFileFromSigning" />
     </ConvertToAbsolutePath>
 
-    <ItemGroup Condition="'$(IsPackable)' == 'true' ">
+    <ItemGroup Condition="'$(IsPackable)' != 'false' ">
       <ArtifactInfo Include="$(FullPackageOutputPath)">
         <ArtifactType>NuGetPackage</ArtifactType>
         <PackageId>$(PackageId)</PackageId>

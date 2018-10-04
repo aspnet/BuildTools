@@ -1,11 +1,11 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 #if NET46
 using System.IO;
 #endif
 using System.Reflection;
-#if NETCOREAPP2_1
+#if NETCOREAPP2_2
 using NuGet.ProjectModel;
 using ApiCheck.NuGet;
 #endif
@@ -19,7 +19,7 @@ namespace ApiCheck
                 string assetsJson,
                 string framework)
         {
-#if NETCOREAPP2_1
+#if NETCOREAPP2_2
             var lockFile = new LockFileFormat().Read(assetsJson);
             var graph = PackageGraph.Create(lockFile, framework);
             var loader = new CoreClrAssemblyLoader(graph, assemblyPath);

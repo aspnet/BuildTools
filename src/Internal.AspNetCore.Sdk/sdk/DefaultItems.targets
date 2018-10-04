@@ -4,7 +4,7 @@
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(EnableApiCheck)' != 'false'">
+  <ItemGroup Condition="'$(EnableApiCheck)' != 'false' AND '$(DisableImplicitFrameworkReferences)' != 'true' AND '$(MicrosoftAspNetCoreBuildToolsApiCheckPackageVersion)' != '' ">
     <PackageReference Include="Microsoft.AspNetCore.BuildTools.ApiCheck"
       Version="$(MicrosoftAspNetCoreBuildToolsApiCheckPackageVersion)"
       PrivateAssets="All"

@@ -8,7 +8,7 @@
       "Simple.CliTool": {
         "Exclusions": {
           "VERSION_INFORMATIONALVERSION": {
-            "tools/netcoreapp2.1/any/Newtonsoft.Json.dll": "Example exclusion"
+            "tools/netcoreapp3.0/any/Newtonsoft.Json.dll": "Example exclusion"
           }
         }
       }

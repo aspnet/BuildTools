@@ -3,7 +3,6 @@
     <HtmlAgilityPackPackageVersion>1.5.1</HtmlAgilityPackPackageVersion>
     <MicroBuildCorePackageVersion>0.2.0</MicroBuildCorePackageVersion>
     <MicrosoftDotNetPlatformAbstractionsVersion>2.0.0</MicrosoftDotNetPlatformAbstractionsVersion>
-    <MicrosoftNETCoreApp21PackageVersion>2.1.0</MicrosoftNETCoreApp21PackageVersion>
     <MicrosoftNETTestSdkPackageVersion>15.6.1</MicrosoftNETTestSdkPackageVersion>
     <MicrosoftWin32RegistryPackageVersion>4.4.0</MicrosoftWin32RegistryPackageVersion>
     <MonoCecilPackageVersion>0.10.0-beta6</MonoCecilPackageVersion>

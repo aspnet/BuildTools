@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <Description>Verifies Asp.Net Core NuGet packages.</Description>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <AssemblyName>NuGetPackageVerifier</AssemblyName>
     <RootNamespace>NuGetPackageVerifier</RootNamespace>
     <OutputType>exe</OutputType>

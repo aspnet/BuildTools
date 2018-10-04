@@ -45,7 +45,12 @@
       <SignToolOptions Include="$(SignToolDataWorkingDir)" />
     </ItemGroup>
 
-    <Message Importance="High" Text="Running SignTool.exe -DryRun:$(SignToolDryRun)" />
+    <PropertyGroup>
+      <_SignToolMessage>Running SignTool</_SignToolMessage>
+      <_SignToolMessage Condition=" '$(SignToolDryRun)' == 'true' ">$(_SignToolMessage) (dry-run)</_SignToolMessage>
+    </PropertyGroup>
+
+    <Message Importance="High" Text="$(_SignToolMessage)" />
 
     <Run FileName="$(RoslynSignToolPath)" Arguments="@(SignToolOptions)" Condition=" '$(SignToolDataFile)' != '' " StandardOutputImportance="Normal" />
   </Target>

@@ -12,7 +12,7 @@
     <NuGetPackagingPackageVersion>4.7.0-rtm.5148</NuGetPackagingPackageVersion>
     <NuGetProjectModelPackageVersion>4.7.0-rtm.5148</NuGetProjectModelPackageVersion>
     <RoslynToolsSignToolPackageVersion>1.0.0-beta3.18501.1</RoslynToolsSignToolPackageVersion>
-    <SystemCollectionsImmutablePackageVersion>1.4.0</SystemCollectionsImmutablePackageVersion>
+    <SystemCollectionsImmutablePackageVersion>1.5.0</SystemCollectionsImmutablePackageVersion>
     <SystemReflectionMetadataPackageVersion>1.5.0</SystemReflectionMetadataPackageVersion>
     <VSWherePackageVersion>2.2.7</VSWherePackageVersion>
     <XunitPackageVersion>2.3.1</XunitPackageVersion>
@@ -26,7 +26,7 @@
     as long as the version we compile for is binary compatible with what the .NET Core SDK uses.
   -->
   <PropertyGroup>
-    <MicrosoftBuildPackageVersion>15.6.82</MicrosoftBuildPackageVersion>
+    <MicrosoftBuildPackageVersion>15.8.166</MicrosoftBuildPackageVersion>
     <MicrosoftBuildFrameworkPackageVersion>$(MicrosoftBuildPackageVersion)</MicrosoftBuildFrameworkPackageVersion>
     <MicrosoftBuildUtilitiesCorePackageVersion>$(MicrosoftBuildPackageVersion)</MicrosoftBuildUtilitiesCorePackageVersion>
     <MicrosoftBuildTasksCorePackageVersion>$(MicrosoftBuildPackageVersion)</MicrosoftBuildTasksCorePackageVersion>

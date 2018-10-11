@@ -282,16 +282,15 @@ function Set-KoreBuildSettings(
     [switch]$CI) {
     if (!$DotNetHome) {
         $DotNetHome = if ($env:DOTNET_HOME) { $env:DOTNET_HOME } `
+            elseif ($CI) { Join-Path $RepoPath '.dotnet'}
             elseif ($env:USERPROFILE) { Join-Path $env:USERPROFILE '.dotnet'} `
             elseif ($env:HOME) {Join-Path $env:HOME '.dotnet'}`
-            else { Join-Path $PSScriptRoot '.dotnet'}
+            else { Join-Path $RepoPath '.dotnet'}
     }
 
     if (!$ToolsSource) { $ToolsSource = 'https://aspnetcore.blob.core.windows.net/buildtools' }
 
     if ($CI) {
-        $DotNetHome = Join-Path $RepoPath ".dotnet"
-
         $env:CI = 'true'
         $env:DOTNET_HOME = $DotNetHome
         $env:DOTNET_CLI_TELEMETRY_OPTOUT = 'true'

@@ -186,12 +186,13 @@ if (Test-Path $ConfigFile) {
 
 if (!$DotNetHome) {
     $DotNetHome = if ($env:DOTNET_HOME) { $env:DOTNET_HOME } `
+        elseif ($CI) { Join-Path $PSScriptRoot '.dotnet' } `
         elseif ($env:USERPROFILE) { Join-Path $env:USERPROFILE '.dotnet'} `
         elseif ($env:HOME) {Join-Path $env:HOME '.dotnet'}`
         else { Join-Path $PSScriptRoot '.dotnet'}
 }
 
-if (!$Channel) { $Channel = 'dev' }
+if (!$Channel) { $Channel = 'master' }
 if (!$ToolsSource) { $ToolsSource = 'https://aspnetcore.blob.core.windows.net/buildtools' }
 
 # Execute

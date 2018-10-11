@@ -24,10 +24,21 @@ set_korebuildsettings() {
         export CI=true
         export DOTNET_CLI_TELEMETRY_OPTOUT=true
         export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
+        export TEMP="$repo_path/.build/tmp"
+        export TMP="$TEMP"
         export NUGET_SHOW_STACK=true
-        export NUGET_PACKAGES="$repo_path/.nuget/packages"
         export DOTNET_HOME="$dot_net_home"
         export MSBUILDDEBUGPATH="$repo_path/artifacts/logs"
+        mkdir -p "$TMP"
+        mkdir -p "$HOME"
+        mkdir -p "$dot_net_home"
+        if [[ -z "${NUGET_PACKAGES:-}" ]]; then
+            export NUGET_PACKAGES="$repo_path/.build/.nuget/packages"
+        fi
+    else
+        if [[ -z "${NUGET_PACKAGES:-}" ]]; then
+            export NUGET_PACKAGES="$HOME/.nuget/packages"
+        fi
     fi
 
     export DOTNET_ROOT="$DOTNET_HOME"

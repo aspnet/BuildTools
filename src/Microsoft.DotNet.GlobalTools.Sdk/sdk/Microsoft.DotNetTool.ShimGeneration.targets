@@ -80,6 +80,7 @@
       Properties="
         TargetFramework=$(TargetFramework);
         RuntimeIdentifier=%(GeneratedDotNetToolShim.RuntimeIdentifier);
+        RuntimeFrameworkVersion=$(RuntimeFrameworkVersion);
         _ShimRelativeAppBinaryFilePath=%(GeneratedDotNetToolShim.RelativeAppBinaryFilePath);
         _ShimOutputDir=%(GeneratedDotNetToolShim.OutputDir)"
       Condition="'%(GeneratedDotNetToolShim.Identity)' != ''" />

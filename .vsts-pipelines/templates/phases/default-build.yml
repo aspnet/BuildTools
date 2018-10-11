@@ -48,7 +48,7 @@ parameters:
   # matrix: {} - don't define an empty object default because there is no way in template expression yet to check "if isEmpty(parameters.matrix)"
   artifacts:
     publish: true
-    path: 'artifacts/build/'  # TODO: this is going to change when we converge with dotnet/arcade tooling
+    path: 'artifacts/'  # TODO: this is going to change when we converge with dotnet/arcade tooling
 
 phases:
 - phase: ${{ coalesce(parameters.phaseName, parameters.agentOs) }}
@@ -70,7 +70,7 @@ phases:
     demands: ${{ parameters.demands }}
   variables:
     AgentOsName: ${{ parameters.agentOs }}
-    ASPNETCORE_TEST_LOG_DIR: ${{ parameters.artifacts.path }}/testlogs
+    ASPNETCORE_TEST_LOG_DIR: ${{ parameters.artifacts.path }}/logs/testlogs
     DOTNET_HOME: $(Agent.WorkFolder)/.dotnet
     BuildScriptArgs: ${{ parameters.buildArgs }}
     BuildConfiguration: ${{ parameters.configuration }}

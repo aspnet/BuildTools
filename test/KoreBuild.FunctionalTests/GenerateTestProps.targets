@@ -6,7 +6,6 @@
 <Project>
   <PropertyGroup>
     <RestoreSources>$([MSBuild]::Escape($(RestoreSources)))</RestoreSources>
-    <RuntimeFrameworkVersion Condition="'%24(TargetFramework)' == 'netcoreapp2.1'">$(MicrosoftNETCoreApp21PackageVersion)</RuntimeFrameworkVersion>
   </PropertyGroup>
 </Project>
 ]]>

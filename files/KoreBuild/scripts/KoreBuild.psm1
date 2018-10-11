@@ -297,9 +297,18 @@ function Set-KoreBuildSettings(
         $env:DOTNET_CLI_TELEMETRY_OPTOUT = 'true'
         $env:DOTNET_SKIP_FIRST_TIME_EXPERIENCE = 'true'
         $env:NUGET_SHOW_STACK = 'true'
-        $env:NUGET_PACKAGES = Join-Paths $RepoPath ('.nuget', 'packages')
         $env:MSBUILDDEBUGPATH = Join-Paths $RepoPath ('artifacts', 'logs')
+        if (-not $env:NUGET_PACKAGES) {
+            $env:NUGET_PACKAGES = Join-Paths $RepoPath ('.nuget', 'packages')
+        }
     }
+    else {
+        if (-not $env:NUGET_PACKAGES) {
+            $env:NUGET_PACKAGES = Join-Paths $env:USERPROFILE ('.nuget', 'packages')
+        }
+    }
+
+    $env:NUGET_PACKAGES = $env:NUGET_PACKAGES.TrimEnd('\') + '\'
 
     $arch = __get_dotnet_arch
     $env:DOTNET_ROOT = if ($IS_WINDOWS) { Join-Path $DotNetHome $arch } else { $DotNetHome }

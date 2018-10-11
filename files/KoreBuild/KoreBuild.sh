@@ -14,7 +14,16 @@ set_korebuildsettings() {
     local config_file="${4:-}" # optional. Not used yet.
     local ci="${5:-}"
 
-    [ -z "${dot_net_home:-}" ] && dot_net_home="$HOME/.dotnet"
+    [ -z "${dot_net_home:-}" ] && dot_net_home="${DOTNET_HOME:-}"
+
+    if [ -z "$dot_net_home" ]; then
+        if [ "$ci" = true ]; then
+            dot_net_home="$repo_path/.dotnet"
+        else
+            dot_net_home="$HOME/.dotnet"
+        fi
+    fi
+
     [ -z "${tools_source:-}" ] && tools_source="$default_tools_source"
 
     # This is required for NuGet and MSBuild
@@ -23,8 +32,6 @@ set_korebuildsettings() {
     fi
 
     if [ "$ci" = true ]; then
-        dot_net_home="$repo_path/.dotnet"
-
         export CI=true
         export DOTNET_CLI_TELEMETRY_OPTOUT=true
         export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true

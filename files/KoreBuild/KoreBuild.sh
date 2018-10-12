@@ -14,7 +14,16 @@ set_korebuildsettings() {
     local config_file="${4:-}" # optional. Not used yet.
     local ci="${5:-}"
 
-    [ -z "${dot_net_home:-}" ] && dot_net_home="$HOME/.dotnet"
+    [ -z "${dot_net_home:-}" ] && dot_net_home="${DOTNET_HOME:-}"
+
+    if [ -z "$dot_net_home" ]; then
+        if [ "$ci" = true ]; then
+            dot_net_home="$repo_path/.dotnet"
+        else
+            dot_net_home="$HOME/.dotnet"
+        fi
+    fi
+
     [ -z "${tools_source:-}" ] && tools_source="$default_tools_source"
 
     # This is required for NuGet and MSBuild
@@ -29,13 +38,14 @@ set_korebuildsettings() {
         export TEMP="$repo_path/.build/tmp"
         export TMP="$TEMP"
         export NUGET_SHOW_STACK=true
-        export NUGET_PACKAGES="$repo_path/.build/.nuget/packages"
-        dot_net_home="$repo_path/.build/.dotnet"
         export DOTNET_HOME="$dot_net_home"
         export MSBUILDDEBUGPATH="$repo_path/artifacts/logs"
         mkdir -p "$TMP"
         mkdir -p "$HOME"
         mkdir -p "$dot_net_home"
+        if [[ -z "${NUGET_PACKAGES:-}" ]]; then
+            export NUGET_PACKAGES="$repo_path/.nuget/packages"
+        fi
     else
         if [[ -z "${NUGET_PACKAGES:-}" ]]; then
             export NUGET_PACKAGES="$HOME/.nuget/packages"

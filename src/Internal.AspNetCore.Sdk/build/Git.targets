@@ -140,8 +140,8 @@ Generates an assembly attribute with commit hash
     Condition="'$(GenerateRepositoryCommitUrlInDescription)' == 'true' AND '$(RepositoryUrl)' !='' AND '$(RepositoryCommit)' != ''">
     <PropertyGroup>
       <PackageDescription>$(PackageDescription)
-This package was built from the source at:
-$(RepositoryUrl)/tree/$(RepositoryCommit)</PackageDescription>
+
+This package was built from the source code at $(RepositoryUrl)/tree/$(RepositoryCommit)</PackageDescription>
     </PropertyGroup>
   </Target>
 

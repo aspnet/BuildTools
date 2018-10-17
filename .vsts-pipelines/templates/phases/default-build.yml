@@ -75,7 +75,7 @@ phases:
     demands: ${{ parameters.demands }}
   variables:
     AgentOsName: ${{ parameters.agentOs }}
-    ASPNETCORE_TEST_LOG_DIR: ${{ format('{0}/logs/testlogs', parameters.artifacts.path) }}
+    ASPNETCORE_TEST_LOG_DIR: $(Build.SourcesDirectory)/artifacts/logs/testlogs
     DOTNET_HOME: $(Agent.WorkFolder)/.dotnet
     BuildScriptArgs: ${{ parameters.buildArgs }}
     BuildConfiguration: ${{ parameters.configuration }}

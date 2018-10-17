@@ -323,7 +323,7 @@ namespace ApiCheck
             if (newBreakingChanges.Count > 0 || incorrectBreakingChanges.Count > 0)
             {
                 Console.WriteLine(
-                    "The process for breaking changes is described in: https://github.com/aspnet/Home/wiki/Engineering-guidelines#breaking-changes");
+                    "The process for breaking changes is described in: https://github.com/aspnet/AspNetCore/wiki/Engineering-guidelines#breaking-changes");
                 Console.WriteLine(
                     "The process to add an exclusion to this tool is described in: https://github.com/aspnet/BuildTools/wiki/Api-Check#apicheck-exceptions");
                 Console.WriteLine();

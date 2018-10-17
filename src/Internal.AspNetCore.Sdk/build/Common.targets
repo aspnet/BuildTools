@@ -10,9 +10,9 @@ For single-tfm projects, this will be imported from build/Internal.AspNetCore.Sd
 -->
 <Project>
 
-  <!-- workaround https://github.com/NuGet/Home/issues/4726 -->
   <PropertyGroup>
-    <IncludeSymbols Condition="'$(NuspecFile)'!=''">false</IncludeSymbols>
+    <!-- Suppress warnings about using semver 2.0 versions in packages -->
+    <NoWarn>$(NoWarn);NU5105</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(IncludeSymbols)' != 'false' ">

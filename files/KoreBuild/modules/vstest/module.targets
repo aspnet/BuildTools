@@ -102,7 +102,7 @@ Runs the VSTest on all projects in the ProjectsToTest itemgroup.
       <Output TaskParameter="ExitCode" PropertyName="VsTestExitCode" />
     </RunDotNet>
 
-    <Message Text="##teamcity[importData type='vstest' path='$(TrxFile)']"
+    <Message Text="##teamcity[importData type='vstest' verbose='false' path='$(TrxFile)']"
       Importance="High"
       Condition="'$(TEAMCITY_VERSION)' != '' AND Exists($(TrxFile))" />
     <Error Text="Test group $(TestGroupName)/$(TargetFramework) failed with exit code '$(VsTestExitCode)'." Condition=" $(VsTestExitCode) != 0 " />
@@ -115,10 +115,13 @@ Runs the VSTest on all projects in the ProjectsToTest itemgroup.
       Condition="'@(BenchmarksToValidate)' != ''" />
 
     <MSBuild Projects="%(BenchmarksToValidate.Identity)" Targets="GetTargetPath" Properties="$(SolutionProperties)">
-      <Output TaskParameter="TargetOutputs" PropertyName="ExecPath" />
+      <Output TaskParameter="TargetOutputs" ItemName="BenchmarkExecPath" />
     </MSBuild>
 
-    <RunDotNet Command="$(ExecPath) * --validate-fast" />
+    <RunDotNet Condition="'%(BenchmarkExecPath.TargetFrameworkIdentifier)' == '.NETCoreApp'"
+      Arguments="%(BenchmarkExecPath.Identity);*;--validate-fast" />
+    <Run Condition="'%(BenchmarkExecPath.TargetFrameworkIdentifier)' == '.NETFramework'"
+      FileName="%(BenchmarkExecPath.Identity)" Arguments="*;--validate-fast" />
   </Target>
 
 </Project>

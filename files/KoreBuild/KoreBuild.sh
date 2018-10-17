@@ -26,6 +26,10 @@ set_korebuildsettings() {
 
     [ -z "${tools_source:-}" ] && tools_source="$default_tools_source"
 
+    # This is required for NuGet and MSBuild
+    if [[ -z "${HOME:-}" ]]; then
+        export HOME="$repo_path/.build/home"
+    fi
 
     if [ "$ci" = true ]; then
         export CI=true
@@ -40,7 +44,7 @@ set_korebuildsettings() {
         mkdir -p "$HOME"
         mkdir -p "$dot_net_home"
         if [[ -z "${NUGET_PACKAGES:-}" ]]; then
-            export NUGET_PACKAGES="$repo_path/.build/.nuget/packages"
+            export NUGET_PACKAGES="$repo_path/.nuget/packages"
         fi
     else
         if [[ -z "${NUGET_PACKAGES:-}" ]]; then
@@ -48,7 +52,7 @@ set_korebuildsettings() {
         fi
     fi
 
-    export DOTNET_ROOT="$DOTNET_HOME"
+    export DOTNET_ROOT="$dot_net_home"
 
     # Workaround perpetual issues in node reuse and custom task assemblies
     export MSBUILDDISABLENODEREUSE=1
@@ -123,6 +127,18 @@ __install_tools() {
 
     # Set environment variables
     export PATH="$install_dir:$PATH"
+
+    # This is a workaround for https://github.com/Microsoft/msbuild/issues/2914.
+    # Currently, the only way to configure the NuGetSdkResolver is with NuGet.config, which is not generally used in aspnet org projects.
+    # This project is restored so that it pre-populates the NuGet cache with SDK packages.
+    local restorerfile="$__korebuild_dir/modules/BundledPackages/BundledPackageRestorer.csproj"
+    local restorerfilelock="$NUGET_PACKAGES/internal.aspnetcore.sdk/$(__get_korebuild_version)/korebuild.sentinel"
+    if [[ -e "$restorerfile" ]] && [[ ! -e "$restorerfilelock" ]]; then
+        mkdir -p "$(dirname $restorerfilelock)"
+        touch "$restorerfilelock"
+        __exec dotnet msbuild -restore -t:noop -v:m "$restorerfile"
+    fi
+    # end workaround
 }
 
 __show_version_info() {

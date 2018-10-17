@@ -66,7 +66,7 @@ if [ "$sdk_version" != 'latest' ]; then
             \"version\": \"${sdk_version}\"
         },
         \"msbuild-sdks\": {
-            \"Microsoft.DotNet.GlobalTools.Sdk\": \"${korebuild_version}\"
+            \"Internal.AspNetCore.Sdk\": \"${korebuild_version}\"
         }
     }" > "$repo_path/global.json"
 else
@@ -90,7 +90,6 @@ if [ ! -f "$msbuild_artifacts_dir" ]; then
 fi
 
 cat > "$msbuild_response_file" <<ENDMSBUILDARGS
-/nologo
 /m
 /nodeReuse:false
 /p:KoreBuildVersion=$korebuild_version

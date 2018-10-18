@@ -105,7 +105,6 @@ phases:
   - ${{ if eq(parameters.artifacts.publish, 'true') }}:
     - task: PublishBuildArtifacts@1
       displayName: Upload artifacts
-      condition: eq(variables['system.pullrequest.isfork'], false)
       inputs:
         pathtoPublish: ${{ parameters.artifacts.path }}
         ${{ if eq(parameters.artifacts.name, '') }}:

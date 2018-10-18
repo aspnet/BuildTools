@@ -34,7 +34,13 @@ that matches "$(RepositoryRoot)/shared/*.Sources".
 
   <Target Name="_SetSharedSourcesProperties">
     <PropertyGroup>
-      <_SharedSourcesPackageProperties>PackageOutputPath=$(BuildDir);RepositoryRoot=$(RepositoryRoot);ImportDirectoryBuildProps=false;BuildNumber=$(BuildNumber);</_SharedSourcesPackageProperties>
+      <_SharedSourcesPackageProperties>
+        PackageOutputPath=$(BuildDir);
+        RepositoryRoot=$(RepositoryRoot);
+        ImportDirectoryBuildProps=false;
+        BuildNumber=$(BuildNumber);
+        RepositoryCommit=$(RepositoryCommit)
+      </_SharedSourcesPackageProperties>
     </PropertyGroup>
   </Target>
 

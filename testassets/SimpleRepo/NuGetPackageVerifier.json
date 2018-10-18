@@ -3,6 +3,15 @@
     "rules": [
       "AssemblyHasVersionAttributesRule",
       "DotNetToolPackageRule"
-    ]
+    ],
+    "packages": {
+      "Simple.CliTool": {
+        "Exclusions": {
+          "VERSION_INFORMATIONALVERSION": {
+            "tools/netcoreapp2.1/any/Newtonsoft.Json.dll": "Example exclusion"
+          }
+        }
+      }
+    }
   }
 }

@@ -4,22 +4,16 @@
   <Import Project="build\sources.props" />
 
   <PropertyGroup>
-    <!-- these imports substitute for a package reference to Internal.AspNetCore.Sdk -->
-    <_AspNetToolsSdkPath>$(MSBuildThisFileDirectory)src\Internal.AspNetCore.Sdk</_AspNetToolsSdkPath>
-    <CustomAfterMicrosoftCommonTargets>$(_AspNetToolsSdkPath)\build\Internal.AspNetCore.Sdk.targets</CustomAfterMicrosoftCommonTargets>
-    <CustomAfterMicrosoftCommonCrossTargetingTargets>$(_AspNetToolsSdkPath)\buildMultiTargeting\Internal.AspNetCore.Sdk.targets</CustomAfterMicrosoftCommonCrossTargetingTargets>
     <GenerateCommitHashAttribute Condition="'$(RepositoryCommit)'==''">false</GenerateCommitHashAttribute>
     <GenerateSourceLinkFile>false</GenerateSourceLinkFile>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <EnableApiCheck>false</EnableApiCheck>
     <!-- workaround https://github.com/aspnet/CoreCLR/issues/223 -->
-    <NoWarn>$(NoWarn);NU1603</NoWarn>
+    <NoWarn>$(NoWarn);NU1603;NU5105</NoWarn>
     <Serviceable>false</Serviceable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
   </PropertyGroup>
-
-  <Import Project="$(_AspNetToolsSdkPath)\build\Internal.AspNetCore.Sdk.props" />
 
   <PropertyGroup>
     <RepositoryUrl>https://github.com/aspnet/BuildTools</RepositoryUrl>

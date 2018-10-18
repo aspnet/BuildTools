@@ -41,6 +41,7 @@ namespace KoreBuild
         {
             public bool IncludePrerelease { get; set; } = true;
             public string MinVersion { get; set; }
+            public string VersionRange { get; set; }
             public string[] RequiredWorkloads { get; set; } = Array.Empty<string>();
         }
 

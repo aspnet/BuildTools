@@ -73,7 +73,7 @@
         <Category>$(PackageArtifactCategory)</Category>
         <IsContainer>true</IsContainer>
         <Certificate>$(PackageSigningCertName)</Certificate>
-        <ShouldBeSigned Condition=" '$(PackageSigningCertName)' != '' ">true</ShouldBeSigned>
+        <ShouldBeSigned Condition=" '$(PackageSigningCertName)' != '' AND '$(DisableCodeSigning)' != 'true' ">true</ShouldBeSigned>
       </ArtifactInfo>
     </ItemGroup>
   </Target>

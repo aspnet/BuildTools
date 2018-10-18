@@ -4,6 +4,8 @@
     <CommitHash Condition="'$(RepositoryCommit)' == ''">$(RepositoryCommit)</CommitHash>
     <GenerateCommitHashAttribute Condition="'$(GenerateCommitHashAttribute)'==''">true</GenerateCommitHashAttribute>
     <GeneratedCommitHashAttributeFile Condition="'$(GeneratedCommitHashAttributeFile)'==''">$(IntermediateOutputPath)$(AssemblyName).CommitHash$(DefaultLanguageSourceExtension)</GeneratedCommitHashAttributeFile>
+    <GenerateRepositoryCommitUrlInDescription Condition="'$(GenerateRepositoryCommitUrlInDescription)'==''">true</GenerateRepositoryCommitUrlInDescription>
+    <GenerateNuspecDependsOn>$(GenerateNuspecDependsOn);_AppendRepositoryCommitUrlToPackageDescription</GenerateNuspecDependsOn>
     <SourceLinkDestination Condition="'$(SourceLinkDestination)' == ''">$(IntermediateOutputPath)sourcelink.json</SourceLinkDestination>
     <GenerateSourceLinkFile Condition="'$(GenerateSourceLinkFile)' == '' AND '$(IsPackable)' != 'false'">true</GenerateSourceLinkFile>
     <!--
@@ -18,7 +20,7 @@
 
       Only set this in CI builds, otherwise it will mess up the debugger.
     -->
-    <DeterministicSourceRoot Condition=" '$(CI)' == 'true' ">/_/</DeterministicSourceRoot>
+    <DeterministicSourceRoot Condition=" '$(CI)' == 'true' AND '$(RepositoryRoot)' != '' ">/_/</DeterministicSourceRoot>
 
     <SourceLinkRoot Condition="'$(DeterministicSourceRoot)' != ''">$(DeterministicSourceRoot)</SourceLinkRoot>
     <SourceLinkRoot Condition="'$(SourceLinkRoot)' == '' AND '$(RepositoryRoot)' != ''">$([MSBuild]::NormalizeDirectory($(RepositoryRoot)))</SourceLinkRoot>
@@ -118,6 +120,11 @@ Generates an assembly attribute with commit hash
         <_Parameter1>CommitHash</_Parameter1>
         <_Parameter2>$(RepositoryCommit)</_Parameter2>
       </_CustomAttributes>
+      <_CustomAttributes Include="System.Reflection.AssemblyMetadataAttribute"
+        Condition=" '$(RepositoryUrl)' != ''">
+        <_Parameter1>SourceCommitUrl</_Parameter1>
+        <_Parameter2>$(RepositoryUrl)/tree/$(RepositoryCommit)</_Parameter2>
+      </_CustomAttributes>
     </ItemGroup>
 
     <WriteCodeFragment AssemblyAttributes="@(_CustomAttributes)" Language="$(Language)" OutputFile="$(GeneratedCommitHashAttributeFile)">
@@ -126,6 +133,16 @@ Generates an assembly attribute with commit hash
     </WriteCodeFragment>
 
     <Message Importance="normal" Text="Generated commit hash attribute file $(GeneratedCommitHashAttributeFile)" />
+  </Target>
+
+  <Target Name="_AppendRepositoryCommitUrlToPackageDescription"
+    DependsOnTargets="ResolveCommitHash"
+    Condition="'$(GenerateRepositoryCommitUrlInDescription)' == 'true' AND '$(RepositoryUrl)' !='' AND '$(RepositoryCommit)' != ''">
+    <PropertyGroup>
+      <PackageDescription>$(PackageDescription)
+
+This package was built from the source code at $(RepositoryUrl)/tree/$(RepositoryCommit)</PackageDescription>
+    </PropertyGroup>
   </Target>
 
 </Project>

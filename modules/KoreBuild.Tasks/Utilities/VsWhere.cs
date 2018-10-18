@@ -26,6 +26,25 @@ namespace KoreBuild.Tasks.Utilities
                 args.Add("-prerelease");
             }
 
+            args.Add("-products");
+            args.Add("*");
+
+            return GetInstallations(args, log).FirstOrDefault();
+        }
+
+        public static VsInstallation FindLatestInstallation(bool includePrerelease, string vsProductVersion, TaskLoggingHelper log)
+        {
+            var args = new List<string>
+            {
+                "-latest",
+            };
+            if (includePrerelease)
+            {
+                args.Add("-prerelease");
+            }
+            args.Add("-products");
+            args.Add($"Microsoft.VisualStudio.Product.{vsProductVersion}");
+
             return GetInstallations(args, log).FirstOrDefault();
         }
 
@@ -38,10 +57,10 @@ namespace KoreBuild.Tasks.Utilities
                 args.Add("-prerelease");
             }
 
-            if (!string.IsNullOrEmpty(toolset.MinVersion))
+            if (TryGetVersion(toolset, out var version))
             {
                 args.Add("-version");
-                args.Add(toolset.MinVersion);
+                args.Add(version);
             }
 
             if (toolset.RequiredWorkloads != null)
@@ -54,6 +73,28 @@ namespace KoreBuild.Tasks.Utilities
             }
 
             return GetInstallations(args, log).FirstOrDefault();
+        }
+
+        // Internal for testing
+        internal static bool TryGetVersion(KoreBuildSettings.VisualStudioToolset toolset, out string version)
+        {
+            if (!string.IsNullOrEmpty(toolset.VersionRange))
+            {
+                // This is the same as MinVersion but the name indicates that a user can specify more than just
+                // a min version. For example: [15.0,16.0) will find versions 15.*.
+                version = toolset.VersionRange;
+                return true;
+            }
+
+            if (!string.IsNullOrEmpty(toolset.MinVersion))
+            {
+                // Here for back compatibility.
+                version = toolset.MinVersion;
+                return true;
+            }
+
+            version = null;
+            return false;
         }
 
         private static VsInstallation[] GetInstallations(List<string> args, TaskLoggingHelper log)

@@ -1,6 +1,7 @@
 <Project>
 
   <PropertyGroup>
+    <_NuGetExeDownloadPath>$(IntermediateDir)nuget.exe</_NuGetExeDownloadPath>
     <_KoreBuildIntermediateDir>$(IntermediateDir)korebuild\</_KoreBuildIntermediateDir>
     <_KoreBuildIntermediateDir>$([MSBuild]::NormalizeDirectory($(_KoreBuildIntermediateDir)))</_KoreBuildIntermediateDir>
     <_KoreBuildOutDir>$(ArtifactsDir)korebuild\artifacts\$(Version)\</_KoreBuildOutDir>
@@ -10,7 +11,7 @@
     <KoreBuildBadgeFile>$(_ChannelOutDir)badge.svg</KoreBuildBadgeFile>
     <KoreBuildLatestTxtFile>$(_ChannelOutDir)latest.txt</KoreBuildLatestTxtFile>
     <KoreBuildChannelTxtFile>$(ArtifactsDir)korebuild\channel.txt</KoreBuildChannelTxtFile>
-    <PrepareDependsOn>$(PrepareDependsOn);SetTeamCityBuildNumberToVersion</PrepareDependsOn>
+    <PrepareDependsOn>$(PrepareDependsOn);DownloadNuGetExe</PrepareDependsOn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,7 +33,6 @@
   </ItemGroup>
 
   <Target Name="ResolveRepositoryCommit" Condition="'$(RepositoryCommit)'==''" BeforeTargets="Prepare">
-
     <GetGitCommitInfo WorkingDirectory="$(RepositoryRoot)"
                       Condition="'$(RepositoryCommit)' == ''">
       <Output TaskParameter="CommitHash" PropertyName="RepositoryCommit" />
@@ -43,6 +43,13 @@
       <SolutionProperties Condition="'$(RepositoryCommit)' != ''">$(SolutionProperties);RepositoryCommit=$(RepositoryCommit)</SolutionProperties>
       <SolutionProperties Condition="'$(RepositoryBranch)' != ''">$(SolutionProperties);RepositoryBranch=$(RepositoryBranch)</SolutionProperties>
     </PropertyGroup>
+  </Target>
+
+  <Target Name="DownloadNuGetExe">
+      <DownloadFile
+        SourceUrl="https://dist.nuget.org/win-x86-commandline/v4.6.2/nuget.exe"
+        DestinationFolder="$(IntermediateDir)"
+        Condition="!Exists($(_NuGetExeDownloadPath))" />
   </Target>
 
   <Target Name="CleanKoreBuild">
@@ -78,6 +85,8 @@
 
     <MakeDir Directories="$(_ChannelOutDir);$(_KoreBuildOutDir);$(_KoreBuildIntermediateDir)" />
     <Copy SourceFiles="%(Content.Identity)" DestinationFiles="$(_KoreBuildIntermediateDir)\%(RecursiveDir)%(FileName)%(Extension)" />
+
+    <Copy SourceFiles="$(_NuGetExeDownloadPath)" DestinationFolder="$(_KoreBuildIntermediateDir)" />
 
     <WriteLinesToFile File="$(_KoreBuildIntermediateDir).version" Lines="@(VersionFileLines)" Overwrite="true" />
 

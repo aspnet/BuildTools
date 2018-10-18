@@ -14,6 +14,11 @@ namespace NuGetPackageVerifier.Rules
     {
         public IEnumerable<PackageVerifierIssue> Validate(PackageAnalysisContext context)
         {
+            if (context.Metadata.IsDotNetToolPackage())
+            {
+                yield break;
+            }
+
             AssemblyAttributesDataHelper.SetAssemblyAttributesData(context);
             foreach (var assemblyData in context.AssemblyData)
             {

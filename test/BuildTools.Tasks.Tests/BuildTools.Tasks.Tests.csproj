@@ -1,4 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project>
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.props" />
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
@@ -23,4 +24,5 @@
     <ProjectReference Include="..\..\modules\BuildTools.Tasks\BuildTools.Tasks.csproj" />
   </ItemGroup>
 
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.targets" />
 </Project>

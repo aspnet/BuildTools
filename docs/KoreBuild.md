@@ -13,12 +13,13 @@ Previously repositories were runable in only one way, by doing `.\build.cmd`. Bu
 Command               | Purpose                                                          | Example
 ----------------------|------------------------------------------------------------------|----------
 install-tools         | Installs dotnet, CLI and Shared runtimes.                        | .\run.ps1 install-tools
+install vs            | Installs/Updates VS components                                   | .\run.ps1 install vs --quiet --product Enterprise
 docker-build          | Runs the build inside docker.                                    | .\run.ps1 docker-build {jessie\|winservercore} /t:SomeTarget /p:Parameters
 default-build         | Runs install-tools followed by msbuild (like build.cmd used to). | .\run.ps1 default-build /t:SomeTarget /p:Parameters
 msbuild               | Runs the build normally.                                         | .\run.ps1 msbuild /t:SomeTarget /p:Parameters
 upgrade deps          | Upgrade the dependencies.props of this project.                  | .\run.ps1 upgrade deps
 generate deps         | Generate a dependencies.props for this project.                  | .\run.ps1 generate deps
-generate api-baseline | Re-generate baselines for all projects.                          | .\run.ps1 generate api-baseline
+generate api-baselines | Re-generate baselines for all projects.                         | .\run.ps1 generate api-baselines
 
 ### KoreBuild properties
 
@@ -41,10 +42,10 @@ Example:
 
 {
   // add this for editor auto-completion :)
-  "$schema": "https://raw.githubusercontent.com/aspnet/BuildTools/dev/tools/korebuild.schema.json",
+  "$schema": "https://raw.githubusercontent.com/aspnet/BuildTools/master/tools/korebuild.schema.json",
 
   // specifies the channel used to update KoreBuild to new versions when you attempt to upgrade KoreBuild
-  "channel": "dev",
+  "channel": "master",
 
   "toolsets": {
       // All toolsets listed in this section are treated as required toolsets

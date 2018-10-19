@@ -29,7 +29,8 @@
     <ImportDirectoryBuildTargets>false</ImportDirectoryBuildTargets>
   </PropertyGroup>
 
-  <Sdk Name="Microsoft.NET.Sdk" />
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+
   <Sdk Name="Microsoft.DotNet.GlobalTools.Sdk" Version="$(Version)" />
 
   <PropertyGroup>
@@ -42,6 +43,7 @@
     <PackageReference Include="Internal.AspNetCore.Sdk" Version="$(Version)" />
   </ItemGroup>
 
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
   <Target Name="noop" />
 
 </Project>

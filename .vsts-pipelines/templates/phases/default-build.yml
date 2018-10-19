@@ -76,6 +76,7 @@ phases:
   variables:
     AgentOsName: ${{ parameters.agentOs }}
     ASPNETCORE_TEST_LOG_DIR: ${{ format('{0}/logs/testlogs', parameters.artifacts.path) }}
+    ASPNETCORE_TEST_LOG_MAXPATH: "200" # Keep test log file name length low enough for artifact zipping
     DOTNET_HOME: $(Agent.WorkFolder)/.dotnet
     BuildScriptArgs: ${{ parameters.buildArgs }}
     BuildConfiguration: ${{ parameters.configuration }}

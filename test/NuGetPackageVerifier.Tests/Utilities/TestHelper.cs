@@ -5,14 +5,13 @@ using System;
 using System.IO;
 using NuGet.Packaging;
 using NuGet.Versioning;
-using NuGetPackageVerifier.Manifests;
 using Xunit.Abstractions;
 
 namespace NuGetPackageVerifier.Tests.Utilities
 {
     public class TestHelper
     {
-        public static PackageAnalysisContext CreateAnalysisContext(ITestOutputHelper output, string[] emptyFiles, string version = "1.0.0", string signRequest = null)
+        public static PackageAnalysisContext CreateAnalysisContext(ITestOutputHelper output, string[] emptyFiles, string version = "1.0.0")
         {
             const string packageId = "TestPackage";
             var basePath = Path.Combine(AppContext.BaseDirectory, Path.GetRandomFileName());
@@ -45,20 +44,10 @@ namespace NuGetPackageVerifier.Tests.Utilities
                 builder.Save(nupkg);
             }
 
-            PackageSignRequest packageSignRequest = null;
-
-            if (signRequest != null)
-            {
-                var reader = new StringReader(signRequest);
-                var signManifest = SignRequestManifest.Parse(reader, basePath);
-                packageSignRequest = signManifest.PackageSignRequests[nupkgPath];
-            }
-
             var context = new TempPackageAnalysisContext(basePath)
             {
                 Logger = new TestLogger(output),
                 PackageFileInfo = new FileInfo(nupkgPath),
-                SignRequest = packageSignRequest,
                 Metadata = builder,
             };
 

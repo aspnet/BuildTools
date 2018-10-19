@@ -10,7 +10,6 @@ using Microsoft.Extensions.CommandLineUtils;
 using Newtonsoft.Json;
 using NuGet.Packaging;
 using NuGetPackageVerifier.Logging;
-using NuGetPackageVerifier.Manifests;
 
 namespace NuGetPackageVerifier
 {
@@ -71,16 +70,17 @@ namespace NuGetPackageVerifier
                     });
 
 
-                var signRequestManifest = signRequest.HasValue()
-                    ? SignRequestManifest.Parse(signRequest.Value())
-                    : default;
+                if (signRequest.HasValue())
+                {
+                    Console.WriteLine("The --sign-request parameter is obsolete and will be ignored. It will be removed in a future version");
+                }
 
                 logger.LogNormal("Read {0} package set(s) from {1}", packageSets.Count, ruleFile.Value());
                 var nupkgs = new DirectoryInfo(packageDirectory.Value).EnumerateFiles("*.nupkg", SearchOption.TopDirectoryOnly)
                     .Where(p => !p.Name.EndsWith(".symbols.nupkg"))
                     .ToArray();
                 logger.LogNormal("Found {0} packages in {1}", nupkgs.Length, packageDirectory.Value);
-                var exitCode = Execute(packageSets, nupkgs, signRequestManifest, excludedRules.Values, logger, ignoreAssistanceMode);
+                var exitCode = Execute(packageSets, nupkgs, excludedRules.Values, logger, ignoreAssistanceMode);
                 totalTimeStopWatch.Stop();
                 logger.LogNormal("Total took {0}ms", totalTimeStopWatch.ElapsedMilliseconds);
 
@@ -93,7 +93,6 @@ namespace NuGetPackageVerifier
         private static int Execute(
             IDictionary<string, PackageSet> packageSets,
             IEnumerable<FileInfo> nupkgs,
-            SignRequestManifest signRequestManifest,
             List<string> excludedRuleNames,
             IPackageVerifierLogger logger,
             IgnoreAssistanceMode ignoreAssistanceMode)
@@ -185,9 +184,6 @@ namespace NuGetPackageVerifier
                             var package = packagePair.Key;
                             logger.LogInfo("Analyzing {0} ({1})", package.Id, package.Version);
 
-                            PackageSignRequest signRequest = null;
-                            signRequestManifest?.PackageSignRequests.TryGetValue(packagePair.Value.FullName, out signRequest);
-
                             List<PackageVerifierIssue> issues;
                             using (var context = new PackageAnalysisContext
                             {
@@ -195,7 +191,6 @@ namespace NuGetPackageVerifier
                                 Metadata = package,
                                 Logger = logger,
                                 Options = packageInfo.Value,
-                                SignRequest = signRequest,
                             })
                             {
                                 issues = analyzer.AnalyzePackage(context).ToList();
@@ -250,9 +245,6 @@ namespace NuGetPackageVerifier
                 {
                     logger.LogInfo("Analyzing {0} ({1})", unlistedPackage.Id, unlistedPackage.Version);
 
-                    PackageSignRequest signRequest = null;
-                    signRequestManifest?.PackageSignRequests.TryGetValue(packages[unlistedPackage].FullName, out signRequest);
-
                     List<PackageVerifierIssue> issues;
                     PackageVerifierOptions packageOptions = null;
                     defaultPackageSet?.Packages?.TryGetValue(unlistedPackage.Id, out packageOptions);
@@ -262,7 +254,6 @@ namespace NuGetPackageVerifier
                         PackageFileInfo = packages[unlistedPackage],
                         Metadata = unlistedPackage,
                         Logger = logger,
-                        SignRequest = signRequest,
                         Options = packageOptions,
                     })
                     {

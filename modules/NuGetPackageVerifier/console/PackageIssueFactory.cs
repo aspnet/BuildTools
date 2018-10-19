@@ -37,15 +37,6 @@ namespace NuGetPackageVerifier
             );
         }
 
-        public static PackageVerifierIssue SignRequestMissingPackageFile(string id, string filePath)
-        {
-            return new PackageVerifierIssue(
-                "FILE_MISSING_FROM_SIGN_REQUEST",
-                filePath,
-                string.Format("The sign request for package {0} does not specify what to do with signable file {1}", id, filePath),
-                PackageIssueLevel.Error);
-        }
-
         public static PackageVerifierIssue PackageTypeMissing(string packageType)
         {
             return new PackageVerifierIssue(

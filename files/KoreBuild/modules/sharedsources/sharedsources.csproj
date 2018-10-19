@@ -37,6 +37,13 @@
     <ContentTargetFolders>contentFiles</ContentTargetFolders>
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
     <DefaultExcludeItems>$(DefaultExcludeItems);$(BaseOutputPath);$(BaseIntermediateOutputPath);</DefaultExcludeItems>
+    <!-- Suppress warnings about using semver 2.0 versions in packages -->
+    <NoWarn>$(NoWarn);NU5105</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(DisableCodeSigning)' != 'true' ">
+    <!-- Only specify the package signing cert. Do not specify AssemblySigningCertName because .Sources packages should not have binaries. -->
+    <PackageSigningCertName>NuGet</PackageSigningCertName>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(NuspecBasePath)'!=''">
@@ -73,7 +80,7 @@
         <Category>$(PackageArtifactCategory)</Category>
         <IsContainer>true</IsContainer>
         <Certificate>$(PackageSigningCertName)</Certificate>
-        <ShouldBeSigned Condition=" '$(PackageSigningCertName)' != '' ">true</ShouldBeSigned>
+        <ShouldBeSigned Condition=" '$(PackageSigningCertName)' != '' AND '$(DisableCodeSigning)' != 'true' ">true</ShouldBeSigned>
       </ArtifactInfo>
     </ItemGroup>
   </Target>

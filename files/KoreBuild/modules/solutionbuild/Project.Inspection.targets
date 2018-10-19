@@ -1,7 +1,7 @@
 <Project>
 
   <Target Name="GetArtifactInfo"
-          DependsOnTargets="GetSignedPackageFiles"
+          DependsOnTargets="GetSignedPackageFiles;GetPackageFilesExcludedFromSigning"
           Returns="@(ArtifactInfo)">
 
     <PropertyGroup>
@@ -15,12 +15,20 @@
         Workaround for design time builds on projects using Internal.AspNetCore.Sdk that have not yet been restored.
         IncludeSymbols and IncludeSource are off by default but are enabled in Internal.AspNetCore.Sdk.
       -->
-      <_ReferencesInternalAspNetCoreSdk>@(PackageReference->AnyHaveMetadataValue('Identity', 'Internal.AspNetCore.Sdk'))</_ReferencesInternalAspNetCoreSdk>
+      <_ReferencesInternalAspNetCoreSdk Condition="'$(_ReferencesInternalAspNetCoreSdk)' == ''">@(PackageReference->AnyHaveMetadataValue('Identity', 'Internal.AspNetCore.Sdk'))</_ReferencesInternalAspNetCoreSdk>
       <IncludeSymbols Condition="'$(IncludeSymbols)' == '' AND $(_ReferencesInternalAspNetCoreSdk)">true</IncludeSymbols>
       <IncludeSource Condition="'$(IncludeSource)' == '' AND $(_ReferencesInternalAspNetCoreSdk)">true</IncludeSource>
     </PropertyGroup>
 
-    <ItemGroup Condition="'$(IsPackable)' == 'true' ">
+    <ConvertToAbsolutePath Paths="@(SignedPackageFile)">
+      <Output TaskParameter="AbsolutePaths" ItemName="_SignedPackageFile" />
+    </ConvertToAbsolutePath>
+
+    <ConvertToAbsolutePath Paths="@(ExcludePackageFileFromSigning)">
+      <Output TaskParameter="AbsolutePaths" ItemName="_ExcludePackageFileFromSigning" />
+    </ConvertToAbsolutePath>
+
+    <ItemGroup Condition="'$(IsPackable)' != 'false' ">
       <ArtifactInfo Include="$(FullPackageOutputPath)">
         <ArtifactType>NuGetPackage</ArtifactType>
         <PackageId>$(PackageId)</PackageId>
@@ -32,7 +40,7 @@
         <RepositoryUrl>$(RepositoryUrl)</RepositoryUrl>
         <Category>$(PackageArtifactCategory)</Category>
         <Certificate>$(PackageSigningCertName)</Certificate>
-        <ShouldBeSigned Condition="'$(PackageSigningCertName)' != '' OR @(SignedPackageFile->Count()) != 0 ">true</ShouldBeSigned>
+        <ShouldBeSigned Condition="'$(PackageSigningCertName)' != '' OR @(_SignedPackageFile->Count()) != 0 ">true</ShouldBeSigned>
         <ShouldBeSigned Condition=" '$(DisableCodeSigning)' == 'true' ">false</ShouldBeSigned>
         <IsContainer>true</IsContainer>
       </ArtifactInfo>
@@ -49,33 +57,70 @@
         <RepositoryUrl>$(RepositoryUrl)</RepositoryUrl>
         <Category>$(PackageArtifactCategory)</Category>
         <Certificate>$(PackageSigningCertName)</Certificate>
-        <ShouldBeSigned Condition="'$(PackageSigningCertName)' != '' OR @(SignedPackageFile->Count()) != 0 ">true</ShouldBeSigned>
+        <ShouldBeSigned Condition="'$(PackageSigningCertName)' != '' OR @(_SignedPackageFile->Count()) != 0 ">true</ShouldBeSigned>
         <ShouldBeSigned Condition=" '$(DisableCodeSigning)' == 'true' ">false</ShouldBeSigned>
         <IsContainer>true</IsContainer>
       </ArtifactInfo>
 
-      <ArtifactInfo Include="@(SignedPackageFile)" Condition=" '$(DisableCodeSigning)' != 'true' ">
+      <ArtifactInfo Include="@(_SignedPackageFile)" Condition=" '$(DisableCodeSigning)' != 'true' ">
         <ShouldBeSigned>true</ShouldBeSigned>
         <Container>$(FullPackageOutputPath)</Container>
       </ArtifactInfo>
 
-      <ArtifactInfo Include="@(ExcludePackageFileFromSigning)">
+      <ArtifactInfo Include="@(_ExcludePackageFileFromSigning)">
         <ShouldBeSigned>false</ShouldBeSigned>
         <Container>$(FullPackageOutputPath)</Container>
       </ArtifactInfo>
 
-      <ArtifactInfo Include="@(SignedPackageFile)" Condition=" '$(DisableCodeSigning)' != 'true' AND '$(IncludeSymbols)' == 'true' ">
+      <ArtifactInfo Include="@(_SignedPackageFile)" Condition=" '$(DisableCodeSigning)' != 'true' AND '$(IncludeSymbols)' == 'true' ">
         <ShouldBeSigned>true</ShouldBeSigned>
         <Container>$(SymbolsPackageOutputPath)</Container>
       </ArtifactInfo>
 
-      <ArtifactInfo Include="@(ExcludePackageFileFromSigning)" Condition="'$(IncludeSymbols)' == 'true' ">
+      <ArtifactInfo Include="@(_ExcludePackageFileFromSigning)" Condition="'$(IncludeSymbols)' == 'true' ">
         <ShouldBeSigned>false</ShouldBeSigned>
         <Container>$(SymbolsPackageOutputPath)</Container>
       </ArtifactInfo>
     </ItemGroup>
 
   </Target>
+
+<!--
+####################################################################################
+Target: GetPackageFilesExcludedFromSigning
+
+Collect ExcludePackageFileFromSigning items in multi-TFM projects
+
+Items:
+[out] ExcludePackageFileFromSigning
+#####################################################################################
+-->
+  <PropertyGroup>
+    <!-- For single-TFM projects -->
+    <GetPackageFilesExcludedFromSigningDependsOn Condition=" '$(TargetFramework)' != '' ">
+      _GetPackageFilesExcludedFromSigning
+    </GetPackageFilesExcludedFromSigningDependsOn>
+  </PropertyGroup>
+
+  <Target Name="GetPackageFilesExcludedFromSigning" DependsOnTargets="$(GetPackageFilesExcludedFromSigningDependsOn)" Returns="@(ExcludePackageFileFromSigning)">
+
+    <ItemGroup Condition=" '$(TargetFramework)' == '' ">
+      <_TargetFrameworks Remove="@(_TargetFrameworks)" />
+      <_TargetFrameworks Include="$(TargetFrameworks)" />
+    </ItemGroup>
+
+    <MSBuild Projects="$(MSBuildProjectFullPath)"
+      Properties="TargetFramework=%(_TargetFrameworks.Identity)"
+      Targets="GetPackageFilesExcludedFromSigning"
+      Condition=" '%(_TargetFrameworks.Identity)' != '' AND '$(TargetFramework)' == '' "
+      BuildInParallel="true">
+      <Output TaskParameter="TargetOutputs" ItemName="ExcludePackageFileFromSigning" />
+    </MSBuild>
+  </Target>
+
+  <Target Name="_GetPackageFilesExcludedFromSigning"
+          Condition=" '$(TargetFramework)' != '' AND '$(DisableCodeSigning)' != 'true' "
+          Returns="@(ExcludePackageFileFromSigning)" />
 
 <!--
 ####################################################################################
@@ -112,18 +157,24 @@ Items:
   </Target>
 
   <Target Name="_GetSignedPackageFiles"
-          Condition=" '$(TargetFramework)' != '' "
+          Condition=" '$(TargetFramework)' != '' AND '$(DisableCodeSigning)' != 'true' "
           DependsOnTargets="BuiltProjectOutputGroup;SatelliteDllsProjectOutputGroup">
 
-    <ItemGroup Condition=" '$(NuspecFile)' == '' AND '$(IncludeBuildOutput)' != 'false' AND ('$(AssemblySigningCertName)' != '' OR '$(AssemblySigningStrongName)' != '') ">
+    <PropertyGroup>
+      <_PackageBasePath>$(BuildOutputTargetFolder.TrimEnd('/'))</_PackageBasePath>
+      <_PackageBasePath>$(_PackageBasePath.TrimEnd('\'))</_PackageBasePath>
+      <_IsTestProject Condition=" '$(IsTestProject)' == 'true' OR ('$(IsTestProject)' == '' AND @(PackageReference->WithMetadataValue('Identity', 'Microsoft.NET.Test.Sdk')->Count()) != 0)">true</_IsTestProject>
+    </PropertyGroup>
+
+    <ItemGroup Condition=" '$(_IsTestProject)' != 'true' AND '$(NuspecFile)' == '' AND '$(IncludeBuildOutput)' != 'false' AND ('$(AssemblySigningCertName)' != '' OR '$(AssemblySigningStrongName)' != '') ">
       <SignedPackageFile Include="@(BuiltProjectOutputGroupOutput)" Condition="'%(BuiltProjectOutputGroupOutput.Extension)' == '.dll' OR '%(BuiltProjectOutputGroupOutput.Extension)' == '.exe'">
-        <PackagePath>$(BuildOutputTargetFolder)/$(TargetFramework)/%(BuiltProjectOutputGroupOutput.FileName)%(BuiltProjectOutputGroupOutput.Extension)</PackagePath>
+        <PackagePath>$(_PackageBasePath)/$(TargetFramework)/%(BuiltProjectOutputGroupOutput.FileName)%(BuiltProjectOutputGroupOutput.Extension)</PackagePath>
         <Certificate>$(AssemblySigningCertName)</Certificate>
         <StrongName>$(AssemblySigningStrongName)</StrongName>
       </SignedPackageFile>
 
       <SignedPackageFile Include="@(SatelliteDllsProjectOutputGroupOutput)" Condition="'%(SatelliteDllsProjectOutputGroupOutput.Extension)' == '.dll' OR '%(SatelliteDllsProjectOutputGroupOutput.Extension)' == '.exe'">
-        <PackagePath>$(BuildOutputTargetFolder)/$(TargetFramework)/%(SatelliteDllsProjectOutputGroupOutput.FileName)%(SatelliteDllsProjectOutputGroupOutput.Extension)</PackagePath>
+        <PackagePath>$(_PackageBasePath)/$(TargetFramework)/%(SatelliteDllsProjectOutputGroupOutput.FileName)%(SatelliteDllsProjectOutputGroupOutput.Extension)</PackagePath>
         <Certificate>$(AssemblySigningCertName)</Certificate>
         <StrongName>$(AssemblySigningStrongName)</StrongName>
       </SignedPackageFile>

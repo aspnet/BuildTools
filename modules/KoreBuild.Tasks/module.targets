@@ -1,4 +1,5 @@
 <Project>
+  <Import Project="CodeSign.targets" />
 
   <PropertyGroup>
     <PrepareDependsOn Condition=" '$(DisableDefaultTargets)' != 'true' ">GetToolsets;$(PrepareDependsOn)</PrepareDependsOn>
@@ -139,6 +140,34 @@ and NodeJS.
       <Output TaskParameter="VisualStudioMSBuildx64Path" PropertyName="VisualStudioMSBuildx64Path" />
       <Output TaskParameter="NodeJSPath" PropertyName="NodeJSPath" />
     </GetToolsets>
+  </Target>
+
+<!--
+####################################################################################
+Target: VerifySignRequestItems
+
+Verifies all artifact items have a corresponding sign item.
+####################################################################################
+-->
+  <Target Name="VerifySignRequestItems"
+          DependsOnTargets="GetArtifactInfo"
+          Condition="'$(DisableCodeSigning)' != 'true' AND '$(SkipArtifactVerification)' != 'true'">
+
+    <ItemGroup>
+      <_FilesToSignMissingConfig Remove="@(_FilesToSignMissingConfig)" />
+      <_FilesToSignMissingConfig Include="@(FilesToSign)" Condition=" '%(FilesToSign.Certificate)' == '' AND '%(FilesToSign.StrongName)' == '' AND '%(FilesToSign.IsContainer)' != 'true' " />
+    </ItemGroup>
+
+    <PropertyGroup>
+      <_SigningErrorMessage Condition=" @(_FilesToSignMissingConfig->Count()) != 0 ">
+The following FilesToSign did not specify a Certificate or StrongName to use.
+  - @(_FilesToSignMissingConfig, '%0A  - ')
+      </_SigningErrorMessage>
+    </PropertyGroup>
+
+    <Error Text="$(_SigningErrorMessage.Trim())"
+           Code="KRB5004"
+           Condition=" @(_FilesToSignMissingConfig->Count()) != 0 " />
   </Target>
 
 </Project>

@@ -1,5 +1,5 @@
 #
-# Obsolete! New projects should use .azure/templates/phases/default-build.yml instead
+# Obsolete! New projects should use .azure/templates/jobs/default-build.yml instead
 #
 # TODO: remove this once templated projects have referenced the new location.
 #
@@ -75,12 +75,13 @@ phases:
     demands: ${{ parameters.demands }}
   variables:
     AgentOsName: ${{ parameters.agentOs }}
-    ASPNETCORE_TEST_LOG_DIR: ${{ format('{0}/logs/testlogs', parameters.artifacts.path) }}
     DOTNET_HOME: $(Agent.WorkFolder)/.dotnet
     BuildScriptArgs: ${{ parameters.buildArgs }}
     BuildConfiguration: ${{ parameters.configuration }}
     ${{ insert }}: ${{ parameters.variables }}
   steps:
+  - script: echo "This build template is obsolete and will be removed in the future. Please update your schema to use the  .azure/templates/jobs/default-build.yml template"
+    displayName: THIS TEMPLATE IS OBSOLETE
   - checkout: self
     clean: true
   - ${{ parameters.beforeBuild }}

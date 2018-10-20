@@ -3,6 +3,11 @@
 
   <PropertyGroup>
     <KoreBuildTasksDll>$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll</KoreBuildTasksDll>
+
+    <CodeSignDependsOn>
+      GetArtifactInfo;
+      $(CodeSignDependsOn)
+    </CodeSignDependsOn>
   </PropertyGroup>
 
   <UsingTask TaskName="KoreBuild.Tasks.CheckPackageReferences" AssemblyFile="$(KoreBuildTasksDll)" />

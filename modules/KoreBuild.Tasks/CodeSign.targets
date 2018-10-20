@@ -18,7 +18,7 @@
 
   <Target Name="CodeSign" Condition=" '$(DisableCodeSigning)' != 'true' "
           AfterTargets="Package"
-          DependsOnTargets="GetArtifactInfo">
+          DependsOnTargets="$(CodeSignDependsOn)">
 
     <GetPathToFullMSBuild>
       <Output TaskParameter="MSBuildx86Path" PropertyName="MSBuildx86Path" />

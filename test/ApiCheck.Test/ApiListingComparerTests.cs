@@ -22,7 +22,7 @@ namespace ApiCheck.Test
             ti => (ti as TypeInfo)?.Namespace?.StartsWith("ComparisonScenarios") == false
         };
 
-#if NETCOREAPP3_0 // Reflection does not provide a hook to enumerate forwarded types in .NET Framework.
+#if NETCOREAPP2_2 // Reflection does not provide a hook to enumerate forwarded types in .NET Framework.
         [Fact]
         public void Compare_AllowsTypeToBeForwarded()
         {

@@ -10,7 +10,7 @@
   </metadata>
   <files>
     <file src="_._" target="lib\netstandard1.0\_._" />
-    <file src="bin\$config$\netcoreapp3.0\Internal.AspNetCore.SiteExtension.Sdk.dll" target="tools\netcoreapp3.0\Internal.AspNetCore.SiteExtension.Sdk.dll" />
+    <file src="bin\$config$\netcoreapp2.1\Internal.AspNetCore.SiteExtension.Sdk.dll" target="tools\netcoreapp2.1\Internal.AspNetCore.SiteExtension.Sdk.dll" />
     <file src="bin\$config$\net46\Internal.AspNetCore.SiteExtension.Sdk.dll" target="tools\net46\Internal.AspNetCore.SiteExtension.Sdk.dll" />
     <file src="build\" target="build\" />
     <file src="content\" target="content\" />

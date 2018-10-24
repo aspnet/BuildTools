@@ -1,7 +1,7 @@
 <Project Sdk="Internal.AspNetCore.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
     <OutputType>exe</OutputType>
     <PackageType>DotnetTool</PackageType>
     <AssemblyName>cowsay</AssemblyName>

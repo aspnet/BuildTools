@@ -2,7 +2,7 @@
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.props" />
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
     <AssemblyName>Internal.AspNetCore.KoreBuild.Tasks</AssemblyName>
     <SignToolDir>$(NuGetPackageRoot)/microsoft.dotnet.signtool/$(MicrosoftDotNetSignToolPackageVersion)/</SignToolDir>
   </PropertyGroup>

@@ -79,10 +79,10 @@ namespace KoreBuild.FunctionalTests
                     _output.WriteLine("pkg: " + file);
                 }
 
-                var winx86 = Assert.Single(files, f => f.StartsWith("tools/netcoreapp3.0/any/shims/win-x86/"));
+                var winx86 = Assert.Single(files, f => f.StartsWith("tools/netcoreapp2.1/any/shims/win-x86/"));
                 Assert.Equal("GlobalConsoleTool.exe", Path.GetFileName(winx86));
 
-                var winx64 = Assert.Single(files, f => f.StartsWith("tools/netcoreapp3.0/any/shims/win-x64/"));
+                var winx64 = Assert.Single(files, f => f.StartsWith("tools/netcoreapp2.1/any/shims/win-x64/"));
                 Assert.Equal("GlobalConsoleTool.exe", Path.GetFileName(winx64));
             }
 

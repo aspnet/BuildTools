@@ -12,7 +12,7 @@
     <NewtonsoftJsonPackageVersion>10.0.1</NewtonsoftJsonPackageVersion>
     <NuGetPackagingPackageVersion>4.7.0-rtm.5148</NuGetPackagingPackageVersion>
     <NuGetProjectModelPackageVersion>4.7.0-rtm.5148</NuGetProjectModelPackageVersion>
-    <SystemCollectionsImmutablePackageVersion>1.5.0</SystemCollectionsImmutablePackageVersion>
+    <SystemCollectionsImmutablePackageVersion>1.4.0</SystemCollectionsImmutablePackageVersion>
     <SystemReflectionMetadataPackageVersion>1.5.0</SystemReflectionMetadataPackageVersion>
     <VSWherePackageVersion>2.2.7</VSWherePackageVersion>
     <XunitPackageVersion>2.3.1</XunitPackageVersion>
@@ -20,18 +20,18 @@
   </PropertyGroup>
 
   <!--
-    Attempt to keep these mostly aligned with https://github.com/dotnet/toolset/blob/master/build/DependencyVersions.props
+    Attempt to keep these mostly aligned with https://github.com/dotnet/cli/blob/master/build/DependencyVersions.props
     and with the version of MSBuild used by KoreBuild.
     MSBuild will prefer the assemblies that ship in the .NET Core SDK and MSbuild. The dependency versions here don't matter
     as long as the version we compile for is binary compatible with what the .NET Core SDK uses.
   -->
   <PropertyGroup>
-    <MicrosoftBuildPackageVersion>15.9.19</MicrosoftBuildPackageVersion>
+    <MicrosoftBuildPackageVersion>15.6.82</MicrosoftBuildPackageVersion>
     <MicrosoftBuildFrameworkPackageVersion>$(MicrosoftBuildPackageVersion)</MicrosoftBuildFrameworkPackageVersion>
     <MicrosoftBuildUtilitiesCorePackageVersion>$(MicrosoftBuildPackageVersion)</MicrosoftBuildUtilitiesCorePackageVersion>
     <MicrosoftBuildTasksCorePackageVersion>$(MicrosoftBuildPackageVersion)</MicrosoftBuildTasksCorePackageVersion>
     <Tooling_NewtonsoftJsonPackageVersion>9.0.1</Tooling_NewtonsoftJsonPackageVersion>
-    <Tooling_NuGetBuildTasksPackageVersion>4.9.0-preview3.5473</Tooling_NuGetBuildTasksPackageVersion>
+    <Tooling_NuGetBuildTasksPackageVersion>4.7.0-netcore.2.1.preview2.5133</Tooling_NuGetBuildTasksPackageVersion>
   </PropertyGroup>
 
   <!-- These are set to flow into RepoTasks.csproj -->

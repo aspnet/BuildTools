@@ -25,7 +25,7 @@ namespace Microsoft.AspNetCore.BuildTools
 #if NET46
             // MSBuild.exe only runs on Windows. This task doesn't support xbuild, only dotnet-msbuild and MSBuild.exe.
             PlatformName = "Windows";
-#elif NETCOREAPP3_0
+#elif NETCOREAPP2_1
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 PlatformName = "Windows";

@@ -29,7 +29,7 @@ Usage: this should be imported once via NuGet at the top of the file.
   </PropertyGroup>
 
   <!-- Code signing certificate names -->
-  <PropertyGroup Condition=" '$(DisableMicrosoftCodeSigning)' != 'false' ">
+  <PropertyGroup Condition=" '$(DisableCodeSigning)' != 'true' ">
     <AssemblySigningCertName>Microsoft400</AssemblySigningCertName>
     <AssemblySigning3rdPartyCertName>3PartySHA2</AssemblySigning3rdPartyCertName>
     <PowerShellSigningCertName>Microsoft400</PowerShellSigningCertName>

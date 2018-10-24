@@ -64,14 +64,15 @@ namespace KoreBuild.Tasks.Utilities
             var packageIdentity = new PackageIdentity(installItem.Library.Name, installItem.Library.Version);
 
             var verificationProviders = SignatureVerificationProviderFactory.GetSignatureVerificationProviders();
-            var signedPackageVerifier = new PackageSignatureVerifier(verificationProviders, SignedPackageVerifierSettings.VerifyCommandDefaultPolicy);
+            var signedPackageVerifier = new PackageSignatureVerifier(verificationProviders);
 
             var versionFolderPathResolver = new VersionFolderPathResolver(_packagesDirectory);
             var packageExtractionContext = new PackageExtractionContext(
                 PackageSaveMode.Defaultv3,
                 XmlDocFileSaveMode.None,
                 _logger,
-                signedPackageVerifier);
+                signedPackageVerifier,
+                SignedPackageVerifierSettings.GetDefault());
 
             using (var packageDependency = await installItem.Provider.GetPackageDownloaderAsync(
                 packageIdentity,

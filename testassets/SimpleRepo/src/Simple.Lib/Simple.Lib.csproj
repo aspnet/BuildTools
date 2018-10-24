@@ -1,12 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Internal.AspNetCore.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     <AssemblySigningCertName>TestCert</AssemblySigningCertName>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Internal.AspNetCore.Sdk" PrivateAssets="All" Version="$(InternalAspNetCoreSdkPackageVersion)" />
-  </ItemGroup>
 
 </Project>

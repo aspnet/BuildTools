@@ -1,11 +1,12 @@
 <Project>
 
+  <Import Project="..\..\build\dependencies.props" />
+
   <Target Name="Publish">
 
     <ItemGroup>
       <Projects Include="$(MSBuildThisFileDirectory)..\..\src\Internal.AspNetCore.Sdk\Internal.AspNetCore.Sdk.csproj" />
       <Projects Include="$(MSBuildThisFileDirectory)..\..\src\ApiCheck.Console\ApiCheck.Console.csproj" />
-      <Projects Include="$(MSBuildThisFileDirectory)..\..\src\Microsoft.DotNet.GlobalTools.Sdk\Microsoft.DotNet.GlobalTools.Sdk.csproj" />
     </ItemGroup>
 
     <MSBuild Projects="@(Projects)"
@@ -22,9 +23,13 @@
       -->
       <BundledPackageRestorerContent>
 <![CDATA[
-<Project Sdk="Microsoft.NET.Sdk">
+<Project>
+  <PropertyGroup>
+    <ImportDirectoryBuildProps>false</ImportDirectoryBuildProps>
+    <ImportDirectoryBuildTargets>false</ImportDirectoryBuildTargets>
+  </PropertyGroup>
 
-  <Sdk Name="Microsoft.DotNet.GlobalTools.Sdk" Version="$(Version)" />
+  <Sdk Name="Internal.AspNetCore.Sdk" Version="$(Version)" />
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
@@ -32,16 +37,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Internal.AspNetCore.Sdk" Version="$(Version)" />
+    <PackageReference Include="MicroBuild.Core" Version="$(MicroBuildCorePackageVersion)" />
   </ItemGroup>
 
+  <Target Name="noop" />
 </Project>
 ]]>
       </BundledPackageRestorerContent>
     </PropertyGroup>
 
     <WriteLinesToFile File="$(PublishDir)BundledPackageRestorer.csproj" Lines="$(BundledPackageRestorerContent)" Overwrite="true" />
-    <Copy SourceFiles="module.props;module.targets;NuGet.config" DestinationFolder="$(PublishDir)" />
+    <Copy SourceFiles="NuGet.config" DestinationFolder="$(PublishDir)" />
+    <DownloadFile SourceUrl="https://www.nuget.org/api/v2/package/MicroBuild.Core/$(MicroBuildCorePackageVersion)" DestinationFolder="$(PublishDir)" DestinationFileName="MicroBuild.Core.$(MicroBuildCorePackageVersion).nupkg" />
   </Target>
 
 </Project>

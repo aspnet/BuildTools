@@ -1,8 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project>
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.props" />
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <AssemblyName>Internal.AspNetCore.KoreBuild.Tasks</AssemblyName>
+    <SignToolDir>$(NuGetPackageRoot)/microsoft.dotnet.signtool/$(MicrosoftDotNetSignToolPackageVersion)/</SignToolDir>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,8 +12,11 @@
     <Content Include="*.targets" CopyToPublishDirectory="PreserveNewest" />
     <Compile Include="..\..\shared\Microsoft.Extensions.CommandLineUtils.Sources\Utilities\*.cs" />
     <Compile Include="..\..\shared\Utilities\MSBuildListSplitter.cs" />
+    <Compile Include="..\BuildTools.Tasks\Utilities\FileHelpers.cs" Link="Utilities\FileHelpers.cs" />
     <Compile Include="..\..\tools\KoreBuildSettings.cs" />
     <Content Include="$(VSWhereDir)vswhere.exe" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="$(SignToolDir)tools\**\*" Link="SignTool\tools\%(RecursiveDir)%(FileName)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="$(SignToolDir)build\**\*" Link="SignTool\build\%(RecursiveDir)%(FileName)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="$(MSBuildThisFileDirectory)SkipStrongNames.xml" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
@@ -25,6 +30,24 @@
     <PackageReference Include="NuGet.Build.Tasks" Version="$(Tooling_NuGetBuildTasksPackageVersion)" PrivateAssets="All" />
     <PackageReference Include="Newtonsoft.Json" Version="$(Tooling_NewtonsoftJsonPackageVersion)" PrivateAssets="All" />
     <PackageReference Include="vswhere" Version="$(VSWherePackageVersion)" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.DotNet.SignTool" Version="$(MicrosoftDotNetSignToolPackageVersion)" ExcludeAssets="All" PrivateAssets="All" />
   </ItemGroup>
 
+  <Target Name="PublishGeneratedProps" BeforeTargets="Publish">
+    <PropertyGroup>
+      <PackageVersionsPropsContent>
+<![CDATA[
+<Project>
+  <PropertyGroup>
+    <MicroBuildCorePackageVersion>$(MicroBuildCorePackageVersion)</MicroBuildCorePackageVersion>
+  </PropertyGroup>
+</Project>
+]]>
+      </PackageVersionsPropsContent>
+    </PropertyGroup>
+
+    <WriteLinesToFile File="$(PublishDir)PackageVersions.props" Lines="$(PackageVersionsPropsContent)" Overwrite="true" />
+  </Target>
+
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.targets" />
 </Project>

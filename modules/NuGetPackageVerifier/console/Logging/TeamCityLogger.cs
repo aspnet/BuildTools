@@ -34,7 +34,7 @@ namespace NuGetPackageVerifier.Logging
                     status = "NORMAL";
                     break;
                 default:
-                    status = "INFORMATION";
+                    status = "NORMAL";
                     break;
             }
 

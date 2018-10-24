@@ -89,7 +89,6 @@ function Invoke-RepositoryBuild(
         $koreBuildVersion = Get-KoreBuildVersion
 
         $msBuildArguments = @"
-/nologo
 /m
 /nodeReuse:false
 /p:KoreBuildVersion=$koreBuildVersion
@@ -216,11 +215,24 @@ function Install-Tools(
             -InstallDir $installDir `
             -AzureFeed $script:config.'dotnet.feed.cdn' `
             -UncachedFeed $script:config.'dotnet.feed.uncached' `
-            -FeedCredential $script:config.'dotnet.feed.credential'
+            -FeedCredential $script:config.'dotnet.feed.credential' `
+            -NoCdn
     }
     else {
         Write-Host -ForegroundColor DarkGray ".NET Core SDK $version is already installed. Skipping installation."
     }
+
+    # This is a workaround for https://github.com/Microsoft/msbuild/issues/2914.
+    # Currently, the only way to configure the NuGetSdkResolver is with NuGet.config, which is not generally used in aspnet org projects.
+    # This project is restored so that it pre-populates the NuGet cache with SDK packages.
+    $restorerfile = "$PSScriptRoot/../modules/BundledPackages/BundledPackageRestorer.csproj"
+    $restorerfilelock="$env:NUGET_PACKAGES/internal.aspnetcore.sdk/$(Get-KoreBuildVersion)/korebuild.sentinel"
+    if ((Test-Path $restorerfile) -and -not (Test-Path $restorerfilelock)) {
+        New-Item -ItemType Directory $(Split-Path -Parent $restorerfilelock) -ErrorAction Ignore | Out-Null
+        New-Item -ItemType File $restorerfilelock -ErrorAction Ignore | Out-Null
+        __exec $global:dotnet msbuild -restore '-t:noop' '-v:m' "$restorerfile"
+    }
+    # end workaround
 }
 
 <#
@@ -240,7 +252,12 @@ function Ensure-Dotnet() {
 
 function Get-DotnetMajorVersion() {
     if (Get-Variable "dotnet" -Scope Global -ErrorAction SilentlyContinue) {
-        $infoOutput = dotnet --version
+        $infoOutput = & $global:dotnet --version
+
+        if (-not $infoOutput) {
+            Write-Verbose 'Could not determine the version of dotnet from `dotnet --version`'
+            return 0
+        }
 
         $version = $infoOutput.SubString(0, $infoOutput.IndexOf('.'))
         $versionInt = [convert]::ToInt32($version, 10)
@@ -352,7 +369,16 @@ function Invoke-KoreBuildCommand(
     $sdkVersion = __get_dotnet_sdk_version
     $korebuildVersion = Get-KoreBuildVersion
     if ($sdkVersion -ne 'latest') {
-        "{ `"sdk`": { `n`"version`": `"$sdkVersion`" },`n`"msbuild-sdks`": {`n`"Microsoft.DotNet.GlobalTools.Sdk`": `"$korebuildVersion`"}`n }" | Out-File (Join-Path $global:KoreBuildSettings.RepoPath 'global.json') -Encoding ascii
+        @"
+{
+    `"sdk`": {
+        `"version`": `"$sdkVersion`"
+    },
+    `"msbuild-sdks`": {
+        `"Internal.AspNetCore.Sdk`": `"$korebuildVersion`"
+    }
+}
+"@ | Out-File (Join-Path $global:KoreBuildSettings.RepoPath 'global.json') -Encoding ascii
     }
     else {
         Write-Verbose "Skipping global.json generation because the `$sdkVersion = $sdkVersion"

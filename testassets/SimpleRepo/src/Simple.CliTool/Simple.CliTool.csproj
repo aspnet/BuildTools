@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Internal.AspNetCore.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
@@ -6,21 +6,17 @@
     <PackageType>DotnetTool</PackageType>
     <AssemblyName>cowsay</AssemblyName>
     <PackageId>Simple.CliTool</PackageId>
+    <PackAsTool>true</PackAsTool>
+    <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86</PackAsToolShimRuntimeIdentifiers>
     <AssemblySigningCertName>TestCert</AssemblySigningCertName>
-    <PackageSigningCertName></PackageSigningCertName>
-    <NuspecFile>$(MSBuildProjectName).nuspec</NuspecFile>
+    <PackageSigningCertName>MyPackageSigningCert</PackageSigningCertName>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" PrivateAssets="All" Version="$(NewtonsoftJsonPackageVersion)" />
+    <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonPackageVersion)" />
 
-    <!-- Required to specify manually when using nuspec. -->
-    <SignedPackageFile Include="$(TargetPath)" Certificate="$(AssemblySigningCertName)" Visible="false">
-      <PackagePath>tools/any/any/$(TargetFileName)</PackagePath>
-    </SignedPackageFile>
-
-    <SignedPackageFile Include="$(PublishDir)Newtonsoft.Json.dll" Certificate="Test3rdPartyCert" Visible="false">
-      <PackagePath>tools/any/any/Newtonsoft.Json.dll</PackagePath>
+    <SignedPackageFile Include="$(PublishDir)Newtonsoft.Json.dll" Certificate="Test3rdPartyCert">
+      <PackagePath>tools/$(TargetFramework)/any/</PackagePath>
     </SignedPackageFile>
   </ItemGroup>
 

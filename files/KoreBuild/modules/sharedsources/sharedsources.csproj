@@ -69,7 +69,7 @@
       <NormalizedPackageVersion Condition="$(NormalizedPackageVersion.Contains('+'))">$(PackageVersion.Substring(0, $(PackageVersion.IndexOf('+'))))</NormalizedPackageVersion>
     </PropertyGroup>
 
-    <ItemGroup>
+    <ItemGroup Condition=" '$(IsPackable)' == 'true' ">
       <ArtifactInfo Include="$(PackageOutputPath)$(PackageId).$(NormalizedPackageVersion).nupkg">
         <ArtifactType>NuGetPackage</ArtifactType>
         <PackageId>$(PackageId)</PackageId>

@@ -40,7 +40,6 @@
     <PackageReference Include="MicroBuild.Core" Version="$(MicroBuildCorePackageVersion)" />
   </ItemGroup>
 
-  <Target Name="noop" />
 </Project>
 ]]>
       </BundledPackageRestorerContent>

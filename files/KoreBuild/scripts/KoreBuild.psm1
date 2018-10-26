@@ -230,7 +230,7 @@ function Install-Tools(
     if ((Test-Path $restorerfile) -and -not (Test-Path $restorerfilelock)) {
         New-Item -ItemType Directory $(Split-Path -Parent $restorerfilelock) -ErrorAction Ignore | Out-Null
         New-Item -ItemType File $restorerfilelock -ErrorAction Ignore | Out-Null
-        __exec $global:dotnet msbuild -restore '-t:noop' '-v:m' "$restorerfile"
+        __exec $global:dotnet msbuild '-t:restore' '-v:q' "$restorerfile"
     }
     # end workaround
 }

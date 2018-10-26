@@ -8,8 +8,7 @@
     <GenerateSourceLinkFile>false</GenerateSourceLinkFile>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <EnableApiCheck>false</EnableApiCheck>
-    <!-- workaround https://github.com/aspnet/CoreCLR/issues/223 -->
-    <NoWarn>$(NoWarn);NU1603;NU5105</NoWarn>
+    <NoWarn>$(NoWarn);NU5105</NoWarn>
     <Serviceable>false</Serviceable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>

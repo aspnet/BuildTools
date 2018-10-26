@@ -4,7 +4,7 @@
     <MicroBuildCorePackageVersion>0.3.0</MicroBuildCorePackageVersion>
     <MicrosoftDotNetPlatformAbstractionsVersion>2.0.0</MicrosoftDotNetPlatformAbstractionsVersion>
     <MicrosoftDotNetSignToolPackageVersion>1.0.0-beta.18515.2</MicrosoftDotNetSignToolPackageVersion>
-    <MicrosoftNETTestSdkPackageVersion>15.6.1</MicrosoftNETTestSdkPackageVersion>
+    <MicrosoftNETTestSdkPackageVersion>15.9.0</MicrosoftNETTestSdkPackageVersion>
     <MicrosoftWin32RegistryPackageVersion>4.4.0</MicrosoftWin32RegistryPackageVersion>
     <MonoCecilPackageVersion>0.10.0-beta6</MonoCecilPackageVersion>
     <MoqPackageVersion>4.7.99</MoqPackageVersion>

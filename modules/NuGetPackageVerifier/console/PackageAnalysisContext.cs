@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using NuGet.Packaging;
 using NuGetPackageVerifier.Logging;
-using NuGetPackageVerifier.Manifests;
 
 namespace NuGetPackageVerifier
 {
@@ -15,7 +14,6 @@ namespace NuGetPackageVerifier
         private PackageArchiveReader _reader;
 
         public FileInfo PackageFileInfo { get; set; }
-        public PackageSignRequest SignRequest { get; set; }
         public IPackageMetadata Metadata { get; set; }
         public PackageVerifierOptions Options { get; set; }
         public IPackageVerifierLogger Logger { get; set; }

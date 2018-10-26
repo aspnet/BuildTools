@@ -1,27 +1,7 @@
 Signing
 =======
 
-KoreBuild supports generating a signing request manfiest. This includes a list of all files that should be signed
-and information about the strongname or certificate that should be used.
-
-## Format
-
-The signing request manifest supports three element types. A minimal example looks like this. See [Elements](#Elements) below for details
-
-```xml
-<SigningRequest>
-  <File Path="MyAssembly.dll" Certificate="MyCert" StrongName="MyStrongName" />
-  <File Path="build/Another.dll" Certificate="MyCert" />
-  <Container Path="MyLib.1.0.0.nupkg" Type="nupkg" Certificate="NuGetCert">
-    <File Path="lib/netstandard2.0/MyLib.dll" Certificate="MyCert" />
-  </Container>
-  <Container Path="MyVSTool.vsix" Type="vsix" Certificate="VsixCert">
-    <File Path="MyVSTool.dll" Certificate="MyCert" />
-    <!-- excluded from signing, but useful if you want to assert all files in a container are accounted for. -->
-    <ExcludedFile Path="NotMyLib.dll" />
-  </Container>
-</SigningRequest>
-```
+KoreBuild supports code signing files and using MSBuild to configure the list of files which are code-signed.
 
 ## Config via csproj
 
@@ -38,30 +18,14 @@ To sign assemblies, set the AssemblySigningCertName and AssemblySigningStrongNam
 </PropertyGroup>
 ```
 
-This will generate a signing request like this:
-
-```xml
-<SigningRequest>
-  <File Path="MyLib.dll" Certificate="MyCert" StrongName="PrivateStrongName" />
-</SigningRequest>
-```
-
 ### NuGet packages
 
 To sign NuGet packages, set the PackageSigningCertName property in the \*.csproj that produces the nupkg.
 
 ```xml
 <PropertyGroup>
-  <PackageSigningCertName>NuGetCert</PackageSigningCertName>
+  <PackageSigningCertName>MyNuGetCert</PackageSigningCertName>
 </PropertyGroup>
-```
-
-This will generate a signing request like this:
-
-```xml
-<SigningRequest>
-  <Container Path="MyLib.1.0.0.nupkg" Type="nupkg" Certificate="NuGetCert" />
-</SigningRequest>
 ```
 
 ### NuGet packages with assemblies
@@ -71,18 +35,21 @@ For assemblies that ship in a NuGet package, you can specify multiple properties
 ```xml
 <PropertyGroup>
   <AssemblySigningCertName>MyCert</AssemblySigningCertName>
-  <PackageSigningCertName>NuGetCert</PackageSigningCertName>
+  <PackageSigningCertName>MyNuGetCert</PackageSigningCertName>
 </PropertyGroup>
 ```
 
-This will generate a signing request like this:
+### Recommended cert names for Microsoft projects
+
+The following certificate names should be used for Microsoft projects. These MSBuild properties are also available by using Internal.AspNetCore.SDK.
 
 ```xml
-<SigningRequest>
-  <Container Path="MyLib.1.0.0.nupkg" Type="nupkg" Certificate="NuGetCert">
-    <File Path="lib/netstandard2.0/MyLib.dll" Certificate="MyCert" />
-  </Container>
-</SigningRequest>
+    <AssemblySigningCertName>Microsoft400</AssemblySigningCertName>
+    <AssemblySigning3rdPartyCertName>3PartySHA2</AssemblySigning3rdPartyCertName>
+    <PowerShellSigningCertName>Microsoft400</PowerShellSigningCertName>
+    <PackageSigningCertName>NuGet</PackageSigningCertName>
+    <VsixSigningCertName>VsixSHA2</VsixSigningCertName>
+    <JarSigningCertName>MicrosoftJAR</JarSigningCertName>
 ```
 
 ### Projects using nuspec
@@ -108,20 +75,24 @@ Sometimes other signable assemblies end up in a nupkg. Signing for these file ty
 
 ```xml
   <ItemGroup>
-    <!-- Files that come from other ASP.NET Core projects -->
-    <SignedPackageFile Include="$(PublishDir)Microsoft.Extensions.Configuration.Abstractions.dll" Certificate="$(AssemblySigningCertName)" PackagePath="tools/Microsoft.Extensions.Configuration.Abstractions.dll" Visible="false" />
+    <!-- Specifying signing for a file in a package. -->
+    <SignedPackageFile Include="tools/Microsoft.Extensions.Configuration.Abstractions.dll" Certificate="$(AssemblySigningCertName)" Visible="false" />
+
+    <!-- Specifying signing for a file in a package using an explicit path within the NuGet package. -->
+    <SignedPackageFile Include="$(OutputPath)$(TargetFileName)" Certificate="$(AssemblySigningCertName)"
+      PackagePath="tasks/net461/$(TargetFileName)" Visible="false" />
 
     <!-- Third-party cert -->
-    <SignedPackageFile Include="$(PublishDir)Newtonsoft.Json.dll" Certificate="3PartyDual" PackagePath="tools/Newtonsoft.Json.dll" Visible="false" />
+    <SignedPackageFile Include="tools/Newtonsoft.Json.dll" Certificate="3PartySHA2" Visible="false" />
 
     <!-- This should already be signed by the dotnet-core team -->
-    <ExcludePackageFileFromSigning Include="$(PublishDir)System.Runtime.CompilerServices.Unsafe.dll" PackagePath="tools/System.Runtime.CompilerServices.Unsafe.dll" Visible="false" />
+    <ExcludePackageFileFromSigning Include="tools/System.Runtime.CompilerServices.Unsafe.dll" />
   </ItemGroup>
 ```
 
 ### Disabling signing
 
-You can disable sign request generation on an MSBuild project by setting DisableCodeSigning.
+You can disable sign request generation on an MSBuild project by setting DisableCodeSigning, or for an entire repo (via repo.props).
 
 ```xml
 <PropertyGroup>
@@ -137,50 +108,9 @@ these elements to the `build/repo.props` file. (See also [KoreBuild.md](./KoreBu
 ```xml
 <!-- build/repo.props -->
 <ItemGroup>
-  <FilesToSign Include="$(ArtifactsDir)libuv.dll" Certificate="3PartyDual" />
+  <FilesToSign Include="$(ArtifactsDir)libuv.dll" Certificate="3PartySHA2" />
 
   <!-- Files can also be listed as "do not sign", for completeness -->
-  <FilesToExcludeFromSigning Include="$(ArtifactsDir)my.test.dll" Certificate="3PartyDual" />
+  <FilesToExcludeFromSigning Include="$(ArtifactsDir)my.test.dll" Certificate="3PartySHA2" />
 </ItemGroup>
 ```
-
-## Elements
-
-#### `SigningRequest`
-
-Root element. No options.
-
-#### `File`
-
-A file to be signed.
-
-**Path** - file path, relative to the file path. If nested in a `<Container>`, is relative to the organization within the container
-
-**Certificate** - the name of the certificate to use
-
-**StrongName** - for assemblies only. This is used to strong name assemblies that were delay signed in public.
-
-#### `Container`
-
-A container is an archive file, installer, or some kind of bundle that can be signed, or that has files that can be signed
-inside it. Nested elements can be added for `<File>` and `<ExcludedFile>`.
-
-**Path** - file path to the container
-
-**Certificate** - the name of the certificate to use
-
-**Type** - The type of the container. Instructs the consumer how to extract the container. Example values:
-
-  - zip
-  - tar.gz
-  - vsix
-  - nupkg
-  - msi
-
-#### `ExcludedFile`
-
-This is useful when you want to exclude files within a container from being signed, but want to assert that
-all files in a container are accounted for.
-
-**Path** - file path to a file to be ignored by the signing tool
-

@@ -1,6 +1,13 @@
 <Project>
+  <Import Project="PackageVersions.props" />
+
   <PropertyGroup>
     <KoreBuildTasksDll>$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll</KoreBuildTasksDll>
+
+    <CodeSignDependsOn>
+      GetArtifactInfo;
+      $(CodeSignDependsOn)
+    </CodeSignDependsOn>
   </PropertyGroup>
 
   <UsingTask TaskName="KoreBuild.Tasks.CheckPackageReferences" AssemblyFile="$(KoreBuildTasksDll)" />
@@ -12,7 +19,7 @@
   <UsingTask TaskName="KoreBuild.Tasks.FindVisualStudio" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.GenerateDependenciesPropsFile" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.GeneratePackageVersionPropsFile" AssemblyFile="$(KoreBuildTasksDll)" />
-  <UsingTask TaskName="KoreBuild.Tasks.GenerateSignRequest" AssemblyFile="$(KoreBuildTasksDll)" />
+  <UsingTask TaskName="KoreBuild.Tasks.GetPathToFullMSBuild" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.GetToolsets" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.InstallDotNet" AssemblyFile="$(KoreBuildTasksDll)" />
   <UsingTask TaskName="KoreBuild.Tasks.PackNuSpec" AssemblyFile="$(KoreBuildTasksDll)" />

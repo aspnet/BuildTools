@@ -125,15 +125,16 @@ Executes /t:Pack on all projects matching src/*/*.csproj.
 -->
   <Target Name="PackageProjects" DependsOnTargets="ResolveSolutions">
     <PropertyGroup>
-      <PackageNoBuild Condition="'$(PackageNoBuild)' == ''">$(_SolutionWasBuilt)</PackageNoBuild>
+      <PackProperties>$(SolutionProperties);PackageOutputPath=$(BuildDir);</PackProperties>
+      <PackProperties Condition="'$(_SolutionWasBuilt)' == 'true'">$(PackProperties);NoBuild=true;BuildProjectReferences=false</PackProperties>
     </PropertyGroup>
 
     <MSBuild Targets="Pack"
       Projects="@(ProjectsToPack)"
       Condition="@(ProjectsToPack->Count()) != 0"
-      Properties="$(SolutionProperties);PackageOutputPath=$(BuildDir);NoBuild=$(PackageNoBuild)"
+      Properties="$(PackProperties)"
       BuildInParallel="$(BuildInParallel)"
-      RemoveProperties="$(_BuildPropertiesToRemove);PackageNoBuild" />
+      RemoveProperties="$(_BuildPropertiesToRemove)" />
   </Target>
 
   <Target Name="GetProjectPackageInfo" Returns="@(ArtifactInfo)">
@@ -150,7 +151,7 @@ Executes /t:Pack on all projects matching src/*/*.csproj.
       Condition="@(ProjectsToPack->Count()) != 0"
       Properties="$(SolutionProperties);EnableApiCheck=false;NoBuild=true;RepositoryRoot=$(RepositoryRoot);PackageOutputPath=$(BuildDir);CustomAfterMicrosoftCommonTargets=$(_InspectionTargetsFile);CustomAfterMicrosoftCommonCrossTargetingTargets=$(_InspectionTargetsFile)"
       BuildInParallel="$(BuildInParallel)"
-      RemoveProperties="$(_BuildPropertiesToRemove);PackageNoBuild">
+      RemoveProperties="$(_BuildPropertiesToRemove)">
       <Output TaskParameter="TargetOutputs" ItemName="_Temp" />
     </MSBuild>
 

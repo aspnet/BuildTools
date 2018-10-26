@@ -28,6 +28,16 @@ Usage: this should be imported once via NuGet at the top of the file.
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
   </PropertyGroup>
 
+  <!-- Code signing certificate names -->
+  <PropertyGroup Condition=" '$(DisableCodeSigning)' != 'true' ">
+    <AssemblySigningCertName>Microsoft400</AssemblySigningCertName>
+    <AssemblySigning3rdPartyCertName>3PartySHA2</AssemblySigning3rdPartyCertName>
+    <PowerShellSigningCertName>Microsoft400</PowerShellSigningCertName>
+    <PackageSigningCertName>NuGet</PackageSigningCertName>
+    <VsixSigningCertName>VsixSHA2</VsixSigningCertName>
+    <JarSigningCertName>MicrosoftJAR</JarSigningCertName>
+  </PropertyGroup>
+
   <!-- common build options -->
   <PropertyGroup>
     <!-- make disabling warnings opt-out -->

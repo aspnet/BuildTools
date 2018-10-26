@@ -26,15 +26,25 @@ that matches "$(RepositoryRoot)/shared/*.Sources".
       Properties="$(_SharedSourcesPackageProperties);NuspecBasePath=$([MSBuild]::NormalizeDirectory('%(SharedSourceDirectories.Identity)'));PackageId=%(FileName)%(Extension)"
       Condition="@(SharedSourceDirectories->Count()) != 0"
       BuildInParallel="true">
-      <Output TaskParameter="TargetOutputs" ItemName="ArtifactInfo" />
-      <Output TaskParameter="TargetOutputs" ItemName="FilesToExcludeFromSigning" Condition="'$(SignSourcesPackages)' != 'true'" />
-      <Output TaskParameter="TargetOutputs" ItemName="FilesToSign" Condition="'$(SignSourcesPackages)' == 'true'" />
+      <Output TaskParameter="TargetOutputs" ItemName="_SharedSrcPkgArtifactInfo" />
     </MSBuild>
+
+    <ItemGroup>
+      <ArtifactInfo Include="@(_SharedSrcPkgArtifactInfo)" />
+      <FilesToExcludeFromSigning Include="@(_SharedSrcPkgArtifactInfo)" Condition="'%(_SharedSrcPkgArtifactInfo.ShouldBeSigned)' != 'true' " />
+      <FilesToSign Include="@(_SharedSrcPkgArtifactInfo)" Condition="'%(_SharedSrcPkgArtifactInfo.ShouldBeSigned)' == 'true' " />
+    </ItemGroup>
   </Target>
 
   <Target Name="_SetSharedSourcesProperties">
     <PropertyGroup>
-      <_SharedSourcesPackageProperties>PackageOutputPath=$(BuildDir);RepositoryRoot=$(RepositoryRoot);ImportDirectoryBuildProps=false;BuildNumber=$(BuildNumber);</_SharedSourcesPackageProperties>
+      <_SharedSourcesPackageProperties>
+        PackageOutputPath=$(BuildDir);
+        RepositoryRoot=$(RepositoryRoot);
+        ImportDirectoryBuildProps=false;
+        BuildNumber=$(BuildNumber);
+        RepositoryCommit=$(RepositoryCommit)
+      </_SharedSourcesPackageProperties>
     </PropertyGroup>
   </Target>
 

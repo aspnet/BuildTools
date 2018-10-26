@@ -1,4 +1,5 @@
 <Project>
+  <Import Project="..\..\build\dependencies.props" />
 
   <Target Name="Publish">
 
@@ -22,7 +23,13 @@
       -->
       <BundledPackageRestorerContent>
 <![CDATA[
-<Project Sdk="Microsoft.NET.Sdk">
+<Project>
+  <PropertyGroup>
+    <ImportDirectoryBuildProps>false</ImportDirectoryBuildProps>
+    <ImportDirectoryBuildTargets>false</ImportDirectoryBuildTargets>
+  </PropertyGroup>
+
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
 
   <Sdk Name="Microsoft.DotNet.GlobalTools.Sdk" Version="$(Version)" />
 
@@ -32,8 +39,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MicroBuild.Core" Version="$(MicroBuildCorePackageVersion)" />
     <PackageReference Include="Internal.AspNetCore.Sdk" Version="$(Version)" />
   </ItemGroup>
+
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 
 </Project>
 ]]>
@@ -41,7 +51,8 @@
     </PropertyGroup>
 
     <WriteLinesToFile File="$(PublishDir)BundledPackageRestorer.csproj" Lines="$(BundledPackageRestorerContent)" Overwrite="true" />
-    <Copy SourceFiles="module.props;module.targets;NuGet.config" DestinationFolder="$(PublishDir)" />
+    <Copy SourceFiles="NuGet.config" DestinationFolder="$(PublishDir)" />
+    <DownloadFile SourceUrl="https://www.nuget.org/api/v2/package/MicroBuild.Core/$(MicroBuildCorePackageVersion)" DestinationFolder="$(PublishDir)" DestinationFileName="MicroBuild.Core.$(MicroBuildCorePackageVersion).nupkg" />
   </Target>
 
 </Project>

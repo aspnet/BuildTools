@@ -136,7 +136,7 @@ __install_tools() {
     if [[ -e "$restorerfile" ]] && [[ ! -e "$restorerfilelock" ]]; then
         mkdir -p "$(dirname $restorerfilelock)"
         touch "$restorerfilelock"
-        __exec dotnet msbuild -restore -t:noop -v:m "$restorerfile"
+        __exec dotnet msbuild -t:restore -v:q "$restorerfile"
     fi
     # end workaround
 }

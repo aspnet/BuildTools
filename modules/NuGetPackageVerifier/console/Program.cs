@@ -174,8 +174,7 @@ namespace NuGetPackageVerifier
                         var packagesWithId = packages.Where(p => p.Key.Id.Equals(packageId));
                         if (!packagesWithId.Any())
                         {
-                            logger.LogError("Couldn't find package '{0}' in the repo", packageId);
-                            totalErrors++;
+                            logger.LogInfo("Couldn't find package '{0}' in the repo. Skipping.", packageId);
                             continue;
                         }
 

@@ -1,5 +1,17 @@
 <Project>
 
+  <PropertyGroup Condition="'$(MicrosoftBuildVersion)' == ''">
+    <!--
+      The dependency versions here don't matter as long as the version is binary compatible with the version of MSBuild and NuGet
+      already embedded in Microsoft.NET.Sdk. These are essentially reference assemblies.
+
+      Between MSBuild 15.6 and 15.8, the ref packages dropped .NET Standard 1.x suppport.
+      Use the netstandard2.0 packages if possible, otherwise fallback to 15.6.
+    -->
+    <MicrosoftBuildVersion Condition="$(TargetFramework.StartsWith('netstandard1'))">15.6.82</MicrosoftBuildVersion>
+    <MicrosoftBuildVersion Condition="'$(MicrosoftBuildVersion)' == ''">15.8.166</MicrosoftBuildVersion>
+  </PropertyGroup>
+
   <ItemGroup Condition="'$(DisableImplicitFrameworkReferences)' != 'true'">
     <!-- set as private assets all since we don't need this in the publish output folder -->
     <PackageReference Include="Microsoft.Build" Version="$(MicrosoftBuildVersion)" IsImplicitlyDefined="true" PrivateAssets="All" />

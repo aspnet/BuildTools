@@ -4,32 +4,29 @@ FYI: targets, properties, and items that begin with an underscore are meant to b
 -->
 <Project>
 
-  <ItemGroup Condition="'$(DisableDefaultItems)' != 'true'">
-    <Solutions Include="$(RepositoryRoot)*.sln" Exclude="@(ExcludeSolutions)" />
-    <ProjectsToPack Include="$(RepositoryRoot)src\*\*.csproj" Exclude="@(ExcludeFromPack)" />
-  </ItemGroup>
-
-  <PropertyGroup Condition="'$(DisableDefaultTargets)' != 'true'">
-    <PrepareDependsOn>$(PrepareDependsOn);_PrepareOutputPaths</PrepareDependsOn>
-    <RestoreDependsOn>$(RestoreDependsOn);_BeforeRestore;RestoreSolutions</RestoreDependsOn>
-    <CompileDependsOn>$(CompileDependsOn);BuildSolutions</CompileDependsOn>
-    <PackageDependsOn>$(PackageDependsOn);PackageProjects;PackSharedSources</PackageDependsOn>
-    <CleanDependsOn>$(CleanDependsOn);CleanArtifacts;CleanSolutions</CleanDependsOn>
-    <RebuildDependsOn>$(RebuildDependsOn);RebuildSolutions</RebuildDependsOn>
-    <GetArtifactInfoDependsOn>$(GetArtifactInfoDependsOn);GetProjectPackageInfo</GetArtifactInfoDependsOn>
+  <PropertyGroup>
+    <BuildSolutions Condition=" '$(DisableDefaultTargets)' != 'true' AND '$(BuildSolutions)' == '' ">true</BuildSolutions>
   </PropertyGroup>
 
-  <Target Name="CleanArtifacts">
-    <RemoveDir Directories="$(BuildDir);$(IntermediateDir)" />
-    <ItemGroup>
-      <_FilesToDelete Include="$(ArtifactsDir)**\*" Exclude="$(LogOutputDir)**\*" />
-    </ItemGroup>
-    <Delete Files="@(_FilesToDelete)" />
-  </Target>
+  <ItemGroup Condition="'$(DisableDefaultItems)' != 'true' AND '$(BuildSolutions)' == 'true' ">
+    <Solutions Include="$(RepositoryRoot)*.sln" Exclude="@(ExcludeSolutions)" />
+    <ProjectsToPack Include="$(RepositoryRoot)src\*\*.csproj" Exclude="@(ExcludeFromPack)" />
 
-  <Target Name="_PrepareOutputPaths">
-    <MakeDir Directories="$(ArtifactsDir);$(BuildDir)" />
-  </Target>
+    <!-- put unit test projects ahead of functional tests -->
+    <_FunctionalTests Include="$(RepositoryRoot)test\*\*FunctionalTest*.csproj" Exclude="@(ExcludeFromTest)" />
+    <ProjectsToTest Include="$(RepositoryRoot)test\*\*.csproj" Exclude="@(_FunctionalTests);@(ExcludeFromTest)" />
+    <ProjectsToTest Include="@(_FunctionalTests)"  />
+    <BenchmarksToValidate Include="$(RepositoryRoot)benchmarks\*\*.csproj" />
+
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(BuildSolutions)' == 'true' ">
+    <RestoreDependsOn>$(RestoreDependsOn);RestoreSolutions</RestoreDependsOn>
+    <CompileDependsOn>$(CompileDependsOn);BuildSolutions</CompileDependsOn>
+    <PackageDependsOn>$(PackageDependsOn);PackageProjectsToPack</PackageDependsOn>
+    <CleanDependsOn>$(CleanDependsOn);CleanSolutions</CleanDependsOn>
+    <RebuildDependsOn>$(RebuildDependsOn);RebuildSolutions</RebuildDependsOn>
+  </PropertyGroup>
 
 <!--
 ###################################################################
@@ -41,7 +38,7 @@ Properties: ExcludeSolutions
 Executes /t:{Target} on all solutions
 ###################################################################
 -->
-  <PropertyGroup>
+  <PropertyGroup Condition=" '$(BuildSolutions)' == 'true' ">
     <_SolutionWasBuilt>false</_SolutionWasBuilt>
     <!-- ensure its value doesn't invalidate MSBuild build cache -->
     <_BuildPropertiesToRemove>$(_BuildPropertiesToRemove);_SolutionWasBuilt</_BuildPropertiesToRemove>
@@ -59,14 +56,14 @@ Executes /t:{Target} on all solutions
     <RemoveDuplicates Inputs="@(_Temp)">
       <Output TaskParameter="Filtered" ItemName="Solutions" />
     </RemoveDuplicates>
+
+    <PropertyGroup>
+      <SolutionProperties>$(SolutionProperties);$(BuildProperties)</SolutionProperties>
+    </PropertyGroup>
   </Target>
 
   <Target Name="_EnsureSolutions">
     <Error Text="No solutions found to build in '$(RepositoryRoot)'" Condition="@(Solutions->Count()) == 0" />
-  </Target>
-
-  <Target Name="_BeforeRestore">
-    <Warning Text="Restore is skipped because 'NoRestore' == 'true'" Condition="'$(NoRestore)' == 'true'" />
   </Target>
 
   <Target Name="RestoreSolutions" DependsOnTargets="ResolveSolutions;_EnsureSolutions" Condition="'$(NoRestore)' != 'true'">
@@ -118,12 +115,12 @@ Executes /t:{Target} on all solutions
 
 <!--
 ###################################################################
-Target: PackageProjects
+Target: PackageProjectsToPack
 
 Executes /t:Pack on all projects matching src/*/*.csproj.
 ###################################################################
 -->
-  <Target Name="PackageProjects" DependsOnTargets="ResolveSolutions">
+  <Target Name="PackageProjectsToPack" DependsOnTargets="ResolveSolutions">
     <PropertyGroup>
       <PackProperties>$(SolutionProperties);PackageOutputPath=$(BuildDir);</PackProperties>
       <PackProperties Condition="'$(_SolutionWasBuilt)' == 'true'">$(PackProperties);NoBuild=true;BuildProjectReferences=false</PackProperties>
@@ -137,33 +134,17 @@ Executes /t:Pack on all projects matching src/*/*.csproj.
       RemoveProperties="$(_BuildPropertiesToRemove)" />
   </Target>
 
-  <Target Name="GetProjectPackageInfo" Returns="@(ArtifactInfo)">
-    <PropertyGroup>
-      <_InspectionTargetsFile>$(MSBuildThisFileDirectory)Project.Inspection.targets</_InspectionTargetsFile>
-    </PropertyGroup>
-
+  <!-- For backwards compatibility with solution build, this maps ProjectsToTest to an internal item group. -->
+  <Target Name="CollectProjectsToTest" BeforeTargets="GetTestAssemblies">
     <ItemGroup>
-      <_Temp Remove="@(_Temp)" />
+      <ProjectToBuild Include="@(ProjectsToTest)" />
     </ItemGroup>
+  </Target>
 
-    <MSBuild Targets="GetArtifactInfo"
-      Projects="@(ProjectsToPack)"
-      Condition="@(ProjectsToPack->Count()) != 0"
-      Properties="$(SolutionProperties);EnableApiCheck=false;NoBuild=true;RepositoryRoot=$(RepositoryRoot);PackageOutputPath=$(BuildDir);CustomAfterMicrosoftCommonTargets=$(_InspectionTargetsFile);CustomAfterMicrosoftCommonCrossTargetingTargets=$(_InspectionTargetsFile)"
-      BuildInParallel="$(BuildInParallel)"
-      RemoveProperties="$(_BuildPropertiesToRemove)">
-      <Output TaskParameter="TargetOutputs" ItemName="_Temp" />
-    </MSBuild>
-
+  <!-- For backwards compatibility with solution build, this maps ProjectsToPack to an internal item group. -->
+  <Target Name="CollectProjectsToPackArtifactInfo" BeforeTargets="GetProjectArtifactInfo">
     <ItemGroup>
-      <!-- Output from this target may include items representing assemblies inside the nupkg. -->
-      <ArtifactInfo Include="@(_Temp)" Condition="'%(_Temp.Container)' == ''" />
-
-      <!-- Nupkgs or assemblies in the nupkg that should be signed -->
-      <FilesToSign Include="@(_Temp)" Condition=" '%(_Temp.ShouldBeSigned)' == 'true' " />
-
-      <!-- Nupkgs or assemblies in the nupkg that should not be signed -->
-      <FilesToExcludeFromSigning Include="@(_Temp)" Condition=" '%(_Temp.ShouldBeSigned)' != 'true' " />
+      <ProjectToBuild Include="@(ProjectsToPack)" />
     </ItemGroup>
   </Target>
 

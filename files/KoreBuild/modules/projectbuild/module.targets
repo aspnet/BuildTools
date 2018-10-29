@@ -1,0 +1,122 @@
+<!--
+FYI: targets, properties, and items that begin with an underscore are meant to be internal.
+     They are subject to change. Overriding these may break these targets.
+-->
+<Project>
+
+  <ItemGroup Condition="'$(DisableDefaultItems)' != 'true' AND '$(BuildSolutions)' == 'false' ">
+    <ProjectToBuild Include="$(RepositoryRoot)**\*.csproj;$(RepositoryRoot)**\*.fsproj;$(RepositoryRoot)**\*.vbproj" Exclude="$(ProjectToExclude)" Condition=" '$(Projects)' == '' " />
+    <ProjectToBuild Include="$(Projects)" Exclude="$(ProjectToExclude)" Condition=" '$(Projects)' != '' " />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(DisableDefaultTargets)' != 'true' AND '$(BuildSolutions)' == 'false' ">
+    <RestoreDependsOn>$(RestoreDependsOn);RestoreProjects</RestoreDependsOn>
+    <CompileDependsOn>$(CompileDependsOn);BuildProjects</CompileDependsOn>
+    <PackageDependsOn>$(PackageDependsOn);PackProjects</PackageDependsOn>
+    <CleanDependsOn>$(CleanDependsOn);CleanProjects</CleanDependsOn>
+    <RebuildDependsOn>$(RebuildDependsOn);RebuildProjects</RebuildDependsOn>
+    <GetArtifactInfoDependsOn>$(GetArtifactInfoDependsOn);GetProjectArtifactInfo</GetArtifactInfoDependsOn>
+  </PropertyGroup>
+
+<!--
+###################################################################
+Targets: {Target}Projects
+
+Items: ProjectToBuild
+Properties: ProjectToExclude
+
+Executes /t:{Target} on all projects
+###################################################################
+-->
+  <PropertyGroup Condition=" '$(BuildSolutions)' == 'false' ">
+    <BuildInParallel>true</BuildInParallel>
+  </PropertyGroup>
+
+  <Target Name="ResolveProjects" Returns="@(ProjectToBuild)">
+    <ItemGroup>
+      <_Temp Remove="@(_Temp)" />
+      <_Temp Include="@(ProjectToBuild)"/>
+      <ProjectToBuild Remove="@(ProjectToBuild)" />
+    </ItemGroup>
+
+    <ConvertToAbsolutePath Paths="@(_Temp)">
+      <Output TaskParameter="AbsolutePaths" ItemName="ProjectToBuild" />
+    </ConvertToAbsolutePath>
+
+    <PropertyGroup>
+      <ProjectToBuildList>@(ProjectToBuild)</ProjectToBuildList>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="_EnsureProjects">
+    <Error Text="No solutions found to build in '$(RepositoryRoot)'" Condition="@(ProjectToBuild->Count()) == 0" />
+  </Target>
+
+  <Target Name="RestoreProjects" DependsOnTargets="ResolveProjects;_EnsureProjects" Condition="'$(NoRestore)' != 'true'">
+    <!--
+      Invoke NuGet.targets directly. This avoids redundant calls the restore task.
+    -->
+    <MSBuild Projects="$(MSBuildToolsPath)\NuGet.targets"
+             Targets="Restore"
+             Properties="$(BuildProperties);RestoreGraphProjectInput=$(ProjectToBuildList);__BuildTarget=Restore"
+             RemoveProperties="$(_BuildPropertiesToRemove)"
+             BuildInParallel="$(BuildInParallel)" />
+  </Target>
+
+  <Target Name="CleanProjects" DependsOnTargets="ResolveProjects;_EnsureProjects">
+    <!--
+      Added __BuildTarget to invalidate subsequent MSBuild calls on the solution.
+      MSBuild incorrectly caches the "Clean" target.
+    -->
+    <MSBuild Projects="@(ProjectToBuild)"
+             Targets="Clean"
+             Properties="$(BuildProperties);__BuildTarget=Clean"
+             BuildInParallel="$(BuildInParallel)"
+             RemoveProperties="$(_BuildPropertiesToRemove)" />
+  </Target>
+
+  <Target Name="BuildProjects" DependsOnTargets="ResolveProjects;_EnsureProjects">
+    <MSBuild Projects="@(ProjectToBuild)"
+             Properties="$(BuildProperties)"
+             BuildInParallel="$(BuildInParallel)"
+             RemoveProperties="$(_BuildPropertiesToRemove)" />
+
+    <PropertyGroup>
+      <_ProjectsWereBuilt>true</_ProjectsWereBuilt>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="RebuildProjects" DependsOnTargets="ResolveProjects;_EnsureProjects">
+    <MSBuild Projects="@(ProjectToBuild)"
+             Targets="Rebuild"
+             Properties="$(BuildProperties);__BuildTarget=Clean"
+             BuildInParallel="$(BuildInParallel)"
+             RemoveProperties="$(_BuildPropertiesToRemove)" />
+
+    <PropertyGroup>
+      <_ProjectsWereBuilt>true</_ProjectsWereBuilt>
+    </PropertyGroup>
+  </Target>
+
+<!--
+###################################################################
+Target: PackProjects
+
+Executes /t:Pack on all projects matching src/*/*.csproj.
+###################################################################
+-->
+  <Target Name="PackProjects" DependsOnTargets="ResolveProjects">
+    <PropertyGroup>
+      <PackProperties>$(BuildProperties);PackageOutputPath=$(BuildDir);</PackProperties>
+      <PackProperties Condition="'$(_ProjectsWereBuilt)' == 'true'">$(PackProperties);NoBuild=true;BuildProjectReferences=false</PackProperties>
+    </PropertyGroup>
+
+    <MSBuild Condition="@(ProjectToBuild->Count()) != 0"
+             Projects="@(ProjectToBuild)"
+             Targets="Pack"
+             Properties="$(PackProperties)"
+             BuildInParallel="$(BuildInParallel)"
+             RemoveProperties="$(_BuildPropertiesToRemove)" />
+  </Target>
+
+</Project>

@@ -1,0 +1,39 @@
+<Project>
+
+<!--
+###################################################################
+Target: ValidateBenchmarks
+
+Runs a quick validation on all benchmark projects.
+###################################################################
+-->
+  <PropertyGroup>
+    <TestDependsOn Condition=" '$(EnableBenchmarkValidation)' == 'true' ">$(TestDependsOn);ValidateBenchmarks</TestDependsOn>
+  </PropertyGroup>
+
+  <Target Name="ValidateBenchmarks">
+    <PropertyGroup>
+      <_InspectionTargetsFile>$(MSBuildThisFileDirectory)Project.Inspection.targets</_InspectionTargetsFile>
+    </PropertyGroup>
+
+    <MSBuild Targets="GetBenchmarkAssembly"
+             Projects="@(ProjectToBuild)"
+             Properties="$(BuildProperties);CustomAfterMicrosoftCommonTargets=$(_InspectionTargetsFile);CustomAfterMicrosoftCommonCrossTargetingTargets=$(_InspectionTargetsFile);%(ProjectToBuild.AdditionalProperties)"
+             Condition="@(ProjectToBuild->Count()) != 0"
+             BuildInParallel="true"
+             RemoveProperties="$(_BuildPropertiesToRemove)">
+
+      <Output TaskParameter="TargetOutputs" ItemName="BenchmarkAssembly" />
+    </MSBuild>
+
+    <Message Text="%0ARunning benchmark validation for:%0A - @(BenchmarkAssembly -> '%(FileName)','%0A - ')"
+      Importance="High"
+      Condition="'@(BenchmarkAssembly)' != ''" />
+
+    <RunDotNet Condition="'%(BenchmarkAssembly.TargetFrameworkIdentifier)' == '.NETCoreApp'"
+      Arguments="%(BenchmarkAssembly.Identity);*;--validate-fast" />
+    <Run Condition="'%(BenchmarkAssembly.TargetFrameworkIdentifier)' == '.NETFramework'"
+      FileName="%(BenchmarkAssembly.Identity)" Arguments="*;--validate-fast" />
+  </Target>
+
+</Project>

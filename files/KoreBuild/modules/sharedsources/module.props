@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <SharedSourcesFolder>$(RepositoryRoot)shared/</SharedSourcesFolder>
+    <SharedSourcesFolder Condition="'$(SharedSourcesFolder)' == ''">$(RepositoryRoot)shared/</SharedSourcesFolder>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(DisableSharedSources)' != 'true' ">

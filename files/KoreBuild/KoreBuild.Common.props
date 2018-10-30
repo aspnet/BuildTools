@@ -32,7 +32,7 @@ Default layout and configuration.
     -->
     <Configuration Condition="'$(CI)' == 'true'">Release</Configuration>
     <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
-    <SolutionProperties>$(SolutionProperties);Configuration=$(Configuration)</SolutionProperties>
+    <BuildProperties>$(BuildProperties);Configuration=$(Configuration)</BuildProperties>
     <RepositoryRoot Condition="'$(RepositoryRoot)' == ''">$(MSBuildStartupDirectory)</RepositoryRoot>
     <RepositoryRoot>$([MSBuild]::NormalizeDirectory('$(RepositoryRoot)'))</RepositoryRoot>
     <ArtifactsDir>$([MSBuild]::NormalizeDirectory('$(RepositoryRoot)'))artifacts\</ArtifactsDir>
@@ -92,9 +92,11 @@ Default layout and configuration.
   </PropertyGroup>
 
   <PropertyGroup>
-    <SolutionProperties Condition="'$(BuildNumber)' != ''">$(SolutionProperties);BuildNumber=$(BuildNumber)</SolutionProperties>
-    <SolutionProperties Condition="'$(RepositoryCommit)' != ''">$(SolutionProperties);RepositoryCommit=$(RepositoryCommit)</SolutionProperties>
-    <SolutionProperties Condition="'$(RepositoryBranch)' != ''">$(SolutionProperties);RepositoryBranch=$(RepositoryBranch)</SolutionProperties>
+    <BuildProperties Condition="'$(BuildNumber)' != ''">$(BuildProperties);BuildNumber=$(BuildNumber)</BuildProperties>
+    <BuildProperties Condition="'$(RepositoryCommit)' != ''">$(BuildProperties);RepositoryCommit=$(RepositoryCommit)</BuildProperties>
+    <BuildProperties Condition="'$(RepositoryBranch)' != ''">$(BuildProperties);RepositoryBranch=$(RepositoryBranch)</BuildProperties>
+    <!-- Makes CSC error links clickable in the VS Code integrated terminal. -->
+    <BuildProperties Condition=" '$(VSCODE_CWD)' != 'true' ">$(BuildProperties);GenerateFullPaths=true</BuildProperties>
   </PropertyGroup>
 
 </Project>

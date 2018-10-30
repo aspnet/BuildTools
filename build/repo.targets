@@ -40,8 +40,8 @@
     </GetGitCommitInfo>
 
     <PropertyGroup>
-      <SolutionProperties Condition="'$(RepositoryCommit)' != ''">$(SolutionProperties);RepositoryCommit=$(RepositoryCommit)</SolutionProperties>
-      <SolutionProperties Condition="'$(RepositoryBranch)' != ''">$(SolutionProperties);RepositoryBranch=$(RepositoryBranch)</SolutionProperties>
+      <BuildProperties Condition="'$(RepositoryCommit)' != ''">$(BuildProperties);RepositoryCommit=$(RepositoryCommit)</BuildProperties>
+      <BuildProperties Condition="'$(RepositoryBranch)' != ''">$(BuildProperties);RepositoryBranch=$(RepositoryBranch)</BuildProperties>
     </PropertyGroup>
   </Target>
 
@@ -74,7 +74,7 @@
 
     <MSBuild Targets="Publish"
       Projects="@(_ToolsProjects)"
-      Properties="$(SolutionProperties)"
+      Properties="$(BuildProperties)"
       BuildInParallel="true" />
 
     <ItemGroup>
@@ -98,7 +98,7 @@
 
     <MSBuild Targets="Publish"
       Projects="@(_ModuleProjects)"
-      Properties="$(SolutionProperties)"
+      Properties="$(BuildProperties)"
       BuildInParallel="true" />
 
     <ItemGroup>

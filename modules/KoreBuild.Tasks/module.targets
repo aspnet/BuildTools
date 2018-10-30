@@ -78,7 +78,7 @@ Validates that all PackageReference's use the $(IdPackageVersion) pattern.
     <CheckPackageReferences
       Projects="@(Solutions);@(CommonlyImportedFiles)"
       DependenciesFile="$(DependencyVersionsFile)"
-      Properties="$(SolutionProperties)"/>
+      Properties="$(BuildProperties)"/>
   </Target>
 
 <!--
@@ -135,7 +135,7 @@ explicit versions with version variables.
       Projects="@(Solutions)"
       OtherImports="@(CommonlyImportedFiles)"
       DependenciesFile="$(DependencyVersionsFile)"
-      Properties="$(SolutionProperties)" />
+      Properties="$(BuildProperties)" />
   </Target>
 
 <!--

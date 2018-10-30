@@ -16,8 +16,8 @@ after all other property imports.
 
   <PropertyGroup>
     <PackageVersion Condition="'$(PackageVersion)' == '' AND '$(Version)' != '' ">$(Version)</PackageVersion>
-    <SolutionProperties>$(SolutionProperties);RepoVersion=$(Version);RepoPackageVersion=$(PackageVersion)</SolutionProperties>
-    <SolutionProperties Condition=" ! Exists('$(RepositoryRoot)version.props') ">$(SolutionProperties);VerifyVersion=false</SolutionProperties>
+    <BuildProperties>$(BuildProperties);RepoVersion=$(Version);RepoPackageVersion=$(PackageVersion)</BuildProperties>
+    <BuildProperties Condition=" ! Exists('$(RepositoryRoot)version.props') ">$(BuildProperties);VerifyVersion=false</BuildProperties>
   </PropertyGroup>
 
 <!--
@@ -54,4 +54,60 @@ extending the *DependsOn property
 
   <!-- For external analysis of inputs/outputs. -->
   <Target Name="GetArtifactInfo" DependsOnTargets="$(GetArtifactInfoDependsOn)" Returns="@(ArtifactInfo)" />
+
+  <!-- Commonly used targets -->
+  <PropertyGroup Condition="'$(DisableDefaultTargets)' != 'true'">
+    <PrepareDependsOn>$(PrepareDependsOn);_PrepareOutputPaths</PrepareDependsOn>
+    <RestoreDependsOn>_BeforeRestore;$(RestoreDependsOn)</RestoreDependsOn>
+    <CleanDependsOn>$(CleanDependsOn);CleanArtifacts</CleanDependsOn>
+    <GetArtifactInfoDependsOn>$(GetArtifactInfoDependsOn);GetProjectArtifactInfo</GetArtifactInfoDependsOn>
+  </PropertyGroup>
+
+  <Target Name="_BeforeRestore">
+    <Warning Text="Restore is skipped because 'NoRestore' == 'true'" Condition="'$(NoRestore)' == 'true'" />
+  </Target>
+
+  <Target Name="CleanArtifacts">
+    <RemoveDir Directories="$(BuildDir);$(IntermediateDir)" />
+    <ItemGroup>
+      <_FilesToDelete Include="$(ArtifactsDir)**\*" Exclude="$(LogOutputDir)**\*" />
+    </ItemGroup>
+    <Delete Files="@(_FilesToDelete)" />
+  </Target>
+
+  <Target Name="_PrepareOutputPaths">
+    <MakeDir Directories="$(ArtifactsDir);$(BuildDir)" />
+  </Target>
+
+  <Target Name="GetProjectArtifactInfo" Returns="@(ArtifactInfo)">
+    <PropertyGroup>
+      <_InspectionTargetsFile>$(MSBuildThisFileDirectory)Project.Inspection.targets</_InspectionTargetsFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_Temp Remove="@(_Temp)" />
+    </ItemGroup>
+
+    <MSBuild Targets="GetArtifactInfo"
+             Projects="@(ProjectToBuild)"
+             Condition="@(ProjectToBuild->Count()) != 0"
+             Properties="$(BuildProperties);EnableApiCheck=false;NoBuild=true;RepositoryRoot=$(RepositoryRoot);PackageOutputPath=$(BuildDir);CustomAfterMicrosoftCommonTargets=$(_InspectionTargetsFile);CustomAfterMicrosoftCommonCrossTargetingTargets=$(_InspectionTargetsFile)"
+             BuildInParallel="$(BuildInParallel)"
+             RemoveProperties="$(_BuildPropertiesToRemove)">
+
+      <Output TaskParameter="TargetOutputs" ItemName="_Temp" />
+    </MSBuild>
+
+    <ItemGroup>
+      <!-- Output from this target may include items representing assemblies inside the nupkg. -->
+      <ArtifactInfo Include="@(_Temp)" Condition="'%(_Temp.Container)' == ''" />
+
+      <!-- Nupkgs or assemblies in the nupkg that should be signed -->
+      <FilesToSign Include="@(_Temp)" Condition=" '%(_Temp.ShouldBeSigned)' == 'true' " />
+
+      <!-- Nupkgs or assemblies in the nupkg that should not be signed -->
+      <FilesToExcludeFromSigning Include="@(_Temp)" Condition=" '%(_Temp.ShouldBeSigned)' != 'true' " />
+    </ItemGroup>
+  </Target>
+
 </Project>

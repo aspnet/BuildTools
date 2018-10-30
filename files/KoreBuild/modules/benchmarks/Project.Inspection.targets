@@ -1,0 +1,26 @@
+<Project>
+
+  <PropertyGroup>
+    <GetBenchmarkAssemblyDependsOn Condition="'$(TargetFramework)' != ''">GetTargetPath</GetBenchmarkAssemblyDependsOn>
+  </PropertyGroup>
+
+  <Target Name="GetBenchmarkAssembly" DependsOnTargets="$(GetBenchmarkAssemblyDependsOn)" Returns="@(BenchmarkAssembly)">
+    <ItemGroup Condition=" '$(IsBenchmarkProject)' == 'true' ">
+      <BenchmarkAssembly Include="@(TargetPathWithTargetPlatformMoniker)">
+        <TargetFramework>$(TargetFramework)</TargetFramework>
+      </BenchmarkAssembly>
+    </ItemGroup>
+
+    <ItemGroup>
+      <_TargetFramework Include="$(TargetFrameworks)" />
+    </ItemGroup>
+
+    <MSBuild Targets="GetBenchmarkAssembly"
+             Projects="$(MSBuildProjectFullPath)"
+             Properties="TargetFramework=%(_TargetFramework.Identity)"
+             Condition=" '$(TargetFrameworks)' != '' AND '$(TargetFramework)' == '' ">
+      <Output TaskParameter="TargetOutputs" ItemName="BenchmarkAssembly" />
+    </MSBuild>
+  </Target>
+
+</Project>

@@ -32,6 +32,7 @@
     <PackageOutputPath Condition="'$(PackageOutputPath)'==''">$(RepositoryRoot)artifacts\build</PackageOutputPath>
     <TargetFramework>netstandard1.0</TargetFramework>
     <EnableDefaultItems>false</EnableDefaultItems>
+    <PackageId Condition=" '$(PackageId)' == '' ">$(ProjectDirName)</PackageId>
     <Description>$(PackageId)</Description>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <ContentTargetFolders>contentFiles</ContentTargetFolders>

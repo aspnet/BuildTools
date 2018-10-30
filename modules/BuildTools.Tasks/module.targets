@@ -32,8 +32,8 @@
         Setting RepositoryCommit enables NuGet features added in NuGet/NuGet.Client#2036.
       -->
       <CommitHash>$(RepositoryCommit)</CommitHash>
-      <SolutionProperties Condition="'$(RepositoryCommit)' != ''">$(SolutionProperties);CommitHash=$(RepositoryCommit)</SolutionProperties>
-      <SolutionProperties Condition="'$(RepositoryCommit)' != ''">$(SolutionProperties);RepositoryCommit=$(RepositoryCommit)</SolutionProperties>
+      <BuildProperties Condition="'$(RepositoryCommit)' != ''">$(BuildProperties);CommitHash=$(RepositoryCommit)</BuildProperties>
+      <BuildProperties Condition="'$(RepositoryCommit)' != ''">$(BuildProperties);RepositoryCommit=$(RepositoryCommit)</BuildProperties>
     </PropertyGroup>
   </Target>
 
@@ -49,7 +49,7 @@ Generates resource files
 
     <PropertyGroup>
       <_ResxTargets>$(MSBuildThisFileDirectory)Project.CSharp.Resx.targets</_ResxTargets>
-      <_ResxSlnProps>$(SolutionProperties)</_ResxSlnProps>
+      <_ResxSlnProps>$(BuildProperties)</_ResxSlnProps>
       <!-- See comments in Project.CSharp.Resx.targets for what this does-->
       <_ResxSlnProps>$(_ResxSlnProps);CustomAfterMicrosoftCommonTargets=$(_ResxTargets)</_ResxSlnProps>
       <_ResxSlnProps>$(_ResxSlnProps);CustomAfterMicrosoftCommonCrossTargetingTargets=$(_ResxTargets)</_ResxSlnProps>

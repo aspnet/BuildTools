@@ -56,10 +56,6 @@ Executes /t:{Target} on all solutions
     <RemoveDuplicates Inputs="@(_Temp)">
       <Output TaskParameter="Filtered" ItemName="Solutions" />
     </RemoveDuplicates>
-
-    <PropertyGroup>
-      <SolutionProperties>$(SolutionProperties);$(BuildProperties)</SolutionProperties>
-    </PropertyGroup>
   </Target>
 
   <Target Name="_EnsureSolutions">
@@ -73,7 +69,7 @@ Executes /t:{Target} on all solutions
     -->
     <MSBuild Targets="Restore"
       Projects="@(Solutions)"
-      Properties="$(SolutionProperties);_SolutionTarget=Restore"
+      Properties="$(BuildProperties);$(SolutionProperties);_SolutionTarget=Restore"
       RemoveProperties="$(_BuildPropertiesToRemove)"
       BuildInParallel="$(BuildInParallel)" />
   </Target>
@@ -85,7 +81,7 @@ Executes /t:{Target} on all solutions
     -->
     <MSBuild Targets="Clean"
       Projects="@(Solutions)"
-      Properties="$(SolutionProperties);_SolutionTarget=Clean"
+      Properties="$(BuildProperties);$(SolutionProperties);_SolutionTarget=Clean"
       BuildInParallel="$(BuildInParallel)"
       RemoveProperties="$(_BuildPropertiesToRemove)" />
   </Target>
@@ -93,7 +89,7 @@ Executes /t:{Target} on all solutions
   <Target Name="BuildSolutions" DependsOnTargets="ResolveSolutions;_EnsureSolutions">
     <MSBuild Targets="Build"
       Projects="@(Solutions)"
-      Properties="$(SolutionProperties)"
+      Properties="$(BuildProperties);$(SolutionProperties)"
       BuildInParallel="$(BuildInParallel)"
       RemoveProperties="$(_BuildPropertiesToRemove)" />
 
@@ -122,7 +118,7 @@ Executes /t:Pack on all projects matching src/*/*.csproj.
 -->
   <Target Name="PackageProjectsToPack" DependsOnTargets="ResolveSolutions">
     <PropertyGroup>
-      <PackProperties>$(SolutionProperties);PackageOutputPath=$(BuildDir);</PackProperties>
+      <PackProperties>$(BuildProperties);$(SolutionProperties);PackageOutputPath=$(BuildDir);</PackProperties>
       <PackProperties Condition="'$(_SolutionWasBuilt)' == 'true'">$(PackProperties);NoBuild=true;BuildProjectReferences=false</PackProperties>
     </PropertyGroup>
 

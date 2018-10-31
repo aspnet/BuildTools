@@ -12,19 +12,17 @@ that matches "$(RepositoryRoot)/shared/*.Sources".
     <GetArtifactInfoDependsOn>$(GetArtifactInfoDependsOn);ResolveSharedSourcesPackageInfo</GetArtifactInfoDependsOn>
   </PropertyGroup>
 
-  <Target Name="PackSharedSources" DependsOnTargets="_SetSharedSourcesProperties">
+  <Target Name="PackSharedSources" DependsOnTargets="_GetSharedSourcesProjects">
     <MSBuild Targets="Restore;Pack"
-      Projects="$(MSBuildThisFileDirectory)sharedsources.csproj"
-      Properties="$(_SharedSourcesPackageProperties);NuspecBasePath=$([MSBuild]::NormalizeDirectory('%(SharedSourceDirectories.Identity)'));ProjectDirName=%(FileName)%(Extension);"
-      Condition="@(SharedSourceDirectories->Count()) != 0"
+      Projects="@(_SharedSourceProj)"
+      Condition="@(_SharedSourceProj->Count()) != 0"
       BuildInParallel="true" />
   </Target>
 
-  <Target Name="ResolveSharedSourcesPackageInfo" DependsOnTargets="_SetSharedSourcesProperties" Returns="@(ArtifactInfo)">
+  <Target Name="ResolveSharedSourcesPackageInfo" DependsOnTargets="_GetSharedSourcesProjects" Returns="@(ArtifactInfo)">
     <MSBuild Targets="GetArtifactInfo"
-      Projects="$(MSBuildThisFileDirectory)sharedsources.csproj"
-      Properties="$(_SharedSourcesPackageProperties);NuspecBasePath=$([MSBuild]::NormalizeDirectory('%(SharedSourceDirectories.Identity)'));ProjectDirName=%(FileName)%(Extension);"
-      Condition="@(SharedSourceDirectories->Count()) != 0"
+      Projects="@(_SharedSourceProj)"
+      Condition="@(_SharedSourceProj->Count()) != 0"
       BuildInParallel="true">
       <Output TaskParameter="TargetOutputs" ItemName="_SharedSrcPkgArtifactInfo" />
     </MSBuild>
@@ -36,7 +34,7 @@ that matches "$(RepositoryRoot)/shared/*.Sources".
     </ItemGroup>
   </Target>
 
-  <Target Name="_SetSharedSourcesProperties">
+  <Target Name="_GetSharedSourcesProjects">
     <PropertyGroup>
       <_SharedSourcesPackageProperties>
         PackageOutputPath=$(BuildDir);
@@ -46,6 +44,16 @@ that matches "$(RepositoryRoot)/shared/*.Sources".
         RepositoryCommit=$(RepositoryCommit)
       </_SharedSourcesPackageProperties>
     </PropertyGroup>
+
+    <ItemGroup>
+      <_SharedSourceProj Include="$(MSBuildThisFileDirectory)sharedsources.csproj" Condition=" '%(SharedSourceDirectories.Identity)' != '' ">
+        <AdditionalProperties>
+          $(_SharedSourcesPackageProperties);
+          NuspecBasePath=$([MSBuild]::NormalizeDirectory('%(SharedSourceDirectories.Identity)'));
+          ProjectDirName=%(SharedSourceDirectories.FileName)%(SharedSourceDirectories.Extension)
+        </AdditionalProperties>
+      </_SharedSourceProj>
+    </ItemGroup>
   </Target>
 
 </Project>

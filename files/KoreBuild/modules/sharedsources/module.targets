@@ -36,8 +36,11 @@ that matches "$(RepositoryRoot)/shared/*.Sources".
 
   <Target Name="_GetSharedSourcesProjects">
     <PropertyGroup>
-      <_SharedSourcesPackageProperties>
+      <_SharedSourcesPackageProperties Condition=" '$(OverridePackageOutputPath)' != 'false' ">
         PackageOutputPath=$(BuildDir);
+      </_SharedSourcesPackageProperties>
+      <_SharedSourcesPackageProperties>
+        $(_SharedSourcesPackageProperties);
         RepositoryRoot=$(RepositoryRoot);
         ImportDirectoryBuildProps=false;
         BuildNumber=$(BuildNumber);

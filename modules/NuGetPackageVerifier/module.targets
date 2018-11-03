@@ -17,21 +17,24 @@ repository root.
 ###################################################################
 -->
   <PropertyGroup>
-    <NuGetVerifierRuleFile>$(RepositoryRoot)NuGetPackageVerifier.json</NuGetVerifierRuleFile>
+    <NuGetVerifierRuleFile Condition=" '$(NuGetVerifierRuleFile)' == '' ">$(RepositoryRoot)NuGetPackageVerifier.json</NuGetVerifierRuleFile>
   </PropertyGroup>
 
-  <Target Name="VerifyPackages" Condition="Exists('$(NuGetVerifierRuleFile)')">
+  <ItemGroup>
+    <PackageVerifierDirectory Include="$(BuildDir)" Condition=" '$(OverridePackageOutputPath)' != 'false' " />
+  </ItemGroup>
+
+  <Target Name="VerifyPackages" Condition="Exists('$(NuGetVerifierRuleFile)') AND @(PackageVerifierDirectory->Count()) != 0">
+
     <ItemGroup>
-      <Packages Include="$(BuildDir)*.nupkg" />
+      <_ExistentPackageVerifierDirectory Include="@(PackageVerifierDirectory)"  Condition=" Exists('%(Identity)') " />
     </ItemGroup>
 
-    <Warning Text="No nupkg found in '$(BuildDir)'." Condition="$(Packages -> Count()) == 0" />
-    <Warning Text="Skipping nuget package verification because artifacts directory could not be found"
-      Condition="!Exists('$(BuildDir)')" />
+    <Warning Text="Skipping nuget package verification because no package output directories were found: @(PackageVerifierDirectory, ', ')." Condition="@(_ExistentPackageVerifierDirectory->Count()) == 0" />
 
-    <VerifyPackages ArtifactDirectory="$(BuildDir)"
+    <VerifyPackages ArtifactDirectory="@(_ExistentPackageVerifierDirectory)"
       RuleFile="$(NuGetVerifierRuleFile)"
-      Condition="Exists('$(BuildDir)')" />
+      Condition="@(_ExistentPackageVerifierDirectory->Count()) != 0" />
   </Target>
 
 </Project>

@@ -27,14 +27,14 @@ namespace NuGetPackageVerifier
             var ruleFile = application.Option("--rule-file", "Path to NPV.json", CommandOptionType.SingleValue);
             var excludedRules = application.Option("--excluded-rule", "Rules to exclude. Calculcated after composite rules are evaluated.", CommandOptionType.MultipleValue);
             var signRequest = application.Option("--sign-request", "Sign request manifest file.", CommandOptionType.SingleValue);
-            var packageDirectory = application.Argument("Package directory", "Package directory to scan for nupkgs");
+            var packageDirectories = application.Argument("Package directories", "Package directories to scan for nupkgs. (Multiple can be listed)", multipleValues: true);
 
             application.OnExecute(() =>
             {
                 var totalTimeStopWatch = Stopwatch.StartNew();
-                if (string.IsNullOrEmpty(packageDirectory.Value))
+                if (packageDirectories.Values.Count == 0)
                 {
-                    application.Error.WriteLine($"Missing required argument {packageDirectory.Name}");
+                    application.Error.WriteLine($"Missing required argument {packageDirectories.Name}");
                     application.ShowHelp();
                     return ReturnBadArgs;
                 }
@@ -76,10 +76,11 @@ namespace NuGetPackageVerifier
                 }
 
                 logger.LogNormal("Read {0} package set(s) from {1}", packageSets.Count, ruleFile.Value());
-                var nupkgs = new DirectoryInfo(packageDirectory.Value).EnumerateFiles("*.nupkg", SearchOption.TopDirectoryOnly)
+                var nupkgs = packageDirectories.Values
+                    .SelectMany(d => new DirectoryInfo(d).EnumerateFiles("*.nupkg", SearchOption.TopDirectoryOnly))
                     .Where(p => !p.Name.EndsWith(".symbols.nupkg"))
                     .ToArray();
-                logger.LogNormal("Found {0} packages in {1}", nupkgs.Length, packageDirectory.Value);
+                logger.LogNormal("Found {0} packages in {1}", nupkgs.Length, string.Join(", ", packageDirectories.Values));
                 var exitCode = Execute(packageSets, nupkgs, excludedRules.Values, logger, ignoreAssistanceMode);
                 totalTimeStopWatch.Stop();
                 logger.LogNormal("Total took {0}ms", totalTimeStopWatch.ElapsedMilliseconds);

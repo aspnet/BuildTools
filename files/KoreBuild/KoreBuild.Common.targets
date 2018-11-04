@@ -15,6 +15,8 @@ after all other property imports.
   </PropertyGroup>
 
   <PropertyGroup>
+    <BuildProperties Condition=" '$(OverridePackageOutputPath)' != 'false' ">$(BuildProperties);PackageOutputPath=$(BuildDir)</BuildProperties>
+
     <PackageVersion Condition="'$(PackageVersion)' == '' AND '$(Version)' != '' ">$(Version)</PackageVersion>
     <BuildProperties>$(BuildProperties);RepoVersion=$(Version);RepoPackageVersion=$(PackageVersion)</BuildProperties>
     <BuildProperties Condition=" ! Exists('$(RepositoryRoot)version.props') ">$(BuildProperties);VerifyVersion=false</BuildProperties>
@@ -91,7 +93,7 @@ extending the *DependsOn property
     <MSBuild Targets="GetArtifactInfo"
              Projects="@(ProjectToBuild)"
              Condition="@(ProjectToBuild->Count()) != 0"
-             Properties="$(BuildProperties);EnableApiCheck=false;NoBuild=true;RepositoryRoot=$(RepositoryRoot);PackageOutputPath=$(BuildDir);CustomAfterMicrosoftCommonTargets=$(_InspectionTargetsFile);CustomAfterMicrosoftCommonCrossTargetingTargets=$(_InspectionTargetsFile)"
+             Properties="$(BuildProperties);EnableApiCheck=false;NoBuild=true;RepositoryRoot=$(RepositoryRoot);CustomAfterMicrosoftCommonTargets=$(_InspectionTargetsFile);CustomAfterMicrosoftCommonCrossTargetingTargets=$(_InspectionTargetsFile)"
              BuildInParallel="$(BuildInParallel)"
              RemoveProperties="$(_BuildPropertiesToRemove)">
 

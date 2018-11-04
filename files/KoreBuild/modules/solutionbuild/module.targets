@@ -118,7 +118,7 @@ Executes /t:Pack on all projects matching src/*/*.csproj.
 -->
   <Target Name="PackageProjectsToPack" DependsOnTargets="ResolveSolutions">
     <PropertyGroup>
-      <PackProperties>$(BuildProperties);$(SolutionProperties);PackageOutputPath=$(BuildDir);</PackProperties>
+      <PackProperties>$(BuildProperties);$(SolutionProperties)</PackProperties>
       <PackProperties Condition="'$(_SolutionWasBuilt)' == 'true'">$(PackProperties);NoBuild=true;BuildProjectReferences=false</PackProperties>
     </PropertyGroup>
 

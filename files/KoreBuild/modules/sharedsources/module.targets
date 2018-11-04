@@ -15,6 +15,7 @@ that matches "$(RepositoryRoot)/shared/*.Sources".
   <Target Name="PackSharedSources" DependsOnTargets="_GetSharedSourcesProjects">
     <MSBuild Targets="Restore;Pack"
       Projects="@(_SharedSourceProj)"
+      Properties="$(BuildProperties)"
       Condition="@(_SharedSourceProj->Count()) != 0"
       BuildInParallel="true" />
   </Target>
@@ -22,6 +23,7 @@ that matches "$(RepositoryRoot)/shared/*.Sources".
   <Target Name="ResolveSharedSourcesPackageInfo" DependsOnTargets="_GetSharedSourcesProjects" Returns="@(ArtifactInfo)">
     <MSBuild Targets="GetArtifactInfo"
       Projects="@(_SharedSourceProj)"
+      Properties="$(BuildProperties)"
       Condition="@(_SharedSourceProj->Count()) != 0"
       BuildInParallel="true">
       <Output TaskParameter="TargetOutputs" ItemName="_SharedSrcPkgArtifactInfo" />
@@ -37,11 +39,12 @@ that matches "$(RepositoryRoot)/shared/*.Sources".
   <Target Name="_GetSharedSourcesProjects">
     <PropertyGroup>
       <_SharedSourcesPackageProperties>
-        PackageOutputPath=$(BuildDir);
         RepositoryRoot=$(RepositoryRoot);
         ImportDirectoryBuildProps=false;
-        BuildNumber=$(BuildNumber);
-        RepositoryCommit=$(RepositoryCommit)
+      </_SharedSourcesPackageProperties>
+      <_SharedSourcesPackageProperties Condition=" '$(OverridePackageOutputPath)' != 'false' ">
+        $(_SharedSourcesPackageProperties);
+        PackageOutputPath=$(BuildDir)
       </_SharedSourcesPackageProperties>
     </PropertyGroup>
 

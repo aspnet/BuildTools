@@ -23,7 +23,7 @@ namespace NuGetPackagerVerifier
         public string RuleFile { get; set; }
 
         [Required]
-        public string ArtifactDirectory { get; set; }
+        public string[] ArtifactDirectory { get; set; }
 
         public string[] ExcludedRules { get; set; }
 
@@ -35,9 +35,9 @@ namespace NuGetPackagerVerifier
                 return false;
             }
 
-            if (string.IsNullOrEmpty(ArtifactDirectory) || !Directory.Exists(ArtifactDirectory))
+            if (ArtifactDirectory == null || ArtifactDirectory.Length == 0)
             {
-                Log.LogError($"ArtifactDirectory '{ArtifactDirectory}' does not exist");
+                Log.LogError($"At least one ArtifactDirectory must exist.");
                 return false;
             }
 
@@ -54,7 +54,6 @@ namespace NuGetPackagerVerifier
                 toolPath,
                 "--rule-file",
                 RuleFile,
-                ArtifactDirectory,
             };
 
             foreach (var rule in ExcludedRules ?? Enumerable.Empty<string>())
@@ -62,6 +61,8 @@ namespace NuGetPackagerVerifier
                 arguments.Add("--excluded-rule");
                 arguments.Add(rule);
             }
+
+            arguments.AddRange(ArtifactDirectory);
 
             var psi = new ProcessStartInfo
             {

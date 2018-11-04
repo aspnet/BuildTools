@@ -107,14 +107,13 @@ Executes /t:Pack on all projects matching src/*/*.csproj.
 -->
   <Target Name="PackProjects" DependsOnTargets="ResolveProjects">
     <PropertyGroup>
-      <PackProperties>$(BuildProperties);PackageOutputPath=$(BuildDir);</PackProperties>
       <PackProperties Condition="'$(_ProjectsWereBuilt)' == 'true'">$(PackProperties);NoBuild=true;BuildProjectReferences=false</PackProperties>
     </PropertyGroup>
 
     <MSBuild Condition="@(ProjectToBuild->Count()) != 0"
              Projects="@(ProjectToBuild)"
              Targets="Pack"
-             Properties="$(PackProperties)"
+             Properties="$(BuildProperties);$(PackProperties)"
              BuildInParallel="$(BuildInParallel)"
              RemoveProperties="$(_BuildPropertiesToRemove)" />
   </Target>

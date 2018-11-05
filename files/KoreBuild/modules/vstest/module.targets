@@ -26,6 +26,11 @@ Runs the VSTest on all projects in the ProjectToBuild itemgroup.
       RemoveProperties="$(_BuildPropertiesToRemove)">
       <Output TaskParameter="TargetOutputs" ItemName="TestAssembly" />
     </MSBuild>
+
+    <ItemGroup Condition=" '$(OS)' != 'Windows_NT' ">
+      <!-- Skip .NET Framework assemblies on xplat. -->
+      <TestAssembly Remove="@(TestAssembly)" Condition=" '%(TargetFrameworkIdentifier)' == '.NETFramework' " />
+    </ItemGroup>
   </Target>
 
   <Target Name="TestProjects" DependsOnTargets="GetTestAssemblies">

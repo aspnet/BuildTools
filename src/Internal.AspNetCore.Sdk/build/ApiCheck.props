@@ -5,14 +5,11 @@
 <Project>
   <!-- Set nothing if handled in project file or already done in outer build. -->
   <PropertyGroup>
-    <!-- Temporarily disable API checks in all x-plat runs. Universe builds fail at FileSystem repo. -->
-    <EnableApiCheck Condition=" '$(OS)' != 'Windows_NT' ">false</EnableApiCheck>
+    <!-- Disable API Check on non-Windows platforms -->
+    <_ApiCheckIsSupported Condition=" '$(OS)' != 'Windows_NT' ">false</_ApiCheckIsSupported>
 
     <!-- Unconditionally disable API checks if running in .NET Framework MSBuild. Task cannot run there. -->
-    <EnableApiCheck Condition=" '$(MSBuildRuntimeType)' != 'Core' ">false</EnableApiCheck>
-
-    <!-- Unconditionally disable API checks if task would use .NET Framework tool x-plat. -->
-    <EnableApiCheck Condition=" '$(OS)' != 'Windows_NT' AND $(TargetFramework.StartsWith('net4')) ">false</EnableApiCheck>
+    <_ApiCheckIsSupported Condition=" '$(MSBuildRuntimeType)' != 'Core' ">false</_ApiCheckIsSupported>
 
     <!-- Unless overridden in the project or in one of the above situations, always do API checks. -->
     <EnableApiCheck Condition=" '$(EnableApiCheck)' == '' ">true</EnableApiCheck>

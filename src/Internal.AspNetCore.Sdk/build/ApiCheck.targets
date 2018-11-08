@@ -16,7 +16,7 @@
   <Target
       Name="Generate-ApiCheck-Baselines"
       DependsOnTargets="_GetApiListingFile"
-      Condition=" '$(EnableApiCheck)' == 'true' " >
+      Condition=" '$(EnableApiCheck)' == 'true' AND '$(_ApiCheckIsSupported)' != 'false' " >
     <ApiCheckGenerateTask
       ApiListingPath="$(_ApiListingOutputFile)"
       AssemblyPath="$(TargetPath)"
@@ -28,7 +28,7 @@
   <Target
       Name="Replace-ApiCheck-Baselines"
       DependsOnTargets="Generate-ApiCheck-Baselines"
-      Condition="'$(EnableApiCheck)' == 'true' and Exists('$(_ApiListingOutputFile)')" >
+      Condition="'$(EnableApiCheck)' == 'true' AND '$(_ApiCheckIsSupported)' != 'false' and Exists('$(_ApiListingOutputFile)')" >
       <PropertyGroup>
         <_ApiExclusionsFile Condition=" Exists('$(_ApiExclusionsFilePath)') ">$(_ApiExclusionsFilePath)</_ApiExclusionsFile>
       </PropertyGroup>
@@ -41,7 +41,7 @@
   <Target
       Name="ApiCheck"
       DependsOnTargets="_GetApiListingFile"
-      Condition=" '$(EnableApiCheck)' == 'true' ">
+      Condition=" '$(EnableApiCheck)' == 'true' AND '$(_ApiCheckIsSupported)' != 'false' ">
     <PropertyGroup>
       <_ApiListingFile Condition=" Exists('$(_ApiListingFilePath)') ">$(_ApiListingFilePath)</_ApiListingFile>
       <_ApiExclusionsFile Condition=" Exists('$(_ApiExclusionsFilePath)') ">$(_ApiExclusionsFilePath)</_ApiExclusionsFile>

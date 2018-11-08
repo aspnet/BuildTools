@@ -4,8 +4,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <AssemblyName>Internal.AspNetCore.KoreBuild.Tasks</AssemblyName>
-    <SignToolDir>$(NuGetPackageRoot)/microsoft.dotnet.signtool/$(MicrosoftDotNetSignToolPackageVersion)/</SignToolDir>
-  </PropertyGroup>
+ </PropertyGroup>
 
   <ItemGroup>
     <Content Include="*.props" CopyToPublishDirectory="PreserveNewest" />
@@ -15,8 +14,9 @@
     <Compile Include="..\BuildTools.Tasks\Utilities\FileHelpers.cs" Link="Utilities\FileHelpers.cs" />
     <Compile Include="..\..\tools\KoreBuildSettings.cs" />
     <Content Include="$(VSWhereDir)vswhere.exe" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
-    <Content Include="$(SignToolDir)tools\**\*" Link="SignTool\tools\%(RecursiveDir)%(FileName)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
-    <Content Include="$(SignToolDir)build\**\*" Link="SignTool\build\%(RecursiveDir)%(FileName)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="$(PkgMicrosoft_DotNet_SignCheck)\tools\**\*" Link="SignCheck\tools\%(RecursiveDir)%(FileName)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="$(PkgMicrosoft_DotNet_SignTool)\tools\**\*" Link="SignTool\tools\%(RecursiveDir)%(FileName)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="$(PkgMicrosoft_DotNet_SignTool)\build\**\*" Link="SignTool\build\%(RecursiveDir)%(FileName)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="$(MSBuildThisFileDirectory)SkipStrongNames.xml" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
@@ -30,6 +30,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="$(Tooling_NewtonsoftJsonPackageVersion)" PrivateAssets="All" />
     <PackageReference Include="vswhere" Version="$(VSWherePackageVersion)" PrivateAssets="All" />
     <PackageReference Include="Microsoft.DotNet.SignTool" Version="$(MicrosoftDotNetSignToolPackageVersion)" ExcludeAssets="All" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.DotNet.SignCheck" Version="$(MicrosoftDotNetSignCheckPackageVersion)" ExcludeAssets="All" PrivateAssets="All" />
   </ItemGroup>
 
   <Target Name="PublishGeneratedProps" BeforeTargets="Publish">

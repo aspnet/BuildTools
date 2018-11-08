@@ -114,3 +114,27 @@ these elements to the `build/repo.props` file. (See also [KoreBuild.md](./KoreBu
   <FilesToExcludeFromSigning Include="$(ArtifactsDir)my.test.dll" Certificate="3PartySHA2" />
 </ItemGroup>
 ```
+
+## Sign check
+
+When real-signing is enabled, KoreBuild also runs a check after the build is complete to ensure everything in the `artifacts/` directory
+is code signed.
+
+Exclusions can be added to `build/signcheck.exclusions.txt`. The format of this file is
+
+* One line per exclusion
+
+* Each line in the file takes the format:
+
+  ```
+  <FilePath>;<ContainerPath>;<Optional comment>
+  ```
+
+* Both FilePath and ContainerPath can contain wildcards.
+
+For example,
+```
+content/*.js;Microsoft.DotNet.Web.Spa.ProjectTemplates.*.nupkg; Exclude JavaScript files from codesigning in project templates
+```
+
+See https://github.com/dotnet/arcade/tree/master/src/SignCheck for more details on SignCheck.

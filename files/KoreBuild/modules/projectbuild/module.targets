@@ -44,7 +44,8 @@ Executes /t:{Target} on all projects
     </ConvertToAbsolutePath>
 
     <PropertyGroup>
-      <ProjectToBuildList>@(ProjectToBuild)</ProjectToBuildList>
+      <!-- Normalize paths to avoid false warnings by NuGet about missing project references. -->
+      <ProjectToBuildList>@(ProjectToBuild->'%(FullPath)')</ProjectToBuildList>
     </PropertyGroup>
   </Target>
 

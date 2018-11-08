@@ -30,7 +30,7 @@
       RemoveProperties="TargetFrameworks" />
   </Target>
 
-  <Target Name="ApiCheck" Condition=" '$(EnableApiCheck)' == 'true' ">
+  <Target Name="ApiCheck" Condition=" '$(EnableApiCheck)' == 'true' AND '$(_ApiCheckIsSupported)' != 'false' ">
     <ItemGroup>
       <_TargetFrameworks Remove="@(_TargetFrameworks)" />
       <_TargetFrameworks Include="$(TargetFrameworks)" />

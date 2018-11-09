@@ -4,6 +4,11 @@
   <PropertyGroup>
     <DisableCodeSigning Condition=" '$(OS)' != 'Windows_NT' ">true</DisableCodeSigning>
 
+    <!-- This file can be used to exclude something files from signcheck. -->
+    <SignCheckExclusionsFile Condition=" '$(SignCheckExclusionsFile)' == '' ">$(RepositoryRoot)build\signcheck.exclusions.txt</SignCheckExclusionsFile>
+
+    <SignCheckWorkingDir Condition=" '$(SignCheckWorkingDir)' == '' ">$(ArtifactsDir)</SignCheckWorkingDir>
+
     <!-- Relative paths in SignToolData.json are relative to this path -->
     <SignToolDataWorkingDir Condition=" '$(SignToolDataWorkingDir)' == '' ">$(RepositoryRoot)</SignToolDataWorkingDir>
 
@@ -52,6 +57,30 @@
       LogDir="$(LogOutputDir)"
       MSBuildPath="$(MSBuildx86Path)"
       MicroBuildCorePath="$(NuGetPackageRoot)microbuild.core\$(MicroBuildCorePackageVersion)" />
+  </Target>
+
+  <Target Name="SignCheck"
+          Condition=" '$(DisableCodeSigning)' != 'true' AND '$(SignToolDryRun)' != 'true' AND '$(DisableSignCheck)' != 'true' "
+          AfterTargets="CodeSign">
+
+    <PropertyGroup>
+      <SignCheckToolPath>$(MSBuildThisFileDirectory)SignCheck\tools\Microsoft.DotNet.SignCheck.exe</SignCheckToolPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <SignCheckArgs Remove="@(SignCheckArgs)" />
+      <SignCheckArgs Include="--verbosity;Detailed" />
+      <SignCheckArgs Include="--generate-exclusions-file;$(LogOutputDir)signcheck.exclusions.g.txt" />
+      <SignCheckArgs Include="--input-files;$(SignCheckWorkingDir)" />
+      <SignCheckArgs Include="--recursive" />
+      <SignCheckArgs Include="--verify-jar" />
+      <SignCheckArgs Include="--verify-strongname" Condition=" '$(DisableSignCheckStrongName)' != 'true' " />
+      <SignCheckArgs Include="--exclusions-file;$(SignCheckExclusionsFile)" Condition="Exists('$(SignCheckExclusionsFile)')" />
+    </ItemGroup>
+
+    <Message Text="Running signcheck on $(SignCheckWorkingDir)" Importance="high" />
+
+    <Run FileName="$(SignCheckToolPath)" Arguments="@(SignCheckArgs)" StandardOutputImportance="Normal" />
   </Target>
 
 </Project>

@@ -69,7 +69,7 @@
 
     <ItemGroup>
       <SignCheckArgs Remove="@(SignCheckArgs)" />
-      <SignCheckArgs Include="--verbosity;Detailed" />
+      <SignCheckArgs Include="--error-log-file;$(LogOutputDir)signcheck.errors.log" />
       <SignCheckArgs Include="--generate-exclusions-file;$(LogOutputDir)signcheck.exclusions.g.txt" />
       <SignCheckArgs Include="--input-files;$(SignCheckWorkingDir)" />
       <SignCheckArgs Include="--recursive" />
@@ -80,7 +80,7 @@
 
     <Message Text="Running signcheck on $(SignCheckWorkingDir)" Importance="high" />
 
-    <Run FileName="$(SignCheckToolPath)" Arguments="@(SignCheckArgs)" StandardOutputImportance="Normal" />
+    <Run FileName="$(SignCheckToolPath)" Arguments="@(SignCheckArgs)" />
   </Target>
 
 </Project>

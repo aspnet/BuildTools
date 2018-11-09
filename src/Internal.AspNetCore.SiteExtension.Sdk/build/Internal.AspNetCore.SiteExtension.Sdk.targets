@@ -36,6 +36,7 @@
 
         <ManifestLines Include="&lt;Project Sdk=&quot;Microsoft.NET.Sdk&quot;&gt;&lt;ItemGroup&gt;" />
         <ManifestLines Include="&lt;PackageReference Remove=&quot;Internal.AspNetCore.Sdk&quot; /&gt;" />
+        <ManifestLines Include="&lt;PackageReference Remove=&quot;Microsoft.NETCore.App&quot; /&gt;" />
         <ManifestLines Include="&lt;PackageReference Include=&quot;Microsoft.AspNetCore.App&quot; Version=&quot;$(MicrosoftAspNetCoreAppPackageVersion)&quot; IsImplicitlyDefined=&quot;true&quot;/&gt;" />
         <ManifestLines Include="&lt;PackageReference Include=&quot;%(HostingStartupPackageReference.Identity)&quot; Version=&quot;%(HostingStartupPackageReference.Version)&quot; /&gt;" />
         <ManifestLines Include="&lt;/ItemGroup&gt;" />
@@ -60,7 +61,7 @@
 
     <MSBuild Projects="%(_HostingStartupPackageReference.Project)"
              Targets="Publish"
-             Properties="PublishDir=%(_HostingStartupPackageReference.WorkingDirectory)\p;HostingStartupPackageName=%(_HostingStartupPackageReference.Identity);HostingStartupPackageVersion=%(_HostingStartupPackageReference.Version);RuntimeFrameworkVersion=$(HostingStartupRuntimeFrameworkVersion);MicrosoftAspNetCoreAppPackageVersion=$(MicrosoftAspNetCoreAppPackageVersion)" />
+             Properties="PublishDir=%(_HostingStartupPackageReference.WorkingDirectory)\p;HostingStartupPackageName=%(_HostingStartupPackageReference.Identity);HostingStartupPackageVersion=%(_HostingStartupPackageReference.Version);RuntimeFrameworkVersion=$(HostingStartupRuntimeFrameworkVersion);MicrosoftAspNetCoreAppPackageVersion=$(MicrosoftAspNetCoreAppPackageVersion);NoBuild=false" />
 
     <Copy SourceFiles="%(_HostingStartupPackageReference.DepsFile)" DestinationFiles="%(_HostingStartupPackageReference.TrimmedDepsFile)" />
 

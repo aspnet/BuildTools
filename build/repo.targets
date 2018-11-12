@@ -92,11 +92,15 @@
       Properties="$(BuildProperties)"
       BuildInParallel="true" />
 
+    <ItemGroup>
+      <KoreBuildFiles Include="$(_KoreBuildIntermediateDir)**\*" />
+    </ItemGroup>
+
     <Copy SourceFiles="$(RepositoryRoot)scripts\UploadKoreBuild.ps1" DestinationFiles="$(KoreBuildUploadScriptFile)" SkipUnchangedFiles="true" />
     <WriteLinesToFile File="$(KoreBuildLatestTxtFile)" Lines="@(VersionFileLines)" Overwrite="true"/>
     <WriteLinesToFile File="$(KoreBuildChannelTxtFile)" Lines="$(KoreBuildChannel)" Overwrite="true"/>
     <GenerateSvgBadge Label="version" Value="$(Version)" OutputPath="$(KoreBuildBadgeFile)" />
-    <ZipDirectory SourceDirectory="$(_KoreBuildIntermediateDir)" DestinationFile="$(KoreBuildArchiveFile)" Overwrite="true" />
+    <ZipArchive WorkingDirectory="$(_KoreBuildIntermediateDir)" File="$(KoreBuildArchiveFile)" SourceFiles="@(KoreBuildFiles)" />
   </Target>
 
 </Project>

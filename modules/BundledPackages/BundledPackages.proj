@@ -6,7 +6,6 @@
     <ItemGroup>
       <Projects Include="$(MSBuildThisFileDirectory)..\..\src\Internal.AspNetCore.Sdk\Internal.AspNetCore.Sdk.csproj" />
       <Projects Include="$(MSBuildThisFileDirectory)..\..\src\ApiCheck.Console\ApiCheck.Console.csproj" />
-      <Projects Include="$(MSBuildThisFileDirectory)..\..\src\Microsoft.DotNet.GlobalTools.Sdk\Microsoft.DotNet.GlobalTools.Sdk.csproj" />
     </ItemGroup>
 
     <MSBuild Projects="@(Projects)"
@@ -30,8 +29,6 @@
   </PropertyGroup>
 
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
-
-  <Sdk Name="Microsoft.DotNet.GlobalTools.Sdk" Version="$(Version)" />
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>

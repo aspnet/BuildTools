@@ -7,5 +7,4 @@
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.GenerateFileFromTemplate" AssemblyFile="$(_RepoTaskAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.GenerateSvgBadge" AssemblyFile="$(_RepoTaskAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.RunDotNet" AssemblyFile="$(_RepoTaskAssembly)" />
-  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.ZipArchive" AssemblyFile="$(_RepoTaskAssembly)" />
 </Project>

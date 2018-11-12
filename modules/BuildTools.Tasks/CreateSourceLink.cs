@@ -2,11 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Microsoft.AspNetCore.BuildTools
 {
@@ -51,18 +51,50 @@ namespace Microsoft.AspNetCore.BuildTools
             SourceLinkRoot += '*';
 
             var codeSource = ConvertUrl();
-            var data = new JObject
+
+            // TODO allow multiple. See https://github.com/aspnet/Universe/issues/858
+            var mappings = new List<Mapping>
             {
-                ["documents"] = new JObject
-                {
-                    [SourceLinkRoot] = codeSource
-                }
+                new Mapping { LocalPath = SourceLinkRoot, Url = codeSource },
             };
-            File.WriteAllText(DestinationFile, data.ToString(Formatting.None));
 
+            GenerateSourceLink(DestinationFile, mappings);
             SourceLinkFile = DestinationFile;
-
             return true;
+        }
+
+        private static void GenerateSourceLink(string filePath, List<Mapping> mappings)
+        {
+            var data = new StringBuilder();
+            data.Append("{\"documents\":{");
+
+            // not bullet-proof, but should be good enough for escaping paths
+            string JsonEscape(string str)
+                => str.Replace(@"\", @"\\").Replace("\"", "\\\"");
+
+            var first = true;
+            foreach (var mapping in mappings)
+            {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    data.Append(",");
+                }
+
+                data
+                    .Append('"')
+                    .Append(JsonEscape(mapping.LocalPath))
+                    .Append("\":\"")
+                    .Append(JsonEscape(mapping.Url))
+                    .Append('"');
+            }
+
+            data.Append("}}");
+
+            File.WriteAllText(filePath, data.ToString());
         }
 
         private string ConvertUrl()
@@ -81,6 +113,12 @@ namespace Microsoft.AspNetCore.BuildTools
             repoName = repoName.Replace(".git", "");
 
             return $"https://raw.githubusercontent.com/{repoName}/{Commit}/*";
+        }
+
+        private struct Mapping
+        {
+            public string LocalPath;
+            public string Url;
         }
     }
 }

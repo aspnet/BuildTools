@@ -1,24 +1,30 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project>
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
 
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);BuildTools</DefineConstants>
     <Description>MSBuild tasks. This package is intended for Microsoft use only</Description>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFrameworks>netcoreapp2.1;net46</TargetFrameworks>
     <RootNamespace>Microsoft.AspNetCore.BuildTools</RootNamespace>
     <AssemblyName>Internal.AspNetCore.BuildTools.Tasks</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Include="..\..\shared\Utilities\MSBuildListSplitter.cs" />
-    <Compile Include="..\..\shared\Microsoft.Extensions.CommandLineUtils.Sources\**\*.cs" />
-    <None Include="module.props" CopyToPublishDirectory="PreserveNewest" />
-    <None Include="BuildTools.Tasks.props" CopyToPublishDirectory="PreserveNewest" />
-    <None Include="*.targets" CopyToPublishDirectory="PreserveNewest" />
+    <Compile Include="..\..\shared\Microsoft.Extensions.CommandLineUtils.Sources\Utilities\*.cs" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
     <PackageReference Include="Microsoft.Build.Framework" Version="$(MicrosoftBuildFrameworkPackageVersion)" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="$(MicrosoftBuildUtilitiesCorePackageVersion)" PrivateAssets="All" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net46'">
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="Microsoft.Build.Framework" />
+    <Reference Include="Microsoft.Build.Utilities.v4.0" />
+  </ItemGroup>
+
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+  <Import Project="Publish.targets" Condition=" '$(TargetFramework)' == '' " />
 </Project>

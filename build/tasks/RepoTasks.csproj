@@ -2,13 +2,14 @@
   <Import Project="$(RepoTasksSdkPath)\Sdk.props" Condition="'$(RepoTasksSdkPath)' != '' "/>
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework Condition=" '$(MSBuildRuntimeType)' == 'core' ">netcoreapp2.1</TargetFramework>
+    <TargetFramework Condition=" '$(MSBuildRuntimeType)' != 'core' ">net46</TargetFramework>
     <DefineConstants>$(DefineConstants);BuildTools</DefineConstants>
     <NoWarn>$(NoWarn);NU1603</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\shared\Microsoft.Extensions.CommandLineUtils.Sources\Utilities\*.cs" />
+    <Compile Include="..\..\shared\Microsoft.Extensions.CommandLineUtils.Sources\Utilities\ArgumentEscaper.cs" />
     <Compile Include="..\..\shared\Utilities\MSBuildListSplitter.cs" />
     <Compile Include="..\..\modules\BuildTools.Tasks\Utilities\**" />
     <Compile Include="..\..\modules\BuildTools.Tasks\GetGitCommitInfo.cs" />

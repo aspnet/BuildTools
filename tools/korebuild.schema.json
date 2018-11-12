@@ -74,12 +74,28 @@
               "items": {
                 "type": "string"
               }
-            },
-            "minVersion": {
-              "type": "string",
-              "description": "The minimum version of Visual Studio required."
             }
           }
+        },
+        {
+          "oneOf": [
+            {
+              "properties": {
+                "minVersion": {
+                  "type": "string",
+                  "description": "The minimum version of Visual Studio required."
+                }
+              }
+            },
+            {
+              "properties": {
+                "versionRange": {
+                  "type": "string",
+                  "description": "The version range of Visual Studio required."
+                }
+              }
+            }
+          ]
         }
       ]
     }
@@ -93,11 +109,21 @@
     "channel": {
       "description": "The channel of KoreBuild used to select a version when korebuild-lock.txt is not present.",
       "type": "string",
-      "default": "dev",
+      "default": "master",
       "enum": [
-        "dev",
+        "master",
+        "release/2.2",
         "release/2.1",
         "release/2.0"
+      ]
+    },
+    "msbuildType": {
+      "description": "The type of MSBuild to use. 'core' = 'dotnet msbuild', 'full' = 'msbuild.exe'. (Only applies to Windows)",
+      "type": "string",
+      "default": "core",
+      "enum": [
+        "core",
+        "full"
       ]
     },
     "toolsets": {

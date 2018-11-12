@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
-    <GenerateFullPaths Condition="'$(VSCODE_PID)' != ''">true</GenerateFullPaths>
+    <GenerateFullPaths Condition="'$(VSCODE_CWD)' != ''">true</GenerateFullPaths>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
     <!-- Set explicitly to make it clear that this is not a console app, even though it targets netcoreapp2.1 -->

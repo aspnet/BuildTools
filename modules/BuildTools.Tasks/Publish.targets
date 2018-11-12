@@ -1,0 +1,19 @@
+<Project>
+  <Target Name="Publish">
+    <ItemGroup>
+      <ContentFiles Include="module.props" />
+      <ContentFiles Include="module.targets" />
+      <ContentFiles Include="BuildTools.Tasks.props" />
+      <ContentFiles Include="Project.CSharp.Resx.targets" />
+
+      <_TargetFramework Remove="@(_TargetFramework)" />
+      <_TargetFramework Include="$(TargetFrameworks)" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(ContentFiles)" DestinationFolder="$(PublishDir)" />
+
+    <MSBuild Projects="$(MSBuildProjectFullPath)"
+             Targets="Publish"
+             Properties="PublishDir=$(PublishDir)%(_TargetFramework.Identity)\;TargetFramework=%(_TargetFramework.Identity)" />
+  </Target>
+</Project>

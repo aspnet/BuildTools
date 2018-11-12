@@ -4,6 +4,7 @@
 using System.IO;
 using System.Runtime.InteropServices;
 using BuildTools.Tasks.Tests;
+using KoreBuild.Tasks.Utilities;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -16,6 +17,57 @@ namespace KoreBuild.Tasks.Tests
         public VSWhereTests(ITestOutputHelper output)
         {
             _output = output;
+        }
+
+        [Fact]
+        public void TryGetVersion_ReturnsFalseWhenNoVersionsProvided()
+        {
+            // Arrange
+            var toolset = new KoreBuildSettings.VisualStudioToolset();
+
+            // Act
+            var result = VsWhere.TryGetVersion(toolset, out var version);
+
+            // Assert
+            Assert.False(result);
+            Assert.Null(version);
+        }
+
+        [Fact]
+        public void TryGetVersion_PrioritizesVersionRangeOverMinRange()
+        {
+            // Arrange
+            var expectedVersion = "[15.0,16.0)";
+            var toolset = new KoreBuildSettings.VisualStudioToolset()
+            {
+                VersionRange = expectedVersion,
+                MinVersion = "unexpected",
+            };
+
+            // Act
+            var result = VsWhere.TryGetVersion(toolset, out var version);
+
+            // Assert
+            Assert.True(result);
+            Assert.Equal(expectedVersion, version);
+        }
+
+        [Fact]
+        public void TryGetVersion_ReturnsVersionRange()
+        {
+            // Arrange
+            var expectedVersion = "[15.0,16.0)";
+            var toolset = new KoreBuildSettings.VisualStudioToolset()
+            {
+                VersionRange = expectedVersion,
+            };
+
+            // Act
+            var result = VsWhere.TryGetVersion(toolset, out var version);
+
+            // Assert
+            Assert.True(result);
+            Assert.Equal(expectedVersion, version);
         }
 
         [Fact]

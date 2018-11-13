@@ -6,18 +6,12 @@
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)GetGitBranch" AssemblyFile="$(_BuildToolsAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)GetGitCommitHash" AssemblyFile="$(_BuildToolsAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)GetGitCommitInfo" AssemblyFile="$(_BuildToolsAssembly)" />
-  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)GetDotNetHost" AssemblyFile="$(_BuildToolsAssembly)"
-    Condition="'$(MSBuildRuntimeType)' == 'Core'"/>
-  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)GetOSPlatform" AssemblyFile="$(_BuildToolsAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)GenerateSvgBadge" AssemblyFile="$(_BuildToolsAssembly)" />
-  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)JsonPeek" AssemblyFile="$(_BuildToolsAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)SetEnvironmentVariable" AssemblyFile="$(_BuildToolsAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)UpdatePackageSource" AssemblyFile="$(_BuildToolsAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)WaitForDebugger" AssemblyFile="$(_BuildToolsAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)ZipArchive" AssemblyFile="$(_BuildToolsAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)UnzipArchive" AssemblyFile="$(_BuildToolsAssembly)" />
-  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)FindUnusedReferences" AssemblyFile="$(_BuildToolsAssembly)"
-    Condition="'$(MSBuildRuntimeType)' == 'Core'" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)CreateSourceLink" AssemblyFile="$(_BuildToolsAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)Run" AssemblyFile="$(_BuildToolsAssembly)" />
   <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.$(_BuildTasksPrefix)RunDotNet" AssemblyFile="$(_BuildToolsAssembly)" />

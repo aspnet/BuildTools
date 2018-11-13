@@ -92,6 +92,7 @@ function Invoke-RepositoryBuild(
 /nologo
 /m
 /nodeReuse:false
+/verbosity:minimal
 /p:KoreBuildVersion=$koreBuildVersion
 /p:SuppressNETCoreSdkPreviewMessage=true
 /p:RepositoryRoot="$Path/"
@@ -131,7 +132,7 @@ function Invoke-RepositoryBuild(
 
         Write-Verbose "Invoking msbuild with '$(Get-Content $msBuildResponseFile)'"
 
-        __exec $global:dotnet msbuild `@"$msBuildResponseFile" `@"$msBuildLogRspFile"
+        Invoke-MSBuild `@"$msBuildResponseFile" `@"$msBuildLogRspFile"
     }
     finally {
         Pop-Location
@@ -324,14 +325,35 @@ function Set-KoreBuildSettings(
     $arch = __get_dotnet_arch
     $env:DOTNET_ROOT = if ($IS_WINDOWS) { Join-Path $DotNetHome $arch } else { $DotNetHome }
 
+    $MSBuildType = 'core'
+    $toolsets = $Null
+    if (Test-Path $ConfigFile) {
+        try {
+            $config = Get-Content -Raw -Encoding UTF8 -Path $ConfigFile | ConvertFrom-Json
+            if (__has_member $config msbuildType) {
+                [string] $MSBuildType = $config.msbuildType
+            }
+            if (__has_member $config toolsets) {
+                $toolsets = $config.toolsets
+            }
+        }
+        catch {
+            Write-Host -ForegroundColor Red $Error[0]
+            Write-Error "$ConfigFile contains invalid JSON."
+            exit 1
+        }
+    }
+
     # Workaround perpetual issues in node reuse and custom task assemblies
     $env:MSBUILDDISABLENODEREUSE = 1
 
     $global:KoreBuildSettings = @{
+        MSBuildType = $MSBuildType
         ToolsSource = $ToolsSource
         DotNetHome  = $DotNetHome
         RepoPath    = $RepoPath
         CI          = $CI
+        Toolsets    = $toolsets
     }
 }
 
@@ -364,7 +386,7 @@ function Invoke-KoreBuildCommand(
     $sdkVersion = __get_dotnet_sdk_version
     $korebuildVersion = Get-KoreBuildVersion
     if ($sdkVersion -ne 'latest') {
-        "{ `"sdk`": { `n`"version`": `"$sdkVersion`" },`n`"msbuild-sdks`": {`n`"Microsoft.DotNet.GlobalTools.Sdk`": `"$korebuildVersion`"}`n }" | Out-File (Join-Path $global:KoreBuildSettings.RepoPath 'global.json') -Encoding ascii
+        "{ `"sdk`": { `n`"version`": `"$sdkVersion`" }`n }" | Out-File (Join-Path $global:KoreBuildSettings.RepoPath 'global.json') -Encoding ascii
     }
     else {
         Write-Verbose "Skipping global.json generation because the `$sdkVersion = $sdkVersion"
@@ -397,13 +419,87 @@ function Invoke-KoreBuildCommand(
     }
 }
 
+#
+# Private functions
+#
+
 function Get-KoreBuildConsole() {
     return Join-Paths $PSScriptRoot ("..", "tools", "KoreBuild.Console.dll")
 }
 
-#
-# Private functions
-#
+function Invoke-MSBuild {
+    if ($global:KoreBuildSettings.MSBuildType -eq 'full') {
+        if (-not (Test-Path 'Variable:\script:msbuild')) {
+            $script:msbuild = Get-MSBuildPath
+        }
+        __exec $script:msbuild @args
+    }
+    else {
+        __exec $global:dotnet msbuild @args
+    }
+}
+
+function Get-MSBuildPath() {
+    $vswherePath = "${env:ProgramFiles(x86)}/Microsoft Visual Studio/Installer/vswhere.exe"
+
+    if (-not (Test-Path $vswherePath)) {
+        $vswherePath = "$PSScriptRoot/../modules/KoreBuild.Tasks/vswhere.exe"
+    }
+
+    if (-not (Test-Path $vswherePath)) {
+        # Couldn't use vswhere, return 'msbuild.exe' and let PATH do its thing.
+        Write-Verbose "Could not find VSWhere. Relying on MSBuild to exist on PATH"
+        return 'msbuild.exe'
+    }
+
+    [string[]] $vswhereArgs = @('-latest', '-format', 'json', '-products', '*')
+
+    if ($global:KoreBuildSettings.Toolsets -and (__has_member $global:KoreBuildSettings.Toolsets visualstudio)) {
+        $vs = $global:KoreBuildSettings.Toolsets.visualstudio
+
+        if ((__has_member $vs includePrerelease) -and $vs.includePrerelease) {
+            $vswhereArgs += '-prerelease'
+        }
+        if (__has_member $vs minVersion) {
+            $vswhereArgs += '-version', $vs.minVersion
+        }
+        if (__has_member $vs versionRange) {
+            $vswhereArgs += '-version', $vs.versionRange
+        }
+        if (__has_member $vs requiredWorkloads) {
+            foreach ($workload in $vs.requiredWorkloads) {
+                $vswhereArgs += '-requires', $workload
+            }
+        }
+    }
+
+    Write-Verbose "vswhere = $vswherePath $vswhereArgs"
+
+    $installations = & $vswherePath @vswhereArgs | ConvertFrom-Json
+
+    $latest = $null
+    if ($installations) {
+        $latest = $installations | Select-Object -first 1
+    }
+
+    if ($latest -and (__has_member $latest installationPath)) {
+        Write-Host "Detected $($latest.displayName) ($($latest.installationVersion)) in '$($latest.installationPath)'"
+        $msbuildVersions = @('Current', '16.0', '15.0')
+        foreach ($msbuildVersion in $msbuildVersions) {
+            $msbuildPath = Join-Paths $latest.installationPath ('MSBuild', $msbuildVersion, 'Bin', 'msbuild.exe')
+            if (Test-Path $msbuildPath) {
+                Write-Verbose "Using MSBuild.exe = $msbuildPath"
+                return $msbuildPath
+            }
+        }
+    }
+
+    return 'msbuild.exe'
+}
+
+function __has_member($obj, $name) {
+    return [bool](Get-Member -Name $name -InputObject $obj)
+}
 
 function __get_dotnet_arch {
     if ($env:KOREBUILD_DOTNET_ARCH) {
@@ -430,7 +526,7 @@ function __build_task_project($RepoPath, [string[]]$msbuildArgs) {
 
     $sdkPath = "-p:RepoTasksSdkPath=$(Join-Paths $PSScriptRoot ('..', 'msbuild', 'KoreBuild.RepoTasks.Sdk', 'Sdk'))"
 
-    __exec $global:dotnet publish $taskProj --configuration Release --output $publishFolder -nologo $sdkPath @msbuildArgs
+    Invoke-MSBuild $taskProj '-v:m' -restore '-t:Publish' '-p:Configuration=Release' "-p:PublishDir=$publishFolder" -nologo $sdkPath @msbuildArgs
 }
 
 function Get-KoreBuildVersion {

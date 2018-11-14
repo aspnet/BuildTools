@@ -18,6 +18,11 @@ FYI: targets, properties, and items that begin with an underscore are meant to b
     <GetArtifactInfoDependsOn>$(GetArtifactInfoDependsOn);GetProjectArtifactInfo</GetArtifactInfoDependsOn>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <NuGetRestoreTargets Condition="'$(NuGetRestoreTargets)'=='' and '$([MSBuild]::IsRunningFromVisualStudio())'=='true'">$(MSBuildToolsPath32)\..\..\..\Common7\IDE\CommonExtensions\Microsoft\NuGet\NuGet.targets</NuGetRestoreTargets>
+    <NuGetRestoreTargets Condition="'$(NuGetRestoreTargets)'==''">$(MSBuildToolsPath)\NuGet.targets</NuGetRestoreTargets>
+  </PropertyGroup>
+
 <!--
 ###################################################################
 Targets: {Target}Projects
@@ -57,7 +62,7 @@ Executes /t:{Target} on all projects
     <!--
       Invoke NuGet.targets directly. This avoids redundant calls the restore task.
     -->
-    <MSBuild Projects="$(MSBuildToolsPath)\NuGet.targets"
+    <MSBuild Projects="$(NuGetRestoreTargets)"
              Targets="Restore"
              Properties="$(BuildProperties);RestoreGraphProjectInput=$(ProjectToBuildList);__BuildTarget=Restore"
              RemoveProperties="$(_BuildPropertiesToRemove)"

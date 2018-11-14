@@ -1,8 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-// System.AppContext.GetData is not available in these frameworks
-#if !NET451 && !NET452 && !NET46 && !NET461
 
 using System;
 using System.Diagnostics;
@@ -39,10 +37,16 @@ namespace Microsoft.Extensions.CommandLineUtils
         private static string TryFindMuxerPath()
         {
             var fileName = MuxerName;
+#if NET46
+            fileName += ".exe";
+#elif NETCOREAPP2_2 || NETCOREAPP2_1 || NETSTANDARD2_0
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 fileName += ".exe";
             }
+#else
+#error Update target frameworks
+#endif
 
             var mainModule = Process.GetCurrentProcess().MainModule;
             if (!string.IsNullOrEmpty(mainModule?.FileName)
@@ -51,8 +55,16 @@ namespace Microsoft.Extensions.CommandLineUtils
                 return mainModule.FileName;
             }
 
+            var dotnetRoot = Environment.GetEnvironmentVariable("DOTNET_ROOT")
+                             ?? Environment.GetEnvironmentVariable("DOTNET_CLI_HOME")
+                             ?? Environment.GetEnvironmentVariable("DOTNET_HOME");
+
+            if (!string.IsNullOrEmpty(dotnetRoot))
+            {
+                return Path.Combine(dotnetRoot, fileName);
+            }
+
             return null;
         }
     }
 }
-#endif

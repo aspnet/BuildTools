@@ -117,6 +117,15 @@
         "release/2.0"
       ]
     },
+    "msbuildType": {
+      "description": "The type of MSBuild to use. 'core' = 'dotnet msbuild', 'full' = 'msbuild.exe'. (Only applies to Windows)",
+      "type": "string",
+      "default": "core",
+      "enum": [
+        "core",
+        "full"
+      ]
+    },
     "toolsets": {
       "description": "Lists required toolsets for this repository.",
       "type": "object",

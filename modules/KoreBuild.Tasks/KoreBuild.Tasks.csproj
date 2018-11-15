@@ -2,7 +2,7 @@
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.props" />
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Internal.AspNetCore.KoreBuild.Tasks</AssemblyName>
  </PropertyGroup>
 
@@ -27,7 +27,7 @@
     <PackageReference Include="Microsoft.Build.Tasks.Core" Version="$(MicrosoftBuildTasksCorePackageVersion)" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="$(MicrosoftBuildUtilitiesCorePackageVersion)" PrivateAssets="All" />
     <PackageReference Include="NuGet.Build.Tasks" Version="$(Tooling_NuGetBuildTasksPackageVersion)" PrivateAssets="All" />
-    <PackageReference Include="Newtonsoft.Json" Version="$(Tooling_NewtonsoftJsonPackageVersion)" PrivateAssets="All" />
+    <PackageReference Include="Newtonsoft.Json" Version="$(Tooling_NewtonsoftJsonPackageVersion)" />
     <PackageReference Include="vswhere" Version="$(VSWherePackageVersion)" PrivateAssets="All" />
     <PackageReference Include="Microsoft.DotNet.SignTool" Version="$(MicrosoftDotNetSignToolPackageVersion)" ExcludeAssets="All" PrivateAssets="All" />
     <PackageReference Include="Microsoft.DotNet.SignCheck" Version="$(MicrosoftDotNetSignCheckPackageVersion)" ExcludeAssets="All" PrivateAssets="All" />

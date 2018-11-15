@@ -1,25 +1,40 @@
 <Project>
 
-  <PropertyGroup Condition="'$(MicrosoftBuildVersion)' == ''">
-    <!--
-      The dependency versions here don't matter as long as the version is binary compatible with the version of MSBuild and NuGet
-      already embedded in Microsoft.NET.Sdk. These are essentially reference assemblies.
+  <Choose>
+    <When Condition=" '$(MSBuildRuntimeType)' == 'Core' ">
 
-      Between MSBuild 15.6 and 15.8, the ref packages dropped .NET Standard 1.x suppport.
-      Use the netstandard2.0 packages if possible, otherwise fallback to 15.6.
-    -->
-    <MicrosoftBuildVersion Condition="$(TargetFramework.StartsWith('netstandard1'))">15.6.82</MicrosoftBuildVersion>
-    <MicrosoftBuildVersion Condition="'$(MicrosoftBuildVersion)' == ''">15.8.166</MicrosoftBuildVersion>
-  </PropertyGroup>
+      <PropertyGroup Condition="'$(MicrosoftBuildVersion)' == ''">
+        <!--
+          The dependency versions here don't matter as long as the version is binary compatible with the version of MSBuild and NuGet
+          already embedded in Microsoft.NET.Sdk. These are essentially reference assemblies.
 
-  <ItemGroup Condition="'$(DisableImplicitFrameworkReferences)' != 'true'">
-    <!-- set as private assets all since we don't need this in the publish output folder -->
-    <PackageReference Include="Microsoft.Build" Version="$(MicrosoftBuildVersion)" IsImplicitlyDefined="true" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.Build.Framework" Version="$(MicrosoftBuildVersion)" IsImplicitlyDefined="true" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.Build.Tasks.Core" Version="$(MicrosoftBuildVersion)" IsImplicitlyDefined="true" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="$(MicrosoftBuildVersion)" IsImplicitlyDefined="true" PrivateAssets="All" />
-    <!-- because almost everyone ends up using JSON in repo tasks -->
-    <PackageReference Include="Newtonsoft.Json" Version="$(JsonInMSBuildVersion)" IsImplicitlyDefined="true" PrivateAssets="All" />
-  </ItemGroup>
+          Between MSBuild 15.6 and 15.8, the ref packages dropped .NET Standard 1.x suppport.
+          Use the netstandard2.0 packages if possible, otherwise fallback to 15.6.
+        -->
+        <MicrosoftBuildVersion Condition="$(TargetFramework.StartsWith('netstandard1'))">15.6.82</MicrosoftBuildVersion>
+        <MicrosoftBuildVersion Condition="'$(MicrosoftBuildVersion)' == ''">15.8.166</MicrosoftBuildVersion>
+      </PropertyGroup>
+
+      <ItemGroup Condition="'$(DisableImplicitFrameworkReferences)' != 'true'">
+        <!-- set as private assets all since we don't need this in the publish output folder -->
+        <PackageReference Include="Microsoft.Build" Version="$(MicrosoftBuildVersion)" IsImplicitlyDefined="true" PrivateAssets="All" />
+        <PackageReference Include="Microsoft.Build.Framework" Version="$(MicrosoftBuildVersion)" IsImplicitlyDefined="true" PrivateAssets="All" />
+        <PackageReference Include="Microsoft.Build.Tasks.Core" Version="$(MicrosoftBuildVersion)" IsImplicitlyDefined="true" PrivateAssets="All" />
+        <PackageReference Include="Microsoft.Build.Utilities.Core" Version="$(MicrosoftBuildVersion)" IsImplicitlyDefined="true" PrivateAssets="All" />
+        <!-- because almost everyone ends up using JSON in repo tasks -->
+        <PackageReference Include="Newtonsoft.Json" Version="$(JsonInMSBuildVersion)" IsImplicitlyDefined="true" PrivateAssets="All" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup Condition="'$(DisableImplicitFrameworkReferences)' != 'true'">
+        <Reference Include="Microsoft.Build" />
+        <Reference Include="Microsoft.Build.Framework" />
+        <Reference Include="Microsoft.Build.Tasks.v4.0" />
+        <Reference Include="Microsoft.Build.Utilities.v4.0" />
+        <!-- because almost everyone ends up using JSON in repo tasks -->
+        <PackageReference Include="Newtonsoft.Json" Version="$(JsonInMSBuildVersion)" IsImplicitlyDefined="true" PrivateAssets="All" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
 
 </Project>

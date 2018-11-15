@@ -51,8 +51,6 @@ namespace Microsoft.AspNetCore.BuildTools
             SourceLinkRoot += '*';
 
             var codeSource = ConvertUrl();
-
-            // TODO allow multiple. See https://github.com/aspnet/Universe/issues/858
             var mappings = new List<Mapping>
             {
                 new Mapping { LocalPath = SourceLinkRoot, Url = codeSource },

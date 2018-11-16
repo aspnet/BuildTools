@@ -88,7 +88,7 @@ namespace Microsoft.AspNetCore.BuildTools
                     }
 
                     var entry = zip.CreateEntryFromFile(file.ItemSpec, entryName);
-#if NET46
+#if NET472
 #elif NETCOREAPP3_0 || NETSTANDARD2_0
                     if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                     {

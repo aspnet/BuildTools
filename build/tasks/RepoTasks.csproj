@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <TargetFramework Condition=" '$(MSBuildRuntimeType)' == 'core' ">netcoreapp3.0</TargetFramework>
-    <TargetFramework Condition=" '$(MSBuildRuntimeType)' != 'core' ">net46</TargetFramework>
+    <TargetFramework Condition=" '$(MSBuildRuntimeType)' != 'core' ">net472</TargetFramework>
     <DefineConstants>$(DefineConstants);BuildTools</DefineConstants>
     <NoWarn>$(NoWarn);NU1603</NoWarn>
     <ProjectType>RepoTasks</ProjectType>

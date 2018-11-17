@@ -9,6 +9,7 @@
       https://dotnet.myget.org/F/msbuild/api/v3/index.json;
       https://dotnet.myget.org/F/nuget-build/api/v3/index.json;
       https://api.nuget.org/v3/index.json;
+      https://dotnet.myget.org/F/roslyn-tools/api/v3/index.json;
     </RestoreSources>
   </PropertyGroup>
 </Project>

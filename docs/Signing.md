@@ -80,7 +80,7 @@ Sometimes other signable assemblies end up in a nupkg. Signing for these file ty
 
     <!-- Specifying signing for a file in a package using an explicit path within the NuGet package. -->
     <SignedPackageFile Include="$(OutputPath)$(TargetFileName)" Certificate="$(AssemblySigningCertName)"
-      PackagePath="tasks/net472/$(TargetFileName)" Visible="false" />
+      PackagePath="tasks/net461/$(TargetFileName)" Visible="false" />
 
     <!-- Third-party cert -->
     <SignedPackageFile Include="tools/Newtonsoft.Json.dll" Certificate="3PartySHA2" Visible="false" />

@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <PrepareDependsOn Condition=" '$(DisableDefaultTargets)' != 'true' ">GetToolsets;$(PrepareDependsOn)</PrepareDependsOn>
-    <RestoreDependsOn Condition=" '$(DisableDefaultTargets)' != 'true' ">InstallDotNet;$(RestoreDependsOn)</RestoreDependsOn>
+    <RestoreDependsOn Condition=" '$(DisableDefaultTargets)' != 'true' ">InstallDotNet;CheckPackageReferences;$(RestoreDependsOn)</RestoreDependsOn>
 
     <DisablePackageReferenceRestrictions Condition=" '$(DisablePackageReferenceRestrictions)' == '' ">false</DisablePackageReferenceRestrictions>
     <KoreBuildConfigFile Condition="'$(KoreBuildConfigFile)' == ''">$(RepositoryRoot)korebuild.json</KoreBuildConfigFile>
@@ -49,6 +49,62 @@ Downloads and extracts .NET Core shared runtimes and SDKs.
 
 <!--
 ####################################################################################
+Target: CheckPackageReferences
+
+Validates that all PackageReference's use the $(IdPackageVersion) pattern.
+####################################################################################
+-->
+  <ItemGroup>
+    <CommonlyImportedFiles Include="$(RepositoryRoot)Directory.Build.props" />
+    <CommonlyImportedFiles Include="$(RepositoryRoot)Directory.Build.targets" />
+    <CommonlyImportedFiles Include="$(RepositoryRoot)benchmarks\Directory.Build.props" />
+    <CommonlyImportedFiles Include="$(RepositoryRoot)benchmarks\Directory.Build.targets" />
+    <CommonlyImportedFiles Include="$(RepositoryRoot)samples\Directory.Build.props" />
+    <CommonlyImportedFiles Include="$(RepositoryRoot)samples\Directory.Build.targets" />
+    <CommonlyImportedFiles Include="$(RepositoryRoot)src\Directory.Build.props" />
+    <CommonlyImportedFiles Include="$(RepositoryRoot)src\Directory.Build.targets" />
+    <CommonlyImportedFiles Include="$(RepositoryRoot)test\Directory.Build.props" />
+    <CommonlyImportedFiles Include="$(RepositoryRoot)test\Directory.Build.targets" />
+    <CommonlyImportedFiles Include="$(RepositoryRoot)build\common.props" />
+  </ItemGroup>
+
+  <Target Name="CheckPackageReferences"
+          DependsOnTargets="ResolveSolutions"
+          Condition="'$(DisablePackageReferenceRestrictions)' != 'true'">
+    <ItemGroup>
+      <CommonlyImportedFiles Remove="@(CommonlyImportedFiles)" Condition="!Exists(%(CommonlyImportedFiles.Identity))" />
+    </ItemGroup>
+
+    <CheckPackageReferences
+      Projects="@(Solutions);@(CommonlyImportedFiles)"
+      DependenciesFile="$(DependencyVersionsFile)"
+      Properties="$(BuildProperties)"/>
+  </Target>
+
+<!--
+####################################################################################
+Target: UpgradeDependencies
+
+Fetchs a remote configuration of latest dependencies to use, and modifies the
+dependencies.props file in the current project to use latest versions.
+####################################################################################
+-->
+
+  <!-- See also DependenciesUpgradeCommand.cs in KoreBuild.Console for a more discoverable way to run this. -->
+  <Target Name="UpgradeDependencies">
+    <Error Text="LineupPackageId was not set." Condition="'$(LineupPackageId)' == ''" />
+    <Error Text="LineupPackageRestoreSource was not set." Condition="'$(LineupPackageRestoreSource)' == ''" />
+
+    <UpgradeDependencies
+      DependenciesFile="$(DependencyVersionsFile)"
+      LineupPackageId="$(LineupPackageId)"
+      LineupPackageVersion="$(LineupPackageVersion)"
+      LineupPackageRestoreSource="$(LineupPackageRestoreSource)"
+      LineupDependenciesFile="$(LineupDependenciesFile)" />
+  </Target>
+
+<!--
+####################################################################################
 Target: InstallToolsets
 
 Installs all VS components specified in the korebuild.json required components.
@@ -59,6 +115,27 @@ Installs all VS components specified in the korebuild.json required components.
       QuietVSInstallation="$(QuietVSInstallation)"
       UpgradeVSInstallation="$(UpgradeVSInstallation)"
       VSProductVersionType="$(VSProductVersionType)" />
+  </Target>
+
+<!--
+####################################################################################
+Target: GenerateDependenciesPropsFile
+
+Generates a dependencies.props file from existing MSBuild projects, replacing
+explicit versions with version variables.
+####################################################################################
+-->
+  <!-- See also DependenciesGenerateCommand.cs in KoreBuild.Console for a more discoverable way to run this. -->
+  <Target Name="GenerateDependenciesPropsFile" DependsOnTargets="ResolveSolutions">
+    <ItemGroup>
+      <CommonlyImportedFiles Remove="@(CommonlyImportedFiles)" Condition="!Exists(%(CommonlyImportedFiles.Identity))" />
+    </ItemGroup>
+
+    <GenerateDependenciesPropsFile
+      Projects="@(Solutions)"
+      OtherImports="@(CommonlyImportedFiles)"
+      DependenciesFile="$(DependencyVersionsFile)"
+      Properties="$(BuildProperties)" />
   </Target>
 
 <!--

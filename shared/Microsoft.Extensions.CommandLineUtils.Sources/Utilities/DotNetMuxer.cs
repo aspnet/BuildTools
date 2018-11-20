@@ -37,7 +37,7 @@ namespace Microsoft.Extensions.CommandLineUtils
         private static string TryFindMuxerPath()
         {
             var fileName = MuxerName;
-#if NET472
+#if NET46
             fileName += ".exe";
 #elif NETCOREAPP3_0 || NETCOREAPP2_2 || NETCOREAPP2_1 || NETSTANDARD2_0
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))

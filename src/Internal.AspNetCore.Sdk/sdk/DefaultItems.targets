@@ -14,7 +14,6 @@
 
   <ItemGroup Condition="'$(ProjectType)' == 'RepoTasks' AND '$(DisableImplicitFrameworkReferences)' != 'true'">
     <!-- set as private assets all since we don't need this in the publish output folder -->
-    <PackageReference Include="Microsoft.Build" Version="$(MicrosoftBuildPackageVersion)" IsImplicitlyDefined="true" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Build.Framework" Version="$(MicrosoftBuildPackageVersion)" IsImplicitlyDefined="true" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Build.Tasks.Core" Version="$(MicrosoftBuildPackageVersion)" IsImplicitlyDefined="true" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="$(MicrosoftBuildPackageVersion)" IsImplicitlyDefined="true" PrivateAssets="All" />

@@ -21,7 +21,7 @@ namespace Microsoft.AspNetCore.BuildTools
         protected override string ToolName => "dotnet";
 
         protected override string GenerateFullPathToTool()
-#if NET46
+#if NET472
             => "dotnet";
 #else
             => DotNetMuxer.MuxerPathOrDefault();

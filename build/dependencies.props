@@ -5,6 +5,7 @@
     <MicrosoftDotNetPlatformAbstractionsVersion>2.0.0</MicrosoftDotNetPlatformAbstractionsVersion>
     <MicrosoftDotNetSignToolPackageVersion>1.0.0-beta.18559.6</MicrosoftDotNetSignToolPackageVersion>
     <MicrosoftDotNetSignCheckPackageVersion>1.0.0-beta.18559.6</MicrosoftDotNetSignCheckPackageVersion>
+    <MicrosoftNETFrameworkReferenceAssemblies>1.0.0-alpha-004</MicrosoftNETFrameworkReferenceAssemblies>
     <MicrosoftNETTestSdkPackageVersion>15.9.0</MicrosoftNETTestSdkPackageVersion>
     <MonoCecilPackageVersion>0.10.0-beta6</MonoCecilPackageVersion>
     <MoqPackageVersion>4.7.99</MoqPackageVersion>
@@ -24,7 +25,7 @@
     as long as the version we compile for is binary compatible with what the .NET Core SDK uses.
   -->
   <PropertyGroup>
-    <MicrosoftBuildPackageVersion>15.9.19</MicrosoftBuildPackageVersion>
+    <MicrosoftBuildPackageVersion>16.0.0-preview.225</MicrosoftBuildPackageVersion>
     <MicrosoftBuildFrameworkPackageVersion>$(MicrosoftBuildPackageVersion)</MicrosoftBuildFrameworkPackageVersion>
     <MicrosoftBuildUtilitiesCorePackageVersion>$(MicrosoftBuildPackageVersion)</MicrosoftBuildUtilitiesCorePackageVersion>
     <MicrosoftBuildTasksCorePackageVersion>$(MicrosoftBuildPackageVersion)</MicrosoftBuildTasksCorePackageVersion>

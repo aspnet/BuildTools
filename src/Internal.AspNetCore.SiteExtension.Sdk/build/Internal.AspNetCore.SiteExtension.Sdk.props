@@ -5,7 +5,7 @@
 <Project TreatAsLocalProperty="TaskFolder;TaskAssembly">
   <PropertyGroup>
     <TaskFolder Condition=" '$(MSBuildRuntimeType)' == 'Core' ">netcoreapp3.0</TaskFolder>
-    <TaskFolder Condition=" '$(MSBuildRuntimeType)' != 'Core' ">net46</TaskFolder>
+    <TaskFolder Condition=" '$(MSBuildRuntimeType)' != 'Core' ">net472</TaskFolder>
     <TaskAssembly>$(MSBuildThisFileDirectory)..\tools\$(TaskFolder)\Internal.AspNetCore.SiteExtension.Sdk.dll</TaskAssembly>
   </PropertyGroup>
 

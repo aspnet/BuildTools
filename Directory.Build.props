@@ -20,4 +20,8 @@
     <RepositoryRoot>$(MSBuildThisFileDirectory)</RepositoryRoot>
   </PropertyGroup>
 
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework' ">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="$(MicrosoftNETFrameworkReferenceAssemblies)" PrivateAssets="All" />
+  </ItemGroup>
+
 </Project>

@@ -2,7 +2,7 @@
   <PropertyGroup>
     <PrepareDependsOn>$(PrepareDependsOn);Greet</PrepareDependsOn>
     <PackageDependsOn>$(PackageDependsOn);PackLineup</PackageDependsOn>
-    <VerifyDependsOn>$(VerifyDependsOn);TestNuGetPush;UpgradeDependencies</VerifyDependsOn>
+    <VerifyDependsOn>$(VerifyDependsOn);TestNuGetPush</VerifyDependsOn>
 
     <LineupPackageId>Sample.Lineup</LineupPackageId>
     <LineupPackageVersion>$(Version)</LineupPackageVersion>

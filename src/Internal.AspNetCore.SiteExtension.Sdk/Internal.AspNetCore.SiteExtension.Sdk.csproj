@@ -2,7 +2,7 @@
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.props" />
   <PropertyGroup>
     <PackageId>Internal.AspNetCore.SiteExtension.Sdk</PackageId>
-    <TargetFrameworks>netcoreapp3.0;net46</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;net472</TargetFrameworks>
     <Serviceable>false</Serviceable>
     <Description>Build targets and extensions to Microsoft.NET.Sdk. This package is intended for Microsoft use only.</Description>
     <NuspecFile>$(MSBuildThisFileDirectory)$(MSBuildProjectName).nuspec</NuspecFile>

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <_BuildToolsAssembly Condition="'$(MSBuildRuntimeType)' == 'core' ">$(MSBuildThisFileDirectory)netcoreapp3.0\Internal.AspNetCore.BuildTools.Tasks.dll</_BuildToolsAssembly>
-    <_BuildToolsAssembly Condition="'$(MSBuildRuntimeType)' != 'core' ">$(MSBuildThisFileDirectory)net472\Internal.AspNetCore.BuildTools.Tasks.dll</_BuildToolsAssembly>
+    <_BuildToolsAssembly Condition="'$(MSBuildRuntimeType)' != 'core' ">$(MSBuildThisFileDirectory)net46\Internal.AspNetCore.BuildTools.Tasks.dll</_BuildToolsAssembly>
     <_BuildTasksPrefix></_BuildTasksPrefix>
   </PropertyGroup>
 

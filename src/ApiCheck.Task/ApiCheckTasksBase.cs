@@ -101,7 +101,7 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
             if (Framework.StartsWith("net4", StringComparison.OrdinalIgnoreCase))
             {
                 var taskAssemblyFolder = Path.GetDirectoryName(GetType().GetTypeInfo().Assembly.Location);
-                return Path.GetFullPath(Path.Combine(taskAssemblyFolder, "..", "net472", ToolExe));
+                return Path.GetFullPath(Path.Combine(taskAssemblyFolder, "..", "net46", ToolExe));
             }
 
             // If muxer does not find dotnet, fall back to system PATH and hope for the best.

@@ -4,7 +4,7 @@
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);BuildTools</DefineConstants>
     <Description>MSBuild tasks. This package is intended for Microsoft use only</Description>
-    <TargetFrameworks>netcoreapp2.1;net46</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;net46</TargetFrameworks>
     <RootNamespace>Microsoft.AspNetCore.BuildTools</RootNamespace>
     <AssemblyName>Internal.AspNetCore.BuildTools.Tasks</AssemblyName>
   </PropertyGroup>
@@ -14,7 +14,7 @@
     <Compile Include="..\..\shared\Microsoft.Extensions.CommandLineUtils.Sources\Utilities\*.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
     <PackageReference Include="Microsoft.Build.Framework" Version="$(MicrosoftBuildFrameworkPackageVersion)" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="$(MicrosoftBuildUtilitiesCorePackageVersion)" PrivateAssets="All" />
   </ItemGroup>

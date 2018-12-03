@@ -10,12 +10,16 @@
       <NormalizedPackageVersion Condition="$(NormalizedPackageVersion.Contains('+'))">$(PackageVersion.Substring(0, $(PackageVersion.IndexOf('+'))))</NormalizedPackageVersion>
       <FullPackageOutputPath>$(PackageOutputPath)$(PackageId).$(NormalizedPackageVersion).nupkg</FullPackageOutputPath>
       <SymbolsPackageOutputPath>$(PackageOutputPath)$(PackageId).$(NormalizedPackageVersion).symbols.nupkg</SymbolsPackageOutputPath>
+      
+      <!-- Detect if Internal.AspNetCore.Sdk is referenced -->
+      <_ReferencesInternalAspNetCoreSdk Condition="'$(_ReferencesInternalAspNetCoreSdk)' == ''">@(PackageReference->AnyHaveMetadataValue('Identity', 'Internal.AspNetCore.Sdk'))</_ReferencesInternalAspNetCoreSdk>
+      <!-- If _ReferencesInternalAspNetCoreSdk is still empty, it means there are no package references, so it should be false -->
+      <_ReferencesInternalAspNetCoreSdk Condition="'$(_ReferencesInternalAspNetCoreSdk)' == ''">false</_ReferencesInternalAspNetCoreSdk>
 
       <!--
         Workaround for design time builds on projects using Internal.AspNetCore.Sdk that have not yet been restored.
         IncludeSymbols and IncludeSource are off by default but are enabled in Internal.AspNetCore.Sdk.
       -->
-      <_ReferencesInternalAspNetCoreSdk Condition="'$(_ReferencesInternalAspNetCoreSdk)' == ''">@(PackageReference->AnyHaveMetadataValue('Identity', 'Internal.AspNetCore.Sdk'))</_ReferencesInternalAspNetCoreSdk>
       <IncludeSymbols Condition="'$(IncludeSymbols)' == '' AND $(_ReferencesInternalAspNetCoreSdk)">true</IncludeSymbols>
       <IncludeSource Condition="'$(IncludeSource)' == '' AND $(_ReferencesInternalAspNetCoreSdk)">true</IncludeSource>
     </PropertyGroup>

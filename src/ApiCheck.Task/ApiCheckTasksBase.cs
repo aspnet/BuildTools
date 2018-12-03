@@ -129,7 +129,7 @@ namespace Microsoft.AspNetCore.BuildTools.ApiCheck.Task
             if (!Framework.StartsWith("net4", StringComparison.OrdinalIgnoreCase))
             {
                 var taskAssemblyFolder = Path.GetDirectoryName(GetType().GetTypeInfo().Assembly.Location);
-                var toolPath = Path.Combine(taskAssemblyFolder, "..", "netcoreapp2.2", ApiCheckToolName + ".dll");
+                var toolPath = Path.Combine(taskAssemblyFolder, "..", "netcoreapp3.0", ApiCheckToolName + ".dll");
                 arguments = $@"""{Path.GetFullPath(toolPath)}"" ";
             }
 

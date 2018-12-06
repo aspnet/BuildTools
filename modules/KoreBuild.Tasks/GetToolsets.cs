@@ -136,6 +136,7 @@ namespace KoreBuild.Tasks
                 FileName = nodePath,
                 Arguments = "--version",
                 RedirectStandardOutput = true,
+                UseShellExecute = false,
             });
             process.WaitForExit();
 

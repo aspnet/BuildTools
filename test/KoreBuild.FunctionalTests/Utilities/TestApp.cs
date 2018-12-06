@@ -77,6 +77,7 @@ namespace KoreBuild.FunctionalTests
                 Arguments = ArgumentEscaper.EscapeAndConcatenate(arguments),
                 RedirectStandardError = true,
                 RedirectStandardOutput = true,
+                UseShellExecute = false,
 
                 WorkingDirectory = WorkingDirectory,
             };
@@ -91,6 +92,7 @@ namespace KoreBuild.FunctionalTests
                 output.WriteLine(e.Data ?? string.Empty);
             }
 
+            psi.UseShellExecute = false;
             psi.RedirectStandardError = true;
             psi.RedirectStandardOutput = true;
             psi.Environment["PATH"] = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName) + Path.PathSeparator + Environment.GetEnvironmentVariable("PATH");

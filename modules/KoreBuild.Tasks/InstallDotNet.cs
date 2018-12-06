@@ -153,6 +153,7 @@ namespace KoreBuild.Tasks
                         Arguments = ArgumentEscaper.EscapeAndConcatenate(arguments),
                         RedirectStandardError = true,
                         RedirectStandardOutput = true,
+                        UseShellExecute = false,
                     },
                     EnableRaisingEvents = true,
                 })

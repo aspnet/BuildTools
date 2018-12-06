@@ -494,7 +494,7 @@ function Get-MSBuildPath() {
         }
     }
 
-    return 'msbuild.exe'
+    throw 'Could not find a version of MSBuild which satisfies the requirements specified in korebuild.json.'
 }
 
 function __has_member($obj, $name) {

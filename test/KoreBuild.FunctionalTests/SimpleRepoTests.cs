@@ -143,7 +143,8 @@ namespace KoreBuild.FunctionalTests
         {
             var startInfo = new ProcessStartInfo("docker", @"version -f ""{{ .Server.Os }}""")
             {
-                RedirectStandardOutput = true
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
             };
 
             using (var process = Process.Start(startInfo))
@@ -186,7 +187,8 @@ namespace KoreBuild.FunctionalTests
                 var startInfo = new ProcessStartInfo("docker", "--version")
                 {
                     RedirectStandardOutput = true,
-                    RedirectStandardError = true
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
                 };
                 using (Process.Start(startInfo))
                 {

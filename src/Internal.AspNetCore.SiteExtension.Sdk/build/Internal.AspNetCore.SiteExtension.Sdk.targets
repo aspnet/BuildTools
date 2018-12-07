@@ -23,7 +23,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Remove="Internal.AspNetCore.Sdk" />
-    <PackageReference Remove="Microsoft.NETCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.App" Version="$(MicrosoftAspNetCoreAppPackageVersion)" IsImplicitlyDefined="true"/>
     <PackageReference Include="%(HostingStartupPackageReference.Identity)" Version="%(HostingStartupPackageReference.Version)" />
   </ItemGroup>
@@ -32,7 +31,7 @@
       </ManifestFileContents>
     </PropertyGroup>
 
-    <ItemGroup Condition="'@(HostingStartupRuntimeStoreFrameworks->Count())' == '0'">
+    <ItemGroup Condition="'@(HostingStartupRuntimeStoreTargets->Count())' == '0'">
       <HostingStartupRuntimeStoreTargets Include="netcoreapp3.0" Runtime="win7-x64" />
       <HostingStartupRuntimeStoreTargets Include="netcoreapp3.0" Runtime="win7-x86" />
     </ItemGroup>
@@ -54,7 +53,7 @@
 
     <!-- Generate runtime store -->
     <WriteLinesToFile File="$(_RuntimeStoreManifestFile)" Lines="$(ManifestFileContents)" Overwrite="true" Encoding="Unicode"/>
-    <Exec Command="dotnet store -m $(_RuntimeStoreManifestFile) -f %(HostingStartupRuntimeStoreTargets.Identity) --framework-version $(HostingStartupRuntimeFrameworkVersion) -r %(HostingStartupRuntimeStoreTargets.Runtime) --output $(_RuntimeStoreOutput) --skip-optimization /p:DotNetRestoreSourcePropsPath=$(DotNetRestoreSourcePropsPath)" />
+    <Exec Command="dotnet store -m $(_RuntimeStoreManifestFile) -f %(HostingStartupRuntimeStoreTargets.Identity) --framework-version $(HostingStartupRuntimeFrameworkVersion) -r %(HostingStartupRuntimeStoreTargets.Runtime) --output $(_RuntimeStoreOutput)\%(HostingStartupRuntimeStoreTargets.Runtime) --skip-optimization /p:DotNetRestoreSourcePropsPath=$(DotNetRestoreSourcePropsPath)" />
 
     <!-- Generate deps -->
     <RemoveDir Directories="%(_HostingStartupPackageReference.WorkingDirectory)" />
@@ -74,8 +73,9 @@
     <RepoTasks.TrimDeps DepsFiles="%(_HostingStartupPackageReference.TrimmedDepsFile)" />
 
     <ItemGroup>
-      <Content Include="$(_RuntimeStoreOutput)\**\*" PackagePath="content\store\%(RecursiveDir)" />
+      <_RuntimeStoreFiles Include="$(_RuntimeStoreOutput)\%(HostingStartupRuntimeStoreTargets.Runtime)\**\*.dll" />
 
+      <Content Include="%(_RuntimeStoreFiles.Identity)" PackagePath="content\store\%(RecursiveDir)" />
       <Content Include="%(_HostingStartupPackageReference.TrimmedDepsFile)" PackagePath="%(_HostingStartupPackageReference.PackagePath)" />
     </ItemGroup>
 

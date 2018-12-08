@@ -106,7 +106,7 @@ __install_tools() {
     local tools_source=$1
     local install_dir=$2
     local tools_home="$install_dir/buildtools"
-    local netfx_version='4.6.1'
+    local netfx_version='4.7.2'
 
     verbose_flag=''
     [ "$verbose" = true ] && verbose_flag='--verbose'

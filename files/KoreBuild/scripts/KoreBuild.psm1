@@ -390,7 +390,7 @@ function Invoke-KoreBuildCommand(
 
     $sdkVersion = __get_dotnet_sdk_version
     $korebuildVersion = Get-KoreBuildVersion
-    if ($sdkVersion -ne 'latest') {
+    if ($sdkVersion -ne 'latest' -and $env:KOREBUILD_KEEPGLOBALJSON -ne '1') {
         @"
 {
     `"sdk`": {

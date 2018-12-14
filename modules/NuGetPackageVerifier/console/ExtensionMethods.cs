@@ -3,11 +3,13 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Runtime.Loader;
+using NuGet.Packaging;
 
 namespace NuGetPackageVerifier
 {
-    public class AssemblyHelpers
+    public static class AssemblyHelpers
     {
         public static bool IsAssemblyManaged(string assemblyPath)
         {
@@ -31,5 +33,8 @@ namespace NuGetPackageVerifier
             }
             return false;
         }
+
+        public static bool IsDotNetToolPackage(this IPackageMetadata metadata)
+            => metadata.PackageTypes.Count() > 0 && metadata.PackageTypes.All(p => p == Constants.DotNetTool);
     }
 }

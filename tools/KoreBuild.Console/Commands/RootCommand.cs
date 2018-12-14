@@ -15,6 +15,15 @@ namespace KoreBuild.Console.Commands
             application.FullName = "korebuild";
 
             application.Command("install-tools", new InstallToolsCommand(context).Configure, throwOnUnexpectedArg: false);
+            application.Command("install", c => {
+                c.HelpOption("-h|--help");
+                c.Command("vs", new InstallToolsetsCommand(context).Configure, throwOnUnexpectedArg: false);
+                c.OnExecute(() =>
+                {
+                    c.ShowHelp();
+                    return 2;
+                });
+            });
             application.Command("msbuild", new MSBuildCommand(context).Configure, throwOnUnexpectedArg: false);
             application.Command("docker-build", new DockerBuildCommand(context).Configure, throwOnUnexpectedArg: false);
 

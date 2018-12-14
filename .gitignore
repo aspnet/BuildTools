@@ -19,6 +19,7 @@ node_modules
 .nuget/NuGet.exe
 project.lock.json
 .build
+.idea/
 .vs/
 .vscode/
 global.json

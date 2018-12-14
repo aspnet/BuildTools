@@ -61,7 +61,10 @@
         <ShouldBeSigned Condition=" '$(DisableCodeSigning)' == 'true' ">false</ShouldBeSigned>
         <IsContainer>true</IsContainer>
       </ArtifactInfo>
-
+    </ItemGroup>
+    
+    <!-- Still return metadata about signable package contents when producing a servicing build. -->
+    <ItemGroup Condition="'$(IsPackable)' != 'false' OR '$(IsPackableInNonServicingBuild)' == 'true' ">
       <ArtifactInfo Include="@(_SignedPackageFile)" Condition=" '$(DisableCodeSigning)' != 'true' ">
         <ShouldBeSigned>true</ShouldBeSigned>
         <Container>$(FullPackageOutputPath)</Container>

@@ -1,4 +1,5 @@
 <Project>
+
   <Import Project="..\..\build\dependencies.props" />
 
   <Target Name="Publish">
@@ -28,7 +29,7 @@
     <ImportDirectoryBuildTargets>false</ImportDirectoryBuildTargets>
   </PropertyGroup>
 
-  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+  <Sdk Name="Internal.AspNetCore.Sdk" Version="$(Version)" />
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
@@ -37,10 +38,7 @@
 
   <ItemGroup>
     <PackageReference Include="MicroBuild.Core" Version="$(MicroBuildCorePackageVersion)" />
-    <PackageReference Include="Internal.AspNetCore.Sdk" Version="$(Version)" />
   </ItemGroup>
-
-  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 
 </Project>
 ]]>

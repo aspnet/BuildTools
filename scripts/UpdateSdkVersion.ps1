@@ -9,9 +9,7 @@ to know the internal details of how config files are layed out in this repo.
 [cmdletbinding(SupportsShouldProcess = $true, PositionalBinding = $false)]
 param(
     [Parameter()]
-    [Alias("sdk")]
-    [string]$DotNetSdkVersion = $null,
-    [string]$DotNetRuntimeVersion = $null,
+    [string]$Version = $null,
     [string[]]$GitCommitArgs = @(),
     [switch]$Force
 )
@@ -27,13 +25,13 @@ if (!$git) {
 
 $updates = @()
 
-if ($DotNetSdkVersion -and $PSCmdlet.ShouldProcess("Update dotnet SDK to $DotNetSdkVersion")) {
+if ($Version -and $PSCmdlet.ShouldProcess("Update dotnet SDK to $Version")) {
     $path = "$PSScriptRoot/../files/KoreBuild/config/sdk.version"
     $currentVersion = (Get-Content -path $path -Encoding Ascii).Trim()
-    if ($currentVersion -ne $DotNetSdkVersion) {
-        $DotNetSdkVersion | Set-Content -path $path -Encoding Ascii
+    if ($currentVersion -ne $Version) {
+        $Version | Set-Content -path $path -Encoding Ascii
         if ($git) { & git add $path }
-        $updates += "SDK to $DotNetSdkVersion"
+        $updates += "SDK to $Version"
     }
 }
 

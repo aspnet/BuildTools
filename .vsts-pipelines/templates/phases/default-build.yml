@@ -75,7 +75,7 @@ phases:
     demands: ${{ parameters.demands }}
   variables:
     AgentOsName: ${{ parameters.agentOs }}
-    ASPNETCORE_TEST_LOG_DIR: ${{ format('{0}/logs/testlogs', parameters.artifacts.path) }}
+    ASPNETCORE_TEST_LOG_DIR: $(Build.SourcesDirectory)/artifacts/logs/testlogs
     ASPNETCORE_TEST_LOG_MAXPATH: "200" # Keep test log file name length low enough for artifact zipping
     DOTNET_HOME: $(Agent.WorkFolder)/.dotnet
     BuildScriptArgs: ${{ parameters.buildArgs }}
@@ -99,6 +99,12 @@ phases:
     inputs:
       testRunner: vstest
       testResultsFiles: 'artifacts/logs/**/*.trx'
+  - task: PublishTestResults@2
+    displayName: Publish junit test results
+    condition: always()
+    inputs:
+      testRunner: junit
+      testResultsFiles: 'artifacts/logs/**/*.junit.xml'
   - ${{ if eq(parameters.artifacts.publish, 'true') }}:
     - task: PublishBuildArtifacts@1
       displayName: Upload artifacts

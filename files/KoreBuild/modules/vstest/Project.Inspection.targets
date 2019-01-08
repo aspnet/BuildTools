@@ -3,8 +3,17 @@
   <PropertyGroup>
     <GetTestAssemblyDependsOn Condition="'$(TargetFramework)' != ''">GetTargetPath</GetTestAssemblyDependsOn>
     <!-- TestGroupNamePrefix can be set externally when building multiple repos together -->
+    <TestGroupName Condition="'$(TestGroupName)' == '' and '$(RunTestAssembliesInParallel)' == 'false'">$(TestGroupNamePrefix)$(MSBuildProjectName)</TestGroupName>
     <TestGroupName Condition="'$(TestGroupName)' == ''">$(TestGroupNamePrefix)UnitTests</TestGroupName>
+
+    <VsTestSupported Condition="'$(VsTestSupported)' == '' AND ( '$(MSBuildProjectExtension)' == '.csproj' OR '$(MSBuildProjectExtension)' == '.vbproj' OR '$(MSBuildProjectExtension)' == '.fsproj' )">true</VsTestSupported>
   </PropertyGroup>
+
+  <Target Name="_IsKoreBuildVsTestSupported" Returns="@(_IsKoreBuildVsTestSupported)">
+    <ItemGroup Condition="'$(VsTestSupported)' == 'true' ">
+      <_IsKoreBuildVsTestSupported Include="$(MSBuildProjectFullPath)" />
+    </ItemGroup>
+  </Target>
 
   <Target Name="GetTestAssembly" DependsOnTargets="$(GetTestAssemblyDependsOn)" Returns="@(TestAssembly)">
     <ItemGroup Condition=" '$(SkipTests)' != 'true' AND ( '$(IsTestProject)' == 'true' OR ('$(IsTestProject)' == '' AND @(PackageReference->WithMetadataValue('Identity', 'Microsoft.NET.Test.Sdk')->Count()) != 0) )">

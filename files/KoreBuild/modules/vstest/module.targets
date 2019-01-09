@@ -22,6 +22,7 @@ Runs the VSTest on all projects in the ProjectToBuild itemgroup.
       Targets="GetTestAssembly"
       Properties="$(BuildProperties);CustomAfterMicrosoftCommonTargets=$(_InspectionTargetsFile);CustomAfterMicrosoftCommonCrossTargetingTargets=$(_InspectionTargetsFile);%(ProjectToBuild.AdditionalProperties)"
       Condition="@(ProjectToBuild->Count()) != 0"
+      SkipNonexistentTargets="true"
       BuildInParallel="true"
       RemoveProperties="$(_BuildPropertiesToRemove)">
       <Output TaskParameter="TargetOutputs" ItemName="TestAssembly" />
@@ -33,25 +34,58 @@ Runs the VSTest on all projects in the ProjectToBuild itemgroup.
     </ItemGroup>
   </Target>
 
-  <Target Name="TestProjects" DependsOnTargets="GetTestAssemblies">
+  <Target Name="TestProjects" DependsOnTargets="GetTestAssemblies;_ShowTestPlan;_RunTests" />
+
+  <Target Name="_ShowTestPlan" DependsOnTargets="GetTestAssemblies">
+    <!-- Detect which tests support running via the VSTest target. -->
+    <MSBuild Projects="@(ProjectToBuild)"
+      Targets="_IsVsTestSupported "
+      Properties="$(BuildProperties);CustomAfterMicrosoftCommonTargets=$(_InspectionTargetsFile);CustomAfterMicrosoftCommonCrossTargetingTargets=$(_InspectionTargetsFile);%(ProjectToBuild.AdditionalProperties)"
+      Condition="@(ProjectToBuild->Count()) != 0"
+      SkipNonexistentTargets="true"
+      BuildInParallel="true"
+      RemoveProperties="$(_BuildPropertiesToRemove)">
+      <Output TaskParameter="TargetOutputs" ItemName="_ProjectWithSupportVsTest" />
+    </MSBuild>
+
+    <ItemGroup>
+      <!-- Projects which do not support vstest can still run tests if they implement a 'Test' target. -->
+      <_ProjectToTestDirectly Include="@(ProjectToBuild)" Exclude="@(_ProjectWithSupportVsTest)" />
+    </ItemGroup>
+
+    <Message Text="%0ATest plan:" Importance="High" />
+    <Message Text="  VSTest:" Importance="High" Condition="@(TestAssembly->Count()) != 0" />
+    <Message Text="  - %(TestAssembly.TestGroupName)/%(TestAssembly.TargetFramework)%0A    - @(TestAssembly->'%(FileName)', '%0A    - ')" Importance="High" Condition="@(TestAssembly->Count()) != 0" />
+    <Message Text="  - (No test projects found)" Importance="High" Condition="@(TestAssembly->Count()) == 0"  />
+    <Message Text="  Test:%0A    - @(_ProjectToTestDirectly, '%0A    - ')" Importance="High" Condition="@(_ProjectToTestDirectly->Count()) != 0" />
+  </Target>
+
+  <Target Name="_RunTests">
     <PropertyGroup>
       <_TestContinueOnError Condition="'$(IgnoreFailingTestProjects)' == 'true'">ErrorAndContinue</_TestContinueOnError>
       <_TestContinueOnError Condition="'$(IgnoreFailingTestProjects)' != 'true'">ErrorAndStop</_TestContinueOnError>
     </PropertyGroup>
 
-    <Message Text="%0ATest plan:" Importance="High" />
-    <Message Text="  - %(TestAssembly.TestGroupName)/%(TestAssembly.TargetFramework)%0A    - @(TestAssembly->'%(FileName)', '%0A    - ')" Importance="High" Condition="@(TestAssembly->Count()) != 0" />
-    <Message Text="  - (No test projects found)" Importance="High" Condition="@(TestAssembly->Count()) == 0"  />
-
     <ItemGroup>
-      <TestGroups Include="$(MSBuildProjectFullPath)" Condition="'%(TestAssembly.TestGroupName)' != ''">
+      <!-- This runs test assemblies through VSTest. -->
+      <_TestGroups Include="$(MSBuildProjectFullPath)" Condition="'%(TestAssembly.TestGroupName)' != ''">
+        <Targets>_ExecuteTestAssemblies</Targets>
+        <SkipNonexistentTargets>false</SkipNonexistentTargets>
         <AdditionalProperties>Assemblies=@(TestAssembly);TestGroupName=%(TestAssembly.TestGroupName);TargetFramework=%(TestAssembly.TargetFramework);TargetFrameworkIdentifier=%(TestAssembly.TargetFrameworkIdentifier);TargetFrameworkVersion=%(TestAssembly.TargetFrameworkVersion)</AdditionalProperties>
-      </TestGroups>
+      </_TestGroups>
+
+      <!-- This runs the 'Test' target on projects which do not support VSTest, if that target exists. -->
+      <_TestGroups Include="@(_ProjectToTestDirectly)">
+        <Targets>Test</Targets>
+        <SkipNonexistentTargets>true</SkipNonexistentTargets>
+        <AdditionalProperties>$(BuildProperties)</AdditionalProperties>
+      </_TestGroups>
     </ItemGroup>
 
-    <MSBuild Projects="@(TestGroups)"
-             Targets="_ExecuteTestAssemblies"
-             Condition="@(TestGroups->Count()) != 0"
+    <MSBuild Condition="@(_TestGroups->Count()) != 0"
+             Projects="@(_TestGroups)"
+             Targets="%(_TestGroups.Targets)"
+             SkipNonexistentTargets="%(_TestGroups.SkipNonexistentTargets)"
              BuildInParallel="false"
              ContinueOnError="$(_TestContinueOnError)" />
   </Target>

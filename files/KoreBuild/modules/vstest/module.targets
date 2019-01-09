@@ -39,7 +39,7 @@ Runs the VSTest on all projects in the ProjectToBuild itemgroup.
   <Target Name="_ShowTestPlan" DependsOnTargets="GetTestAssemblies">
     <!-- Detect which tests support running via the VSTest target. -->
     <MSBuild Projects="@(ProjectToBuild)"
-      Targets="_IsKoreBuildVsTestSupported"
+      Targets="_IsVsTestSupported "
       Properties="$(BuildProperties);CustomAfterMicrosoftCommonTargets=$(_InspectionTargetsFile);CustomAfterMicrosoftCommonCrossTargetingTargets=$(_InspectionTargetsFile);%(ProjectToBuild.AdditionalProperties)"
       Condition="@(ProjectToBuild->Count()) != 0"
       SkipNonexistentTargets="true"
@@ -67,23 +67,26 @@ Runs the VSTest on all projects in the ProjectToBuild itemgroup.
     </PropertyGroup>
 
     <ItemGroup>
-      <TestGroups Include="$(MSBuildProjectFullPath)" Condition="'%(TestAssembly.TestGroupName)' != ''">
+      <!-- This runs test assemblies through VSTest. -->
+      <_TestGroups Include="$(MSBuildProjectFullPath)" Condition="'%(TestAssembly.TestGroupName)' != ''">
+        <Targets>_ExecuteTestAssemblies</Targets>
+        <SkipNonexistentTargets>false</SkipNonexistentTargets>
         <AdditionalProperties>Assemblies=@(TestAssembly);TestGroupName=%(TestAssembly.TestGroupName);TargetFramework=%(TestAssembly.TargetFramework);TargetFrameworkIdentifier=%(TestAssembly.TargetFrameworkIdentifier);TargetFrameworkVersion=%(TestAssembly.TargetFrameworkVersion)</AdditionalProperties>
-      </TestGroups>
+      </_TestGroups>
+
+      <!-- This runs the 'Test' target on projects which do not support VSTest, if that target exists. -->
+      <_TestGroups Include="@(_ProjectToTestDirectly)">
+        <Targets>Test</Targets>
+        <SkipNonexistentTargets>true</SkipNonexistentTargets>
+        <AdditionalProperties>$(BuildProperties)</AdditionalProperties>
+      </_TestGroups>
     </ItemGroup>
 
-    <MSBuild Condition="@(TestGroups->Count()) != 0"
-             Projects="@(TestGroups)"
-             Targets="_ExecuteTestAssemblies"
+    <MSBuild Condition="@(_TestGroups->Count()) != 0"
+             Projects="@(_TestGroups)"
+             Targets="%(_TestGroups.Targets)"
+             SkipNonexistentTargets="%(_TestGroups.SkipNonexistentTargets)"
              BuildInParallel="false"
-             ContinueOnError="$(_TestContinueOnError)" />
-
-    <MSBuild Condition="@(_ProjectToTestDirectly->Count()) != 0"
-             Projects="@(_ProjectToTestDirectly)"
-             Targets="Test"
-             SkipNonexistentTargets="true"
-             BuildInParallel="false"
-             Properties="$(BuildProperties)"
              ContinueOnError="$(_TestContinueOnError)" />
   </Target>
 

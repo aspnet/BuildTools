@@ -9,9 +9,9 @@
     <VsTestSupported Condition="'$(VsTestSupported)' == '' AND ( '$(MSBuildProjectExtension)' == '.csproj' OR '$(MSBuildProjectExtension)' == '.vbproj' OR '$(MSBuildProjectExtension)' == '.fsproj' )">true</VsTestSupported>
   </PropertyGroup>
 
-  <Target Name="_IsKoreBuildVsTestSupported" Returns="@(_IsKoreBuildVsTestSupported)">
+  <Target Name="_IsVsTestSupported " Returns="@(_IsVsTestSupported )">
     <ItemGroup Condition="'$(VsTestSupported)' == 'true' ">
-      <_IsKoreBuildVsTestSupported Include="$(MSBuildProjectFullPath)" />
+      <_IsVsTestSupported  Include="$(MSBuildProjectFullPath)" />
     </ItemGroup>
   </Target>
 

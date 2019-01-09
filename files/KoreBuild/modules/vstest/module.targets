@@ -83,6 +83,7 @@ Runs the VSTest on all projects in the ProjectToBuild itemgroup.
              Targets="Test"
              SkipNonexistentTargets="true"
              BuildInParallel="false"
+             Properties="$(BuildProperties)"
              ContinueOnError="$(_TestContinueOnError)" />
   </Target>
 

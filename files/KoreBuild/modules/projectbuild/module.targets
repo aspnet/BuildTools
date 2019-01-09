@@ -61,7 +61,7 @@ Executes /t:{Target} on all projects
              SkipNonexistentTargets="true"
              SkipNonexistentProjects="true"
              RemoveProperties="$(_BuildPropertiesToRemove)"
-             Properties="$(BuildProperties)">
+             Properties="$(BuildProperties);__BuildTarget=_IsProjectRestoreSupported">
       <Output
           TaskParameter="TargetOutputs"
           ItemName="_ProjectToRestoreWithNuGet" />

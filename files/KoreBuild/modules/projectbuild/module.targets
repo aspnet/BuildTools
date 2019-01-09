@@ -47,11 +47,6 @@ Executes /t:{Target} on all projects
     <ConvertToAbsolutePath Paths="@(_Temp)">
       <Output TaskParameter="AbsolutePaths" ItemName="ProjectToBuild" />
     </ConvertToAbsolutePath>
-
-    <PropertyGroup>
-      <!-- Normalize paths to avoid false warnings by NuGet about missing project references. -->
-      <ProjectToBuildList>@(ProjectToBuild->'%(FullPath)')</ProjectToBuildList>
-    </PropertyGroup>
   </Target>
 
   <Target Name="_EnsureProjects">
@@ -59,12 +54,42 @@ Executes /t:{Target} on all projects
   </Target>
 
   <Target Name="RestoreProjects" DependsOnTargets="ResolveProjects;_EnsureProjects" Condition="'$(NoRestore)' != 'true'">
+    <!-- This finds which projects support restore via NuGet.targets. -->
+    <MSBuild Targets="_IsProjectRestoreSupported"
+             Projects="@(ProjectToBuild)"
+             BuildInParallel="true"
+             SkipNonexistentTargets="true"
+             SkipNonexistentProjects="true"
+             RemoveProperties="$(_BuildPropertiesToRemove)"
+             Properties="$(BuildProperties);__BuildTarget=_IsProjectRestoreSupported">
+      <Output
+          TaskParameter="TargetOutputs"
+          ItemName="_ProjectToRestoreWithNuGet" />
+    </MSBuild>
+
+    <PropertyGroup>
+      <!-- Normalize paths to avoid false warnings by NuGet about missing project references. -->
+      <_ProjectToRestoreWithNuGetList>@(_ProjectToRestoreWithNuGet->'%(FullPath)')</_ProjectToRestoreWithNuGetList>
+    </PropertyGroup>
+
+    <!-- Invoke the 'Restore' target on projects which do not support NuGet. -->
+    <ItemGroup>
+      <_ProjectToRestoreDirectly Include="@(ProjectToBuild)"
+                                 Exclude="@(_ProjectToRestoreWithNuGet)" />
+    </ItemGroup>
+
+    <MSBuild Condition="@(_ProjectToRestoreDirectly->Count()) != 0"
+             Projects="@(_ProjectToRestoreDirectly)"
+             Targets="Restore"
+             Properties="$(BuildProperties);__BuildTarget=Restore"
+             RemoveProperties="$(_BuildPropertiesToRemove)"
+             BuildInParallel="$(BuildInParallel)" />
     <!--
       Invoke NuGet.targets directly. This avoids redundant calls the restore task.
     -->
-    <MSBuild Projects="$(NuGetRestoreTargets)"
+    <MSBuild Condition=" '$(_ProjectToRestoreWithNuGetList)' != '' " Projects="$(NuGetRestoreTargets)"
              Targets="Restore"
-             Properties="$(BuildProperties);RestoreGraphProjectInput=$(ProjectToBuildList);__BuildTarget=Restore"
+             Properties="$(BuildProperties);RestoreGraphProjectInput=$(_ProjectToRestoreWithNuGetList);__BuildTarget=Restore"
              RemoveProperties="$(_BuildPropertiesToRemove)"
              BuildInParallel="$(BuildInParallel)" />
   </Target>

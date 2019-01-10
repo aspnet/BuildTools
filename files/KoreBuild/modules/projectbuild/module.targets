@@ -4,6 +4,12 @@ FYI: targets, properties, and items that begin with an underscore are meant to b
 -->
 <Project>
 
+  <ItemDefinitionGroup>
+    <ProjectToBuild>
+      <RestoreInParallel>$(BuildInParallel)</RestoreInParallel>
+    </ProjectToBuild>
+  </ItemDefinitionGroup>
+
   <ItemGroup Condition="'$(DisableDefaultItems)' != 'true' AND '$(BuildSolutions)' == 'false' ">
     <ProjectToBuild Include="$(RepositoryRoot)**\*.csproj;$(RepositoryRoot)**\*.fsproj;$(RepositoryRoot)**\*.vbproj" Exclude="$(ProjectToExclude)" Condition=" '$(Projects)' == '' " />
     <ProjectToBuild Include="$(Projects)" Exclude="$(ProjectToExclude)" Condition=" '$(Projects)' != '' " />
@@ -83,7 +89,7 @@ Executes /t:{Target} on all projects
              Targets="Restore"
              Properties="$(BuildProperties);__BuildTarget=Restore"
              RemoveProperties="$(_BuildPropertiesToRemove)"
-             BuildInParallel="$(BuildInParallel)" />
+             BuildInParallel="%(_ProjectToRestoreDirectly.RestoreInParallel)" />
     <!--
       Invoke NuGet.targets directly. This avoids redundant calls the restore task.
     -->

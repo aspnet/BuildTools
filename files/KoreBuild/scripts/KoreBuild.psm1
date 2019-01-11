@@ -488,7 +488,7 @@ function Get-MSBuildPath() {
 
     Write-Verbose "vswhere = $vswherePath $vswhereArgs"
 
-    $installations = & $vswherePath @vswhereArgs | ConvertFrom-Json
+    $installations = & $vswherePath @vswhereArgs | Out-String | ConvertFrom-Json
 
     $latest = $null
     if ($installations) {

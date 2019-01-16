@@ -3,8 +3,8 @@
     <HtmlAgilityPackPackageVersion>1.5.1</HtmlAgilityPackPackageVersion>
     <MicroBuildCorePackageVersion>0.3.0</MicroBuildCorePackageVersion>
     <MicrosoftDotNetPlatformAbstractionsVersion>2.0.0</MicrosoftDotNetPlatformAbstractionsVersion>
-    <MicrosoftDotNetSignToolPackageVersion>1.0.0-beta.18603.2</MicrosoftDotNetSignToolPackageVersion>
-    <MicrosoftDotNetSignCheckPackageVersion>1.0.0-beta.18603.2</MicrosoftDotNetSignCheckPackageVersion>
+    <MicrosoftDotNetSignToolPackageVersion>1.0.0-beta.18614.1</MicrosoftDotNetSignToolPackageVersion>
+    <MicrosoftDotNetSignCheckPackageVersion>1.0.0-beta.18614.1</MicrosoftDotNetSignCheckPackageVersion>
     <MicrosoftNETTestSdkPackageVersion>15.9.0</MicrosoftNETTestSdkPackageVersion>
     <MonoCecilPackageVersion>0.10.0-beta6</MonoCecilPackageVersion>
     <MoqPackageVersion>4.7.99</MoqPackageVersion>

@@ -1,5 +1,6 @@
 <Project>
   <Import Project="PackageVersions.props" />
+  <Import Project="CodeSign.props" />
 
   <PropertyGroup>
     <KoreBuildTasksDll>$(MSBuildThisFileDirectory)Internal.AspNetCore.KoreBuild.Tasks.dll</KoreBuildTasksDll>

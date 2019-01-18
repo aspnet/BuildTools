@@ -10,7 +10,7 @@
       <NormalizedPackageVersion Condition="$(NormalizedPackageVersion.Contains('+'))">$(PackageVersion.Substring(0, $(PackageVersion.IndexOf('+'))))</NormalizedPackageVersion>
       <FullPackageOutputPath>$(PackageOutputPath)$(PackageId).$(NormalizedPackageVersion).nupkg</FullPackageOutputPath>
       <SymbolsPackageOutputPath>$(PackageOutputPath)$(PackageId).$(NormalizedPackageVersion).symbols.nupkg</SymbolsPackageOutputPath>
-      
+
       <!-- Detect if Internal.AspNetCore.Sdk is referenced -->
       <_ReferencesInternalAspNetCoreSdk Condition="'$(_ReferencesInternalAspNetCoreSdk)' == ''">@(PackageReference->AnyHaveMetadataValue('Identity', 'Internal.AspNetCore.Sdk'))</_ReferencesInternalAspNetCoreSdk>
       <!-- If _ReferencesInternalAspNetCoreSdk is still empty, it means there are no package references, so it should be false -->
@@ -61,12 +61,12 @@
         <RepositoryUrl>$(RepositoryUrl)</RepositoryUrl>
         <Category>$(PackageArtifactCategory)</Category>
         <Certificate>$(PackageSigningCertName)</Certificate>
-        <ShouldBeSigned Condition="'$(PackageSigningCertName)' != '' OR @(_SignedPackageFile->Count()) != 0 ">true</ShouldBeSigned>
+        <ShouldBeSigned Condition="'$(SignSymbolsNupkg)' == 'true' AND ('$(PackageSigningCertName)' != '' OR @(_SignedPackageFile->Count()) != 0) ">true</ShouldBeSigned>
         <ShouldBeSigned Condition=" '$(DisableCodeSigning)' == 'true' ">false</ShouldBeSigned>
         <IsContainer>true</IsContainer>
       </ArtifactInfo>
     </ItemGroup>
-    
+
     <!-- Still return metadata about signable package contents when producing a servicing build. -->
     <ItemGroup Condition="'$(IsPackable)' != 'false' OR '$(IsPackableInNonServicingBuild)' == 'true' ">
       <ArtifactInfo Include="@(_SignedPackageFile)" Condition=" '$(DisableCodeSigning)' != 'true' ">
@@ -79,7 +79,7 @@
         <Container>$(FullPackageOutputPath)</Container>
       </ArtifactInfo>
 
-      <ArtifactInfo Include="@(_SignedPackageFile)" Condition=" '$(DisableCodeSigning)' != 'true' AND '$(IncludeSymbols)' == 'true' ">
+      <ArtifactInfo Include="@(_SignedPackageFile)" Condition=" '$(DisableCodeSigning)' != 'true' AND '$(IncludeSymbols)' == 'true' AND '$(SignSymbolsNupkg)' == 'true' ">
         <ShouldBeSigned>true</ShouldBeSigned>
         <Container>$(SymbolsPackageOutputPath)</Container>
       </ArtifactInfo>

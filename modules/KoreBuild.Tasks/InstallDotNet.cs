@@ -47,7 +47,7 @@ namespace KoreBuild.Tasks
         /// <summary>
         /// Timeout per install request.
         /// </summary>
-        public int TimeoutSeconds { get; set; } = 240;
+        public int TimeoutSeconds { get; set; } = 600;
 
         public void Cancel()
         {

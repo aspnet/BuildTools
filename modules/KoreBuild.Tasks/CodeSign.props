@@ -1,0 +1,29 @@
+<Project>
+  <Import Project="SignTool/build/Microsoft.DotNet.SignTool.props" />
+
+  <PropertyGroup>
+    <DisableCodeSigning Condition=" '$(OS)' != 'Windows_NT' ">true</DisableCodeSigning>
+
+    <!-- This file can be used to exclude something files from signcheck. -->
+    <SignCheckExclusionsFile Condition=" '$(SignCheckExclusionsFile)' == '' ">$(RepositoryRoot)build\signcheck.exclusions.txt</SignCheckExclusionsFile>
+
+    <SignCheckWorkingDir Condition=" '$(SignCheckWorkingDir)' == '' ">$(ArtifactsDir)</SignCheckWorkingDir>
+
+    <!-- Relative paths in SignToolData.json are relative to this path -->
+    <SignToolDataWorkingDir Condition=" '$(SignToolDataWorkingDir)' == '' ">$(RepositoryRoot)</SignToolDataWorkingDir>
+
+    <!-- Dry run checks signing config without code signing. -->
+    <SignToolDryRun Condition=" '$(SignType)' != 'real' AND '$(SignType)' != 'test' ">true</SignToolDryRun>
+    <SignToolDryRun Condition=" '$(SignToolDryRun)' == '' ">false</SignToolDryRun>
+
+    <!-- Test signing (not commonly used) -->
+    <SignToolTestSign>false</SignToolTestSign>
+    <SignToolTestSign Condition=" '$(SignType)' == 'test' ">true</SignToolTestSign>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Multiple directories can be specified.-->
+    <SignCheckDirectory Include="$(SignCheckWorkingDir)" />
+  </ItemGroup>
+
+</Project>

@@ -111,14 +111,16 @@ __install_tools() {
     verbose_flag=''
     [ "$verbose" = true ] && verbose_flag='--verbose'
 
-    # Instructs MSBuild where to find .NET Framework reference assemblies
-    export ReferenceAssemblyRoot="$tools_home/netfx/$netfx_version"
+    if [ "${KOREBUILD_SKIP_INSTALL_NETFX:-}" != "1" ]; then
+        # Instructs MSBuild where to find .NET Framework reference assemblies
+        export ReferenceAssemblyRoot="$tools_home/netfx/$netfx_version"
 
-    # Call "sync" between "chmod" and execution to prevent "text file busy" error in Docker (aufs)
-    chmod +x "$__korebuild_dir/scripts/get-netfx.sh"; sync
-    # we don't include netfx in the BuildTools artifacts currently, it ends up on the blob store through other means, so we'll only look for it in the default_tools_source
-    "$__korebuild_dir/scripts/get-netfx.sh" $verbose_flag $netfx_version "$default_tools_source" "$ReferenceAssemblyRoot" \
-        || return 1
+        # Call "sync" between "chmod" and execution to prevent "text file busy" error in Docker (aufs)
+        chmod +x "$__korebuild_dir/scripts/get-netfx.sh"; sync
+        # we don't include netfx in the BuildTools artifacts currently, it ends up on the blob store through other means, so we'll only look for it in the default_tools_source
+        "$__korebuild_dir/scripts/get-netfx.sh" $verbose_flag $netfx_version "$default_tools_source" "$ReferenceAssemblyRoot" \
+            || return 1
+    fi
 
     # Call "sync" between "chmod" and execution to prevent "text file busy" error in Docker (aufs)
     chmod +x "$__korebuild_dir/scripts/get-dotnet.sh"; sync

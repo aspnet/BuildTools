@@ -59,6 +59,8 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
+KOREBUILD_SKIP_INSTALL_NETFX=1
+
 set_korebuildsettings "$tools_source" "$DOTNET_HOME" "$DIR" "$config_file" "$ci"
 
 invoke_korebuild_command "default-build" "$@"

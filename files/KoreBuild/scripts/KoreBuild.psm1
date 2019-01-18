@@ -392,12 +392,12 @@ function Invoke-KoreBuildCommand(
     if ($sdkVersion -ne 'latest' -and $env:KOREBUILD_KEEPGLOBALJSON -ne '1') {
         @"
 {
-    `"sdk`": {
-        `"version`": `"$sdkVersion`"
-    },
-    `"msbuild-sdks`": {
-        `"Internal.AspNetCore.Sdk`": `"$korebuildVersion`"
-    }
+  `"sdk`": {
+    `"version`": `"$sdkVersion`"
+  },
+  `"msbuild-sdks`": {
+    `"Internal.AspNetCore.Sdk`": `"$korebuildVersion`"
+  }
 }
 "@ | Out-File (Join-Path $global:KoreBuildSettings.RepoPath 'global.json') -Encoding ascii
     }

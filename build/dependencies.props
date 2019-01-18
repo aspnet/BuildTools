@@ -5,6 +5,7 @@
     <MicrosoftDotNetPlatformAbstractionsVersion>2.0.0</MicrosoftDotNetPlatformAbstractionsVersion>
     <MicrosoftDotNetSignToolPackageVersion>1.0.0-beta.19057.6</MicrosoftDotNetSignToolPackageVersion>
     <MicrosoftDotNetSignCheckPackageVersion>1.0.0-beta.19057.6</MicrosoftDotNetSignCheckPackageVersion>
+    <MicrosoftNETFrameworkReferenceAssembliesPackageVersion>1.0.0-alpha-004</MicrosoftNETFrameworkReferenceAssembliesPackageVersion>
     <MicrosoftNETTestSdkPackageVersion>15.9.0</MicrosoftNETTestSdkPackageVersion>
     <MonoCecilPackageVersion>0.10.0-beta6</MonoCecilPackageVersion>
     <MoqPackageVersion>4.7.99</MoqPackageVersion>

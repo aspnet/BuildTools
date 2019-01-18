@@ -453,6 +453,11 @@ function Invoke-MSBuild {
 }
 
 function Get-MSBuildPath() {
+    if ($env:VSINSTALLDIR) {
+        # If running from the VS Developer Command Prompt, use the MSBuild it contains.
+        return 'msbuild.exe'
+    }
+
     $vswherePath = "${env:ProgramFiles(x86)}/Microsoft Visual Studio/Installer/vswhere.exe"
 
     if (-not (Test-Path $vswherePath)) {
@@ -507,7 +512,14 @@ function Get-MSBuildPath() {
         }
     }
 
-    throw 'Could not find a version of MSBuild which satisfies the requirements specified in korebuild.json.'
+    $vsInstallScript = "$($global:KoreBuildSettings.RepoPath)\eng\scripts\InstallVisualStudio.ps1"
+    if (Test-Path $vsInstallScript) {
+        Write-Host ''
+        Write-Host -ForegroundColor Magenta "Run $vsInstallScript to install Visual Studio prerequisites."
+        Write-Host ''
+    }
+
+    throw 'Could not find an installation of MSBuild which satisfies the requirements specified in korebuild.json.'
 }
 
 function __has_member($obj, $name) {

@@ -33,7 +33,7 @@ namespace KoreBuild.Tasks
         // not be required if pushing to the filesystem
         public string ApiKey { get; set; }
 
-        public int TimeoutSeconds { get; set; } = 90;
+        public int TimeoutSeconds { get; set; } = 300;
 
         public void Cancel()
         {

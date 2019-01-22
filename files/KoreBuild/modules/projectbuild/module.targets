@@ -62,7 +62,7 @@ Executes /t:{Target} on all projects
   <Target Name="RestoreProjects" DependsOnTargets="ResolveProjects;_EnsureProjects" Condition="'$(NoRestore)' != 'true'">
     <!-- This finds which projects support restore via NuGet.targets. -->
 
-    <!-- Remove the Platform project property to avoid duplicate restores. NuGet restore does not changing dependencies based on project platform. -->
+    <!-- Remove the Platform project property to avoid duplicate restores. NuGet restore does not support changing dependencies based on project platform. -->
     <MSBuild Targets="_IsProjectRestoreSupported"
              Projects="@(ProjectToBuild)"
              BuildInParallel="true"
@@ -86,7 +86,7 @@ Executes /t:{Target} on all projects
                                  Exclude="@(_ProjectToRestoreWithNuGet)" />
     </ItemGroup>
 
-    <!-- Remove the Platform project property to avoid duplicate restores. NuGet restore does not changing dependencies based on project platform. -->
+    <!-- Remove the Platform project property to avoid duplicate restores. NuGet restore does not support changing dependencies based on project platform. -->
     <MSBuild Condition="@(_ProjectToRestoreDirectly->Count()) != 0"
              Projects="@(_ProjectToRestoreDirectly)"
              Targets="Restore"

@@ -75,10 +75,10 @@ Runs the VSTest on all projects in the ProjectToBuild itemgroup.
       </_TestGroups>
 
       <!-- This runs the 'Test' target on projects which do not support VSTest, if that target exists. -->
-      <_TestGroups Include="@(_ProjectToTestDirectly)">
+      <_TestGroups Include="%(_ProjectToTestDirectly.Identity)">
         <Targets>Test</Targets>
         <SkipNonexistentTargets>true</SkipNonexistentTargets>
-        <AdditionalProperties>$(BuildProperties)</AdditionalProperties>
+        <AdditionalProperties>%(_ProjectToTestDirectly.AdditionalProperties);$(BuildProperties)</AdditionalProperties>
       </_TestGroups>
     </ItemGroup>
 

@@ -1,4 +1,4 @@
-<Project Sdk="Internal.AspNetCore.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
@@ -7,7 +7,7 @@
     <AssemblyName>cowsay</AssemblyName>
     <PackageId>Simple.CliTool</PackageId>
     <PackAsTool>true</PackAsTool>
-    <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86</PackAsToolShimRuntimeIdentifiers>
+    <!-- <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86</PackAsToolShimRuntimeIdentifiers> -->
     <AssemblySigningCertName>TestCert</AssemblySigningCertName>
     <PackageSigningCertName>MyPackageSigningCert</PackageSigningCertName>
   </PropertyGroup>

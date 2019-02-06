@@ -1,4 +1,4 @@
-<Project Sdk="Internal.AspNetCore.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Simple.Lib\Simple.Lib.csproj" />

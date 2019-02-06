@@ -1,8 +1,9 @@
-<Project Sdk="Internal.AspNetCore.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(RepoTasksSdkPath)\Sdk.props" Condition="'$(RepoTasksSdkPath)' != '' "/>
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-    <ProjectType>RepoTasks</ProjectType>
   </PropertyGroup>
 
+  <Import Project="$(RepoTasksSdkPath)\Sdk.targets" Condition="'$(RepoTasksSdkPath)' != '' "/>
 </Project>

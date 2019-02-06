@@ -67,17 +67,6 @@
       Code="BUILD1001" />
 
     <ItemGroup>
-      <_ToolsProjects Include="$(RepositoryRoot)tools\KoreBuild.Console\KoreBuild.Console.csproj">
-        <AdditionalProperties>PublishDir=$(_KoreBuildIntermediateDir)\tools\%(Identity)\</AdditionalProperties>
-      </_ToolsProjects>
-    </ItemGroup>
-
-    <MSBuild Targets="Publish"
-      Projects="@(_ToolsProjects)"
-      Properties="$(BuildProperties)"
-      BuildInParallel="true" />
-
-    <ItemGroup>
       <Content Include="$(RepositoryRoot)files\KoreBuild\**\*" />
       <VersionFileLines Include="version:$(Version)" />
       <VersionFileLines Include="commithash:$(RepositoryCommit)" />
@@ -109,6 +98,8 @@
     <WriteLinesToFile File="$(KoreBuildLatestTxtFile)" Lines="@(VersionFileLines)" Overwrite="true"/>
     <WriteLinesToFile File="$(KoreBuildChannelTxtFile)" Lines="$(KoreBuildChannel)" Overwrite="true"/>
     <GenerateSvgBadge Label="version" Value="$(Version)" OutputPath="$(KoreBuildBadgeFile)" />
+    <!-- Our own implementation of zip is required to workaround https://github.com/Microsoft/msbuild/issues/3924 -->
+    <!-- <ZipDirectory SourceDirectory="$(_KoreBuildIntermediateDir)" DestinationFile="$(KoreBuildArchiveFile)" /> -->
     <ZipArchive WorkingDirectory="$(_KoreBuildIntermediateDir)" File="$(KoreBuildArchiveFile)" SourceFiles="@(KoreBuildFiles)" />
   </Target>
 

@@ -1,5 +1,0 @@
-<Project>
-  <PropertyGroup>
-    <RestoreAdditionalProjectSources>$(RestoreAdditionalProjectSources);$(KoreBuildBundledPackageFolder)</RestoreAdditionalProjectSources>
-  </PropertyGroup>
-</Project>

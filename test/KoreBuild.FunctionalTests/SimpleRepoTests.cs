@@ -33,7 +33,7 @@ namespace KoreBuild.FunctionalTests
         {
             var app = _fixture.CreateTestApp("SimpleRepo");
 
-            var build = app.ExecuteBuild(_output, "/p:BuildNumber=0001");
+            var build = app.ExecuteBuild(_output, "/p:BuildNumber=0001", "/p:DisableCodeSigning=true");
 
             Assert.Equal(0, build);
 
@@ -52,14 +52,9 @@ namespace KoreBuild.FunctionalTests
             {
                 Assert.Empty(reader.GetFiles().Where(p => Path.GetExtension(p).Equals(".pdb", StringComparison.OrdinalIgnoreCase)));
             }
-
-            // /t:TestNuGetPush
-            Assert.True(File.Exists(Path.Combine(app.WorkingDirectory, "obj", "tmp-nuget", "Simple.CliTool.1.0.0-beta-0001.nupkg")), "Build done a test push of all the packages");
-            Assert.True(File.Exists(Path.Combine(app.WorkingDirectory, "obj", "tmp-nuget", "Simple.Lib.1.0.0-beta-0001.nupkg")), "Build done a test push of all the packages");
-            Assert.True(File.Exists(Path.Combine(app.WorkingDirectory, "obj", "tmp-nuget", "Simple.Sources.1.0.0-beta-0001.nupkg")), "Build done a test push of all the packages");
         }
 
-        [Fact]
+        [Fact(Skip = "Blocked on https://github.com/dotnet/sdk/issues/2867")]
         public void BuildOfGlobalCliToolIncludesShims()
         {
             var app = _fixture.CreateTestApp("RepoWithGlobalTool");
@@ -120,85 +115,6 @@ namespace KoreBuild.FunctionalTests
             var build = app.ExecuteBuild(_output);
 
             Assert.NotEqual(0, build);
-        }
-
-        [DockerExistsFact(Skip = "winservercore currently fails on AppVeyor due to breaking changes in winservercore 1710")]
-        public void DockerSuccessful()
-        {
-            var app = _fixture.CreateTestApp("SimpleRepo");
-            var platform = "jessie";
-
-            var dockerPlatform = GetDockerPlatform();
-            if (dockerPlatform == OSPlatform.Windows)
-            {
-                platform = "winservercore";
-            }
-
-            var build = app.ExecuteRun(_output, new string[] { "docker-build", "-Path", app.WorkingDirectory }, platform, "/p:BuildNumber=0001");
-
-            Assert.Equal(0, build);
-        }
-
-        private static OSPlatform GetDockerPlatform()
-        {
-            var startInfo = new ProcessStartInfo("docker", @"version -f ""{{ .Server.Os }}""")
-            {
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-            };
-
-            using (var process = Process.Start(startInfo))
-            {
-                var output = process.StandardOutput.ReadToEnd().Trim();
-
-                OSPlatform result;
-                switch (output)
-                {
-                    case "windows":
-                        result = OSPlatform.Windows;
-                        break;
-                    case "linux":
-                        result = OSPlatform.Linux;
-                        break;
-                    default:
-                        throw new NotImplementedException($"No default for docker platform {output}");
-                }
-
-                return result;
-            }
-        }
-    }
-
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public class DockerExistsFactAttribute : FactAttribute
-    {
-        public DockerExistsFactAttribute()
-        {
-            if (!HasDocker())
-            {
-                Skip = "Docker must be installed to run this test.";
-            }
-        }
-
-        private static bool HasDocker()
-        {
-            try
-            {
-                var startInfo = new ProcessStartInfo("docker", "--version")
-                {
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                };
-                using (Process.Start(startInfo))
-                {
-                    return true;
-                }
-            }
-            catch (Win32Exception)
-            {
-                return false;
-            }
         }
     }
 }

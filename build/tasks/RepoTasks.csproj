@@ -18,7 +18,6 @@
     <Compile Include="..\..\modules\BuildTools.Tasks\GenerateSvgBadge.cs" />
     <Compile Include="..\..\modules\BuildTools.Tasks\RunBase.cs" />
     <Compile Include="..\..\modules\BuildTools.Tasks\RunDotNet.cs" />
-    <Compile Include="..\..\modules\BuildTools.Tasks\ZipArchive.cs" />
   </ItemGroup>
 
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.targets" />

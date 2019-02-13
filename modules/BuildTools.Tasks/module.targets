@@ -1,41 +1,8 @@
 <Project>
 
   <PropertyGroup>
-    <PrepareDependsOn>$(PrepareDependsOn);_UseVolatileFeed;ResolveCommitHash</PrepareDependsOn>
+    <PrepareDependsOn>$(PrepareDependsOn);_UseVolatileFeed</PrepareDependsOn>
   </PropertyGroup>
-
-  <!-- This target is optional. You can manually chain it into a repo build if you need branch name. -->
-  <Target Name="ResolveRepositoryBranch" Condition="'$(RepositoryBranch)' == ''">
-    <GetGitCommitHash WorkingDirectory="$(RepositoryRoot)"
-                      ContinueOnError="WarnAndContinue">
-      <Output TaskParameter="Branch" PropertyName="RepositoryBranch" />
-    </GetGitCommitHash>
-  </Target>
-
-  <Target Name="ResolveCommitHash" Condition="'$(RepositoryCommit)' == ''">
-    <PropertyGroup>
-      <RepositoryCommit Condition="'$(APPVEYOR_REPO_COMMIT)' != ''">$(APPVEYOR_REPO_COMMIT)</RepositoryCommit>
-      <RepositoryCommit Condition="'$(TRAVIS_COMMIT)' != ''">$(TRAVIS_COMMIT)</RepositoryCommit>
-      <RepositoryCommit Condition="'$(CommitHash)' != ''">$(CommitHash)</RepositoryCommit>
-    </PropertyGroup>
-
-    <GetGitCommitHash WorkingDirectory="$(RepositoryRoot)"
-                      Condition="'$(RepositoryCommit)' == ''"
-                      ContinueOnError="WarnAndContinue">
-      <Output TaskParameter="CommitHash" PropertyName="RepositoryCommit" />
-    </GetGitCommitHash>
-
-    <PropertyGroup>
-      <!--
-        RepositoryCommit should be the same as CommitHash.
-        We use CommitHash for backwards compatibility with build scripts.
-        Setting RepositoryCommit enables NuGet features added in NuGet/NuGet.Client#2036.
-      -->
-      <CommitHash>$(RepositoryCommit)</CommitHash>
-      <BuildProperties Condition="'$(RepositoryCommit)' != ''">$(BuildProperties);CommitHash=$(RepositoryCommit)</BuildProperties>
-      <BuildProperties Condition="'$(RepositoryCommit)' != ''">$(BuildProperties);RepositoryCommit=$(RepositoryCommit)</BuildProperties>
-    </PropertyGroup>
-  </Target>
 
 <!--
 ###################################################################

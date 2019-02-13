@@ -32,19 +32,6 @@
     </ArtifactInfo>
   </ItemGroup>
 
-  <Target Name="ResolveRepositoryCommit" Condition="'$(RepositoryCommit)'==''" BeforeTargets="Prepare">
-    <GetGitCommitInfo WorkingDirectory="$(RepositoryRoot)"
-                      Condition="'$(RepositoryCommit)' == ''">
-      <Output TaskParameter="CommitHash" PropertyName="RepositoryCommit" />
-      <Output TaskParameter="Branch" PropertyName="RepositoryBranch" />
-    </GetGitCommitInfo>
-
-    <PropertyGroup>
-      <BuildProperties Condition="'$(RepositoryCommit)' != ''">$(BuildProperties);RepositoryCommit=$(RepositoryCommit)</BuildProperties>
-      <BuildProperties Condition="'$(RepositoryBranch)' != ''">$(BuildProperties);RepositoryBranch=$(RepositoryBranch)</BuildProperties>
-    </PropertyGroup>
-  </Target>
-
   <Target Name="DownloadNuGetExe">
       <DownloadFile
         SourceUrl="https://dist.nuget.org/win-x86-commandline/v4.6.2/nuget.exe"
@@ -56,15 +43,9 @@
     <RemoveDir Directories="$(_KoreBuildIntermediateDir);$(ArtifactsDir)korebuild\" />
   </Target>
 
-  <Target Name="PackageKoreBuild" DependsOnTargets="ResolveRepositoryCommit;CleanKoreBuild" AfterTargets="Package">
+  <Target Name="PackageKoreBuild" DependsOnTargets="CleanKoreBuild" AfterTargets="Package">
     <Error Text="Missing property: KoreBuildChannel" Condition="'$(KoreBuildChannel)' == ''" />
     <Error Text="Missing property: Version" Condition="'$(Version)' == ''" />
-    <Error Text="Missing property: RepositoryCommit" Condition="'$(RepositoryCommit)' == ''" />
-
-    <!-- passing /warnaserror:BUILD1001 on CI to prevent channel/branch mismatch -->
-    <Warning Text="Current branch '$(RepositoryBranch)' does not match the value of KoreBuildChannel: '$(KoreBuildChannel)'"
-      Condition="'$(RepositoryBranch)' != '$(KoreBuildChannel)' AND '$(CI)' == 'true' AND '$(BUILD_REASON)' != 'PullRequest'"
-      Code="BUILD1001" />
 
     <ItemGroup>
       <_ToolsProjects Include="$(RepositoryRoot)tools\KoreBuild.Console\KoreBuild.Console.csproj">
@@ -80,7 +61,7 @@
     <ItemGroup>
       <Content Include="$(RepositoryRoot)files\KoreBuild\**\*" />
       <VersionFileLines Include="version:$(Version)" />
-      <VersionFileLines Include="commithash:$(RepositoryCommit)" />
+      <VersionFileLines Include="commithash:$(BUILD_SOURCEVERSION)" />
     </ItemGroup>
 
     <MakeDir Directories="$(_ChannelOutDir);$(_KoreBuildOutDir);$(_KoreBuildIntermediateDir)" />

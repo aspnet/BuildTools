@@ -6,7 +6,6 @@ for use outside of Microsoft.
   <Import Project="$(MSBuildThisFileDirectory)Common.targets" />
   <Import Project="$(MSBuildThisFileDirectory)ApiCheck.targets" />
   <Import Project="$(MSBuildThisFileDirectory)GenerateAssemblyInfo.targets" />
-  <Import Project="$(MSBuildThisFileDirectory)Git.targets" />
 
   <Import
     Project="DotNetTool.targets"

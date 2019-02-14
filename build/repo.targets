@@ -79,8 +79,6 @@
     <WriteLinesToFile File="$(KoreBuildLatestTxtFile)" Lines="@(VersionFileLines)" Overwrite="true"/>
     <WriteLinesToFile File="$(KoreBuildChannelTxtFile)" Lines="$(KoreBuildChannel)" Overwrite="true"/>
     <GenerateSvgBadge Label="version" Value="$(Version)" OutputPath="$(KoreBuildBadgeFile)" />
-    <!-- Our own implementation of zip is required to workaround https://github.com/Microsoft/msbuild/issues/3924 -->
-    <!-- <ZipDirectory SourceDirectory="$(_KoreBuildIntermediateDir)" DestinationFile="$(KoreBuildArchiveFile)" /> -->
     <ZipArchive WorkingDirectory="$(_KoreBuildIntermediateDir)" File="$(KoreBuildArchiveFile)" SourceFiles="@(KoreBuildFiles)" />
   </Target>
 

@@ -72,7 +72,7 @@ invoke_korebuild_command(){
     elif [ "$command" = "install-tools" ]; then
         __install_tools "$tools_source" "$dot_net_home"
     else
-        __error "Unrecognized command $command"
+        __error "Unrecognized command '$command'"
         exit 1
     fi
 }

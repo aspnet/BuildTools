@@ -1,4 +1,4 @@
 {
   "$schema": "./tools/korebuild.schema.json",
-  "channel": "feature/vs2019"
+  "channel": "master"
 }

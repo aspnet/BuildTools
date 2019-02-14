@@ -1,8 +1,8 @@
 <Project>
   <PropertyGroup>
-    <KoreBuildChannel>feature/vs2019</KoreBuildChannel>
+    <KoreBuildChannel>master</KoreBuildChannel>
     <VersionPrefix>3.0.0</VersionPrefix>
-    <VersionSuffix>build-feat-vs2019</VersionSuffix>
+    <VersionSuffix>build</VersionSuffix>
     <BuildNumber Condition="'$(BuildNumber)' == ''">t000</BuildNumber>
     <VersionSuffix Condition="'$(VersionSuffix)' != '' AND '$(BuildNumber)' != ''">$(VersionSuffix)-$(BuildNumber)</VersionSuffix>
   </PropertyGroup>

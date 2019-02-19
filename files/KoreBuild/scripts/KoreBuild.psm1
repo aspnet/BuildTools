@@ -221,18 +221,6 @@ function Install-Tools(
     else {
         Write-Host -ForegroundColor DarkGray ".NET Core SDK $version is already installed. Skipping installation."
     }
-
-    # This is a workaround for https://github.com/Microsoft/msbuild/issues/2914.
-    # Currently, the only way to configure the NuGetSdkResolver is with NuGet.config, which is not generally used in aspnet org projects.
-    # This project is restored so that it pre-populates the NuGet cache with SDK packages.
-    $restorerfile = "$PSScriptRoot/../modules/BundledPackages/BundledPackageRestorer.csproj"
-    $restorerfilelock="$env:NUGET_PACKAGES/internal.aspnetcore.sdk/$(Get-KoreBuildVersion)/korebuild.sentinel"
-    if ((Test-Path $restorerfile) -and -not (Test-Path $restorerfilelock)) {
-        New-Item -ItemType Directory $(Split-Path -Parent $restorerfilelock) -ErrorAction Ignore | Out-Null
-        New-Item -ItemType File $restorerfilelock -ErrorAction Ignore | Out-Null
-        __exec $global:dotnet msbuild '-t:restore' '-v:q' "$restorerfile"
-    }
-    # end workaround
 }
 
 <#
@@ -492,8 +480,14 @@ function Get-MSBuildPath() {
     }
 
     Write-Verbose "vswhere = $vswherePath $vswhereArgs"
-
-    $installations = & $vswherePath @vswhereArgs | Out-String | ConvertFrom-Json
+    $vswhereOut = & $vswherePath @vswhereArgs | Out-String
+    try {
+        $installations = $vswhereOut | ConvertFrom-Json
+    }
+    catch {
+        Write-Host -f Red "vswhere output = $vswhereOut"
+        throw $_
+    }
 
     $latest = $null
     if ($installations) {

@@ -1,9 +1,5 @@
 <Project>
 
-  <PropertyGroup>
-    <PrepareDependsOn>$(PrepareDependsOn);_UseVolatileFeed</PrepareDependsOn>
-  </PropertyGroup>
-
 <!--
 ###################################################################
 Targets: Resx
@@ -27,25 +23,6 @@ Generates resource files
       Properties="$(_ResxSlnProps)"
       BuildInParallel="$(BuildInParallel)"
       Condition="'@(Solutions)' != ''" />
-  </Target>
-
-<!--
-###################################################################
-Targets: _UseVolatileFeed
-
-Replaces $(RepositoryRoot)\NuGet.config feeds.
-###################################################################
--->
-  <ItemGroup>
-    <_UpdateFeeds Include="ARTIFACTS" Value="$(NUGET_VOLATILE_FEED_ARTIFACTS)" Condition="'$(NUGET_VOLATILE_FEED_ARTIFACTS)' != ''" />
-    <_UpdateFeeds Include="AspNetCore" Value="$(NUGET_VOLATILE_FEED_AspNetCore)" Condition="'$(NUGET_VOLATILE_FEED_AspNetCore)' != ''" />
-  </ItemGroup>
-
-  <Target Name="_UseVolatileFeed" Condition="'@(_UpdateFeeds)' != ''">
-    <UpdatePackageSource NuGetConfigPath="$(RepositoryRoot)NuGet.config"
-      SourceName="%(_UpdateFeeds.Identity)"
-      SourceUri="%(_UpdateFeeds.Value)"
-      Condition="'%(_UpdateFeeds.Value)' != ''" />
   </Target>
 
 </Project>

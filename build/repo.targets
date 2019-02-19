@@ -48,17 +48,6 @@
     <Error Text="Missing property: Version" Condition="'$(Version)' == ''" />
 
     <ItemGroup>
-      <_ToolsProjects Include="$(RepositoryRoot)tools\KoreBuild.Console\KoreBuild.Console.csproj">
-        <AdditionalProperties>PublishDir=$(_KoreBuildIntermediateDir)\tools\%(Identity)\</AdditionalProperties>
-      </_ToolsProjects>
-    </ItemGroup>
-
-    <MSBuild Targets="Publish"
-      Projects="@(_ToolsProjects)"
-      Properties="$(BuildProperties)"
-      BuildInParallel="true" />
-
-    <ItemGroup>
       <Content Include="$(RepositoryRoot)files\KoreBuild\**\*" />
       <VersionFileLines Include="version:$(Version)" />
       <VersionFileLines Include="commithash:$(BUILD_SOURCEVERSION)" />

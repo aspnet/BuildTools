@@ -21,7 +21,7 @@
     <SignToolTestSign Condition=" '$(SignType)' == 'test' ">true</SignToolTestSign>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition=" '$(DisableDefaultItems)' != 'true' ">
     <!-- Multiple directories can be specified.-->
     <SignCheckDirectory Include="$(SignCheckWorkingDir)" />
   </ItemGroup>

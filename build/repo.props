@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <KoreBuildModule Include="BuildTools.Tasks" />
-    <KoreBuildModule Include="BundledPackages" />
     <KoreBuildModule Include="KoreBuild.Tasks" />
     <KoreBuildModule Include="NuGetPackageVerifier" />
   </ItemGroup>

@@ -4,9 +4,6 @@
   <Import Project="build\sources.props" />
 
   <PropertyGroup>
-    <GenerateCommitHashAttribute Condition="'$(RepositoryCommit)'==''">false</GenerateCommitHashAttribute>
-    <GenerateSourceLinkFile>false</GenerateSourceLinkFile>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <EnableApiCheck>false</EnableApiCheck>
     <NoWarn>$(NoWarn);NU5105</NoWarn>
     <Serviceable>false</Serviceable>

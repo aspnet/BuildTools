@@ -60,14 +60,14 @@ __verbose "Building $repo_path"
 
 sdk_version="$(__get_dotnet_sdk_version)"
 korebuild_version="$(__get_korebuild_version)"
-if [ "$sdk_version" != 'latest' ]; then
+if [ "$sdk_version" != 'latest' ] && [ "${KOREBUILD_KEEPGLOBALJSON:-}" != '1' ]; then
     echo "{
-    \"sdk\": {
-        \"version\": \"${sdk_version}\"
-    },
-    \"msbuild-sdks\": {
-        \"Internal.AspNetCore.Sdk\": \"${korebuild_version}\"
-    }
+  \"sdk\": {
+    \"version\": \"${sdk_version}\"
+  },
+  \"msbuild-sdks\": {
+    \"Internal.AspNetCore.Sdk\": \"${korebuild_version}\"
+  }
 }" > "$repo_path/global.json"
 else
     __verbose "Skipping global.json generation because the \$sdk_version = $sdk_version"

@@ -1,13 +1,12 @@
-<Project Sdk="Internal.AspNetCore.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <OutputType>exe</OutputType>
     <PackageType>DotnetTool</PackageType>
     <AssemblyName>cowsay</AssemblyName>
     <PackageId>Simple.CliTool</PackageId>
     <PackAsTool>true</PackAsTool>
-    <PackAsToolShimRuntimeIdentifiers>win-x64;win-x86</PackAsToolShimRuntimeIdentifiers>
     <AssemblySigningCertName>TestCert</AssemblySigningCertName>
     <PackageSigningCertName>MyPackageSigningCert</PackageSigningCertName>
   </PropertyGroup>

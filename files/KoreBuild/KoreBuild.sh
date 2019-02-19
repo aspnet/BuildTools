@@ -72,15 +72,8 @@ invoke_korebuild_command(){
     elif [ "$command" = "install-tools" ]; then
         __install_tools "$tools_source" "$dot_net_home"
     else
-        __ensure_dotnet
-
-        kore_build_console_dll="$__korebuild_dir/tools/KoreBuild.Console.dll"
-
-        __exec dotnet "$kore_build_console_dll" "$command" \
-            --tools-source "$tools_source" \
-            --dotnet-home "$dot_net_home" \
-            --repo-path "$repo_path" \
-            "$@"
+        __error "Unrecognized command '$command'"
+        exit 1
     fi
 }
 
@@ -129,18 +122,6 @@ __install_tools() {
 
     # Set environment variables
     export PATH="$install_dir:$PATH"
-
-    # This is a workaround for https://github.com/Microsoft/msbuild/issues/2914.
-    # Currently, the only way to configure the NuGetSdkResolver is with NuGet.config, which is not generally used in aspnet org projects.
-    # This project is restored so that it pre-populates the NuGet cache with SDK packages.
-    local restorerfile="$__korebuild_dir/modules/BundledPackages/BundledPackageRestorer.csproj"
-    local restorerfilelock="$NUGET_PACKAGES/internal.aspnetcore.sdk/$(__get_korebuild_version)/korebuild.sentinel"
-    if [[ -e "$restorerfile" ]] && [[ ! -e "$restorerfilelock" ]]; then
-        mkdir -p "$(dirname $restorerfilelock)"
-        touch "$restorerfilelock"
-        __exec dotnet msbuild -t:restore -v:q "$restorerfile"
-    fi
-    # end workaround
 }
 
 __show_version_info() {

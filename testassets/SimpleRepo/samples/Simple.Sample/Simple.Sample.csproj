@@ -1,4 +1,4 @@
-<Project Sdk="Internal.AspNetCore.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Simple.Lib\Simple.Lib.csproj" />
@@ -6,7 +6,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
   </PropertyGroup>
 
 </Project>

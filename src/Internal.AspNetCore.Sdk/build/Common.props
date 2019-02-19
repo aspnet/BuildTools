@@ -10,18 +10,18 @@ Usage: this should be imported once via NuGet at the top of the file.
 
   <!-- common package options -->
   <PropertyGroup>
-    <Authors>Microsoft</Authors>
-    <Company>Microsoft Corporation.</Company>
-    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
-    <IncludeSymbols>true</IncludeSymbols>
-    <NeutralLanguage>en-US</NeutralLanguage>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/aspnet/AspNetCore/2.0.0/LICENSE.txt</PackageLicenseUrl>
-    <PackageIconUrl>https://go.microsoft.com/fwlink/?LinkID=288859</PackageIconUrl>
-    <PackageProjectUrl>https://asp.net</PackageProjectUrl>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <Authors Condition="'$(Authors)' == ''">Microsoft</Authors>
+    <Company Condition="'$(Company)' == ''">Microsoft Corporation.</Company>
+    <Copyright Condition="'$(Copyright)' == ''">© Microsoft Corporation. All rights reserved.</Copyright>
+    <IncludeSymbols Condition="'$(IncludeSymbols)' == ''">true</IncludeSymbols>
+    <NeutralLanguage Condition="'$(NeutralLanguage)' == ''">en-US</NeutralLanguage>
+    <PackageLicenseUrl Condition="'$(PackageLicenseUrl)' == ''">https://raw.githubusercontent.com/aspnet/AspNetCore/2.0.0/LICENSE.txt</PackageLicenseUrl>
+    <PackageIconUrl Condition="'$(PackageIconUrl)' == ''">https://go.microsoft.com/fwlink/?LinkID=288859</PackageIconUrl>
+    <PackageProjectUrl Condition="'$(PackageProjectUrl)' == ''">https://asp.net</PackageProjectUrl>
+    <PackageRequireLicenseAcceptance Condition="'$(PackageRequireLicenseAcceptance)' == ''">true</PackageRequireLicenseAcceptance>
+    <NoPackageAnalysis Condition="'$(NoPackageAnalysis)' == ''">true</NoPackageAnalysis>
     <Serviceable Condition="'$(Configuration)' == 'Release'">true</Serviceable>
-    <LangVersion Condition="'$(LangVersion)' == ''">7.2</LangVersion>
+    <LangVersion Condition="'$(LangVersion)' == ''">7.3</LangVersion>
     <!-- Instructs the compiler to use SHA256 instead of SHA1 when adding file hashes to PDBs. -->
     <ChecksumAlgorithm>SHA256</ChecksumAlgorithm>
     <!-- Suppress the message about using a preview version of .NET Core SDK. We are okay with this and don't need the warning. -->
@@ -60,7 +60,7 @@ Usage: this should be imported once via NuGet at the top of the file.
     <!-- Detect this package inclusion. For use by other targets and properties. -->
     <InternalAspNetCoreSdkImported>true</InternalAspNetCoreSdkImported>
     <_BuildTasksPrefix>Sdk_</_BuildTasksPrefix>
-    <_BuildToolsAssemblyTfm Condition="'$(MSBuildRuntimeType)' == 'Core'">netcoreapp2.1</_BuildToolsAssemblyTfm>
+    <_BuildToolsAssemblyTfm Condition="'$(MSBuildRuntimeType)' == 'Core'">netcoreapp3.0</_BuildToolsAssemblyTfm>
     <_BuildToolsAssemblyTfm Condition="'$(MSBuildRuntimeType)' != 'Core'">net46</_BuildToolsAssemblyTfm>
     <_BuildToolsAssembly>$(MSBuildThisFileDirectory)..\tools\$(_BuildToolsAssemblyTfm)\Internal.AspNetCore.Sdk.dll</_BuildToolsAssembly>
   </PropertyGroup>

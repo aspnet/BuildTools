@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<assemblies defaultPublicKeyToken="31bf3856ad364e35">
-  <assembly name="Microsoft.Win32.Registry" />
-  <assembly name="System.Buffers" />
-  <assembly name="System.Diagnostics.DiagnosticSource" />
-  <assembly name="System.Memory" />
-  <assembly name="System.Runtime.CompilerServices.Unsafe" />
-  <assembly name="System.Text.Encodings.Web" />
-</assemblies>

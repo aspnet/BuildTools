@@ -37,8 +37,8 @@ Default layout and configuration.
     <RepositoryRoot>$([MSBuild]::NormalizeDirectory('$(RepositoryRoot)'))</RepositoryRoot>
     <ArtifactsDir>$([MSBuild]::NormalizeDirectory('$(RepositoryRoot)'))artifacts\</ArtifactsDir>
     <BuildDir>$(ArtifactsDir)build\</BuildDir>
-    <LogOutputDir>$(ArtifactsDir)logs\</LogOutputDir>
-    <IntermediateDir>$([MSBuild]::NormalizeDirectory('$(RepositoryRoot)'))obj\</IntermediateDir>
+    <LogOutputDir Condition="'$(LogOutputDir)' == ''">$(ArtifactsDir)logs\</LogOutputDir>
+    <IntermediateDir Condition="'$(IntermediateDir)' == ''">$([MSBuild]::NormalizeDirectory('$(RepositoryRoot)'))obj\</IntermediateDir>
 
     <NuGetPackageRoot Condition=" '$(NuGetPackageRoot)' == '' ">$(NUGET_PACKAGES)</NuGetPackageRoot>
     <NuGetPackageRoot Condition=" '$(NuGetPackageRoot)' == '' AND '$(USERPROFILE)' != '' ">$(USERPROFILE)\.nuget\packages\</NuGetPackageRoot>
@@ -69,10 +69,6 @@ Default layout and configuration.
       This environment variable is automatically set by VSTS.
     -->
     <BuildNumber Condition=" '$(BuildNumber)' == '' ">$(BUILD_BUILDNUMBER)</BuildNumber>
-    <RepositoryBranch Condition=" '$(RepositoryBranch)' == '' ">$(BUILD_SOURCEBRANCH)</RepositoryBranch>
-    <RepositoryBranch Condition=" '$(RepositoryBranch)' != '' AND $(RepositoryBranch.StartsWith('refs/heads/')) ">$(RepositoryBranch.Substring(11))</RepositoryBranch>
-    <RepositoryBranch Condition=" '$(RepositoryBranch)' != '' AND $(RepositoryBranch.StartsWith('refs/pull/')) ">$(RepositoryBranch.Substring(10))</RepositoryBranch>
-    <RepositoryCommit Condition=" '$(RepositoryCommit)' == '' ">$(BUILD_SOURCEVERSION)</RepositoryCommit>
   </PropertyGroup>
 
   <!-- Create a temporary build number if not assigned by the CI server -->
@@ -93,8 +89,6 @@ Default layout and configuration.
 
   <PropertyGroup>
     <BuildProperties Condition="'$(BuildNumber)' != ''">$(BuildProperties);BuildNumber=$(BuildNumber)</BuildProperties>
-    <BuildProperties Condition="'$(RepositoryCommit)' != ''">$(BuildProperties);RepositoryCommit=$(RepositoryCommit)</BuildProperties>
-    <BuildProperties Condition="'$(RepositoryBranch)' != ''">$(BuildProperties);RepositoryBranch=$(RepositoryBranch)</BuildProperties>
     <!-- Makes CSC error links clickable in the VS Code integrated terminal. -->
     <BuildProperties Condition=" '$(VSCODE_CWD)' != 'true' ">$(BuildProperties);GenerateFullPaths=true</BuildProperties>
   </PropertyGroup>

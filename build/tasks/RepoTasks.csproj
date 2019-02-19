@@ -2,7 +2,7 @@
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.props" />
 
   <PropertyGroup>
-    <TargetFramework Condition=" '$(MSBuildRuntimeType)' == 'core' ">netcoreapp2.1</TargetFramework>
+    <TargetFramework Condition=" '$(MSBuildRuntimeType)' == 'core' ">netcoreapp3.0</TargetFramework>
     <TargetFramework Condition=" '$(MSBuildRuntimeType)' != 'core' ">net46</TargetFramework>
     <DefineConstants>$(DefineConstants);BuildTools</DefineConstants>
     <NoWarn>$(NoWarn);NU1603</NoWarn>
@@ -13,12 +13,10 @@
     <Compile Include="..\..\shared\Microsoft.Extensions.CommandLineUtils.Sources\Utilities\*.cs" />
     <Compile Include="..\..\shared\Utilities\MSBuildListSplitter.cs" />
     <Compile Include="..\..\modules\BuildTools.Tasks\Utilities\**" />
-    <Compile Include="..\..\modules\BuildTools.Tasks\GetGitCommitInfo.cs" />
     <Compile Include="..\..\modules\BuildTools.Tasks\GenerateFileFromTemplate.cs" />
     <Compile Include="..\..\modules\BuildTools.Tasks\GenerateSvgBadge.cs" />
     <Compile Include="..\..\modules\BuildTools.Tasks\RunBase.cs" />
     <Compile Include="..\..\modules\BuildTools.Tasks\RunDotNet.cs" />
-    <Compile Include="..\..\modules\BuildTools.Tasks\ZipArchive.cs" />
   </ItemGroup>
 
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.targets" />

@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <PackageId>Internal.AspNetCore.Sdk</PackageId>
-    <TargetFrameworks>netcoreapp2.1;net46</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;net46</TargetFrameworks>
     <DefineConstants>$(DefineConstants);SDK</DefineConstants>
     <Serviceable>false</Serviceable>
     <Description>Build targets and extensions to Microsoft.NET.Sdk. This package is intended for Microsoft use only.</Description>
@@ -21,7 +21,7 @@
     <Compile Include="..\..\shared\Utilities\MSBuildListSplitter.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
     <PackageReference Include="Microsoft.Build.Framework" Version="$(MicrosoftBuildFrameworkPackageVersion)" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="$(MicrosoftBuildUtilitiesCorePackageVersion)" />
   </ItemGroup>

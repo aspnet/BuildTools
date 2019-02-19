@@ -39,7 +39,7 @@ namespace Microsoft.Extensions.CommandLineUtils
             var fileName = MuxerName;
 #if NET46
             fileName += ".exe";
-#elif NETCOREAPP2_2 || NETCOREAPP2_1 || NETSTANDARD2_0
+#elif NETCOREAPP3_0 || NETCOREAPP2_2 || NETCOREAPP2_1 || NETSTANDARD2_0
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 fileName += ".exe";

@@ -35,6 +35,7 @@
     <PackageId Condition=" '$(PackageId)' == '' ">$(ProjectDirName)</PackageId>
     <Description>$(PackageId)</Description>
     <IncludeBuildOutput>false</IncludeBuildOutput>
+    <IncludeSymbols>false</IncludeSymbols>
     <ContentTargetFolders>contentFiles</ContentTargetFolders>
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
     <DefaultExcludeItems>$(DefaultExcludeItems);$(BaseOutputPath);$(BaseIntermediateOutputPath);</DefaultExcludeItems>

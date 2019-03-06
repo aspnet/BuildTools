@@ -92,7 +92,9 @@ Runs the VSTest on all projects in the ProjectToBuild itemgroup.
 
   <!-- The 'inner-build' -->
   <PropertyGroup>
-    <TrxFile>$(LogOutputDir)$(TestGroupName)-$(TargetFramework)-$(BuildNumber).trx</TrxFile>
+    <TrxFileWithoutExtension>$(LogOutputDir)$(TestGroupName)-$(TargetFramework)-$(BuildNumber).trx</TrxFileWithoutExtension>
+    <TrxFile>$(TrxFileWithoutExtension).trx</TrxFile>
+    <TrxFileWildcard>$(TrxFileWithoutExtension)*.trx</TrxFileWildcard>
     <VSTestLogger Condition=" '$(VSTestLogger)' == '' AND '$(CI)' == 'true' ">trx;LogFileName=$(TrxFile)</VSTestLogger>
     <VSTestDiagFile Condition=" '$(VSTestVerboseOutput)' == 'true'">$(LogOutputDir)$(TestGroupName)-$(TargetFramework)-$(BuildNumber).diag</VSTestDiagFile>
     <!--
@@ -130,9 +132,13 @@ Runs the VSTest on all projects in the ProjectToBuild itemgroup.
       <Output TaskParameter="ExitCode" PropertyName="VsTestExitCode" />
     </RunDotNet>
 
-    <Message Text="##teamcity[importData type='vstest' verbose='false' path='$(TrxFile)']"
+    <ItemGroup>
+      <_TrxFiles Include="$(TrxFileWildcard)" />
+    </ItemGroup>
+
+    <Message Text="##teamcity[importData type='vstest' verbose='false' path='$(TrxFileWildcard)']"
       Importance="High"
-      Condition="'$(TEAMCITY_VERSION)' != '' AND Exists($(TrxFile))" />
+      Condition="'$(TEAMCITY_VERSION)' != '' AND Exists('%(_TrxFiles.FullPath)')" />
     <Error Text="Test group $(TestGroupName)/$(TargetFramework) failed with exit code '$(VsTestExitCode)'." Condition=" $(VsTestExitCode) != 0 " />
   </Target>
 

@@ -92,7 +92,7 @@ Runs the VSTest on all projects in the ProjectToBuild itemgroup.
 
   <!-- The 'inner-build' -->
   <PropertyGroup>
-    <TrxFileWithoutExtension>$(LogOutputDir)$(TestGroupName)-$(TargetFramework)-$(BuildNumber).trx</TrxFileWithoutExtension>
+    <TrxFileWithoutExtension>$(LogOutputDir)$(TestGroupName)-$(TargetFramework)-$(BuildNumber)</TrxFileWithoutExtension>
     <TrxFile>$(TrxFileWithoutExtension).trx</TrxFile>
     <TrxFileWildcard>$(TrxFileWithoutExtension)*.trx</TrxFileWildcard>
     <VSTestLogger Condition=" '$(VSTestLogger)' == '' AND '$(CI)' == 'true' ">trx;LogFileName=$(TrxFile)</VSTestLogger>

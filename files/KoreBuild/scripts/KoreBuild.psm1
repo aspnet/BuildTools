@@ -125,7 +125,7 @@ function Invoke-RepositoryBuild(
         }
         else {
             [string[]]$repoTasksArgs = $MSBuildArgs | Where-Object { ($_ -like '-p:*') -or ($_ -like '/p:*') -or ($_ -like '-property:') -or ($_ -like '/property:') }
-            $repoTasksArgs += ,"@$msBuildLogRspFile"
+            $repoTasksArgs += , "@$msBuildLogRspFile"
             __build_task_project $Path $repoTasksArgs
         }
 
@@ -288,9 +288,17 @@ function Set-KoreBuildSettings(
     if (!$DotNetHome) {
         $DotNetHome = if ($env:DOTNET_HOME) { $env:DOTNET_HOME } `
             elseif ($CI) { Join-Path $RepoPath '.dotnet'}
-            elseif ($env:USERPROFILE) { Join-Path $env:USERPROFILE '.dotnet'} `
+        elseif ($env:USERPROFILE) { Join-Path $env:USERPROFILE '.dotnet'} `
             elseif ($env:HOME) {Join-Path $env:HOME '.dotnet'}`
             else { Join-Path $RepoPath '.dotnet'}
+    }
+
+    # Normalize RepoPath to a native File System path so other tools can use it properly
+    $RepoPath = Convert-Path $RepoPath
+
+    if ($RepoPath.EndsWith("/") -or $RepoPath.EndsWith("\")) {
+        # Remove trailing slash, we add it ourselves
+        $RepoPath = $RepoPath.Substring(0, $RepoPath.Length - 1);
     }
 
     if (!$ToolsSource) { $ToolsSource = 'https://aspnetcore.blob.core.windows.net/buildtools' }

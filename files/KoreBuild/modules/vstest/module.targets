@@ -94,9 +94,12 @@ Runs the VSTest on all projects in the ProjectToBuild itemgroup.
   <PropertyGroup>
     <TrxFileWithoutExtension>$(LogOutputDir)$(TestGroupName)-$(TargetFramework)-$(BuildNumber)</TrxFileWithoutExtension>
     <TrxFile>$(TrxFileWithoutExtension).trx</TrxFile>
+    <TrxFile Condition="'$(RunFlakyTests)' == 'true'">$(TrxFileWithoutExtension).flaky.trx</TrxFile>
     <TrxFileWildcard>$(TrxFileWithoutExtension)*.trx</TrxFileWildcard>
     <VSTestLogger Condition=" '$(VSTestLogger)' == '' AND '$(CI)' == 'true' ">trx;LogFileName=$(TrxFile)</VSTestLogger>
-    <VSTestDiagFile Condition=" '$(VSTestVerboseOutput)' == 'true'">$(LogOutputDir)$(TestGroupName)-$(TargetFramework)-$(BuildNumber).diag</VSTestDiagFile>
+    <VSTestDiagFileBase>$(LogOutputDir)$(TestGroupName)-$(TargetFramework)-$(BuildNumber)</VSTestDiagFileBase>
+    <VSTestDiagFile Condition=" '$(VSTestVerboseOutput)' == 'true'">$(VSTestDiagFileBase).diag</VSTestDiagFile>
+    <VSTestDiagFile Condition=" '$(VSTestVerboseOutput)' == 'true' And '$(RunFlakyTests)' == 'true'">$(VSTestDiagFileBase).flaky.diag</VSTestDiagFile>
     <!--
       Disable other test reporters if trx logging is enabled.
     -->
@@ -111,6 +114,12 @@ Runs the VSTest on all projects in the ProjectToBuild itemgroup.
 
     <PropertyGroup>
       <TestAdapterPath>%(TestAssemblies.RootDir)%(TestAssemblies.Directory)</TestAdapterPath>
+
+      <_TestFilter Condition="'$(RunFlakyTests)' != 'true'">Flaky:All!=true</_TestFilter>
+      <_TestFilter Condition="'$(RunFlakyTests)' == 'true'">Flaky:All=true</_TestFilter>
+
+      <_TestFilter Condition="'$(RunFlakyTests)' != 'true' And '$(AGENT_OS)' != ''">$(_TestFilter)&amp;Flaky:AzP:All!=true&amp;Flaky:AzP:OS:$(AGENT_OS)!=true</_TestFilter>
+      <_TestFilter Condition="'$(RunFlakyTests)' == 'true' And '$(AGENT_OS)' != ''">$(_TestFilter)|Flaky:AzP:All=true|Flaky:AzP:OS:$(AGENT_OS)=true</_TestFilter>
     </PropertyGroup>
 
     <ItemGroup>
@@ -122,6 +131,7 @@ Runs the VSTest on all projects in the ProjectToBuild itemgroup.
       <VSTestArgs Include="--Framework:$(TargetFrameworkIdentifier),Version=v$(TargetFrameworkVersion)" />
       <VSTestArgs Include="--Logger:$([MSBuild]::Escape($(VSTestLogger)))" Condition="'$(VSTestLogger)' != ''" />
       <VSTestArgs Include="--TestAdapterPath:$(TestAdapterPath)" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />
+      <VSTestArgs Include="--TestCaseFilter:$(_TestFilter)" />
       <VSTestArgs Include="@(TestAssemblies)" />
       <VSTestArgs Include="--;RunConfiguration.NoAutoReporters=true" Condition="'$(VSTestAutoReporters)' != 'true'" />
     </ItemGroup>

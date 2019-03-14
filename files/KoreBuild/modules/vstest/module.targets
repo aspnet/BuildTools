@@ -115,11 +115,17 @@ Runs the VSTest on all projects in the ProjectToBuild itemgroup.
     <PropertyGroup>
       <TestAdapterPath>%(TestAssemblies.RootDir)%(TestAssemblies.Directory)</TestAdapterPath>
 
-      <_TestFilter Condition="'$(RunFlakyTests)' != 'true'">Flaky:All!=true</_TestFilter>
-      <_TestFilter Condition="'$(RunFlakyTests)' == 'true'">Flaky:All=true</_TestFilter>
+      <_DefaultNonFlakyTestFilterExpression>Flaky:All!=true</_DefaultNonFlakyTestFilterExpression>
+      <_DefaultNonFlakyTestFilterExpression Condition="'$(AGENT_OS)' != ''">$(_DefaultNonFlakyTestFilterExpression)&amp;Flaky:AzP:All!=true&amp;Flaky:AzP:OS:$(AGENT_OS)!=true</_DefaultNonFlakyTestFilterExpression>
+      <_DefaultFlakyTestFilterExpression>Flaky:All=true</_DefaultFlakyTestFilterExpression>
+      <_DefaultFlakyTestFilterExpression Condition="'$(AGENT_OS)' != ''">$(_DefaultFlakyTestFilterExpression)|Flaky:AzP:All=true|Flaky:AzP:OS:$(AGENT_OS)=true</_DefaultFlakyTestFilterExpression>
 
-      <_TestFilter Condition="'$(RunFlakyTests)' != 'true' And '$(AGENT_OS)' != ''">$(_TestFilter)&amp;Flaky:AzP:All!=true&amp;Flaky:AzP:OS:$(AGENT_OS)!=true</_TestFilter>
-      <_TestFilter Condition="'$(RunFlakyTests)' == 'true' And '$(AGENT_OS)' != ''">$(_TestFilter)|Flaky:AzP:All=true|Flaky:AzP:OS:$(AGENT_OS)=true</_TestFilter>
+      <FlakyTestFilterExpression Condition="'$(FlakyTestFilterExpression)' == ''">$(_DefaultFlakyTestFilterExpression)</FlakyTestFilterExpression>
+      <NonFlakyTestFilterExpression Condition="'$(NonFlakyTestFilterExpression)' == ''">$(_DefaultNonFlakyTestFilterExpression)</NonFlakyTestFilterExpression>
+
+      <!-- If $(RunFlakyTests) = 'include' then we will do *neither* of these and we'll include flaky tests in the run -->
+      <TestFilterExpression Condition="'$(TestFilterExpression)' == '' And '$(RunFlakyTests)' != 'true' And '$(RunFlakyTests)' != 'include'">$(NonFlakyTestFilterExpression)</TestFilterExpression>
+      <TestFilterExpression Condition="'$(TestFilterExpression)' == '' And '$(RunFlakyTests)' == 'true'">$(FlakyTestFilterExpression)</TestFilterExpression>
     </PropertyGroup>
 
     <ItemGroup>
@@ -131,7 +137,7 @@ Runs the VSTest on all projects in the ProjectToBuild itemgroup.
       <VSTestArgs Include="--Framework:$(TargetFrameworkIdentifier),Version=v$(TargetFrameworkVersion)" />
       <VSTestArgs Include="--Logger:$([MSBuild]::Escape($(VSTestLogger)))" Condition="'$(VSTestLogger)' != ''" />
       <VSTestArgs Include="--TestAdapterPath:$(TestAdapterPath)" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />
-      <VSTestArgs Include="--TestCaseFilter:$(_TestFilter)" />
+      <VSTestArgs Include="--TestCaseFilter:$(TestFilterExpression)" Condition="'$(TestFilterExpression)' != ''" />
       <VSTestArgs Include="@(TestAssemblies)" />
       <VSTestArgs Include="--;RunConfiguration.NoAutoReporters=true" Condition="'$(VSTestAutoReporters)' != 'true'" />
     </ItemGroup>

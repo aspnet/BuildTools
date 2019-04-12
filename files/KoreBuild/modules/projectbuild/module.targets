@@ -75,18 +75,17 @@ Executes /t:{Target} on all projects
           ItemName="_ProjectToRestoreWithNuGet" />
     </MSBuild>
 
-    <MSBuild Targets="_RequiresCustomRestore"
+    <MSBuild Targets="_IsCustomRestoreTargetSupported"
              Projects="@(ProjectToBuild)"
              BuildInParallel="true"
              SkipNonexistentTargets="true"
              SkipNonexistentProjects="true"
              RemoveProperties="$(_BuildPropertiesToRemove);Platform"
-             Properties="$(BuildProperties);__BuildTarget=_RequiresCustomRestore">
+             Properties="$(BuildProperties);__BuildTarget=_IsCustomRestoreTargetSupported">
       <Output
           TaskParameter="TargetOutputs"
           ItemName="_ProjectWithCustomRestore" />
     </MSBuild>
-
 
     <PropertyGroup>
       <!-- Normalize paths to avoid false warnings by NuGet about missing project references. -->
@@ -124,7 +123,6 @@ Executes /t:{Target} on all projects
              RemoveProperties="$(_BuildPropertiesToRemove)"
              BuildInParallel="$(BuildInParallel)" />
   </Target>
-
 
   <Target Name="CleanProjects" DependsOnTargets="ResolveProjects;_EnsureProjects">
     <!--

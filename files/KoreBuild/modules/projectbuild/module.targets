@@ -75,6 +75,18 @@ Executes /t:{Target} on all projects
           ItemName="_ProjectToRestoreWithNuGet" />
     </MSBuild>
 
+    <MSBuild Targets="_IsCustomRestoreTargetSupported"
+             Projects="@(ProjectToBuild)"
+             BuildInParallel="true"
+             SkipNonexistentTargets="true"
+             SkipNonexistentProjects="true"
+             RemoveProperties="$(_BuildPropertiesToRemove);Platform"
+             Properties="$(BuildProperties);__BuildTarget=_IsCustomRestoreTargetSupported">
+      <Output
+          TaskParameter="TargetOutputs"
+          ItemName="_ProjectWithCustomRestore" />
+    </MSBuild>
+
     <PropertyGroup>
       <!-- Normalize paths to avoid false warnings by NuGet about missing project references. -->
       <_ProjectToRestoreWithNuGetList>@(_ProjectToRestoreWithNuGet->'%(FullPath)')</_ProjectToRestoreWithNuGetList>
@@ -93,6 +105,15 @@ Executes /t:{Target} on all projects
              Properties="$(BuildProperties);__BuildTarget=Restore"
              RemoveProperties="$(_BuildPropertiesToRemove);Platform"
              BuildInParallel="%(_ProjectToRestoreDirectly.RestoreInParallel)" />
+
+    <!-- Adds support for running a target CustomRestore on projects that require restoring artifacts from other package managers like npm -->
+    <MSBuild Condition="@(_ProjectWithCustomRestore->Count()) != 0 and '%(Targets)' != '' "
+             Projects="@(_ProjectWithCustomRestore)"
+             Targets="%(Targets)"
+             Properties="$(BuildProperties);__BuildTarget=CustomRestore"
+             RemoveProperties="$(_BuildPropertiesToRemove);Platform"
+             BuildInParallel="false" />
+
     <!--
       Invoke NuGet.targets directly. This avoids redundant calls the restore task.
     -->

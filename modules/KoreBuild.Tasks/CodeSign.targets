@@ -40,7 +40,7 @@
   </Target>
 
   <Target Name="SignCheck"
-          Condition=" '$(DisableCodeSigning)' != 'true' AND '$(SignToolDryRun)' != 'true' AND '$(DisableSignCheck)' != 'true' "
+          Condition=" '$(DisableCodeSigning)' != 'true' AND '$(SignToolDryRun)' != 'true' AND '$(SignToolTestSign)' != 'true' AND '$(DisableSignCheck)' != 'true' "
           AfterTargets="CodeSign">
 
     <PropertyGroup>

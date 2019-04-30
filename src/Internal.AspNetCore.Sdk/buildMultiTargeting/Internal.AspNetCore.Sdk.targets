@@ -4,7 +4,6 @@ for use outside of Microsoft.
 -->
 <Project>
   <Import Project="$(MSBuildThisFileDirectory)..\build\Common.targets" />
-  <Import Project="$(MSBuildThisFileDirectory)ApiCheck.targets" />
 
   <Target Name="_ResolveEmbeddedResources">
     <ItemGroup>

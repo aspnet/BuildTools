@@ -7,9 +7,6 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <copyright>$copyright$</copyright>
-    <dependencies>
-      <dependency id="Microsoft.AspNetCore.BuildTools.ApiCheck" version="$apicheckversion$" />
-    </dependencies>
   </metadata>
   <files>
     <file src="_._" target="lib\netstandard1.0\_._" />
@@ -19,6 +16,5 @@
     <file src="build\" target="build\" />
     <file src="buildMultiTargeting\" target="buildMultiTargeting\" />
     <file src="sdk\" target="sdk\" />
-    <file src="$bundledVersionFile$" target="sdk/" />
   </files>
 </package>

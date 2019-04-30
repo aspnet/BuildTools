@@ -9,6 +9,4 @@
   <Import Project="..\buildMultiTargeting\Internal.AspNetCore.Sdk.targets" Condition="'$(TargetFrameworks)' != '' AND '$(TargetFramework)' == ''" />
   <Import Project="..\build\Internal.AspNetCore.Sdk.targets" Condition="'$(TargetFramework)' != ''" />
 
-  <Import Project="DefaultItems.targets" />
-
 </Project>

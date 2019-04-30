@@ -4,7 +4,6 @@
   <Import Project="build\sources.props" />
 
   <PropertyGroup>
-    <EnableApiCheck>false</EnableApiCheck>
     <NoWarn>$(NoWarn);NU5105</NoWarn>
     <Serviceable>false</Serviceable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

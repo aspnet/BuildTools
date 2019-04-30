@@ -1,5 +1,4 @@
-﻿<Project>
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.props" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <PackageId>Internal.AspNetCore.Sdk</PackageId>
@@ -32,31 +31,9 @@
     <Reference Include="Microsoft.Build.Utilities.v4.0" />
   </ItemGroup>
 
-  <Target Name="SetPackageDependencies" BeforeTargets="GenerateNuspec">
-    <MSBuild Projects="..\ApiCheck.Console\ApiCheck.Console.csproj" Targets="GetPackageVersion">
-      <Output TaskParameter="TargetOutputs" PropertyName="ApiCheckPackageVersion" />
-    </MSBuild>
-
-    <PropertyGroup>
-      <BundledVersionsPropsContent>
-<![CDATA[
-<Project>
-  <PropertyGroup>
-    <MicrosoftAspNetCoreBuildToolsApiCheckPackageVersion>$(ApiCheckPackageVersion)</MicrosoftAspNetCoreBuildToolsApiCheckPackageVersion>
-    <MicrosoftBuildPackageVersion>$(MicrosoftBuildPackageVersion)</MicrosoftBuildPackageVersion>
-    <JsonInMSBuildVersion>$(JsonInMSBuildVersion)</JsonInMSBuildVersion>
-  </PropertyGroup>
-</Project>
-]]>
-      </BundledVersionsPropsContent>
-    </PropertyGroup>
-
-    <WriteLinesToFile Lines="$(BundledVersionsPropsContent)" Overwrite="true" File="$(IntermediateOutputPath)BundledVersions.props" />
-
+  <Target Name="SetCustomPackageProperties" BeforeTargets="GenerateNuspec">
     <PropertyGroup>
       <NuspecProperties>$(NuspecProperties);id=$(PackageId)</NuspecProperties>
-      <NuspecProperties>$(NuspecProperties);bundledVersionFile=$(IntermediateOutputPath)BundledVersions.props</NuspecProperties>
-      <NuspecProperties>$(NuspecProperties);apicheckVersion=$(ApiCheckPackageVersion)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);config=$(Configuration)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);version=$(PackageVersion)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);description=$(Description)</NuspecProperties>
@@ -64,5 +41,4 @@
     </PropertyGroup>
   </Target>
 
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.targets" />
 </Project>

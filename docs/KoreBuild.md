@@ -13,13 +13,8 @@ Previously repositories were runable in only one way, by doing `.\build.cmd`. Bu
 Command               | Purpose                                                          | Example
 ----------------------|------------------------------------------------------------------|----------
 install-tools         | Installs dotnet, CLI and Shared runtimes.                        | .\run.ps1 install-tools
-install vs            | Installs/Updates VS components                                   | .\run.ps1 install vs --quiet --product Enterprise
-docker-build          | Runs the build inside docker.                                    | .\run.ps1 docker-build {jessie\|winservercore} /t:SomeTarget /p:Parameters
 default-build         | Runs install-tools followed by msbuild (like build.cmd used to). | .\run.ps1 default-build /t:SomeTarget /p:Parameters
 msbuild               | Runs the build normally.                                         | .\run.ps1 msbuild /t:SomeTarget /p:Parameters
-upgrade deps          | Upgrade the dependencies.props of this project.                  | .\run.ps1 upgrade deps
-generate deps         | Generate a dependencies.props for this project.                  | .\run.ps1 generate deps
-generate api-baselines | Re-generate baselines for all projects.                         | .\run.ps1 generate api-baselines
 
 ### KoreBuild properties
 
@@ -27,10 +22,7 @@ Below is a list of some of the properties that KoreBuild recognizes which you mi
 
 Property          | Purpose
 ------------------|--------
-GenerateBaselines | Toggles the (re-)generation of baselines for all projects (defaults to true).
-ReplaceBaselines  | If 'true' baseline.\*.json and breakingchanges.\*.json files are deleted, and baseline.\*.json files are recreated from the current state.
 VSTestBlame       | Turns on the '--blame' option of vstest, useful for diagnosing test host failures.
-EnableApiCheck    | If 'false' no targets related to ApiCheck are run.
 
 ### KoreBuild config
 

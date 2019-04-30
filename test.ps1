@@ -38,8 +38,7 @@ $Arguments += , "/p:DotNetRestoreSources=$packageDir"
 
 foreach ($pkg in @(
         "Internal.AspNetCore.Sdk",
-        "Internal.AspNetCore.SiteExtension.Sdk",
-        "Microsoft.AspNetCore.BuildTools.ApiCheck")) {
+        "Internal.AspNetCore.SiteExtension.Sdk")) {
 
     $pkgRoot = "${env:USERPROFILE}/.nuget/packages/$pkg/$toolsVersion/"
     if (Test-Path $pkgRoot) {

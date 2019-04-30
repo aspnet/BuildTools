@@ -1,5 +1,5 @@
-<Project>
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.props" />
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(RepositoryRoot)files\KoreBuild\msbuild\KoreBuild.RepoTasks.Sdk\Sdk\Sdk.props" />
 
   <PropertyGroup>
     <TargetFramework Condition=" '$(MSBuildRuntimeType)' == 'core' ">netcoreapp3.0</TargetFramework>
@@ -19,5 +19,5 @@
     <Compile Include="..\..\modules\BuildTools.Tasks\RunDotNet.cs" />
   </ItemGroup>
 
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.targets" />
+  <Import Project="$(RepositoryRoot)files\KoreBuild\msbuild\KoreBuild.RepoTasks.Sdk\Sdk\Sdk.targets" />
 </Project>

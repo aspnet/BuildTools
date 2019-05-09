@@ -81,7 +81,7 @@ Executes /t:{Target} on all projects
              SkipNonexistentTargets="true"
              SkipNonexistentProjects="true"
              RemoveProperties="$(_BuildPropertiesToRemove);Platform"
-             Properties="$(BuildProperties);__BuildTarget=_IsCustomRestoreTargetSupported">
+             Properties="$(BuildProperties);BuildNodeJs=$(BuildNodeJs);__BuildTarget=_IsCustomRestoreTargetSupported">
       <Output
           TaskParameter="TargetOutputs"
           ItemName="_ProjectWithCustomRestore" />
@@ -110,7 +110,7 @@ Executes /t:{Target} on all projects
     <MSBuild Condition="@(_ProjectWithCustomRestore->Count()) != 0 and '%(Targets)' != '' "
              Projects="@(_ProjectWithCustomRestore)"
              Targets="%(Targets)"
-             Properties="$(BuildProperties);__BuildTarget=CustomRestore"
+             Properties="$(BuildProperties);BuildNodeJs=$(BuildNodeJs);__BuildTarget=CustomRestore"
              RemoveProperties="$(_BuildPropertiesToRemove);Platform"
              BuildInParallel="false" />
 

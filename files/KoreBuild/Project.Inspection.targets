@@ -41,6 +41,7 @@
         <TargetFrameworks>$([MSBuild]::Escape($(TargetFrameworks)))</TargetFrameworks>
         <PackageType>$(PackageType)</PackageType>
         <RepositoryRoot>$(RepositoryRoot)</RepositoryRoot>
+        <RepoRoot>$(RepoRoot)</RepoRoot>
         <RepositoryUrl>$(RepositoryUrl)</RepositoryUrl>
         <Category>$(PackageArtifactCategory)</Category>
         <Certificate>$(PackageSigningCertName)</Certificate>
@@ -58,6 +59,7 @@
         <SourceIncluded>$(IncludeSource)</SourceIncluded>
         <PackageType>$(PackageType)</PackageType>
         <RepositoryRoot>$(RepositoryRoot)</RepositoryRoot>
+        <RepoRoot>$(RepoRoot)</RepoRoot>
         <RepositoryUrl>$(RepositoryUrl)</RepositoryUrl>
         <Category>$(PackageArtifactCategory)</Category>
         <Certificate>$(PackageSigningCertName)</Certificate>

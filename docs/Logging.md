@@ -1,7 +1,7 @@
 Logging
 -------
 
-KoreBuild produces log files to $(RepositoryRoot)/artifacts/logs. The following log formats can be used:
+KoreBuild produces log files to $(RepoRoot)/artifacts/logs. The following log formats can be used:
 
 ## Binary Logger
 

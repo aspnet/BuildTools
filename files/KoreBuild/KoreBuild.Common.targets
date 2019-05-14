@@ -19,7 +19,7 @@ after all other property imports.
 
     <PackageVersion Condition="'$(PackageVersion)' == '' AND '$(Version)' != '' ">$(Version)</PackageVersion>
     <BuildProperties>$(BuildProperties);RepoVersion=$(Version);RepoPackageVersion=$(PackageVersion)</BuildProperties>
-    <BuildProperties Condition=" ! Exists('$(RepositoryRoot)version.props') ">$(BuildProperties);VerifyVersion=false</BuildProperties>
+    <BuildProperties Condition=" ! Exists('$(RepoRoot)version.props') ">$(BuildProperties);VerifyVersion=false</BuildProperties>
   </PropertyGroup>
 
 <!--
@@ -46,7 +46,7 @@ extending the *DependsOn property
 
   <Target Name="GetRepoInfo" Returns="@(RepoInfo)">
     <ItemGroup>
-      <RepoInfo Include="$(RepositoryRoot)">
+      <RepoInfo Include="$(RepoRoot)">
         <Version>$(Version)</Version>
         <PackageVersion>$(PackageVersion)</PackageVersion>
         <BuildNumber>$(BuildNumber)</BuildNumber>
@@ -93,7 +93,7 @@ extending the *DependsOn property
     <MSBuild Targets="GetArtifactInfo"
              Projects="@(ProjectToBuild)"
              Condition="@(ProjectToBuild->Count()) != 0"
-             Properties="$(BuildProperties);DesignTimeBuild=true;NoBuild=true;RepositoryRoot=$(RepositoryRoot);CustomAfterMicrosoftCommonTargets=$(_InspectionTargetsFile);CustomAfterMicrosoftCommonCrossTargetingTargets=$(_InspectionTargetsFile)"
+             Properties="$(BuildProperties);DesignTimeBuild=true;NoBuild=true;RepoRoot=$(RepoRoot);RepositoryRoot=$(RepositoryRoot);CustomAfterMicrosoftCommonTargets=$(_InspectionTargetsFile);CustomAfterMicrosoftCommonCrossTargetingTargets=$(_InspectionTargetsFile)"
              BuildInParallel="$(BuildInParallel)"
              RemoveProperties="$(_BuildPropertiesToRemove)">
 

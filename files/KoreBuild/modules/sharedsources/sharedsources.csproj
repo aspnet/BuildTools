@@ -13,23 +13,23 @@
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
 
   <Target Name="VerifyProperties">
-    <Error Text="Missing property: RepositoryRoot" Condition="'$(RepositoryRoot)'==''"/>
+    <Error Text="Missing property: RepoRoot" Condition="'$(RepoRoot)'==''"/>
     <Error Text="Missing property: PackageId" Condition="'$(PackageId)'==''"/>
     <Error Text="Missing property: NuspecBasePath" Condition="'$(NuspecBasePath)'==''"/>
   </Target>
 
-  <Import Project="$(RepositoryRoot)build\common.props" Condition="Exists('$(RepositoryRoot)build\common.props')" />
+  <Import Project="$(RepoRoot)build\common.props" Condition="Exists('$(RepoRoot)build\common.props')" />
   <Import Project="$(NuspecBasePath)sharedsources.props" Condition="Exists('$(NuspecBasePath)sharedsources.props')" />
 
   <Target Name="WarnIfNoCommonProps" BeforeTargets="Pack">
-    <Warning Text="Expected a props file in '$(RepositoryRoot)build\common.props' or '$(DirBuildPropsInRepo)')'. The package $(PackageId) may be missing the right version number when this is left out."
-             Condition="!Exists('$(RepositoryRoot)build\common.props') And !Exists('$(DirBuildPropsInRepo)')"/>
+    <Warning Text="Expected a props file in '$(RepoRoot)build\common.props' or '$(DirBuildPropsInRepo)')'. The package $(PackageId) may be missing the right version number when this is left out."
+             Condition="!Exists('$(RepoRoot)build\common.props') And !Exists('$(DirBuildPropsInRepo)')"/>
   </Target>
 
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <NoBuild>true</NoBuild>
-    <PackageOutputPath Condition="'$(PackageOutputPath)'==''">$(RepositoryRoot)artifacts\build</PackageOutputPath>
+    <PackageOutputPath Condition="'$(PackageOutputPath)'==''">$(RepoRoot)artifacts\build</PackageOutputPath>
     <TargetFramework>netstandard1.0</TargetFramework>
     <EnableDefaultItems>false</EnableDefaultItems>
     <PackageId Condition=" '$(PackageId)' == '' ">$(ProjectDirName)</PackageId>
@@ -78,6 +78,7 @@
         <Version>$(NormalizedPackageVersion)</Version>
         <TargetFramework>$(TargetFramework)</TargetFramework>
         <RepositoryRoot>$(RepositoryRoot)</RepositoryRoot>
+        <RepoRoot>$(RepoRoot)</RepoRoot>
         <RepositoryUrl>$(RepositoryUrl)</RepositoryUrl>
         <Category>$(PackageArtifactCategory)</Category>
         <IsContainer>true</IsContainer>

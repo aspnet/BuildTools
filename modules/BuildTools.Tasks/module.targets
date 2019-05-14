@@ -8,7 +8,7 @@ Generates resource files
 ###################################################################
 -->
   <Target Name="Resx" DependsOnTargets="ResolveSolutions">
-    <Warning Text="No solutions found to build in '$(RepositoryRoot)'" Condition="'@(Solutions)' == ''" />
+    <Warning Text="No solutions found to build in '$(RepoRoot)'" Condition="'@(Solutions)' == ''" />
 
     <PropertyGroup>
       <_ResxTargets>$(MSBuildThisFileDirectory)Project.CSharp.Resx.targets</_ResxTargets>

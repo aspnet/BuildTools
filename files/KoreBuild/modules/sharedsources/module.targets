@@ -3,7 +3,7 @@
 Target: PackSharedSources
 
 Creates a content files package for all each directory in
-that matches "$(RepositoryRoot)/shared/*.Sources".
+that matches "$(RepoRoot)/shared/*.Sources".
 ###################################################################
 -->
 <Project>
@@ -40,6 +40,7 @@ that matches "$(RepositoryRoot)/shared/*.Sources".
     <PropertyGroup>
       <_SharedSourcesPackageProperties>
         RepositoryRoot=$(RepositoryRoot);
+        RepoRoot=$(RepoRoot);
         ImportDirectoryBuildProps=false;
       </_SharedSourcesPackageProperties>
       <_SharedSourcesPackageProperties Condition=" '$(OverridePackageOutputPath)' != 'false' ">

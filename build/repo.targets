@@ -48,7 +48,7 @@
     <Error Text="Missing property: Version" Condition="'$(Version)' == ''" />
 
     <ItemGroup>
-      <Content Include="$(RepositoryRoot)files\KoreBuild\**\*" />
+      <Content Include="$(RepoRoot)files\KoreBuild\**\*" />
       <VersionFileLines Include="version:$(Version)" />
       <VersionFileLines Include="commithash:$(BUILD_SOURCEVERSION)" />
     </ItemGroup>
@@ -61,7 +61,7 @@
     <WriteLinesToFile File="$(_KoreBuildIntermediateDir).version" Lines="@(VersionFileLines)" Overwrite="true" />
 
     <ItemGroup>
-      <_ModuleProjects Include="$(RepositoryRoot)modules\%(KoreBuildModule.Identity)\%(Identity).*proj">
+      <_ModuleProjects Include="$(RepoRoot)modules\%(KoreBuildModule.Identity)\%(Identity).*proj">
         <AdditionalProperties>Version=$(Version);PublishDir=$(_KoreBuildIntermediateDir)modules\%(Identity)\</AdditionalProperties>
       </_ModuleProjects>
     </ItemGroup>
@@ -75,7 +75,7 @@
       <KoreBuildFiles Include="$(_KoreBuildIntermediateDir)**\*" />
     </ItemGroup>
 
-    <Copy SourceFiles="$(RepositoryRoot)scripts\UploadKoreBuild.ps1" DestinationFiles="$(KoreBuildUploadScriptFile)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(RepoRoot)scripts\UploadKoreBuild.ps1" DestinationFiles="$(KoreBuildUploadScriptFile)" SkipUnchangedFiles="true" />
     <WriteLinesToFile File="$(KoreBuildLatestTxtFile)" Lines="@(VersionFileLines)" Overwrite="true"/>
     <WriteLinesToFile File="$(KoreBuildChannelTxtFile)" Lines="$(KoreBuildChannel)" Overwrite="true"/>
     <GenerateSvgBadge Label="version" Value="$(Version)" OutputPath="$(KoreBuildBadgeFile)" />

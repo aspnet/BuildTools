@@ -10,20 +10,20 @@
 
   <!-- props -->
   <Import Project="$(CustomBeforeKoreBuildProps)" Condition="'$(CustomBeforeKoreBuildProps)' != '' AND Exists('$(CustomBeforeKoreBuildProps)')" />
-  <Import Project="$(RepositoryRoot)build\repo.beforecommon.props" Condition="Exists('$(RepositoryRoot)build\repo.beforecommon.props')" />
+  <Import Project="$(RepoRoot)build\repo.beforecommon.props" Condition="Exists('$(RepoRoot)build\repo.beforecommon.props')" />
   <Import Project="KoreBuild.Common.props" />
   <Import Project="modules\*\module.props" />
   <Import Project="$(CustomKoreBuildModulesPath)\*\module.props" Condition="Exists('$(CustomKoreBuildModulesPath)')" />
 
-  <Import Project="$(RepositoryRoot)version.props" Condition="Exists('$(RepositoryRoot)version.props')" />
-  <Import Project="$(RepositoryRoot)build\repo.props" Condition="Exists('$(RepositoryRoot)build\repo.props')" />
-  <Import Project="$(RepositoryRoot)build\tasks\*.tasks" Condition="Exists('$(RepositoryRoot)build\tasks\')" />
+  <Import Project="$(RepoRoot)version.props" Condition="Exists('$(RepoRoot)version.props')" />
+  <Import Project="$(RepoRoot)build\repo.props" Condition="Exists('$(RepoRoot)build\repo.props')" />
+  <Import Project="$(RepoRoot)build\tasks\*.tasks" Condition="Exists('$(RepoRoot)build\tasks\')" />
 
   <!-- targets -->
   <Import Project="KoreBuild.Common.targets" />
   <Import Project="modules\*\module.targets" />
   <Import Project="$(CustomKoreBuildModulesPath)\*\module.targets" Condition="Exists('$(CustomKoreBuildModulesPath)')" />
-  <Import Project="$(RepositoryRoot)build\repo.targets" Condition="Exists('$(RepositoryRoot)build\repo.targets')" />
+  <Import Project="$(RepoRoot)build\repo.targets" Condition="Exists('$(RepoRoot)build\repo.targets')" />
   <Import Project="KoreBuild.Overrides.targets" />
   <Import Project="$(CustomAfterKoreBuildTargets)" Condition="'$(CustomAfterKoreBuildTargets)' != '' AND Exists('$(CustomAfterKoreBuildTargets)')" />
   <Import Project="KoreBuild.Verify.targets" />

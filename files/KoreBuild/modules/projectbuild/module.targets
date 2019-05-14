@@ -11,7 +11,7 @@ FYI: targets, properties, and items that begin with an underscore are meant to b
   </ItemDefinitionGroup>
 
   <ItemGroup Condition="'$(DisableDefaultItems)' != 'true' AND '$(BuildSolutions)' == 'false' ">
-    <ProjectToBuild Include="$(RepositoryRoot)**\*.csproj;$(RepositoryRoot)**\*.fsproj;$(RepositoryRoot)**\*.vbproj" Exclude="$(ProjectToExclude)" Condition=" '$(Projects)' == '' " />
+    <ProjectToBuild Include="$(RepoRoot)**\*.csproj;$(RepoRoot)**\*.fsproj;$(RepoRoot)**\*.vbproj" Exclude="$(ProjectToExclude)" Condition=" '$(Projects)' == '' " />
     <ProjectToBuild Include="$(Projects)" Exclude="$(ProjectToExclude)" Condition=" '$(Projects)' != '' " />
   </ItemGroup>
 
@@ -56,7 +56,7 @@ Executes /t:{Target} on all projects
   </Target>
 
   <Target Name="_EnsureProjects">
-    <Error Text="No solutions found to build in '$(RepositoryRoot)'" Condition="@(ProjectToBuild->Count()) == 0" />
+    <Error Text="No solutions found to build in '$(RepoRoot)'" Condition="@(ProjectToBuild->Count()) == 0" />
   </Target>
 
   <Target Name="RestoreProjects" DependsOnTargets="ResolveProjects;_EnsureProjects" Condition="'$(NoRestore)' != 'true'">

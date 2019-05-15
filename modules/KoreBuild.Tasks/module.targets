@@ -5,8 +5,8 @@
     <PrepareDependsOn Condition=" '$(DisableDefaultTargets)' != 'true' ">GetToolsets;$(PrepareDependsOn)</PrepareDependsOn>
     <RestoreDependsOn Condition=" '$(DisableDefaultTargets)' != 'true' ">InstallDotNet;$(RestoreDependsOn)</RestoreDependsOn>
 
-    <KoreBuildConfigFile Condition="'$(KoreBuildConfigFile)' == ''">$(RepositoryRoot)korebuild.json</KoreBuildConfigFile>
-    <DependencyVersionsFile Condition="'$(DependencyVersionsFile)' == ''">$(RepositoryRoot)build\dependencies.props</DependencyVersionsFile>
+    <KoreBuildConfigFile Condition="'$(KoreBuildConfigFile)' == ''">$(RepoRoot)korebuild.json</KoreBuildConfigFile>
+    <DependencyVersionsFile Condition="'$(DependencyVersionsFile)' == ''">$(RepoRoot)build\dependencies.props</DependencyVersionsFile>
   </PropertyGroup>
 
 <!--

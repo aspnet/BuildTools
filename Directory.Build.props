@@ -13,7 +13,7 @@
   <PropertyGroup>
     <RepositoryUrl>https://github.com/aspnet/BuildTools</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <RepositoryRoot>$(MSBuildThisFileDirectory)</RepositoryRoot>
+    <RepoRoot>$(MSBuildThisFileDirectory)</RepoRoot>
   </PropertyGroup>
 
   <ItemGroup>

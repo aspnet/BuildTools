@@ -17,7 +17,7 @@ repository root.
 ###################################################################
 -->
   <PropertyGroup>
-    <NuGetVerifierRuleFile Condition=" '$(NuGetVerifierRuleFile)' == '' ">$(RepositoryRoot)NuGetPackageVerifier.json</NuGetVerifierRuleFile>
+    <NuGetVerifierRuleFile Condition=" '$(NuGetVerifierRuleFile)' == '' ">$(RepoRoot)NuGetPackageVerifier.json</NuGetVerifierRuleFile>
   </PropertyGroup>
 
   <ItemGroup>

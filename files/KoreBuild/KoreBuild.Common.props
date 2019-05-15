@@ -33,17 +33,19 @@ Default layout and configuration.
     <Configuration Condition="'$(CI)' == 'true'">Release</Configuration>
     <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
     <BuildProperties>$(BuildProperties);Configuration=$(Configuration)</BuildProperties>
-    <RepositoryRoot Condition="'$(RepositoryRoot)' == ''">$(MSBuildStartupDirectory)</RepositoryRoot>
-    <RepositoryRoot>$([MSBuild]::NormalizeDirectory('$(RepositoryRoot)'))</RepositoryRoot>
-    <ArtifactsDir>$([MSBuild]::NormalizeDirectory('$(RepositoryRoot)'))artifacts\</ArtifactsDir>
+    <RepoRoot Condition="'$(RepoRoot)' == ''">$(MSBuildStartupDirectory)</RepoRoot>
+    <RepoRoot>$([MSBuild]::NormalizeDirectory('$(RepoRoot)'))</RepoRoot>
+    <!-- Older targets using KoreBuild use RepositoryRoot. Update to use RepoRoot whenever possible as a part of migrating to Arcade. -->
+    <RepositoryRoot>$(RepoRoot)</RepositoryRoot>
+    <ArtifactsDir>$([MSBuild]::NormalizeDirectory('$(RepoRoot)'))artifacts\</ArtifactsDir>
     <BuildDir>$(ArtifactsDir)build\</BuildDir>
     <LogOutputDir Condition="'$(LogOutputDir)' == ''">$(ArtifactsDir)logs\</LogOutputDir>
-    <IntermediateDir Condition="'$(IntermediateDir)' == ''">$([MSBuild]::NormalizeDirectory('$(RepositoryRoot)'))obj\</IntermediateDir>
+    <IntermediateDir Condition="'$(IntermediateDir)' == ''">$([MSBuild]::NormalizeDirectory('$(RepoRoot)'))obj\</IntermediateDir>
 
     <NuGetPackageRoot Condition=" '$(NuGetPackageRoot)' == '' ">$(NUGET_PACKAGES)</NuGetPackageRoot>
     <NuGetPackageRoot Condition=" '$(NuGetPackageRoot)' == '' AND '$(USERPROFILE)' != '' ">$(USERPROFILE)\.nuget\packages\</NuGetPackageRoot>
     <NuGetPackageRoot Condition=" '$(NuGetPackageRoot)' == '' AND '$(HOME)' != '' ">$(HOME)\.nuget\packages\</NuGetPackageRoot>
-    <NuGetPackageRoot Condition=" '$(NuGetPackageRoot)' == '' ">$(RepositoryRoot)\.nuget\packages\</NuGetPackageRoot>
+    <NuGetPackageRoot Condition=" '$(NuGetPackageRoot)' == '' ">$(RepoRoot)\.nuget\packages\</NuGetPackageRoot>
     <NuGetPackageRoot>$([MSBuild]::NormalizeDirectory('$(NuGetPackageRoot)'))</NuGetPackageRoot>
   </PropertyGroup>
 

@@ -242,7 +242,7 @@ namespace KoreBuild.Tasks
             }
             else
             {
-                return RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                return RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && Environment.GetEnvironmentVariable("KOREBUILD_DISABLE_DOTNET_ARCH") == null
                     ? Path.Combine(DotNetHome, arch)
                     : DotNetHome;
             }

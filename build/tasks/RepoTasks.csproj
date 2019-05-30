@@ -10,13 +10,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\shared\Microsoft.Extensions.CommandLineUtils.Sources\Utilities\*.cs" />
-    <Compile Include="..\..\shared\Utilities\MSBuildListSplitter.cs" />
-    <Compile Include="..\..\modules\BuildTools.Tasks\Utilities\**" />
-    <Compile Include="..\..\modules\BuildTools.Tasks\GenerateFileFromTemplate.cs" />
-    <Compile Include="..\..\modules\BuildTools.Tasks\GenerateSvgBadge.cs" />
-    <Compile Include="..\..\modules\BuildTools.Tasks\RunBase.cs" />
-    <Compile Include="..\..\modules\BuildTools.Tasks\RunDotNet.cs" />
+    <Compile Include="..\..\src\Internal.AspNetCore.BuildTasks\FileHelpers.cs" />
+    <Compile Include="..\..\src\Internal.AspNetCore.BuildTasks\GenerateFileFromTemplate.cs" />
+    <Compile Include="..\..\src\Internal.AspNetCore.BuildTasks\MSBuildListSplitter.cs" />
   </ItemGroup>
 
   <Import Project="$(RepoRoot)files\KoreBuild\msbuild\KoreBuild.RepoTasks.Sdk\Sdk\Sdk.targets" />

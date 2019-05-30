@@ -12,15 +12,8 @@ namespace Microsoft.AspNetCore.BuildTools
     /// <summary>
     /// Generates an SVG file badge that can be embedded into a markdown page
     /// </summary>
-#if SDK
-    public class Sdk_GenerateSvgBadge : Microsoft.Build.Utilities.Task
-    {
-#elif BuildTools
     public class GenerateSvgBadge : Microsoft.Build.Utilities.Task
     {
-#else
-#error This must be built either for an SDK or for BuildTools
-#endif
 
         private static readonly string Template = @"
 <svg xmlns=`http://www.w3.org/2000/svg` width=`200` height=`20`>
@@ -76,11 +69,8 @@ namespace Microsoft.AspNetCore.BuildTools
                 Log.LogError("Color cannot be an empty string");
                 return false;
             }
-#if SDK
-            var generator = new Sdk_GenerateFileFromTemplate()
-#else
+
             var generator = new GenerateFileFromTemplate()
-#endif
             {
                 BuildEngine = BuildEngine,
                 OutputPath = OutputPath,

@@ -30,10 +30,10 @@ Runs a quick validation on all benchmark projects.
       Importance="High"
       Condition="'@(BenchmarkAssembly)' != ''" />
 
-    <RunDotNet Condition="'%(BenchmarkAssembly.TargetFrameworkIdentifier)' == '.NETCoreApp'"
-      Arguments="%(BenchmarkAssembly.Identity);*;--validate-fast" />
-    <Run Condition="'%(BenchmarkAssembly.TargetFrameworkIdentifier)' == '.NETFramework'"
-      FileName="%(BenchmarkAssembly.Identity)" Arguments="*;--validate-fast" />
+    <Exec Condition="'%(BenchmarkAssembly.TargetFrameworkIdentifier)' == '.NETCoreApp'"
+         Command="dotnet &quot;%(BenchmarkAssembly.Identity)&quot; * --validate-fast" />
+    <Exec Condition="'%(BenchmarkAssembly.TargetFrameworkIdentifier)' == '.NETFramework'"
+         Command="&quot;%(BenchmarkAssembly.Identity)&quot; * --validate-fast" />
   </Target>
 
 </Project>

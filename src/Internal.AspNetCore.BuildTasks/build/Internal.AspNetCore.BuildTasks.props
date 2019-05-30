@@ -1,0 +1,9 @@
+<Project>
+
+  <PropertyGroup>
+    <_BuildTasksAssembly>$(MSBuildThisFileDirectory)..\tools\netstandard2.0\Internal.AspNetCore.BuildTasks.dll</_BuildTasksAssembly>
+  </PropertyGroup>
+
+  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.GenerateFileFromTemplate" AssemblyFile="$(_BuildTasksAssembly)" />
+
+</Project>

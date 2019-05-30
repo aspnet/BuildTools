@@ -136,7 +136,7 @@ Runs the VSTest on all projects in the ProjectToBuild itemgroup.
       <VSTestArgs Include="--Diag:$([MSBuild]::Escape($(VSTestDiagFile)))" Condition="'$(VSTestDiagFile)' != ''" />
       <VSTestArgs Include="--Framework:$(TargetFrameworkIdentifier),Version=v$(TargetFrameworkVersion)" />
       <VSTestArgs Include="--Logger:$([MSBuild]::Escape($(VSTestLogger)))" Condition="'$(VSTestLogger)' != ''" />
-      <VSTestArgs Include="--TestAdapterPath:$(TestAdapterPath)" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />
+      <VSTestArgs Include="--TestAdapterPath:$(TestAdapterPath.TrimEnd('\'))" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " />
       <VSTestArgs Include="--TestCaseFilter:$(TestFilterExpression)" Condition="'$(TestFilterExpression)' != ''" />
       <VSTestArgs Include="@(TestAssemblies)" />
       <VSTestArgs Include="--;RunConfiguration.NoAutoReporters=true" Condition="'$(VSTestAutoReporters)' != 'true'" />
@@ -144,9 +144,9 @@ Runs the VSTest on all projects in the ProjectToBuild itemgroup.
 
     <Message Text="%0AStarting test group: $(TestGroupName)/$(TargetFramework)" Importance="High" />
 
-    <RunDotNet Arguments="@(VSTestArgs)" IgnoreExitCode="true" IgnoreStandardErrorWarningFormat="true">
+    <Exec Command="dotnet @(VSTestArgs->'&quot;%(Identity)&quot;',' ')" IgnoreExitCode="true" IgnoreStandardErrorWarningFormat="true">
       <Output TaskParameter="ExitCode" PropertyName="VsTestExitCode" />
-    </RunDotNet>
+    </Exec>
 
     <ItemGroup>
       <_TrxFiles Include="$(TrxFileWildcard)" />

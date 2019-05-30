@@ -1,0 +1,11 @@
+<Project>
+
+  <PropertyGroup>
+    <_BuildTasksAssemblyTfm Condition="'$(MSBuildRuntimeType)' == 'Core'">netcoreapp3.0</_BuildTasksAssemblyTfm>
+    <_BuildTasksAssemblyTfm Condition="'$(MSBuildRuntimeType)' != 'Core'">net46</_BuildTasksAssemblyTfm>
+    <_BuildTasksAssembly>$(MSBuildThisFileDirectory)..\tools\$(_BuildTasksAssemblyTfm)\Microsoft.AspNetCore.BuildTasks.dll</_BuildTasksAssembly>
+  </PropertyGroup>
+
+  <UsingTask TaskName="Microsoft.AspNetCore.BuildTools.GenerateFileFromTemplate" AssemblyFile="$(_BuildTasksAssembly)" />
+
+</Project>

@@ -1,9 +1,0 @@
-﻿<!--
-WARNING: These targets are intended for building Microsoft's ASP.NET Core repos, and is not intended
-for use outside of Microsoft.
--->
-<Project>
-
-  <Import Project="$(MSBuildThisFileDirectory)Common.props" />
-
-</Project>

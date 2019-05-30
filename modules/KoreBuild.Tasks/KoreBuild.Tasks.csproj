@@ -1,5 +1,4 @@
-﻿<Project>
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.props" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -10,8 +9,8 @@
     <Content Include="*.props" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="*.targets" CopyToPublishDirectory="PreserveNewest" />
     <Compile Include="..\..\shared\Microsoft.Extensions.CommandLineUtils.Sources\Utilities\*.cs" />
-    <Compile Include="..\..\shared\Utilities\MSBuildListSplitter.cs" />
-    <Compile Include="..\BuildTools.Tasks\Utilities\FileHelpers.cs" Link="Utilities\FileHelpers.cs" />
+    <Compile Include="..\..\src\Internal.AspNetCore.BuildTasks\FileHelpers.cs" Link="Utilities\FileHelpers.cs" />
+    <Compile Include="..\..\src\Internal.AspNetCore.BuildTasks\MSBuildListSplitter.cs" Link="Utilities\MSBuildListSplitter.cs" />
     <Content Include="$(VSWhereDir)vswhere.exe" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="$(PkgMicrosoft_DotNet_SignCheck)\tools\**\*" Link="SignCheck\tools\%(RecursiveDir)%(FileName)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="$(PkgMicrosoft_DotNet_SignTool)\tools\**\*" Link="SignTool\tools\%(RecursiveDir)%(FileName)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
@@ -45,5 +44,4 @@
     <WriteLinesToFile File="$(PublishDir)PackageVersions.props" Lines="$(PackageVersionsPropsContent)" Overwrite="true" />
   </Target>
 
-  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.targets" />
 </Project>

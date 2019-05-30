@@ -27,13 +27,7 @@ namespace Microsoft.AspNetCore.BuildTools
     /// </code>
     /// </example>
     /// </summary>
-#if SDK
-    public class Sdk_GenerateFileFromTemplate : Task
-#elif BuildTools
     public class GenerateFileFromTemplate : Task
-#else
-#error This must be built either for an SDK or for BuildTools
-#endif
     {
         /// <summary>
         /// The template file.
@@ -76,7 +70,7 @@ namespace Microsoft.AspNetCore.BuildTools
             return true;
         }
 
-        internal string Replace(string template, IDictionary<string, string> values)
+        public string Replace(string template, IDictionary<string, string> values)
         {
             var sb = new StringBuilder();
             var varNameSb = new StringBuilder();

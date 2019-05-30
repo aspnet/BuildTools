@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.0;net46</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <Description>Build tasks. This package is intended for Microsoft use only.</Description>
     <IncludeSymbols>false</IncludeSymbols>
     <IncludeSource>false</IncludeSource>
@@ -14,15 +14,9 @@
     <Content Include="build\**\*" PackagePath="build/" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
+  <ItemGroup>
     <PackageReference Include="Microsoft.Build.Framework" Version="$(MicrosoftBuildFrameworkPackageVersion)" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="$(MicrosoftBuildUtilitiesCorePackageVersion)" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net46'">
-    <Reference Include="System.IO.Compression" />
-    <Reference Include="Microsoft.Build.Framework" />
-    <Reference Include="Microsoft.Build.Utilities.v4.0" />
   </ItemGroup>
 
 </Project>

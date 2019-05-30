@@ -572,6 +572,30 @@ function Get-KoreBuildVersion {
 }
 
 function __show_version_info {
+    if ($env:TF_BUILD) {
+        Write-Host "##vso[task.logissue]warning KoreBuild has been deprecated. You should use Arcade instead now. https://github.com/dotnet/arcade"
+    }
+
+    Write-Host -f Yellow ""
+    Write-Host -f Yellow ""
+    Write-Host -f Yellow ""
+    Write-Host -f Yellow "*****************************************"
+    Write-Host -f Yellow "*****************************************"
+    Write-Host -f Yellow "**                                     **"
+    Write-Host -f Yellow "**  WARNING!                           **"
+    Write-Host -f Yellow "**                                     **"
+    Write-Host -f Yellow "**  KoreBuild has been deprecated.     **"
+    Write-Host -f Yellow "**  You should use Arcade instead now. **"
+    Write-Host -f Yellow "**  https://github.com/dotnet/arcade   **"
+    Write-Host -f Yellow "**                                     **"
+    Write-Host -f Yellow "**  WARNING!                           **"
+    Write-Host -f Yellow "**                                     **"
+    Write-Host -f Yellow "*****************************************"
+    Write-Host -f Yellow "*****************************************"
+    Write-Host -f Yellow ""
+    Write-Host -f Yellow ""
+    Write-Host -f Yellow ""
+
     $version = Get-KoreBuildVersion
     if ($version) {
         Write-Host -ForegroundColor Magenta "Using KoreBuild $version"

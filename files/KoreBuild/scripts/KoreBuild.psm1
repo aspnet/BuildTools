@@ -166,7 +166,7 @@ function Install-Tools(
 
     $DotNetHome = Resolve-Path $DotNetHome
     $arch = __get_dotnet_arch
-    $installDir = if ($IS_WINDOWS) { Join-Path $DotNetHome $arch } else { $DotNetHome }
+    $installDir = if ($IS_WINDOWS -and -not $env:KOREBUILD_DISABLE_DOTNET_ARCH) { Join-Path $DotNetHome $arch } else { $DotNetHome }
     Write-Verbose "Installing tools to '$installDir'"
     if ($env:DOTNET_INSTALL_DIR -and $env:DOTNET_INSTALL_DIR -ne $installDir) {
         # DOTNET_INSTALL_DIR is used by dotnet-install.ps1 only, and some repos used it in their automation to isolate dotnet.
@@ -323,7 +323,7 @@ function Set-KoreBuildSettings(
     $env:NUGET_PACKAGES = $env:NUGET_PACKAGES.TrimEnd('\') + '\'
 
     $arch = __get_dotnet_arch
-    $env:DOTNET_ROOT = if ($IS_WINDOWS) { Join-Path $DotNetHome $arch } else { $DotNetHome }
+    $env:DOTNET_ROOT = if ($IS_WINDOWS -and -not $env:KOREBUILD_DISABLE_DOTNET_ARCH) { Join-Path $DotNetHome $arch } else { $DotNetHome }
 
     $MSBuildType = 'core'
     $toolsets = $Null

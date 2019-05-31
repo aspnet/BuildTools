@@ -573,7 +573,7 @@ function Get-KoreBuildVersion {
 
 function __show_version_info {
     if ($env:TF_BUILD) {
-        Write-Host "##vso[task.logissue]warning KoreBuild has been deprecated. You should use Arcade instead now. https://github.com/dotnet/arcade"
+        Write-Host "##vso[task.logissue type=warning] KoreBuild has been deprecated. You should use Arcade instead now. https://github.com/dotnet/arcade"
     }
 
     Write-Host -f Yellow ""

@@ -19,6 +19,7 @@ namespace KoreBuild.Tasks
     /// </summary>
     public class InstallDotNet : Microsoft.Build.Utilities.Task, ICancelableTask
     {
+        private const string DefaultArch = "x64";
         public readonly CancellationTokenSource _cts = new CancellationTokenSource();
 
         /// <summary>
@@ -86,7 +87,7 @@ namespace KoreBuild.Tasks
                 arguments.AddRange(defaultArgs);
 
                 var arch = string.IsNullOrEmpty(request.Arch)
-                    ? "x64"
+                    ? DefaultArch
                     : request.Arch;
                 arguments.Add("-Architecture");
                 arguments.Add(arch);
@@ -233,19 +234,21 @@ namespace KoreBuild.Tasks
 
         private string GetInstallDir(string arch)
         {
-            if (string.IsNullOrEmpty(DotNetHome))
-            {
-                var dotnetPath = Path.GetDirectoryName(DotNetMuxer.MuxerPath);
-                return RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                    ? Path.Combine(Path.GetDirectoryName(dotnetPath), arch)
-                    : dotnetPath;
-            }
-            else
-            {
-                return RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && Environment.GetEnvironmentVariable("KOREBUILD_DISABLE_DOTNET_ARCH") == null
-                    ? Path.Combine(DotNetHome, arch)
-                    : DotNetHome;
-            }
+            var dotnetPath = string.IsNullOrEmpty(DotNetHome)
+                ? Path.GetDirectoryName(DotNetMuxer.MuxerPath)
+                : DotNetHome;
+
+            return ShouldInstallToSubfolderOfDotNetHome(arch)
+                ? Path.Combine(Path.GetDirectoryName(dotnetPath), arch)
+                : dotnetPath;
+        }
+
+        private bool ShouldInstallToSubfolderOfDotNetHome(string arch)
+        {
+            // Only install to $DOTNET_HOME/x64/ on Windows
+            // if KOREBUILD_DISABLE_DOTNET_ARCH is undefined or arch != x64
+            return RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                && (Environment.GetEnvironmentVariable("KOREBUILD_DISABLE_DOTNET_ARCH") == null || !string.Equals(DefaultArch, arch, StringComparison.OrdinalIgnoreCase));
         }
 
         private IEnumerable<DotNetAssetRequest> CreateAssetRequests()

@@ -234,16 +234,20 @@ namespace KoreBuild.Tasks
 
         private string GetInstallDir(string arch)
         {
-            var dotnetPath = string.IsNullOrEmpty(DotNetHome)
-                ? Path.GetDirectoryName(DotNetMuxer.MuxerPath)
-                : DotNetHome;
+            var shouldInstallToSubfolder = IsDotNetArchEnabled(arch);
+            var muxerDir = Path.GetDirectoryName(DotNetMuxer.MuxerPath);
+            var dotnetRootPath = !string.IsNullOrEmpty(DotNetHome)
+                ? DotNetHome
+                : shouldInstallToSubfolder
+                    ? Path.GetDirectoryName(muxerDir)
+                    : muxerDir;
 
-            return ShouldInstallToSubfolderOfDotNetHome(arch)
-                ? Path.Combine(Path.GetDirectoryName(dotnetPath), arch)
-                : dotnetPath;
+            return shouldInstallToSubfolder
+                ? Path.Combine(dotnetRootPath, arch)
+                : dotnetRootPath;
         }
 
-        private bool ShouldInstallToSubfolderOfDotNetHome(string arch)
+        private bool IsDotNetArchEnabled(string arch)
         {
             // Only install to $DOTNET_HOME/x64/ on Windows
             // if KOREBUILD_DISABLE_DOTNET_ARCH is undefined or arch != x64

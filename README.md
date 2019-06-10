@@ -1,5 +1,9 @@
-Build Tools
-===========
+Build Tools [Obsolete]
+======================
+
+:warning: **The tools in this repo are obsolete.** You should convert to using Arcade tools.
+See <https://github.com/dotnet/arcade>.
+
 
 Utilities used in the build system for projects that are used with ASP.NET Core and Entity Framework Core.
 

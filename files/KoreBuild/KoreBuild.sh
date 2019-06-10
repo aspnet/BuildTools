@@ -126,7 +126,32 @@ __install_tools() {
 
 __show_version_info() {
     MAGENTA="\033[0;95m"
+    YELLOW="\033[0;33m"
     RESET="\033[0m"
+
+    if [ -z "${TF_BUILD:-}" ]; then
+        echo "##vso[task.logissue type=warning] KoreBuild has been deprecated. You should use Arcade instead now. https://github.com/dotnet/arcade"
+    fi
+
+    echo -e ""
+    echo -e ""
+    echo -e ""
+    echo -e "${YELLOW}*****************************************${RESET}"
+    echo -e "${YELLOW}*****************************************${RESET}"
+    echo -e "${YELLOW}**                                     **${RESET}"
+    echo -e "${YELLOW}**  WARNING!                           **${RESET}"
+    echo -e "${YELLOW}**                                     **${RESET}"
+    echo -e "${YELLOW}**  KoreBuild has been deprecated.     **${RESET}"
+    echo -e "${YELLOW}**  You should use Arcade instead now. **${RESET}"
+    echo -e "${YELLOW}**  https://github.com/dotnet/arcade   **${RESET}"
+    echo -e "${YELLOW}**                                     **${RESET}"
+    echo -e "${YELLOW}**  WARNING!                           **${RESET}"
+    echo -e "${YELLOW}**                                     **${RESET}"
+    echo -e "${YELLOW}*****************************************${RESET}"
+    echo -e "${YELLOW}*****************************************${RESET}"
+    echo -e ""
+    echo -e ""
+    echo -e ""
 
     __korebuild_version="$(__get_korebuild_version)"
     if [[ "$__korebuild_version" != '' ]]; then

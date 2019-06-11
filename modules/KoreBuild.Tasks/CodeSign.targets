@@ -60,7 +60,7 @@
 
     <Message Text="Running signcheck on @(SignCheckDirectory, ', ')" Importance="high" />
 
-    <Exec Command="@(SignCheckArgs->'&quot;%(Identity)&quot;',' ') --input-files &quot;%(SignCheckDirectory.Identity)&quot;" />
+    <Exec Command="@(SignCheckArgs->'&quot;%(Identity)&quot;',' ') --input-files &quot;$([System.String]::new('%(SignCheckDirectory.Identity)').TrimEnd('\'))&quot;" />
   </Target>
 
 </Project>

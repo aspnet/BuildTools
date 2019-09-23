@@ -19,6 +19,38 @@ namespace NuGetPackageVerifier
             );
         }
 
+        public static PackageVerifierIssue PackageRepositoryMetadataMissing()
+        {
+            return new PackageVerifierIssue(
+                "PACKAGE_MISSING_REPO_METADATA",
+                "The package is missing metadata about the repository that produced this package.",
+                PackageIssueLevel.Warning);
+        }
+
+        public static PackageVerifierIssue PackageRepositoryUrl()
+        {
+            return new PackageVerifierIssue(
+              "PACKAGE_MISSING_REPO_URL",
+              "The package is missing metadata about the repository url.",
+              PackageIssueLevel.Warning);
+        }
+
+        public static PackageVerifierIssue PackageRepositoryType()
+        {
+            return new PackageVerifierIssue(
+              "PACKAGE_MISSING_REPO_TYPE",
+              "The package is missing metadata about the repository type.",
+              PackageIssueLevel.Warning);
+        }
+
+        public static PackageVerifierIssue PackageRepositoryCommit()
+        {
+            return new PackageVerifierIssue(
+             "PACKAGE_MISSING_REPO_COMMIT",
+             "The package is missing metadata about the repository commit.",
+             PackageIssueLevel.Warning);
+        }
+
         public static PackageVerifierIssue DotNetToolMissingEntryPoint(string manifestPath, string filePath)
         {
             return new PackageVerifierIssue(
@@ -193,6 +225,15 @@ namespace NuGetPackageVerifier
         {
             return new PackageVerifierIssue("PACKAGE_COPYRIGHT_INCORRECT", packageId, string.Format(
                 "The package '{0}'s copyright must be {1} but was {2}", packageId, expectedCopyright, actualCopyright),
+                PackageIssueLevel.Error);
+        }
+
+        public static PackageVerifierIssue PackageSignVerificationFailed(string packageId, string issueText)
+        {
+            return new PackageVerifierIssue(
+                "PACKAGE_SIGN_VERIFICATION_FAILED",
+                packageId,
+                $"Sign verification for package {packageId} failed: {issueText}",
                 PackageIssueLevel.Error);
         }
 

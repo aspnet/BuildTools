@@ -1,11 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="$(RepoTasksSdkPath)\Sdk.props" Condition="'$(RepoTasksSdkPath)' != '' "/>
+<Project>
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.props" />
 
   <PropertyGroup>
     <TargetFramework Condition=" '$(MSBuildRuntimeType)' == 'core' ">netcoreapp2.1</TargetFramework>
     <TargetFramework Condition=" '$(MSBuildRuntimeType)' != 'core' ">net46</TargetFramework>
     <DefineConstants>$(DefineConstants);BuildTools</DefineConstants>
     <NoWarn>$(NoWarn);NU1603</NoWarn>
+    <ProjectType>RepoTasks</ProjectType>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,6 +21,5 @@
     <Compile Include="..\..\modules\BuildTools.Tasks\ZipArchive.cs" />
   </ItemGroup>
 
-  <Import Project="$(RepoTasksSdkPath)\Sdk.targets" Condition="'$(RepoTasksSdkPath)' != '' "/>
-
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.targets" />
 </Project>

@@ -3,16 +3,16 @@
     <HtmlAgilityPackPackageVersion>1.5.1</HtmlAgilityPackPackageVersion>
     <MicroBuildCorePackageVersion>0.3.0</MicroBuildCorePackageVersion>
     <MicrosoftDotNetPlatformAbstractionsVersion>2.0.0</MicrosoftDotNetPlatformAbstractionsVersion>
-    <MicrosoftDotNetSignToolPackageVersion>1.0.0-beta.19119.1</MicrosoftDotNetSignToolPackageVersion>
-    <MicrosoftDotNetSignCheckPackageVersion>1.0.0-beta.19119.1</MicrosoftDotNetSignCheckPackageVersion>
+    <MicrosoftDotNetSignToolPackageVersion>1.0.0-beta.19167.10</MicrosoftDotNetSignToolPackageVersion>
+    <MicrosoftDotNetSignCheckPackageVersion>1.0.0-beta.19167.10</MicrosoftDotNetSignCheckPackageVersion>
     <MicrosoftNETFrameworkReferenceAssembliesPackageVersion>1.0.0-preview.1</MicrosoftNETFrameworkReferenceAssembliesPackageVersion>
     <MicrosoftNETTestSdkPackageVersion>15.9.0</MicrosoftNETTestSdkPackageVersion>
     <MonoCecilPackageVersion>0.10.0-beta6</MonoCecilPackageVersion>
     <MoqPackageVersion>4.7.99</MoqPackageVersion>
     <!-- This one is OK for console tools that bundle their own version of JSON.NET -->
     <NewtonsoftJsonPackageVersion>10.0.1</NewtonsoftJsonPackageVersion>
-    <NuGetPackagingPackageVersion>4.3.0</NuGetPackagingPackageVersion>
-    <NuGetProjectModelPackageVersion>4.3.0</NuGetProjectModelPackageVersion>
+    <NuGetPackagingPackageVersion>4.7.0-rtm.5148</NuGetPackagingPackageVersion>
+    <NuGetProjectModelPackageVersion>4.7.0-rtm.5148</NuGetProjectModelPackageVersion>
     <VSWherePackageVersion>2.2.7</VSWherePackageVersion>
     <XunitPackageVersion>2.3.1</XunitPackageVersion>
     <XunitRunnerVisualStudioPackageVersion>2.3.1</XunitRunnerVisualStudioPackageVersion>

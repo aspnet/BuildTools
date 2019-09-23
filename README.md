@@ -14,10 +14,12 @@ See [docs/README.md](./docs/README.md).
 Channel        | Latest Build
 ---------------|:---------------
 master         | ![badge][master-badge]
+release/2.2    | ![badge][rel-2.2-badge]
 release/2.1    | ![badge][rel-2.1-badge]
 release/2.0    | ![badge][rel-2.0-badge]
 
 [master-badge]: https://aspnetcore.blob.core.windows.net/buildtools/korebuild/channels/master/badge.svg
+[rel-2.2-badge]: https://aspnetcore.blob.core.windows.net/buildtools/korebuild/channels/release/2.2/badge.svg
 [rel-2.1-badge]: https://aspnetcore.blob.core.windows.net/buildtools/korebuild/channels/release/2.1/badge.svg
 [rel-2.0-badge]: https://aspnetcore.blob.core.windows.net/buildtools/korebuild/channels/release/2.0/badge.svg
 

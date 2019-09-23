@@ -51,7 +51,6 @@ namespace Microsoft.AspNetCore.BuildTools
             SourceLinkRoot += '*';
 
             var codeSource = ConvertUrl();
-
             var mappings = new List<Mapping>
             {
                 new Mapping { LocalPath = SourceLinkRoot, Url = codeSource },

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Internal.AspNetCore.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
@@ -14,10 +14,9 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonPackageVersion)" />
-    <PackageReference Include="Internal.AspNetCore.Sdk" PrivateAssets="All" Version="$(InternalAspNetCoreSdkPackageVersion)" />
 
     <SignedPackageFile Include="$(PublishDir)Newtonsoft.Json.dll" Certificate="Test3rdPartyCert">
-      <PackagePath>tools/$(TargetFramework)/any/Newtonsoft.Json.dll</PackagePath>
+      <PackagePath>tools/$(TargetFramework)/any/</PackagePath>
     </SignedPackageFile>
   </ItemGroup>
 

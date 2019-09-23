@@ -89,7 +89,6 @@ function Invoke-RepositoryBuild(
         $koreBuildVersion = Get-KoreBuildVersion
 
         $msBuildArguments = @"
-/nologo
 /m
 /nodeReuse:false
 /verbosity:minimal
@@ -253,7 +252,12 @@ function Ensure-Dotnet() {
 
 function Get-DotnetMajorVersion() {
     if (Get-Variable "dotnet" -Scope Global -ErrorAction SilentlyContinue) {
-        $infoOutput = dotnet --version
+        $infoOutput = & $global:dotnet --version
+
+        if (-not $infoOutput) {
+            Write-Verbose 'Could not determine the version of dotnet from `dotnet --version`'
+            return 0
+        }
 
         $version = $infoOutput.SubString(0, $infoOutput.IndexOf('.'))
         $versionInt = [convert]::ToInt32($version, 10)
@@ -386,7 +390,16 @@ function Invoke-KoreBuildCommand(
     $sdkVersion = __get_dotnet_sdk_version
     $korebuildVersion = Get-KoreBuildVersion
     if ($sdkVersion -ne 'latest') {
-        "{ `"sdk`": { `n`"version`": `"$sdkVersion`" }`n }" | Out-File (Join-Path $global:KoreBuildSettings.RepoPath 'global.json') -Encoding ascii
+        @"
+{
+    `"sdk`": {
+        `"version`": `"$sdkVersion`"
+    },
+    `"msbuild-sdks`": {
+        `"Internal.AspNetCore.Sdk`": `"$korebuildVersion`"
+    }
+}
+"@ | Out-File (Join-Path $global:KoreBuildSettings.RepoPath 'global.json') -Encoding ascii
     }
     else {
         Write-Verbose "Skipping global.json generation because the `$sdkVersion = $sdkVersion"

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0"?>
+<?xml version="1.0"?>
 <package>
   <metadata>
     <id>$id$</id>
@@ -12,7 +12,7 @@
   <files>
     <file src="build\**" target="build\" />
     <file src="$publishDir$\net46\**" target="tools\net46\" />
-    <file src="$publishDir$\netcoreapp2.1\**" target="tools\netcoreapp2.1\" />
+    <file src="$publishDir$\netcoreapp2.2\**" target="tools\netcoreapp2.2\" />
     <file src="$taskBuildDir$\netstandard2.0\*.dll" target="tools\netstandard2.0\" />
   </files>
 </package>

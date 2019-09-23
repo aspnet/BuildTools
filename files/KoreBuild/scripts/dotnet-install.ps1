@@ -192,7 +192,6 @@ function GetHTTPResponse([Uri] $Uri)
 {
     Invoke-With-Retry(
     {
-
         $HttpClient = $null
 
         try {
@@ -248,7 +247,6 @@ function GetHTTPResponse([Uri] $Uri)
     })
 }
 
-
 function Get-Latest-Version-Info([string]$AzureFeed, [string]$Channel, [bool]$Coherent) {
     Say-Invocation $MyInvocation
 
@@ -285,7 +283,6 @@ function Get-Latest-Version-Info([string]$AzureFeed, [string]$Channel, [bool]$Co
 
     return $VersionInfo
 }
-
 
 function Get-Specific-Version-From-Version([string]$AzureFeed, [string]$Channel, [string]$Version) {
     Say-Invocation $MyInvocation
@@ -544,46 +541,72 @@ if ($isAssetInstalled) {
 }
 
 New-Item -ItemType Directory -Force -Path $InstallRoot | Out-Null
+$lockFile = Join-Path $InstallRoot "dotnetinstall.lock"
 
-$installDrive = $((Get-Item $InstallRoot).PSDrive.Name);
-$free = Get-CimInstance -Class win32_logicaldisk | where Deviceid -eq "${installDrive}:"
-if ($free.Freespace / 1MB -le 100 ) {
-    Say "There is not enough disk space on drive ${installDrive}:"
-    exit 0
+$waitTime = 0
+$success = $false
+$maxWait = 120
+while (($waitTime -lt $maxWait) -and ($success -eq $false)) {
+    try{
+        New-Item -ItemType file $lockFile -ErrorAction Stop | Out-Null
+        $success = $true
+    }
+    catch{
+        Say "Another installation of .NET Core is in process. Waiting for that installation to complete..."
+        Start-Sleep -Seconds 10
+        $waitTime += 10
+    }
 }
 
-$ZipPath = [System.IO.Path]::combine([System.IO.Path]::GetTempPath(), [System.IO.Path]::GetRandomFileName())
-Say-Verbose "Zip path: $ZipPath"
-Say "Downloading link: $DownloadLink"
-try {
-    DownloadFile -Uri $DownloadLink -OutPath $ZipPath
+if($waitTime -ge $maxWait)
+{
+    throw "Timed out waiting for $lockFile to be removed."
 }
-catch {
-    Say "Cannot download: $DownloadLink"
-    if ($LegacyDownloadLink) {
-        $DownloadLink = $LegacyDownloadLink
-        $ZipPath = [System.IO.Path]::combine([System.IO.Path]::GetTempPath(), [System.IO.Path]::GetRandomFileName())
-        Say-Verbose "Legacy zip path: $ZipPath"
-        Say "Downloading legacy link: $DownloadLink"
+
+try{
+    $installDrive = $((Get-Item $InstallRoot).PSDrive.Name);
+    $free = Get-CimInstance -Class win32_logicaldisk | where Deviceid -eq "${installDrive}:"
+    if ($free.Freespace / 1MB -le 100 ) {
+        Say "There is not enough disk space on drive ${installDrive}:"
+        exit 0
+    }
+
+    $ZipPath = [System.IO.Path]::combine([System.IO.Path]::GetTempPath(), [System.IO.Path]::GetRandomFileName())
+    Say-Verbose "Zip path: $ZipPath"
+    Say "Downloading link: $DownloadLink"
+    try {
         DownloadFile -Uri $DownloadLink -OutPath $ZipPath
     }
-    else {
-        throw "Could not download $assetName version $SpecificVersion"
+    catch {
+        Say "Cannot download: $DownloadLink"
+        if ($LegacyDownloadLink) {
+            $DownloadLink = $LegacyDownloadLink
+            $ZipPath = [System.IO.Path]::combine([System.IO.Path]::GetTempPath(), [System.IO.Path]::GetRandomFileName())
+            Say-Verbose "Legacy zip path: $ZipPath"
+            Say "Downloading legacy link: $DownloadLink"
+            DownloadFile -Uri $DownloadLink -OutPath $ZipPath
+        }
+        else {
+            throw "Could not download $assetName version $SpecificVersion"
+        }
     }
+
+    Say "Extracting zip from $DownloadLink"
+    Extract-Dotnet-Package -ZipPath $ZipPath -OutPath $InstallRoot
+
+    #  Check if the SDK version is now installed; if not, fail the installation.
+    $isAssetInstalled = Is-Dotnet-Package-Installed -InstallRoot $InstallRoot -RelativePathToPackage $dotnetPackageRelativePath -SpecificVersion $SpecificVersion
+    if (!$isAssetInstalled) {
+        throw "$assetName version $SpecificVersion failed to install with an unknown error."
+    }
+
+    Remove-Item $ZipPath
+
+    Prepend-Sdk-InstallRoot-To-Path -InstallRoot $InstallRoot -BinFolderRelativePath $BinFolderRelativePath
+
+    Say "Installation finished"
+    exit 0
 }
-
-Say "Extracting zip from $DownloadLink"
-Extract-Dotnet-Package -ZipPath $ZipPath -OutPath $InstallRoot
-
-#  Check if the SDK version is now installed; if not, fail the installation.
-$isAssetInstalled = Is-Dotnet-Package-Installed -InstallRoot $InstallRoot -RelativePathToPackage $dotnetPackageRelativePath -SpecificVersion $SpecificVersion
-if (!$isAssetInstalled) {
-    throw "$assetName version $SpecificVersion failed to install with an unknown error."
+finally{
+    Remove-Item -Path $lockFile
 }
-
-Remove-Item $ZipPath
-
-Prepend-Sdk-InstallRoot-To-Path -InstallRoot $InstallRoot -BinFolderRelativePath $BinFolderRelativePath
-
-Say "Installation finished"
-exit 0

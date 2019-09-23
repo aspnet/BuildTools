@@ -1,4 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project>
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.props" />
 
   <PropertyGroup>
     <PackageId>Internal.AspNetCore.Sdk</PackageId>
@@ -37,7 +38,24 @@
     </MSBuild>
 
     <PropertyGroup>
+      <BundledVersionsPropsContent>
+<![CDATA[
+<Project>
+  <PropertyGroup>
+    <MicrosoftAspNetCoreBuildToolsApiCheckPackageVersion>$(ApiCheckPackageVersion)</MicrosoftAspNetCoreBuildToolsApiCheckPackageVersion>
+    <MicrosoftBuildPackageVersion>$(MicrosoftBuildPackageVersion)</MicrosoftBuildPackageVersion>
+    <JsonInMSBuildVersion>$(JsonInMSBuildVersion)</JsonInMSBuildVersion>
+  </PropertyGroup>
+</Project>
+]]>
+      </BundledVersionsPropsContent>
+    </PropertyGroup>
+
+    <WriteLinesToFile Lines="$(BundledVersionsPropsContent)" Overwrite="true" File="$(IntermediateOutputPath)BundledVersions.props" />
+
+    <PropertyGroup>
       <NuspecProperties>$(NuspecProperties);id=$(PackageId)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);bundledVersionFile=$(IntermediateOutputPath)BundledVersions.props</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);apicheckVersion=$(ApiCheckPackageVersion)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);config=$(Configuration)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);version=$(PackageVersion)</NuspecProperties>
@@ -46,4 +64,5 @@
     </PropertyGroup>
   </Target>
 
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), version.props))\build\sdk.targets" />
 </Project>

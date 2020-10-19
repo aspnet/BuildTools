@@ -1,6 +1,7 @@
 #requires -version 4
 
 Set-StrictMode -Version 2
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 Import-Module -Force -Scope Local "$PSScriptRoot/common.psm1"
 

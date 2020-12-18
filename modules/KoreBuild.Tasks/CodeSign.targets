@@ -40,8 +40,9 @@
       <_FileSignInfo Include="%(FilesToSign.FileName)%(FilesToSign.Extension)" CertificateName="%(FilesToSign.Certificate)" />
       <_FileSignInfo Include="%(FilesToExcludeFromSigning.FileName)%(FilesToExcludeFromSigning.Extension)" CertificateName="None" />
 
-      <!-- Allow repos to set custom FileSignInfo -->
+      <!-- Allow repos to set custom FileSignInfo, FileExtensionSignInfo -->
       <_FileSignInfo Include="@(CustomFileSignInfo)" />
+      <_FileExtensionSignInfo Include="@(CustomFileExtensionSignInfo)" />
 
       <!--
         Only pass in top-level items. FilesToSign contains items which will be nested in a .nupkg or .vsix.
@@ -56,6 +57,7 @@
       TestSign="$(SignToolTestSign)"
       ItemsToSign="@(_ItemsToSign)"
       FileSignInfo="@(_FileSignInfo)"
+      FileExtensionSignInfo="@(_FileExtensionSignInfo)"
       TempDir="$(IntermediateDir)"
       LogDir="$(LogOutputDir)"
       MSBuildPath="$(MSBuildx86Path)"

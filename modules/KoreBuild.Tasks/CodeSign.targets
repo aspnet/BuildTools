@@ -40,6 +40,9 @@
       <_FileSignInfo Include="%(FilesToSign.FileName)%(FilesToSign.Extension)" CertificateName="%(FilesToSign.Certificate)" />
       <_FileSignInfo Include="%(FilesToExcludeFromSigning.FileName)%(FilesToExcludeFromSigning.Extension)" CertificateName="None" />
 
+      <!-- Allow repos to set custom FileSignInfo -->
+      <_FileSignInfo Include="@(CustomFileSignInfo)" />
+
       <!--
         Only pass in top-level items. FilesToSign contains items which will be nested in a .nupkg or .vsix.
         If this list isn't filtered, SignTool task will overwrite files in the obj/ folders of projects which breaks

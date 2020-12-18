@@ -57,7 +57,7 @@
       TestSign="$(SignToolTestSign)"
       ItemsToSign="@(_ItemsToSign)"
       FileSignInfo="@(_FileSignInfo)"
-      FileExtensionSignInfo="@(__FileExtensionSignInfo)"
+      FileExtensionSignInfo="@(_FileExtensionSignInfo)"
       TempDir="$(IntermediateDir)"
       LogDir="$(LogOutputDir)"
       MSBuildPath="$(MSBuildx86Path)"

@@ -17,7 +17,7 @@
     - 2-part version in a format A.B - represents a specific release
           examples: 2.0; 1.0
     - Branch name
-          examples: release/2.0.0; Master
+          examples: release/2.0.0; main
 .PARAMETER Version
     Default: latest
     Represents a build version on specific channel. Possible values:

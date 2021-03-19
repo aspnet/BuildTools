@@ -19,7 +19,7 @@
   </PropertyGroup>
 
   <!--
-    Attempt to keep these mostly aligned with https://github.com/dotnet/toolset/blob/master/env/Versions.props
+    Attempt to keep these mostly aligned with https://github.com/dotnet/toolset/blob/master/eng/Versions.props
     and with the version of MSBuild used by KoreBuild.
     MSBuild will prefer the assemblies that ship in the .NET Core SDK and MSbuild. The dependency versions here don't matter
     as long as the version we compile for is binary compatible with what the .NET Core SDK uses.

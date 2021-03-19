@@ -928,7 +928,7 @@ do
             echo "          - 2-part version in a format A.B - represents a specific release"
             echo "              examples: 2.0; 1.0"
             echo "          - Branch name"
-            echo "              examples: release/2.0.0; Master"
+            echo "              examples: release/2.0.0; main"
             echo "  -v,--version <VERSION>         Use specific VERSION, Defaults to \`$version\`."
             echo "      -Version"
             echo "          Possible values:"

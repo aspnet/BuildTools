@@ -137,4 +137,4 @@ For example,
 content/*.js;Microsoft.DotNet.Web.Spa.ProjectTemplates.*.nupkg; Exclude JavaScript files from codesigning in project templates
 ```
 
-See https://github.com/dotnet/arcade/tree/master/src/SignCheck for more details on SignCheck.
+See https://github.com/dotnet/arcade/tree/main/src/SignCheck for more details on SignCheck.

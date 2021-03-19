@@ -61,7 +61,7 @@
       Specifies a required .NET Core SDK.
 
       Examples:
-        <DotNetCoreSdk Include="coherent" Channel="master" InstallDir="$(RepoRoot)\.siteextension\" />
+        <DotNetCoreSdk Include="coherent" Channel="main" InstallDir="$(RepoRoot)\.siteextension\" />
     -->
     <DotNetCoreSdk>
       <Arch>$(DefaultDotNetAssetArch)</Arch>

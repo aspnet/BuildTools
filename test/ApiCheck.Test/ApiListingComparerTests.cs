@@ -181,7 +181,8 @@ namespace ApiCheck.Test
             // Assert
             var breakingChanginesInType = breakingChanges
                 .Where(change => string.Equals(change.TypeId, typeToCheck, StringComparison.Ordinal))
-                .OrderBy(change => change.MemberId);
+                .OrderBy(change => change.MemberId)
+                .ToList();
             Assert.Equal(expected, breakingChanginesInType);
         }
 

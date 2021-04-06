@@ -32,6 +32,12 @@
   </ItemGroup>
 
   <Target Name="ResolveRepositoryCommit" Condition="'$(RepositoryCommit)'==''" BeforeTargets="Prepare">
+    <PropertyGroup>
+      <RepositoryCommit Condition="'$(APPVEYOR_REPO_COMMIT)' != ''">$(APPVEYOR_REPO_COMMIT)</RepositoryCommit>
+      <RepositoryCommit Condition="'$(BUILD_SOURCEVERSION)' != ''">$(BUILD_SOURCEVERSION)</RepositoryCommit>
+      <RepositoryCommit Condition="'$(TRAVIS_COMMIT)' != ''">$(TRAVIS_COMMIT)</RepositoryCommit>
+      <RepositoryCommit Condition="'$(CommitHash)' != ''">$(CommitHash)</RepositoryCommit>
+    </PropertyGroup>
 
     <GetGitCommitInfo WorkingDirectory="$(RepositoryRoot)"
                       Condition="'$(RepositoryCommit)' == ''">

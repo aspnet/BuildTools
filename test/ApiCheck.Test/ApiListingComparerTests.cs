@@ -174,6 +174,10 @@ namespace ApiCheck.Test
                     "public System.Int32 FieldToRemove",
                     ChangeKind.Removal),
             };
+            
+            expected = expected
+                .OrderBy(change => change.MemberId)
+                .ToList();
 
             // Act
             var breakingChanges = comparer.GetDifferences();

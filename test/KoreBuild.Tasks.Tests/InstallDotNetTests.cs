@@ -30,7 +30,7 @@ namespace KoreBuild.Tasks.Tests
                 Directory.Delete(path, recursive: true);
             }
 
-            var request = new TaskItem("1.0.5", new Hashtable
+            var request = new TaskItem("2.1.26", new Hashtable
             {
                 ["Runtime"] = "dotnet",
                 ["InstallDir"] = path
@@ -47,7 +47,7 @@ namespace KoreBuild.Tasks.Tests
                 InstallScript = script,
             };
 
-            var expected = Path.Combine(path, "shared", "Microsoft.NETCore.App", "1.0.5", ".version");
+            var expected = Path.Combine(path, "shared", "Microsoft.NETCore.App", "2.1.26", ".version");
             Assert.False(File.Exists(expected), "Test folder should have been deleted");
 
             Assert.True(task.Execute(), "Task should pass");

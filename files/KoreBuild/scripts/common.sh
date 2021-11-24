@@ -51,9 +51,10 @@ __exec() {
 __ensure_macos_version() {
     # Check that OS is 10.12 or newer
     local macos_version="$(sw_vers | grep ProductVersion | awk '{print $2}')"
+    local major_version="$(echo "$macos_version" | awk -F '.' '{print $1}')"
     local minor_version="$(echo "$macos_version" | awk -F '.' '{print $2}')"
     __verbose "Detected macOS version $macos_version"
-    if [ "$minor_version" -lt 12 ]; then
+    if [ "$major_version" -lt 11 && "$minor_version" -lt 12 ]; then
         __error ".NET Core 2.0 requires macOS 10.12 or newer. Current version is $macos_version."
         return 1
     fi

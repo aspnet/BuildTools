@@ -26,6 +26,7 @@
     <PackageReference Include="vswhere" Version="$(VSWherePackageVersion)" PrivateAssets="All" />
     <PackageReference Include="Microsoft.DotNet.SignTool" Version="$(MicrosoftDotNetSignToolPackageVersion)" ExcludeAssets="All" PrivateAssets="All" />
     <PackageReference Include="Microsoft.DotNet.SignCheck" Version="$(MicrosoftDotNetSignCheckPackageVersion)" ExcludeAssets="All" PrivateAssets="All" />
+    <PackageReference Include="System.Net.Http" Version="$(SystemNetHttpPackageVersion)" ExcludeAssets="All" PrivateAssets="All" />
   </ItemGroup>
 
   <Target Name="PublishGeneratedProps" BeforeTargets="Publish">

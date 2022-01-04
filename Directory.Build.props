@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="$(MicrosoftNETFrameworkReferenceAssembliesPackageVersion)" PrivateAssets="All" />
+    <PackageReference Include="System.Net.Http" Version="$(SystemNetHttpPackageVersion)" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>

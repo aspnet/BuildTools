@@ -36,6 +36,7 @@
       <RepositoryCommit Condition="'$(APPVEYOR_REPO_COMMIT)' != ''">$(APPVEYOR_REPO_COMMIT)</RepositoryCommit>
       <RepositoryCommit Condition="'$(BUILD_SOURCEVERSION)' != ''">$(BUILD_SOURCEVERSION)</RepositoryCommit>
       <RepositoryCommit Condition="'$(TRAVIS_COMMIT)' != ''">$(TRAVIS_COMMIT)</RepositoryCommit>
+      <!-- Read from CommitHash but note CommitHash is no longer _set_ or otherwise used in this repo. -->
       <RepositoryCommit Condition="'$(CommitHash)' != ''">$(CommitHash)</RepositoryCommit>
     </PropertyGroup>
 

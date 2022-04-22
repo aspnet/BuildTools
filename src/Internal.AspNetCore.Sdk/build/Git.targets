@@ -1,7 +1,6 @@
 ﻿<Project>
 
   <PropertyGroup>
-    <CommitHash Condition="'$(RepositoryCommit)' == ''">$(RepositoryCommit)</CommitHash>
     <GenerateCommitHashAttribute Condition="'$(GenerateCommitHashAttribute)'==''">true</GenerateCommitHashAttribute>
     <GeneratedCommitHashAttributeFile Condition="'$(GeneratedCommitHashAttributeFile)'==''">$(IntermediateOutputPath)$(AssemblyName).CommitHash$(DefaultLanguageSourceExtension)</GeneratedCommitHashAttributeFile>
     <SourceLinkDestination Condition="'$(SourceLinkDestination)' == ''">$(IntermediateOutputPath)sourcelink.json</SourceLinkDestination>
@@ -39,6 +38,7 @@
       <RepositoryCommit Condition="'$(APPVEYOR_REPO_COMMIT)' != ''">$(APPVEYOR_REPO_COMMIT)</RepositoryCommit>
       <RepositoryCommit Condition="'$(BUILD_SOURCEVERSION)' != ''">$(BUILD_SOURCEVERSION)</RepositoryCommit>
       <RepositoryCommit Condition="'$(TRAVIS_COMMIT)' != ''">$(TRAVIS_COMMIT)</RepositoryCommit>
+      <!-- Read from CommitHash but note CommitHash is no longer _set_ or otherwise used in this repo. -->
       <RepositoryCommit Condition="'$(CommitHash)' != ''">$(CommitHash)</RepositoryCommit>
     </PropertyGroup>
 
@@ -47,11 +47,6 @@
                       ContinueOnError="WarnAndContinue">
       <Output TaskParameter="CommitHash" PropertyName="RepositoryCommit" />
     </Sdk_GetGitCommitHash>
-
-    <PropertyGroup>
-      <!-- Set both CommitHash and RepositoryCommit. CommitHash was the property we started using at first. RepositoryCommit was introduced when NuGet started adding this to nuspec. -->
-      <CommitHash>$(RepositoryCommit)</CommitHash>
-    </PropertyGroup>
   </Target>
 
   <Target Name="CreateSourceLink"

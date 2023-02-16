@@ -41,10 +41,10 @@ Example:
 
 {
   // add this for editor auto-completion :)
-  "$schema": "https://raw.githubusercontent.com/aspnet/BuildTools/dev/tools/korebuild.schema.json",
+  "$schema": "https://raw.githubusercontent.com/aspnet/BuildTools/main/tools/korebuild.schema.json",
 
   // specifies the channel used to update KoreBuild to new versions when you attempt to upgrade KoreBuild
-  "channel": "dev",
+  "channel": "main",
 
   "toolsets": {
       // All toolsets listed in this section are treated as required toolsets

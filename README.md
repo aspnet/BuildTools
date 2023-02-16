@@ -1,5 +1,4 @@
-Build Tools
-===========
+# Build Tools
 
 Utilities used in the build system for projects that are used with ASP.NET Core and Entity Framework Core.
 
@@ -13,19 +12,17 @@ See [docs/README.md](./docs/README.md).
 
 Channel        | Latest Build
 ---------------|:---------------
-master         | ![badge][master-badge]
+main           | ![badge][main-badge]
 release/2.1    | ![badge][rel-2.1-badge]
-release/2.0    | ![badge][rel-2.0-badge]
 
-[master-badge]: https://aspnetcore.blob.core.windows.net/buildtools/korebuild/channels/master/badge.svg
+[main-badge]: https://aspnetcore.blob.core.windows.net/buildtools/korebuild/channels/main/badge.svg
 [rel-2.1-badge]: https://aspnetcore.blob.core.windows.net/buildtools/korebuild/channels/release/2.1/badge.svg
-[rel-2.0-badge]: https://aspnetcore.blob.core.windows.net/buildtools/korebuild/channels/release/2.0/badge.svg
 
 This tool contains build scripts, console tools, MSBuild targets, and other settings required to build ASP.NET Core.
 
-
 ## Local testing
-To test changes to this project locally we recomend you do:
+
+To test changes to this project locally we recommend you do:
 
 ```ps1
 ./test.ps1 -Command $CommandToTest -RepoPath C:\repo\to\test\against\

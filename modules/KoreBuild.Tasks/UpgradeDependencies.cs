@@ -30,7 +30,7 @@ namespace KoreBuild.Tasks
         private CancellationTokenSource _cts = new CancellationTokenSource();
 
         /// <summary>
-        /// The lineup package ID of the nupkg that contains the master dependencies.props files that will be used to upgrade versions
+        /// The lineup package ID of the nupkg that contains the main dependencies.props files that will be used to upgrade versions
         /// </summary>
         [Required]
         public string LineupPackageId { get; set; }

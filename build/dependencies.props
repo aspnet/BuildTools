@@ -10,9 +10,9 @@
     <MonoCecilPackageVersion>0.10.0-beta6</MonoCecilPackageVersion>
     <MoqPackageVersion>4.7.99</MoqPackageVersion>
     <!-- This one is OK for console tools that bundle their own version of JSON.NET -->
-    <NewtonsoftJsonPackageVersion>12.0.1</NewtonsoftJsonPackageVersion>
-    <NuGetPackagingPackageVersion>4.7.0-rtm.5148</NuGetPackagingPackageVersion>
-    <NuGetProjectModelPackageVersion>4.7.0-rtm.5148</NuGetProjectModelPackageVersion>
+    <NewtonsoftJsonPackageVersion>13.0.1</NewtonsoftJsonPackageVersion>
+    <NuGetPackagingPackageVersion>6.0.2</NuGetPackagingPackageVersion>
+    <NuGetProjectModelPackageVersion>6.0.2</NuGetProjectModelPackageVersion>
     <SystemNetHttpPackageVersion>4.3.4</SystemNetHttpPackageVersion>
     <VSWherePackageVersion>2.2.7</VSWherePackageVersion>
     <XunitPackageVersion>2.4.1</XunitPackageVersion>

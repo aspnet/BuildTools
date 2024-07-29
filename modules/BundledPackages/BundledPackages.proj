@@ -33,6 +33,9 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+    <RestoreSources>
+      $(MSBuildThisFileDirectory);
+    </RestoreSources>
   </PropertyGroup>
 
   <ItemGroup>

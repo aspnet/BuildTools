@@ -13,7 +13,7 @@ namespace KoreBuild.Console.Commands
 {
     internal class CommandContext
     {
-        private const string _defaultToolsSource = "https://aspnetcore.blob.core.windows.net/buildtools";
+        private const string _defaultToolsSource = "https://dotnetbuilds.blob.core.windows.net/buildtools";
         private const string _dotnetFolderName = ".dotnet";
 
         private CommandOption _repoPathOption;

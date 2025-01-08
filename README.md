@@ -15,8 +15,8 @@ Channel        | Latest Build
 main           | ![badge][main-badge]
 release/2.1    | ![badge][rel-2.1-badge]
 
-[main-badge]: https://aspnetcore.blob.core.windows.net/buildtools/korebuild/channels/main/badge.svg
-[rel-2.1-badge]: https://aspnetcore.blob.core.windows.net/buildtools/korebuild/channels/release/2.1/badge.svg
+[main-badge]: https://dotnetbuilds.blob.core.windows.net/buildtools/korebuild/channels/main/badge.svg
+[rel-2.1-badge]: https://dotnetbuilds.blob.core.windows.net/buildtools/korebuild/channels/release/2.1/badge.svg
 
 This tool contains build scripts, console tools, MSBuild targets, and other settings required to build ASP.NET Core.
 

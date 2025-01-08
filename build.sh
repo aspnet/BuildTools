@@ -24,7 +24,7 @@ __usage() {
 
 [ -z "${DOTNET_HOME:-}" ] && DOTNET_HOME="$HOME/.dotnet"
 config_file="$DIR/korebuild.json"
-tools_source='https://aspnetcore.blob.core.windows.net/buildtools'
+tools_source='https://dotnetbuilds.blob.core.windows.net/buildtools'
 verbose=false
 ci=false
 while [[ $# -gt 0 ]]; do

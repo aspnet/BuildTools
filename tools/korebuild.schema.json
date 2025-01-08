@@ -104,7 +104,7 @@
     "toolsSource": {
       "description": "The remote source used to download KoreBuild. Can be a file path.",
       "type": "string",
-      "default": "https://aspnetcore.blob.core.windows.net/buildtools"
+      "default": "https://dotnetbuilds.blob.core.windows.net/buildtools"
     },
     "channel": {
       "description": "The channel of KoreBuild used to select a version when korebuild-lock.txt is not present.",

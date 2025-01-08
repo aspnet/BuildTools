@@ -54,7 +54,7 @@ Example config file:
 {
   "$schema": "https://raw.githubusercontent.com/aspnet/BuildTools/main/tools/korebuild.schema.json",
   "channel": "main",
-  "toolsSource": "https://aspnetcore.blob.core.windows.net/buildtools"
+  "toolsSource": "https://dotnetbuilds.blob.core.windows.net/buildtools"
 }
 ```
 #>
@@ -194,7 +194,7 @@ if (!$DotNetHome) {
 }
 
 if (!$Channel) { $Channel = 'main' }
-if (!$ToolsSource) { $ToolsSource = 'https://aspnetcore.blob.core.windows.net/buildtools' }
+if (!$ToolsSource) { $ToolsSource = 'https://dotnetbuilds.blob.core.windows.net/buildtools' }
 
 # Execute
 

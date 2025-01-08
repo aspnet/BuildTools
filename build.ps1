@@ -26,7 +26,7 @@ param(
     [switch]$CI,
     [switch]$SkipTests,
     [string]$DotNetHome = $null,
-    [string]$ToolsSource = 'https://aspnetcore.blob.core.windows.net/buildtools',
+    [string]$ToolsSource = 'https://dotnetbuilds.blob.core.windows.net/buildtools',
     [string]$PackageVersionPropsUrl = $null,
     [string]$AccessTokenSuffix = $null,
     [string]$RestoreSources = $null,

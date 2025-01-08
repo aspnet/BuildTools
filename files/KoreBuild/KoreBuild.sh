@@ -5,7 +5,7 @@ __korebuild_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "$__korebuild_dir/scripts/common.sh"
 
 # functions
-default_tools_source='https://aspnetcore.blob.core.windows.net/buildtools'
+default_tools_source='https://dotnetbuilds.blob.core.windows.net/buildtools'
 
 set_korebuildsettings() {
     tools_source=$1

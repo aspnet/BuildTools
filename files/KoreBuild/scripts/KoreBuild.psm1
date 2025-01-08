@@ -302,7 +302,7 @@ function Set-KoreBuildSettings(
             else { Join-Path $RepoPath '.dotnet'}
     }
 
-    if (!$ToolsSource) { $ToolsSource = 'https://aspnetcore.blob.core.windows.net/buildtools' }
+    if (!$ToolsSource) { $ToolsSource = 'https://dotnetbuilds.blob.core.windows.net/buildtools' }
 
     if ($CI) {
         $env:CI = 'true'

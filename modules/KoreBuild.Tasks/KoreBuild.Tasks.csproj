@@ -26,6 +26,9 @@
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="$(MicrosoftBuildUtilitiesCorePackageVersion)" PrivateAssets="All" />
     <PackageReference Include="NuGet.Build.Tasks" Version="$(Tooling_NuGetBuildTasksPackageVersion)" PrivateAssets="All" />
     <PackageReference Include="Newtonsoft.Json" Version="$(Tooling_NewtonsoftJsonPackageVersion)" />
+    <PackageReference Include="NuGet.Packaging" Version="$(NugetPackaging)" />
+    <PackageReference Include="NuGet.Protocol" Version="$(NugetProtocol)" />
+    <PackageReference Include="NuGet.Commands" Version="$(NugetCommands)" />
     <PackageReference Include="vswhere" Version="$(VSWherePackageVersion)" PrivateAssets="All" />
     <PackageReference Include="Microsoft.DotNet.SignTool" Version="$(MicrosoftDotNetSignToolPackageVersion)" ExcludeAssets="All" PrivateAssets="All" />
     <PackageReference Include="Microsoft.DotNet.SignCheck" Version="$(MicrosoftDotNetSignCheckPackageVersion)" ExcludeAssets="All" PrivateAssets="All" />

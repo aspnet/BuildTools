@@ -33,6 +33,7 @@
     <Tooling_NuGetBuildTasksPackageVersion>4.7.0-netcore.2.1.preview2.5133</Tooling_NuGetBuildTasksPackageVersion>
     <NugetPackaging>5.11.6</NugetPackaging>
     <NugetProtocol>4.9.6</NugetProtocol>
+    <NugetCommands>4.9.6</NugetCommands>
   </PropertyGroup>
 
   <!-- These are set to flow into RepoTasks.csproj -->

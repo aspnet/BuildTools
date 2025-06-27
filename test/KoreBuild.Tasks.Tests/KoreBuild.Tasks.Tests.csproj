@@ -20,6 +20,7 @@
     <PackageReference Include="NuGet.Build.Tasks" Version="$(Tooling_NuGetBuildTasksPackageVersion)" />
     <PackageReference Include="NuGet.Packaging" Version="$(NugetPackaging)" />
     <PackageReference Include="NuGet.Protocol" Version="$(NugetProtocol)" />
+    <PackageReference Include="NuGet.Commands" Version="$(NugetCommands)" />
     <PackageReference Include="vswhere" Version="$(VsWherePackageVersion)" />
     <PackageReference Include="xunit" Version="$(XunitPackageVersion)" />
     <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitRunnerVisualStudioPackageVersion)" />
